@@ -1,0 +1,44 @@
+.airlinesSection{
+  padding:80px 0;
+}
+
+.container{
+  max-width:1200px;
+  margin:0 auto;
+}
+
+.title{
+  font-size:28px;
+  font-weight:700;
+  margin-bottom:40px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:30px;
+}
+
+.card{
+  background:white;
+  border-radius:12px;
+  padding:20px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  box-shadow:0 6px 18px rgba(0,0,0,0.08);
+
+  transition:0.25s;
+}
+
+.card:hover{
+  transform:translateY(-5px);
+  box-shadow:0 12px 30px rgba(0,0,0,0.15);
+}
+
+.card img{
+  max-width:100%;
+  max-height:40px;
+}

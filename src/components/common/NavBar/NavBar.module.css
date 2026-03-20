@@ -1,6 +1,31 @@
+:root {
+  --primary-color: #0e81cd;
+  --secondary-color: #d1f0ff;
+
+  --text-primary: #252a42;
+  --text-white: #ffffff;
+
+  --navbar-color: #ffffff;
+
+  --bg-primary: #fbfbfb;
+  --bg-secondary: rgba(209, 240, 255, 0.3);
+
+  --footer-color: #05285d;
+}
+
 .navbar{
+  position: sticky;
+  top: 0;
+
+  width: 100%;
+
   background: var(--navbar-color);
+
+  z-index: 1000;
+
   border-bottom: 1px solid #eee;
+
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .container{
@@ -23,52 +48,10 @@
   gap:20px;
 }
 
-.auth{
+.rightSection{
   display:flex;
-  gap:10px;
-}
-
-.login{
-  padding:6px 14px;
-  border-radius:20px;
-  border:none;
-  background:#e8f4fb;
-  color:#252a42;
-  cursor:pointer;
-}
-
-.register{
-  padding:6px 14px;
-  border-radius:20px;
-  border:none;
-  background:var(--primary-color);
-  color:white;
-  cursor:pointer;
-}
-
-.navbar{
-  background: var(--navbar-color);
-  border-bottom: 1px solid #eee;
-}
-
-.container{
-  max-width:1200px;
-  margin:0 auto;
-  padding:15px 20px;
-
-  display:flex;
-  justify-content:space-between;
   align-items:center;
-}
-
-.logo{
-  font-weight:700;
-  font-size:20px;
-}
-
-.menu{
-  display:flex;
-  gap:20px;
+  gap:30px;
 }
 
 .auth{
@@ -80,9 +63,12 @@
   padding:6px 14px;
   border-radius:20px;
   border:none;
-  background:#e8f4fb;
-  color:#252a42;
+  background:var(--secondary-color);
+  color: var(--text-primary);
+  font-weight: bold;
+  font-family: 'Roboto', sans-serif;
   cursor:pointer;
+  
 }
 
 .register{
@@ -90,6 +76,44 @@
   border-radius:20px;
   border:none;
   background:var(--primary-color);
-  color:white;
+  color:var(--text-white);
+  font-weight: bold;
+  font-family: 'Roboto', sans-serif;
   cursor:pointer;
+}
+
+.menu span{
+  cursor:pointer;
+  font-weight:500;
+  color:var(--text-primary);
+  font-weight: bold;
+
+}
+
+.menu span:hover{
+  color:var(--primary-color);
+}
+
+
+.auth button:hover {
+  background: var(--primary-color);
+  color: white;
+
+  transform: translateY(-2px);
+}
+
+.auth button:active {
+  transform: scale(0.95);
+} 
+
+.login:hover {
+  background: var(--primary-color);
+  color: white;
+
+  transform: translateY(-2px);
+}
+
+.register:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
 }

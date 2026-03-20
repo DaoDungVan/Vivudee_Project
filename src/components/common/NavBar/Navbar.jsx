@@ -1,13 +1,15 @@
 import styles from "./NavBar.module.css"
 import logo from "../../../assets/images/LogoNav.svg"
+import { useNavigate } from "react-router-dom";
 
 function NavBar() {
+  const navigate = useNavigate();
   return (
     <nav className={styles.navbar}>
       <div className={styles.container}>
 
-        <div className={styles.logo}>
-          <img src={logo} alt="Vivudee Logo" />
+        <div className={styles.logo} >
+          <img src={logo} alt="Vivudee Logo" onClick={() => navigate("/")}/>
         </div>
 
         <div className={styles.rightSection}>
@@ -20,8 +22,8 @@ function NavBar() {
           </div>
 
           <div className={styles.auth}>
-            <button className={styles.login}>Login</button>
-            <button className={styles.register}>Register</button>
+            <button className={styles.login} onClick={() => navigate("/login")}>Login</button>
+            <button className={styles.register} onClick={() => navigate("/register")}>Register</button>
           </div>
 
         </div>

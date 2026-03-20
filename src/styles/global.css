@@ -25,6 +25,10 @@ body{
   color: var(--text-primary);
 }
 
+h3{
+  color:var(--text-primary);
+}
+
 .container{
   max-width:1200px;
   margin:0 auto;
@@ -32,6 +36,5 @@ body{
 }
 
 img{
-  max-width:100%;
   display:block;
 }

@@ -1,0 +1,224 @@
+.wrapper {
+  background: var(--bg-secondary);
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding-top: 100px;
+}
+
+/* NOTE: flex + align-items giúp căn giữa ngang */
+
+.title {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.card {
+  width: 420px;
+  background: white;
+
+  padding: 30px;
+  margin-top: 20px;
+
+  border-radius: 20px;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.cardTitle {
+  margin-bottom: 5px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.cardDesc {
+  font-size: 14px;
+  color: #777;
+  margin-bottom: 20px;
+}
+
+/* Social container */
+.social {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* Button */
+.socialBtn {
+  flex: 1;
+  padding: 10px;
+
+  border-radius: 30px;
+  border: 1px solid #ddd;
+  background: white;
+
+  cursor: pointer;
+  font-size: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  transition: all 0.2s ease;
+  /* NOTE: giúp animation mượt */
+}
+
+.socialBtn:hover {
+  background: #f5f7fb;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.socialBtn:active {
+  transform: scale(0.97);
+}
+
+.socialBtn span{
+  padding-top: 2px;
+}
+
+
+.fbIcon {
+  color: #1877f2; 
+  /* NOTE: màu Facebook chuẩn */
+}
+
+.socialBtn svg {
+  font-size: 18px;
+}
+
+/* NOTE:
+flex + gap giúp icon + text nằm đẹp */
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+
+  margin: 20px 0;
+}
+
+/* tạo line 2 bên */
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #ddd;
+}
+
+/* khoảng cách giữa line và text */
+.divider span {
+  padding: 0 10px;
+  font-size: 13px;
+  color: #777;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* input chung */
+.input {
+  width: 100%;
+  padding: 12px;
+
+  border-radius: 30px;
+  border: 1px solid #ddd;
+
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+/* password wrapper */
+.password {
+  position: relative;
+}
+
+/* icon mắt */
+.eye {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+
+  cursor: pointer;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+/* NOTE:
+label đứng trên input để rõ nghĩa field,
+giống form thực tế hơn placeholder-only */
+
+.forgot {
+  text-align: right;
+  font-size: 13px;
+  color: var(--primary-color);
+
+  margin-bottom: 15px;
+  cursor: pointer;
+}
+
+/* hover nhẹ */
+.forgot:hover {
+  text-decoration: underline;
+}
+
+
+.loginBtn {
+  width: 100%;
+  padding: 12px;
+
+  border-radius: 30px;
+  border: none;
+
+  background: var(--primary-color);
+  color: white;
+
+
+  
+  font-size: 15px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.loginBtn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.loginBtn:active {
+  transform: scale(0.98);
+}
+
+.registerText {
+  text-align: center;
+  font-size: 14px;
+  margin-top: 15px;
+  color: #555;
+}
+
+.registerLink {
+  color: var(--primary-color);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* hover */
+.registerLink:hover {
+  text-decoration: underline;
+}

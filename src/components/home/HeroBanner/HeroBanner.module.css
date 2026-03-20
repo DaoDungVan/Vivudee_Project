@@ -1,0 +1,42 @@
+:root {
+  --primary-color: #0e81cd;
+  --secondary-color: #d1f0ff;
+
+  --text-primary: #252a42;
+  --text-white: #ffffff;
+
+  --navbar-color: #ffffff;
+
+  --bg-primary: #fbfbfb;
+  --bg-secondary: rgba(209, 240, 255, 0.3);
+
+  --footer-color: #05285d;
+}
+
+.hero {
+  height: 500px;
+  background-size: cover;
+  background-position: center;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  position: relative;
+  object-fit: cover;
+}
+
+.title {
+  margin-bottom: 80px;
+  background-color: rgba(255, 255, 255, 0.15);
+
+  border-radius: 15px;
+  padding: 10px 20px;
+}
+
+.title h1 {
+  color: var(--text-primary);
+  font-size: 48px;
+  font-weight: bold;
+}

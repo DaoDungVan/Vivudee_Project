@@ -1,0 +1,138 @@
+.couponSection{
+  padding:80px 0;
+}
+
+.container{
+  max-width:1200px;
+  margin:0 auto;
+}
+
+.title{
+  font-size:28px;
+  font-weight:700;
+  margin-bottom:30px;
+}
+
+/* GRID SCROLL */
+
+.grid{
+  display:flex;
+  gap:20px;
+
+  overflow-x:auto;
+  padding-bottom:10px;
+
+  scroll-behavior:smooth;
+
+  cursor:grab;
+}
+
+.grid:active{
+  cursor:grabbing;
+}
+
+/* scrollbar */
+
+.grid::-webkit-scrollbar{
+  height:6px;
+}
+
+.grid::-webkit-scrollbar-thumb{
+  background:#ddd;
+  border-radius:10px;
+}
+
+/* CARD */
+
+.card{
+  min-width:320px;
+
+  background:white;
+  border-radius:14px;
+
+  padding:20px;
+
+  box-shadow:0 8px 20px rgba(0,0,0,0.08);
+
+  transition:all 0.25s ease;
+
+  cursor:pointer;
+}
+
+.card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 15px 35px rgba(0,0,0,0.15);
+}
+
+/* TOP */
+
+.top{
+  display:flex;
+  gap:15px;
+  align-items:center;
+}
+
+.icon{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+
+  background:#eaf4ff;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+
+
+.top h3{
+  font-size:16px;
+}
+
+.top p{
+  font-size:13px;
+  color:#888;
+}
+
+/* DIVIDER */
+
+.divider{
+  border-top:1px dashed #ddd;
+  margin:15px 0;
+}
+
+/* BOTTOM */
+
+.bottom{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.discount{
+  color:#3a7bd5;
+  font-weight:600;
+}
+
+.code{
+  font-weight:600;
+}
+
+.copyBtn{
+  background:#3a7bd5;
+  color:white;
+
+  border:none;
+  padding:6px 14px;
+
+  border-radius:20px;
+
+  cursor:pointer;
+
+  transition:0.2s;
+}
+
+.copyBtn:hover{
+  opacity:0.9;
+}
