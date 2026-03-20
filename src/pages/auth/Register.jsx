@@ -10,49 +10,64 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../../services/authService";
 
-// NOTE: import hàm gọi API register
-
 const Register = () => {
   const navigate = useNavigate();
 
-  // ================= STATE =================
+  // ===== STATE =====
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // NOTE: dùng riêng cho confirm password
-
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // ================= HANDLE REGISTER =================
+  // ===== HANDLE REGISTER =====
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    // validate password
+    // VALIDATE
+    if (!fullName || !email || !phone || !password || !confirmPassword) {
+      alert("Please fill in all fields");
+      return;
+    }
+
     if (password !== confirmPassword) {
       alert("Passwords do not match");
       return;
     }
 
+    const payload = {
+      full_name: fullName,
+      email,
+      phone,
+      password,
+      confirm_password: confirmPassword,
+    };
+
+    console.log("Payload:", payload);
+
     try {
-      // ================= CALL API =================
-      const res = await registerUser({
-        fullName,
-        email,
-        password,
-      });
+      const res = await registerUser(payload);
 
-      console.log("Register success:", res.data);
+      console.log("Success:", res.data);
 
-      // NOTE: register thành công → chuyển sang login
+      if (res.data?.otp_test) {
+        alert("OTP (dev): " + res.data.otp_test);
+      }
+
       navigate("/login");
-    } catch (error) {
-      console.error("Register error:", error);
 
-      // NOTE: lấy message từ backend nếu có
-      alert(error.response?.data?.message || "Register failed");
+    } catch (error) {
+      console.error("Error:", error);
+      console.log("Backend:", error.response?.data);
+
+      alert(
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Register failed"
+      );
     }
   };
 
@@ -69,16 +84,15 @@ const Register = () => {
             Create an account to start booking flights
           </p>
 
-          {/* ===== Social ===== */}
+          {/* SOCIAL */}
           <div className={styles.social}>
-            {/* TODO: OAuth login */}
             <button className={styles.socialBtn}>
               <FcGoogle />
               <span>Google</span>
             </button>
 
             <button className={styles.socialBtn}>
-              <FaFacebook className={styles.fbIcon} />
+              <FaFacebook />
               <span>Facebook</span>
             </button>
 
@@ -88,12 +102,11 @@ const Register = () => {
             </button>
           </div>
 
-          {/* ===== Divider ===== */}
           <div className={styles.divider}>
             <span>or sign up with email</span>
           </div>
 
-          {/* ===== FORM ===== */}
+          {/* FORM */}
           <form className={styles.form} onSubmit={handleRegister}>
             {/* Full Name */}
             <label className={styles.label}>Full Name</label>
@@ -106,13 +119,23 @@ const Register = () => {
             />
 
             {/* Email */}
-            <label className={styles.label}>Email address</label>
+            <label className={styles.label}>Email</label>
             <input
               type="email"
               placeholder="Enter your email"
               className={styles.input}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+            />
+
+            {/* Phone */}
+            <label className={styles.label}>Phone</label>
+            <input
+              type="text"
+              placeholder="Enter your phone number"
+              className={styles.input}
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
             />
 
             {/* Password */}
@@ -125,7 +148,6 @@ const Register = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-
               <span
                 className={styles.eye}
                 onClick={() => setShowPassword(!showPassword)}
@@ -136,7 +158,6 @@ const Register = () => {
 
             {/* Confirm Password */}
             <label className={styles.label}>Confirm Password</label>
-
             <div className={styles.password}>
               <input
                 type={showConfirmPassword ? "text" : "password"}
@@ -145,10 +166,11 @@ const Register = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
-
               <span
                 className={styles.eye}
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                onClick={() =>
+                  setShowConfirmPassword(!showConfirmPassword)
+                }
               >
                 {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
               </span>
@@ -159,7 +181,7 @@ const Register = () => {
               Sign Up
             </button>
 
-            {/* Link login */}
+            {/* Login link */}
             <p className={styles.registerText}>
               Already have an account?{" "}
               <span
@@ -173,7 +195,6 @@ const Register = () => {
         </div>
       </div>
 
-      {/* NOTE: nếu muốn thì bật lại */}
       {/* <Footer /> */}
     </>
   );

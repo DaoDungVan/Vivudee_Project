@@ -1,102 +1,111 @@
 import Footer from "../../components/common/Footer/Footer";
 import NavBar from "../../components/common/NavBar/NavBar";
 import styles from "./Login.module.css";
+
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
-import { FaApple } from "react-icons/fa";
-import { useState } from "react";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaApple, FaEye, FaEyeSlash } from "react-icons/fa";
 
-import { useNavigate } from "react-router-dom"; // NOTE: dùng để điều hướng sau khi đăng nhập thành công.
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { loginUser } from "../../services/authService";
 
-// NOTE: gọi API login
-
-// NOTE:
-// FaEye = mở mắt
-// FaEyeSlash = mắt gạch (ẩn password)
-
-// NOTE:
-// Fc = flat color (Google đẹp sẵn)
-// Fa = FontAwesome
-
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  // NOTE: false = ẩn, true = hiện
-
   const navigate = useNavigate();
-
-  // NOTE: dùng để chuyển trang sau khi login thành công
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // NOTE: state này sẽ giữ dữ liệu form
-  // TODO: sau này gửi email/password lên API login
-
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    // ===== VALIDATE =====
+    if (!email || !password) {
+      alert("Please enter email and password");
+      return;
+    }
+
     try {
-      // ================= CALL API =================
+      // ===== CALL API =====
       const res = await loginUser({
         email,
         password,
       });
 
-      console.log("Login success:", res.data);
+      console.log("✅ Login success:", res.data);
 
-      // ================= LƯU TOKEN =================
-      const token = res.data.token;
+      // ===== LẤY TOKEN =====
+      const token = res.data?.token;
 
-      // NOTE: lưu token để dùng cho request sau
+      if (!token) {
+        alert("No token received");
+        return;
+      }
+
+      // ===== LƯU TOKEN =====
       localStorage.setItem("token", token);
 
-      // ================= REDIRECT =================
-      navigate("/");
-    } catch (error) {
-      console.error("Login error:", error);
+      // ===== LƯU USER (nếu có) =====
+      if (res.data?.user) {
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+      }
 
-      alert(error.response?.data?.message || "Login failed");
+      // ===== REDIRECT =====
+      navigate("/");
+
+    } catch (error) {
+      console.error("❌ Login error:", error);
+
+      console.log("🔥 Backend:", error.response?.data);
+
+      alert(
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Login failed"
+      );
     }
   };
+
   return (
     <>
       <NavBar />
+
       <div className={styles.wrapper}>
         <h2 className={styles.title}>Login to your account</h2>
 
-        {/* NOTE: Card chứa form login */}
         <div className={styles.card}>
-          {/* NOTE: tiêu đề trong card */}
           <h3 className={styles.cardTitle}>Welcome back!</h3>
-          {/* NOTE: mô tả */}
           <p className={styles.cardDesc}>
             Sign in to continue your journey with Vivudee
           </p>
+
+          {/* SOCIAL */}
           <div className={styles.social}>
-            {/* TODO: gắn OAuth login (Google, Facebook)*/}
             <button className={styles.socialBtn}>
               <FcGoogle />
               <span>Google</span>
             </button>
+
             <button className={styles.socialBtn}>
               <FaFacebook className={styles.fbIcon} />
               <span>Facebook</span>
             </button>
+
             <button className={styles.socialBtn}>
               <FaApple />
               <span>Apple ID</span>
             </button>
           </div>
-          {/* NOTE: Divider */}
+
           <div className={styles.divider}>
             <span>or sign in with email</span>
           </div>
-          {/* NOTE: Form login */}
+
+          {/* FORM */}
           <form className={styles.form} onSubmit={handleLogin}>
-            {/* NOTE: label cho email */}
+            {/* Email */}
             <label className={styles.label}>Email address</label>
             <input
               type="email"
@@ -106,7 +115,7 @@ const Login = () => {
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            {/* NOTE: label cho password */}
+            {/* Password */}
             <label className={styles.label}>Password</label>
             <div className={styles.password}>
               <input
@@ -124,15 +133,18 @@ const Login = () => {
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </span>
             </div>
-            {/* NOTE: Forgot password */}
+
+            {/* Forgot */}
             <div className={styles.forgot}>
               <span>Forgot password?</span>
             </div>
-            {/* NOTE: Submit button */}
+
+            {/* Submit */}
             <button type="submit" className={styles.loginBtn}>
               Sign In
             </button>
-            {/* NOTE: Link sang register */}
+
+            {/* Register */}
             <p className={styles.registerText}>
               Don’t have an account?{" "}
               <span
@@ -145,6 +157,7 @@ const Login = () => {
           </form>
         </div>
       </div>
+
       {/* <Footer /> */}
     </>
   );

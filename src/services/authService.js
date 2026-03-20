@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://localhost:5000/api/auth";
+const API = "https://backend-log-function.vercel.app/api/auth";
 
 // NOTE: đây là backend URL (sau này backend team cung cấp)
 
