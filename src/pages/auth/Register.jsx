@@ -92,7 +92,7 @@ const Register = () => {
             </button>
 
             <button className={styles.socialBtn}>
-              <FaFacebook />
+              <FaFacebook className={styles.fbIcon} />
               <span>Facebook</span>
             </button>
 

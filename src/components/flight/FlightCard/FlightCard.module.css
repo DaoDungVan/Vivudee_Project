@@ -90,3 +90,48 @@
   font-size: 13px;
   color: #999;
 }
+
+.timeline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  width: 200px; /* 🔥 FIX: cho timeline có chiều rộng */
+}
+
+/* đường line */
+.line {
+  flex: 1;
+  height: 2px;
+  background: #ddd;
+  position: relative;
+  min-width: 60px; /* 🔥 FIX: chống bị co */
+}
+
+/* chấm chung */
+.line::before,
+.line::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: var(--primary-color);
+  border-radius: 50%;
+
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* chấm trái */
+.line::before {
+  left: 0;
+}
+
+/* chấm phải */
+.line::after {
+  right: 0;
+}
+
+.timeline span {
+  min-width: 45px;
+}

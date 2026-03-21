@@ -12,9 +12,13 @@ const FlightCard = ({ flight }) => {
         <div className={styles.info}>
           <h3>{flight.airline}</h3>
 
-          <p className={styles.time}>
-            {flight.departure} → {flight.arrival}
-          </p>
+          <div className={styles.timeline}>
+            <span>{flight.departure}</span>
+
+            <div className={styles.line}></div>
+
+            <span>{flight.arrival}</span>
+          </div>
 
           <p className={styles.duration}>{flight.duration}</p>
         </div>
