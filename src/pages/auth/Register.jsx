@@ -8,7 +8,7 @@ import { FaApple, FaEye, FaEyeSlash } from "react-icons/fa";
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { registerUser } from "../../services/authService";
+import { registerUser, verifyOTP } from "../../services/authService";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -23,13 +23,17 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // 🔥 OTP STATE
+  const [showOTP, setShowOTP] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+
   // ===== HANDLE REGISTER =====
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    // VALIDATE
-    if (!fullName || !email || !phone || !password || !confirmPassword) {
-      alert("Please fill in all fields");
+    if (!fullName || !email || !password || !confirmPassword) {
+      alert("Please fill in all required fields");
       return;
     }
 
@@ -46,21 +50,24 @@ const Register = () => {
       confirm_password: confirmPassword,
     };
 
-    console.log("Payload:", payload);
-
     try {
+      console.log("FINAL FIX PAYLOAD:", payload);
+
       const res = await registerUser(payload);
 
       console.log("Success:", res.data);
+
+      // 🔥 mở OTP modal
+      setUserEmail(email);
+      setOtp("");
+      setShowOTP(true);
 
       if (res.data?.otp_test) {
         alert("OTP (dev): " + res.data.otp_test);
       }
 
-      navigate("/login");
-
     } catch (error) {
-      console.error("Error:", error);
+      console.log("Status:", error.response?.status);
       console.log("Backend:", error.response?.data);
 
       alert(
@@ -68,6 +75,36 @@ const Register = () => {
         error.response?.data?.error ||
         "Register failed"
       );
+    }
+  };
+
+  // ===== VERIFY OTP =====
+  const handleVerifyOTP = async () => {
+    const cleanOtp = otp.trim();
+
+    if (!cleanOtp) {
+      alert("Please enter OTP");
+      return;
+    }
+
+    try {
+      const res = await verifyOTP({
+        email: userEmail,
+        otp: cleanOtp,
+      });
+
+      console.log("Verify success:", res.data);
+
+      alert("Verify success!");
+
+      setShowOTP(false);
+      setOtp("");
+
+      navigate("/login");
+
+    } catch (err) {
+      console.log("Verify error:", err.response?.data);
+      alert("Invalid OTP");
     }
   };
 
@@ -107,7 +144,7 @@ const Register = () => {
           </div>
 
           {/* FORM */}
-          <form className={styles.form} onSubmit={handleRegister}>
+          <form className={styles.form}>
             {/* Full Name */}
             <label className={styles.label}>Full Name</label>
             <input
@@ -168,16 +205,14 @@ const Register = () => {
               />
               <span
                 className={styles.eye}
-                onClick={() =>
-                  setShowConfirmPassword(!showConfirmPassword)
-                }
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
                 {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
               </span>
             </div>
 
             {/* Submit */}
-            <button type="submit" className={styles.loginBtn}>
+            <button type="button" className={styles.loginBtn} onClick={handleRegister}>
               Sign Up
             </button>
 
@@ -194,6 +229,38 @@ const Register = () => {
           </form>
         </div>
       </div>
+
+      {/* 🔥 OTP MODAL */}
+      {showOTP && (
+        <div className={styles.otpOverlay}>
+          <div className={styles.otpBox}>
+            <h3>Verify OTP</h3>
+            <p>Enter the code sent to your email</p>
+
+            <input
+              type="text"
+              placeholder="Enter OTP"
+              className={styles.input}
+              value={otp}
+              onChange={(e) =>
+                setOtp(e.target.value.replace(/\D/g, ""))
+              }
+            />
+
+            <button
+              onClick={handleVerifyOTP}
+              className={styles.loginBtn}
+              disabled={!otp}
+            >
+              Verify
+            </button>
+
+            <button onClick={() => setShowOTP(false)}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* <Footer /> */}
     </>
