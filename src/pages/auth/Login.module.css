@@ -222,3 +222,14 @@ giống form thực tế hơn placeholder-only */
 .registerLink:hover {
   text-decoration: underline;
 }
+
+.error {
+  color: #e53935;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.loginBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

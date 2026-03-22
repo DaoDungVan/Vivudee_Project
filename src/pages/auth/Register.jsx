@@ -74,23 +74,22 @@ const Register = () => {
       confirm_password: confirmPassword,
     };
 
+    setLoading(true); // ✅ thêm vào đây
     try {
       const res = await registerUser(payload);
-
       setUserEmail(email);
       setOtp(["", "", "", "", "", ""]);
       setShowOTP(true);
       setCountdown(300);
-
-      if (res.data?.otp_test) {
-        alert("OTP (dev): " + res.data.otp_test);
-      }
+      if (res.data?.otp_test) alert("OTP (dev): " + res.data.otp_test);
     } catch (error) {
       setError(
         error.response?.data?.message ||
           error.response?.data?.error ||
           "Register failed",
       );
+    } finally {
+      setLoading(false); // ✅ thêm vào đây
     }
   };
 
@@ -266,8 +265,9 @@ const Register = () => {
               type="button"
               className={styles.loginBtn}
               onClick={handleRegister}
+              disabled={loading} // ✅ chống spam click
             >
-              Sign Up
+              {loading ? "Sending OTP..." : "Sign Up"} 
             </button>
             <p className={styles.registerText}>
               Already have an account?{" "}

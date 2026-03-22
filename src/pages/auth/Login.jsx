@@ -18,53 +18,59 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
 
-    // ===== VALIDATE =====
-    if (!email || !password) {
-      alert("Please enter email and password");
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
+    if (!trimmedEmail || !trimmedPassword) {
+      setError("Please enter email and password");
       return;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      setError("Invalid email format");
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      // ===== CALL API =====
       const res = await loginUser({
-        email,
-        password,
+        email: trimmedEmail,
+        password: trimmedPassword,
       });
-
-      console.log("✅ Login success:", res.data);
-
-      // ===== LẤY TOKEN =====
       const token = res.data?.token;
 
       if (!token) {
-        alert("No token received");
+        setError("No token received");
         return;
       }
 
-      // ===== LƯU TOKEN =====
       localStorage.setItem("token", token);
-
-      // ===== LƯU USER (nếu có) =====
       if (res.data?.user) {
         localStorage.setItem("user", JSON.stringify(res.data.user));
       }
 
-      // ===== REDIRECT =====
+      // ✅ FIX CHÍNH: báo cho NavBar biết localStorage đã thay đổi
+      // mà không cần reload trang → tránh lag/chậm
+      window.dispatchEvent(new Event("storage"));
+
       navigate("/");
-
     } catch (error) {
-      console.error("❌ Login error:", error);
-
-      console.log("🔥 Backend:", error.response?.data);
-
-      alert(
+      setError(
         error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Login failed"
+          error.response?.data?.error ||
+          "Login failed",
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -105,6 +111,8 @@ const Login = () => {
 
           {/* FORM */}
           <form className={styles.form} onSubmit={handleLogin}>
+            {error && <p className={styles.error}>{error}</p>}
+
             {/* Email */}
             <label className={styles.label}>Email address</label>
             <input
@@ -112,7 +120,10 @@ const Login = () => {
               placeholder="Enter your email"
               className={styles.input}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setError("");
+              }}
             />
 
             {/* Password */}
@@ -123,9 +134,11 @@ const Login = () => {
                 placeholder="Enter your password"
                 className={styles.input}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setError("");
+                }}
               />
-
               <span
                 className={styles.eye}
                 onClick={() => setShowPassword(!showPassword)}
@@ -136,17 +149,23 @@ const Login = () => {
 
             {/* Forgot */}
             <div className={styles.forgot}>
-              <span>Forgot password?</span>
+              <span onClick={() => navigate("/forgot-password")}>
+                Forgot password?
+              </span>
             </div>
 
             {/* Submit */}
-            <button type="submit" className={styles.loginBtn}>
-              Sign In
+            <button
+              type="submit"
+              className={styles.loginBtn}
+              disabled={loading}
+            >
+              {loading ? "Signing in..." : "Sign In"}
             </button>
 
             {/* Register */}
             <p className={styles.registerText}>
-              Don’t have an account?{" "}
+              Don't have an account?{" "}
               <span
                 className={styles.registerLink}
                 onClick={() => navigate("/register")}
