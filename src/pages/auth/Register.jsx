@@ -6,12 +6,18 @@ import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { FaApple, FaEye, FaEyeSlash } from "react-icons/fa";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { registerUser, verifyOTP } from "../../services/authService";
+import { registerUser, verifyOTP, resendOTP } from "../../services/authService";
 
 const Register = () => {
   const navigate = useNavigate();
+  const formatTime = (seconds) => {
+    // dùng để format time thành phút
+    const m = String(Math.floor(seconds / 60)).padStart(2, "0");
+    const s = String(seconds % 60).padStart(2, "0");
+    return `${m}:${s}`;
+  };
 
   // ===== STATE =====
   const [showPassword, setShowPassword] = useState(false);
@@ -25,20 +31,38 @@ const Register = () => {
 
   // 🔥 OTP STATE
   const [showOTP, setShowOTP] = useState(false);
-  const [otp, setOtp] = useState("");
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [userEmail, setUserEmail] = useState("");
+
+  // 🔥 NEW STATE (ADD)
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [countdown, setCountdown] = useState(300);
+
+  // 🔥 COUNTDOWN
+  useEffect(() => {
+    if (!showOTP) return;
+    if (countdown <= 0) return;
+
+    const timer = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [showOTP, countdown]);
 
   // ===== HANDLE REGISTER =====
   const handleRegister = async (e) => {
     e.preventDefault();
+    setError("");
 
     if (!fullName || !email || !password || !confirmPassword) {
-      alert("Please fill in all required fields");
+      setError("Please fill in all required fields");
       return;
     }
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      setError("Passwords do not match");
       return;
     }
 
@@ -51,60 +75,90 @@ const Register = () => {
     };
 
     try {
-      console.log("FINAL FIX PAYLOAD:", payload);
-
       const res = await registerUser(payload);
 
-      console.log("Success:", res.data);
-
-      // 🔥 mở OTP modal
       setUserEmail(email);
-      setOtp("");
+      setOtp(["", "", "", "", "", ""]);
       setShowOTP(true);
+      setCountdown(300);
 
       if (res.data?.otp_test) {
         alert("OTP (dev): " + res.data.otp_test);
       }
-
     } catch (error) {
-      console.log("Status:", error.response?.status);
-      console.log("Backend:", error.response?.data);
-
-      alert(
+      setError(
         error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Register failed"
+          error.response?.data?.error ||
+          "Register failed",
       );
     }
   };
 
+  // handle otp 6 ô
+  const handleOtpChange = (value, index) => {
+    if (!/^[0-9]?$/.test(value)) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    // auto next
+    if (value && index < 5) {
+      document.getElementById(`otp-${index + 1}`).focus();
+    }
+  };
+
+  // handle cho phép mũi tên ngược về
+  const handleKeyDown = (e, index) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      document.getElementById(`otp-${index - 1}`).focus();
+    }
+  };
+
   // ===== VERIFY OTP =====
+  const [loading, setLoading] = useState(false);
+
   const handleVerifyOTP = async () => {
-    const cleanOtp = otp.trim();
+    const cleanOtp = otp.join("");
+    setError("");
 
     if (!cleanOtp) {
-      alert("Please enter OTP");
+      setError("Please enter OTP");
       return;
     }
 
+    setLoading(true); // 🔥 bắt đầu loading
     try {
-      const res = await verifyOTP({
-        email: userEmail,
-        otp: cleanOtp,
+      await verifyOTP({ email: userEmail, otp: cleanOtp });
+
+      setSuccess("Verify success!");
+      setTimeout(() => {
+        setShowOTP(false);
+        setOtp(["", "", "", "", "", ""]);
+        navigate("/login");
+      }, 800); // có thể giảm xuống 500-800ms
+    } catch (err) {
+      setError("Invalid OTP");
+    } finally {
+      setLoading(false); // 🔥 kết thúc loading
+    }
+  };
+
+  // ===== RESEND OTP =====
+  const handleResendOTP = async () => {
+    if (countdown > 0) return;
+
+    try {
+      await resendOTP({
+        email: userEmail, // 🔥 chỉ cần email
       });
 
-      console.log("Verify success:", res.data);
-
-      alert("Verify success!");
-
-      setShowOTP(false);
-      setOtp("");
-
-      navigate("/login");
-
+      setCountdown(300);
+      setSuccess("OTP resent successfully!");
+      setError("");
     } catch (err) {
-      console.log("Verify error:", err.response?.data);
-      alert("Invalid OTP");
+      console.log(err.response?.data);
+      setError("Resend failed");
     }
   };
 
@@ -121,7 +175,7 @@ const Register = () => {
             Create an account to start booking flights
           </p>
 
-          {/* SOCIAL */}
+          {/* SOCIAL (GIỮ NGUYÊN) */}
           <div className={styles.social}>
             <button className={styles.socialBtn}>
               <FcGoogle />
@@ -145,7 +199,8 @@ const Register = () => {
 
           {/* FORM */}
           <form className={styles.form}>
-            {/* Full Name */}
+            {error && <p className={styles.error}>{error}</p>}
+
             <label className={styles.label}>Full Name</label>
             <input
               type="text"
@@ -155,7 +210,6 @@ const Register = () => {
               onChange={(e) => setFullName(e.target.value)}
             />
 
-            {/* Email */}
             <label className={styles.label}>Email</label>
             <input
               type="email"
@@ -165,7 +219,6 @@ const Register = () => {
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            {/* Phone */}
             <label className={styles.label}>Phone</label>
             <input
               type="text"
@@ -175,7 +228,6 @@ const Register = () => {
               onChange={(e) => setPhone(e.target.value)}
             />
 
-            {/* Password */}
             <label className={styles.label}>Password</label>
             <div className={styles.password}>
               <input
@@ -193,7 +245,6 @@ const Register = () => {
               </span>
             </div>
 
-            {/* Confirm Password */}
             <label className={styles.label}>Confirm Password</label>
             <div className={styles.password}>
               <input
@@ -211,12 +262,13 @@ const Register = () => {
               </span>
             </div>
 
-            {/* Submit */}
-            <button type="button" className={styles.loginBtn} onClick={handleRegister}>
+            <button
+              type="button"
+              className={styles.loginBtn}
+              onClick={handleRegister}
+            >
               Sign Up
             </button>
-
-            {/* Login link */}
             <p className={styles.registerText}>
               Already have an account?{" "}
               <span
@@ -230,39 +282,55 @@ const Register = () => {
         </div>
       </div>
 
-      {/* 🔥 OTP MODAL */}
+      {/* OTP MODAL */}
       {showOTP && (
         <div className={styles.otpOverlay}>
           <div className={styles.otpBox}>
             <h3>Verify OTP</h3>
             <p>Enter the code sent to your email</p>
 
-            <input
-              type="text"
-              placeholder="Enter OTP"
-              className={styles.input}
-              value={otp}
-              onChange={(e) =>
-                setOtp(e.target.value.replace(/\D/g, ""))
-              }
-            />
+            {error && <p className={styles.error}>{error}</p>}
+            {success && <p className={styles.success}>{success}</p>}
+
+            <div className={styles.otpInputs}>
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  id={`otp-${index}`}
+                  type="text"
+                  maxLength="1"
+                  className={styles.otpInput}
+                  value={digit}
+                  onChange={(e) => handleOtpChange(e.target.value, index)}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                />
+              ))}
+            </div>
 
             <button
               onClick={handleVerifyOTP}
               className={styles.loginBtn}
-              disabled={!otp}
+              disabled={otp.some((d) => d === "") || loading} // disable khi loading
             >
-              Verify
+              {loading ? "Verifying..." : "Verify"} {/* đổi text */}
             </button>
 
-            <button onClick={() => setShowOTP(false)}>
+            <p
+              className={`${styles.resend} ${countdown > 0 ? styles.disabled : ""}`}
+              onClick={handleResendOTP}
+            >
+              Resend OTP {countdown > 0 && `(${formatTime(countdown)})`}
+            </p>
+
+            <button
+              className={styles.cancelBtn}
+              onClick={() => setShowOTP(false)}
+            >
               Cancel
             </button>
           </div>
         </div>
       )}
-
-      {/* <Footer /> */}
     </>
   );
 };

@@ -1,21 +1,21 @@
-import axios from "axios";
+import API from "./axiosInstance";
 
-const API = "https://backend-log-function-2.onrender.com/api/auth";
-
-// NOTE: đây là backend URL (sau này backend team cung cấp)
-
+// REGISTER
 export const registerUser = (data) => {
-  return axios.post(`${API}/register`, data);
+  return API.post("/auth/register", data);
 };
 
-// NOTE:
-// data = { fullName, email, password }
-
+// LOGIN
 export const loginUser = (data) => {
-  return axios.post(`${API}/login`, data);
+  return API.post("/auth/login", data);
 };
 
-// 🔥 VERIFY OTP
+// VERIFY OTP
 export const verifyOTP = (data) => {
-  return axios.post(`${API}/verify-register-otp`, data);
+  return API.post("/auth/verify-register-otp", data);
+};
+
+// RESEND OTP
+export const resendOTP = (data) => {
+  return API.post("/auth/resend-otp", data);
 };
