@@ -9,16 +9,21 @@
   border-radius: 12px;
   background: white;
 
-  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
 }
 
 /* LEFT */
+.left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
 .left h3 {
   margin-bottom: 5px;
 }
 
 .left p {
-  color: #777;
   font-size: 14px;
 }
 
@@ -28,8 +33,13 @@
 }
 
 .price {
-  font-weight: bold;
+  font-weight: 700;
+  font-size: 18px; /* 🔥 thêm */
   margin-bottom: 8px;
+}
+
+.amount {
+  color: #f47703;
 }
 
 /* BUTTON */
@@ -42,28 +52,19 @@
   color: white;
 
   cursor: pointer;
+  transition: 0.2s; /* 🔥 thêm */
 }
 
 /* hover */
 .btn:hover {
   opacity: 0.9;
-}
-
-.duration {
-  font-size: 13px;
-  color: #999;
-}
-
-.left {
-  display: flex;
-  align-items: center;
-  gap: 15px;
+  transform: translateY(-1px); /* 🔥 thêm */
 }
 
 /* LOGO */
 .logoWrapper {
-  width: 50px;
-  height: 50px;
+  width: 65px;
+  height: 65px;
 
   display: flex;
   align-items: center;
@@ -81,22 +82,26 @@
   margin-bottom: 5px;
 }
 
+/* TIME (nếu sau này dùng) */
 .time {
   font-size: 14px;
   color: #555;
 }
 
+/* 🔥 FIX duration (gộp lại + đẹp hơn) */
 .duration {
   font-size: 13px;
-  color: #999;
+  color: var(--text-primary);
+  margin-top: 4px;
 }
 
+/* TIMELINE */
 .timeline {
   display: flex;
   align-items: center;
   gap: 10px;
   font-size: 14px;
-  width: 200px; /* 🔥 FIX: cho timeline có chiều rộng */
+  width: 220px; /* 🔥 tăng nhẹ cho đẹp */
 }
 
 /* đường line */
@@ -105,10 +110,10 @@
   height: 2px;
   background: #ddd;
   position: relative;
-  min-width: 60px; /* 🔥 FIX: chống bị co */
+  min-width: 60px;
 }
 
-/* chấm chung */
+/* chấm */
 .line::before,
 .line::after {
   content: "";
@@ -122,16 +127,46 @@
   transform: translateY(-50%);
 }
 
-/* chấm trái */
 .line::before {
   left: 0;
 }
 
-/* chấm phải */
 .line::after {
   right: 0;
 }
 
 .timeline span {
   min-width: 45px;
+}
+
+/* 🔥 NEW: hover card nhẹ */
+.card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  transition: 0.2s;
+}
+
+/* 🔥 CLICKABLE */
+.card {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* hover nhẹ */
+.card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* 🔥 SELECTED (QUAN TRỌNG NHẤT) */
+.active {
+  border: 2px solid #ff5a5f;
+  background: #fff5f5;
+  box-shadow: 0 8px 25px rgba(255, 90, 95, 0.2);
+}
+
+/* ❗ fix hover không override active */
+.active:hover {
+  transform: none;
+  box-shadow: 0 8px 25px rgba(255, 90, 95, 0.25);
 }

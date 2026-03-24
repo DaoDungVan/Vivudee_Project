@@ -6,6 +6,10 @@ import bamboo from "../../../assets/images/airlines/bamboo.png";
 import singapore from "../../../assets/images/airlines/singapore.png";
 import thai from "../../../assets/images/airlines/thai.png";
 import korean from "../../../assets/images/airlines/korea.png";
+import pacific from "../../../assets/images/airlines/pacific.png"
+import airasia from "../../../assets/images/airlines/airasia.png"
+import scoot from "../../../assets/images/airlines/scoot.png"
+import silkair from "../../../assets/images/airlines/SilkAir.png"
 
 export default function Airlines() {
 
@@ -15,7 +19,11 @@ export default function Airlines() {
     bamboo,
     singapore,
     thai,
-    korean
+    korean,
+    pacific,
+    airasia,
+    scoot,
+    silkair,
   ];
 
   return (

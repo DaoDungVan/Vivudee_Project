@@ -1,5 +1,5 @@
 import Footer from "../../components/common/Footer/Footer";
-import NavBar from "../../components/common/NavBar/NavBar";
+import NavBar from "../../components/common/NavBar/Navbar";
 import Airlines from "../../components/home/Airlines/Airlines";
 import Coupon from "../../components/home/Coupon/Coupon";
 import HeroBanner from "../../components/home/HeroBanner/HeroBanner";
@@ -9,7 +9,7 @@ import WhyChooseUs from "../../components/home/WhyChooseUs/WhyChooseUs";
 function Home() {
   return (
     <div>
-      <NavBar/>
+      <NavBar />
       <HeroBanner/>
       <Coupon />
       <Airlines/>

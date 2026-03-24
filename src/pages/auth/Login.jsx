@@ -1,5 +1,5 @@
 import Footer from "../../components/common/Footer/Footer";
-import NavBar from "../../components/common/NavBar/NavBar";
+import NavBar from "../../components/common/NavBar/Navbar";
 import styles from "./Login.module.css";
 
 import { FcGoogle } from "react-icons/fc";

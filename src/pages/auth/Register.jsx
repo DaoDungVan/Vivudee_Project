@@ -1,7 +1,6 @@
 import Footer from "../../components/common/Footer/Footer";
-import NavBar from "../../components/common/NavBar/NavBar";
 import styles from "./Register.module.css";
-
+import NavBar from "../../components/common/NavBar/Navbar";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { FaApple, FaEye, FaEyeSlash } from "react-icons/fa";
@@ -9,6 +8,7 @@ import { FaApple, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser, verifyOTP, resendOTP } from "../../services/authService";
+
 
 const Register = () => {
   const navigate = useNavigate();
