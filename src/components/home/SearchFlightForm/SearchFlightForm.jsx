@@ -53,7 +53,7 @@ export default function SearchFlightForm({ initialData }) {
 
   const [showSeatClass, setShowSeatClass] = useState(false);
   const seatClassRef = useRef();
-  const seatOptions = ["Economy", "Business", "First Class"];
+  const seatOptions = ["Economy", "Business", "First"];
 
   /* =========================
      SYNC initialData

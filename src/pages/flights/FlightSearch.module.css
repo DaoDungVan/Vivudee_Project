@@ -1,41 +1,61 @@
-/* FULL BACKGROUND */
+/* WRAPPER (GIỮ NGUYÊN) */
 .wrapper {
   background: #f5f7fb;
   min-height: 100vh;
 }
 
-/* MAIN GRID */
+/* 🔥 GRID LAYOUT (FIX NHẸ - KHÔNG PHÁ CÁI ĐÚNG) */
 .mainLayout {
   display: grid;
   grid-template-columns: 280px 1fr;
   gap: 20px;
+  align-items: start;
 
+  width: 100%;              /* ✅ fix */
   max-width: 1400px;
   margin: 0 auto;
-  padding: 100px 20px 40px;
+  padding: 20px;
 }
 
-/* RIGHT CONTENT */
+/* 🔥 CONTENT */
 .content {
   display: flex;
   flex-direction: column;
 }
 
-/* TITLE */
+/* SEARCH FORM (GIỮ + FIX NHẸ) */
+.content :global(.formCard) {
+  width: 100% !important;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 24px 30px;
+}
+
+/* wrap input */
+.content :global(.searchRow) {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ❗ FIX input (KHÔNG ÉP CỨNG NỮA) */
+.content :global(.field input) {
+  width: 100%;
+  min-width: 120px;
+}
+
+/* TITLE (GIỮ) */
 .title {
   font-size: 24px;
   font-weight: 600;
   margin: 20px 0;
 }
 
-/* RESULTS SCROLL */
-.results {
-  height: calc(100vh - 250px);
-  overflow-y: auto;
+/* 🔥 QUAN TRỌNG: SCROLL ONLY RIGHT SIDE */
+.results {            /* ✅ FIX */
   padding-right: 10px;
 }
 
-/* SCROLLBAR */
+/* SCROLLBAR (GIỮ) */
 .results::-webkit-scrollbar {
   width: 6px;
 }
@@ -45,7 +65,7 @@
   border-radius: 10px;
 }
 
-/* TEXT */
+/* TEXT (GIỮ) */
 .loading {
   text-align: center;
   padding: 30px;
@@ -62,7 +82,105 @@
   color: #ff5a5f;
 }
 
-/* RESPONSIVE */
+.topSticky {
+  position: sticky;
+  top: 110px; /* 🔥 chiều cao navbar */
+
+  z-index: 50;
+  background: #f5f7fb;
+
+  padding-bottom: 10px;
+}
+
+/* SLIDER */
+.sliderWrapper {
+  overflow: hidden;
+  width: 100%;
+}
+
+.slider {
+  display: flex;
+  width: 200%;
+  transition: transform 0.4s ease;
+}
+
+.slideLeft {
+  transform: translateX(-50%);
+}
+
+.page {
+  width: 50%;
+  padding-right: 10px;
+}
+
+/* BACK BUTTON */
+.backBtn {
+  margin-top: 20px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+
+  background: #0e81cd;
+  color: white;
+  cursor: pointer;
+}
+
+.backBtn:hover {
+  opacity: 0.9;
+}
+
+/* TITLE + TABS */
+.titleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+/* TAB GROUP */
+.tabs {
+  display: flex;
+  gap: 10px;
+}
+
+/* BUTTON */
+.tabBtn {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+
+
+/* ACTIVE */
+.activeTab {
+  background: #f47703;
+  color: white;
+  border-color: #f47703;
+  position: relative;
+}
+
+.activeTab::after {
+  position: absolute;
+  bottom: -4px;
+  left: 20%;
+  width: 60%;
+  height: 3px;
+  background: #0e81cd;
+  border-radius: 10px;
+}
+
+/* DISABLED */
+.tabBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* RESPONSIVE (GIỮ) */
 @media (max-width: 992px) {
   .mainLayout {
     grid-template-columns: 1fr;
