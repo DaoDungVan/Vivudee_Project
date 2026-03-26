@@ -1,0 +1,93 @@
+.wrapper { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+.layout { display: grid; grid-template-columns: 1fr 300px; gap: 32px; align-items: start; }
+
+.pageTitle { font-size: 24px; font-weight: 800; color: #1a1a2e; margin: 0 0 24px; }
+
+/* Booking code */
+.bookingCodeCard {
+  background: linear-gradient(135deg, var(--primary-color, #1a6bc4), #2980b9);
+  border-radius: 16px; padding: 20px 24px; margin-bottom: 20px;
+  display: flex; align-items: center; justify-content: space-between; color: #fff;
+}
+.codeLabel { font-size: 12px; opacity: 0.8; margin: 0; }
+.codeValue { font-size: 28px; font-weight: 800; letter-spacing: 2px; margin: 4px 0 0; }
+.heldTimer { text-align: right; font-size: 13px; opacity: 0.9; }
+.heldTimer span { display: block; margin-bottom: 4px; }
+
+/* Invoice */
+.invoiceCard { background: #fff; border: 1px solid #e8e8e8; border-radius: 20px; padding: 24px; margin-bottom: 20px; }
+.invoiceTitle { font-size: 16px; font-weight: 700; color: #1a1a2e; margin: 0 0 20px; }
+.invoiceRow { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+/* .invoiceLeft {} */
+.invoiceFlightLabel { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #999; margin: 0; }
+.invoiceFlightName { font-size: 14px; font-weight: 600; color: #1a1a2e; margin: 4px 0 2px; }
+.invoiceFlightRoute { font-size: 12px; color: #888; margin: 0; }
+.invoicePrice { font-size: 15px; font-weight: 700; color: #1a1a2e; white-space: nowrap; }
+.invoiceDivider { border: none; border-top: 1px dashed #e8e8e8; margin: 12px 0; }
+/* .invoicePassengers {} */
+.invoiceSectionLabel { font-size: 12px; font-weight: 700; color: #999; text-transform: uppercase; margin: 0 0 8px; }
+.invoicePaxRow { display: flex; justify-content: space-between; font-size: 13px; color: #444; padding: 3px 0; }
+.invoicePaxType { color: #999; }
+.invoiceRowSmall { display: flex; justify-content: space-between; font-size: 13px; color: #666; padding: 6px 0; }
+.invoiceTotal { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; }
+.invoiceTotal span:first-child { font-size: 15px; font-weight: 600; color: #1a1a2e; }
+.invoiceTotalPrice { font-size: 22px; font-weight: 800; color: #e74c3c; }
+
+/* Method */
+.methodCard { background: #fff; border: 1px solid #e8e8e8; border-radius: 20px; padding: 24px; margin-bottom: 24px; }
+.methodTitle { font-size: 16px; font-weight: 700; color: #1a1a2e; margin: 0 0 16px; }
+.methodGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.methodBtn {
+  border: 1.5px solid #e8e8e8; border-radius: 12px; padding: 12px 8px;
+  background: #fff; cursor: pointer; display: flex; flex-direction: column;
+  align-items: center; gap: 6px; transition: all 0.15s;
+}
+.methodBtn img { width: 40px; height: 24px; object-fit: contain; }
+.methodBtn span { font-size: 11px; color: #666; }
+.methodBtn:hover { border-color: var(--primary-color, #1a6bc4); }
+.methodActive { border-color: var(--primary-color, #1a6bc4) !important; background: #f0f4ff !important; }
+
+.payBtn {
+  width: 100%; height: 56px; background: #e74c3c; color: #fff;
+  border: none; border-radius: 14px; font-size: 18px; font-weight: 700;
+  cursor: pointer; transition: background 0.15s;
+}
+.payBtn:hover:not(:disabled) { background: #c0392b; }
+.payBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* QR */
+.right { position: sticky; top: 24px; display: flex; flex-direction: column; gap: 16px; }
+.qrCard { display: flex; flex-direction: column; align-items: center; background: #fff; border: 1px solid #e8e8e8; border-radius: 20px; padding: 24px; text-align: center; }
+.qrTitle { font-size: 16px; font-weight: 700; color: #1a1a2e; margin: 0 0 16px; }
+.qrImage { width: 200px; height: 200px; border-radius: 12px; }
+.qrCode { font-size: 20px; font-weight: 800; letter-spacing: 2px; color: #1a1a2e; margin: 12px 0 4px; }
+.qrAmount { font-size: 16px; font-weight: 700; color: #e74c3c; margin: 0 0 12px; }
+.qrNote { font-size: 12px; color: #999; line-height: 1.5; }
+
+.contactCard { background: #f9f9f9; border-radius: 14px; padding: 16px; }
+.contactTitle { font-size: 12px; color: #999; margin: 0 0 6px; }
+.contactEmail { font-size: 14px; font-weight: 600; color: #1a1a2e; margin: 0 0 2px; }
+.contactPhone { font-size: 13px; color: #666; margin: 0; }
+
+/* Success */
+.successWrapper { display: flex; align-items: center; justify-content: center; min-height: 70vh; padding: 40px 24px; }
+.successCard { background: #fff; border: 1px solid #e8e8e8; border-radius: 24px; padding: 48px; text-align: center; max-width: 480px; width: 100%; }
+.successIcon { font-size: 64px; margin-bottom: 16px; }
+.successCard h2 { font-size: 28px; font-weight: 800; color: #1a1a2e; margin: 0 0 8px; }
+.successCard p { color: #666; margin: 0 0 16px; }
+.successCode { font-size: 32px; font-weight: 800; letter-spacing: 3px; color: var(--primary-color, #1a6bc4); background: #f0f4ff; padding: 16px 32px; border-radius: 14px; margin: 16px 0; }
+.successNote { font-size: 14px; color: #888; margin: 0 0 32px; }
+.successBtns { display: flex; gap: 12px; justify-content: center; }
+.btnPrimary { background: var(--primary-color, #1a6bc4); color: #fff; border: none; border-radius: 12px; padding: 14px 28px; font-size: 15px; font-weight: 700; cursor: pointer; }
+.btnSecondary { background: #f5f5f5; color: #444; border: none; border-radius: 12px; padding: 14px 28px; font-size: 15px; font-weight: 600; cursor: pointer; }
+
+/* Empty */
+.empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; gap: 16px; }
+.empty button { background: var(--primary-color, #1a6bc4); color: #fff; border: none; border-radius: 10px; padding: 12px 24px; cursor: pointer; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .right { position: static; }
+  .methodGrid { grid-template-columns: repeat(2, 1fr); }
+}

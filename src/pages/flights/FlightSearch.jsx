@@ -11,10 +11,6 @@ import SearchFlightForm from "../../components/home/SearchFlightForm/SearchFligh
 import FilterPanel from "../../components/flight/FilterPanel/FilterPanel";
 import PassengerForm from "../../components/booking/PassengerForm/PassengerForm";
 
-/* =========================
-   FILTER HELPERS
-========================== */
-
 const getHour = (isoTime) => {
   if (!isoTime) return null;
   const d = new Date(isoTime);
@@ -45,26 +41,19 @@ const applyFilters = (flights, filters) => {
 
     if (filters.airlines.length > 0 && !filters.airlines.includes(code))
       return false;
-
     if (filters.priceMax !== null && price > filters.priceMax) return false;
-
     if (filters.departureSlots.length > 0) {
       const match = filters.departureSlots.some((slot) =>
         inSlot(depHour, slot),
       );
       if (!match) return false;
     }
-
     if (filters.arrivalSlots.length > 0) {
-      const match = filters.arrivalSlots.some((slot) =>
-        inSlot(arrHour, slot),
-      );
+      const match = filters.arrivalSlots.some((slot) => inSlot(arrHour, slot));
       if (!match) return false;
     }
-
     if (filters.durationMax !== null && duration > filters.durationMax)
       return false;
-
     return true;
   });
 
@@ -81,10 +70,6 @@ const applyFilters = (flights, filters) => {
   return result;
 };
 
-/* =========================
-   COMPONENT
-========================== */
-
 const FlightSearch = () => {
   const [outboundFlights, setOutboundFlights] = useState([]);
   const [returnFlights, setReturnFlights] = useState([]);
@@ -94,6 +79,7 @@ const FlightSearch = () => {
   const [selectedReturn, setSelectedReturn] = useState(null);
 
   const [step, setStep] = useState("outbound");
+  const [showBooking, setShowBooking] = useState(false);
 
   const [filters, setFilters] = useState({
     airlines: [],
@@ -112,13 +98,11 @@ const FlightSearch = () => {
   const departureDate = query.get("departureDate");
   const returnDate = query.get("returnDate");
   const tripType = query.get("tripType");
-
   const adults = query.get("adults");
   const children = query.get("children");
   const seatClass = query.get("seatClass");
 
-  const isRoundTrip =
-    tripType === "round-trip" || tripType === "roundtrip";
+  const isRoundTrip = tripType === "round-trip" || tripType === "roundtrip";
 
   const initialData = {
     from,
@@ -134,7 +118,6 @@ const FlightSearch = () => {
   useEffect(() => {
     const fetchFlights = async () => {
       setLoading(true);
-
       try {
         const res = await searchFlights({
           from,
@@ -150,7 +133,6 @@ const FlightSearch = () => {
         if (Array.isArray(res)) {
           const outboundData = res[0].data?.data;
           const returnData = res[1].data?.data;
-
           setOutboundFlights(
             Array.isArray(outboundData)
               ? outboundData
@@ -174,7 +156,6 @@ const FlightSearch = () => {
         setLoading(false);
       }
     };
-
     fetchFlights();
   }, [
     from,
@@ -187,60 +168,35 @@ const FlightSearch = () => {
     seatClass,
   ]);
 
-  // SELECT
   const handleSelectOutbound = (flight) => {
+    if (selectedOutbound?.flight_id === flight.flight_id) {
+      setShowBooking(true); // bấm lại vé đã chọn → mở lại panel
+      return;
+    }
     setSelectedOutbound(flight);
     setSelectedReturn(null);
-
-    if (isRoundTrip) {
-      setStep("return");
-    }
+    if (isRoundTrip) setStep("return");
   };
 
   const handleSelectReturn = (flight) => {
+    if (selectedReturn?.flight_id === flight.flight_id) {
+      setShowBooking(true); // bấm lại vé đã chọn → mở lại panel
+      return;
+    }
     setSelectedReturn(flight);
   };
 
-  const filteredOutbound = applyFilters(outboundFlights, filters);
-  const filteredReturn = applyFilters(returnFlights, filters);
-
-  // 🔥 BOOKING STATE
-  const [selectedFlights, setSelectedFlights] = useState({
-    outbound: null,
-    return: null,
-  });
-
-  const [showBooking, setShowBooking] = useState(false);
-
-  // 🔥 SYNC
-  useEffect(() => {
-    if (selectedOutbound) {
-      setSelectedFlights((prev) => ({
-        ...prev,
-        outbound: selectedOutbound,
-      }));
-    }
-  }, [selectedOutbound]);
-
-  useEffect(() => {
-    if (selectedReturn) {
-      setSelectedFlights((prev) => ({
-        ...prev,
-        return: selectedReturn,
-      }));
-    }
-  }, [selectedReturn]);
-
-  // 🔥 AUTO OPEN
+  // ✅ AUTO OPEN — truyền thẳng selectedOutbound/selectedReturn, không qua state trung gian
   useEffect(() => {
     if (!isRoundTrip && selectedOutbound) {
       setShowBooking(true);
-    }
-
-    if (isRoundTrip && selectedOutbound && selectedReturn) {
+    } else if (isRoundTrip && selectedOutbound && selectedReturn) {
       setShowBooking(true);
     }
   }, [selectedOutbound, selectedReturn, isRoundTrip]);
+
+  const filteredOutbound = applyFilters(outboundFlights, filters);
+  const filteredReturn = applyFilters(returnFlights, filters);
 
   return (
     <>
@@ -267,18 +223,13 @@ const FlightSearch = () => {
                 {isRoundTrip && (
                   <div className={styles.tabs}>
                     <button
-                      className={`${styles.tabBtn} ${
-                        step === "outbound" ? styles.activeTab : ""
-                      }`}
+                      className={`${styles.tabBtn} ${step === "outbound" ? styles.activeTab : ""}`}
                       onClick={() => setStep("outbound")}
                     >
                       Outbound
                     </button>
-
                     <button
-                      className={`${styles.tabBtn} ${
-                        step === "return" ? styles.activeTab : ""
-                      }`}
+                      className={`${styles.tabBtn} ${step === "return" ? styles.activeTab : ""}`}
                       onClick={() => setStep("return")}
                       disabled={!selectedOutbound}
                     >
@@ -295,13 +246,10 @@ const FlightSearch = () => {
               ) : (
                 <div className={styles.sliderWrapper}>
                   <div
-                    className={`${styles.slider} ${
-                      step === "return" ? styles.slideLeft : ""
-                    }`}
+                    className={`${styles.slider} ${step === "return" ? styles.slideLeft : ""}`}
                   >
                     <div className={styles.page}>
                       <h3>✈️ Outbound ({filteredOutbound.length})</h3>
-
                       {filteredOutbound.map((flight) => (
                         <FlightCard
                           key={flight.flight_id}
@@ -322,7 +270,6 @@ const FlightSearch = () => {
                       ) : (
                         <>
                           <h3>🔁 Return ({filteredReturn.length})</h3>
-
                           {filteredReturn.map((flight) => (
                             <FlightCard
                               key={flight.flight_id}
@@ -344,10 +291,13 @@ const FlightSearch = () => {
         </div>
       </div>
 
-      {/* 🔥 BOOKING PANEL */}
+      {/* ✅ FIX: truyền thẳng selectedOutbound/selectedReturn thay vì selectedFlights */}
       {showBooking && (
         <PassengerForm
-          selectedFlights={selectedFlights}
+          selectedFlights={{
+            outbound: selectedOutbound,
+            return: selectedReturn,
+          }}
           passengers={{
             adults: Number(adults || 1),
             children: Number(children || 0),
