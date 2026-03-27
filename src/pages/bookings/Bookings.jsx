@@ -266,7 +266,7 @@ const Bookings = () => {
         {tab === "my" && isLoggedIn && (
           <div className={styles.mySection}>
             <div className={styles.filterRow}>
-              {["all", "completed", "upcoming", "cancelled"].map((f) => (
+              {["all", "upcoming", "completed", "cancelled"].map((f) => (
                 <button
                   key={f}
                   className={`${styles.filterBtn} ${myFilter === f ? styles.filterActive : ""}`}
