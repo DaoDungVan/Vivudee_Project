@@ -229,6 +229,18 @@ giống form thực tế hơn placeholder-only */
   margin-bottom: 10px;
 }
 
+.inputError {
+  border-color: #e53935 !important;
+}
+
+.fieldError {
+  color: #e53935;
+  font-size: 12px;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  padding-left: 12px;
+}
+
 .loginBtn:disabled {
   opacity: 0.6;
   cursor: not-allowed;

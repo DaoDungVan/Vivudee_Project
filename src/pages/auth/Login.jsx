@@ -19,25 +19,42 @@ const Login = () => {
   const [password, setPassword] = useState("");
 
   const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
+  const validate = () => {
+    const newErrors = {};
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
+    if (!trimmedEmail) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      newErrors.email = "Invalid email format (e.g. example@email.com)";
+    }
+
+    if (!trimmedPassword) {
+      newErrors.password = "Password is required";
+    } else if (trimmedPassword.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
+    }
+
+    return newErrors;
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
 
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    setErrors({});
+
     const trimmedEmail = email.trim();
     const trimmedPassword = password.trim();
-
-    if (!trimmedEmail || !trimmedPassword) {
-      setError("Please enter email and password");
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(trimmedEmail)) {
-      setError("Invalid email format");
-      return;
-    }
 
     setLoading(true);
 
@@ -116,15 +133,17 @@ const Login = () => {
             {/* Email */}
             <label className={styles.label}>Email address</label>
             <input
-              type="email"
+              type="text"
               placeholder="Enter your email"
-              className={styles.input}
+              className={`${styles.input} ${errors.email ? styles.inputError : ""}`}
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
+                setErrors((prev) => ({ ...prev, email: "" }));
                 setError("");
               }}
             />
+            {errors.email && <p className={styles.fieldError}>{errors.email}</p>}
 
             {/* Password */}
             <label className={styles.label}>Password</label>
@@ -132,10 +151,11 @@ const Login = () => {
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
-                className={styles.input}
+                className={`${styles.input} ${errors.password ? styles.inputError : ""}`}
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
+                  setErrors((prev) => ({ ...prev, password: "" }));
                   setError("");
                 }}
               />
@@ -146,6 +166,8 @@ const Login = () => {
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </span>
             </div>
+
+            {errors.password && <p className={styles.fieldError}>{errors.password}</p>}
 
             {/* Forgot */}
             <div className={styles.forgot}>

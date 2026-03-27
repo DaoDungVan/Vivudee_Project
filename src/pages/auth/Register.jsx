@@ -35,8 +35,47 @@ const Register = () => {
 
   // 🔥 NEW STATE (ADD)
   const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState("");
   const [countdown, setCountdown] = useState(300);
+
+  const validate = () => {
+    const newErrors = {};
+
+    if (!fullName.trim()) {
+      newErrors.fullName = "Full name is required";
+    } else if (fullName.trim().length < 2) {
+      newErrors.fullName = "Full name must be at least 2 characters";
+    } else if (/\d/.test(fullName)) {
+      newErrors.fullName = "Full name must not contain numbers";
+    }
+
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      newErrors.email = "Invalid email format (e.g. example@email.com)";
+    }
+
+    if (phone.trim() && !/^(0[3-9][0-9]{8}|\+84[3-9][0-9]{8})$/.test(phone.trim())) {
+      newErrors.phone = "Invalid phone number (e.g. 0901234567)";
+    }
+
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+      newErrors.password = "Password must include uppercase, lowercase and a number";
+    }
+
+    if (!confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+    } else if (confirmPassword !== password) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
+    return newErrors;
+  };
 
   // 🔥 COUNTDOWN
   useEffect(() => {
@@ -55,15 +94,12 @@ const Register = () => {
     e.preventDefault();
     setError("");
 
-    if (!fullName || !email || !password || !confirmPassword) {
-      setError("Please fill in all required fields");
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
+    setErrors({});
 
     const payload = {
       full_name: fullName,
@@ -205,37 +241,40 @@ const Register = () => {
             <input
               type="text"
               placeholder="Enter your full name"
-              className={styles.input}
+              className={`${styles.input} ${errors.fullName ? styles.inputError : ""}`}
               value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              onChange={(e) => { setFullName(e.target.value); setErrors((prev) => ({ ...prev, fullName: "" })); }}
             />
+            {errors.fullName && <p className={styles.fieldError}>{errors.fullName}</p>}
 
             <label className={styles.label}>Email</label>
             <input
-              type="email"
+              type="text"
               placeholder="Enter your email"
-              className={styles.input}
+              className={`${styles.input} ${errors.email ? styles.inputError : ""}`}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setErrors((prev) => ({ ...prev, email: "" })); }}
             />
+            {errors.email && <p className={styles.fieldError}>{errors.email}</p>}
 
-            <label className={styles.label}>Phone</label>
+            <label className={styles.label}>Phone <span style={{ color: "#aaa", fontWeight: 400 }}>(optional)</span></label>
             <input
               type="text"
               placeholder="Enter your phone number"
-              className={styles.input}
+              className={`${styles.input} ${errors.phone ? styles.inputError : ""}`}
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => { setPhone(e.target.value); setErrors((prev) => ({ ...prev, phone: "" })); }}
             />
+            {errors.phone && <p className={styles.fieldError}>{errors.phone}</p>}
 
             <label className={styles.label}>Password</label>
             <div className={styles.password}>
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
-                className={styles.input}
+                placeholder="Enter password"
+                className={`${styles.input} ${errors.password ? styles.inputError : ""}`}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => { setPassword(e.target.value); setErrors((prev) => ({ ...prev, password: "" })); }}
               />
               <span
                 className={styles.eye}
@@ -244,15 +283,16 @@ const Register = () => {
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </span>
             </div>
+            {errors.password && <p className={styles.fieldError}>{errors.password}</p>}
 
             <label className={styles.label}>Confirm Password</label>
             <div className={styles.password}>
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 placeholder="Confirm your password"
-                className={styles.input}
+                className={`${styles.input} ${errors.confirmPassword ? styles.inputError : ""}`}
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e) => { setConfirmPassword(e.target.value); setErrors((prev) => ({ ...prev, confirmPassword: "" })); }}
               />
               <span
                 className={styles.eye}
@@ -261,6 +301,7 @@ const Register = () => {
                 {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
               </span>
             </div>
+            {errors.confirmPassword && <p className={styles.fieldError}>{errors.confirmPassword}</p>}
 
             <button
               type="button"
