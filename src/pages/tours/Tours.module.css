@@ -1,0 +1,216 @@
+/* src/pages/tours/Tours.module.css */
+
+/* Hero */
+.hero {
+  background: linear-gradient(135deg, #1a3a6b 0%, #1a6bc4 60%, #2980b9 100%);
+  padding: 64px 24px;
+  text-align: center;
+  color: #fff;
+}
+.heroContent {
+  max-width: 700px;
+  margin: 0 auto;
+}
+.heroContent h1 {
+  font-size: 36px;
+  font-weight: 900;
+  margin: 0 0 10px;
+  letter-spacing: -0.5px;
+}
+.heroContent p {
+  font-size: 16px;
+  opacity: 0.85;
+  margin: 0 0 28px;
+}
+.heroSearch {
+  max-width: 480px;
+  margin: 0 auto;
+}
+.searchInput {
+  width: 100%;
+  height: 52px;
+  border: none;
+  border-radius: 14px;
+  padding: 0 20px;
+  font-size: 15px;
+  outline: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  box-sizing: border-box;
+}
+
+/* Wrapper */
+.wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 36px 24px 80px;
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.resultCount {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+.sortSelect {
+  height: 38px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 13px;
+  outline: none;
+  background: #fff;
+  cursor: pointer;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* Card */
+.card {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 20px;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.card:hover {
+  box-shadow: 0 12px 36px rgba(0,0,0,0.1);
+  transform: translateY(-3px);
+}
+
+.cardImg {
+  position: relative;
+  height: 210px;
+  overflow: hidden;
+}
+.cardImg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s;
+}
+.card:hover .cardImg img { transform: scale(1.05); }
+
+.tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #e74c3c;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.discountBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #f59e0b;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.cardBody { padding: 18px 20px 20px; }
+
+.duration {
+  font-size: 11px;
+  color: #888;
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+.tourName {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+
+.highlights {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 14px;
+}
+.highlight {
+  font-size: 12px;
+  color: #555;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.pricing { display: flex; align-items: baseline; gap: 4px; flex-wrap: wrap; }
+.originalPrice {
+  font-size: 12px;
+  color: #bbb;
+  text-decoration: line-through;
+}
+.price {
+  font-size: 20px;
+  font-weight: 900;
+  color: #e74c3c;
+}
+.priceNote { font-size: 11px; color: #aaa; }
+.rating { font-size: 13px; color: #555; }
+.reviews { color: #aaa; font-size: 12px; }
+
+.bookBtn {
+  width: 100%;
+  height: 44px;
+  background: linear-gradient(135deg, #1a6bc4, #2980b9);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.bookBtn:hover { opacity: 0.88; }
+
+/* No result */
+.noResult {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+}
+.noResult p { font-size: 16px; margin-bottom: 16px; }
+.noResult button {
+  background: #1a6bc4;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .heroContent h1 { font-size: 26px; }
+  .grid { grid-template-columns: 1fr; }
+  .topBar { flex-direction: column; align-items: flex-start; gap: 10px; }
+}

@@ -6,19 +6,33 @@ import FlightSearch from "../pages/flights/FlightSearch";
 import Booking from "../pages/booking/Booking";
 import Payment from "../pages/payment/Payment";
 import Bookings from "../pages/bookings/Bookings";
+import Profile from "../pages/profile/Profile";
+import Transactions from "../pages/transactions/Transactions";
+import Coupons from "../pages/coupons/Coupons";
+import Tours from "../pages/tours/Tours";
+import Contact from "../pages/contact/Contact";
 
 function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login/>} />
-        <Route path="/register" element={<Register/>}/>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/flights" element={<FlightSearch />} />
         <Route path="/booking" element={<Booking />} />
-        <Route path="/payment"   element={<Payment />} />
-        <Route path="/bookings"  element={<Bookings />} />
+        <Route path="/payment" element={<Payment />} />
+        <Route path="/bookings" element={<Bookings />} />
         <Route path="/my-booking" element={<Bookings />} />
+
+        {/* User dropdown pages */}
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/transactions" element={<Transactions />} />
+        <Route path="/coupons" element={<Coupons />} />
+
+        {/* Navbar links */}
+        <Route path="/tours" element={<Tours />} />
+        <Route path="/contact" element={<Contact />} />
       </Routes>
     </BrowserRouter>
   );

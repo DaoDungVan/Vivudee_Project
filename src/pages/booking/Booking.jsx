@@ -111,6 +111,7 @@ const Booking = () => {
         contact_email:       contact.email,
         contact_phone:       contact.phone,
         passengers:          passengerRecords,
+        total_price:         totalPrice,
       };
 
       const res = await createBooking(payload);

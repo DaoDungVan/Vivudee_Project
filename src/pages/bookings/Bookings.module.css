@@ -1,91 +1,360 @@
-.wrapper { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
-.pageTitle { font-size: 28px; font-weight: 800; color: #1a1a2e; margin: 0 0 28px; }
+.wrapper {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+.pageTitle {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin: 0 0 28px;
+}
 
-.tabs { display: flex; gap: 8px; margin-bottom: 28px; border-bottom: 2px solid #f0f0f0; }
-.tab { background: none; border: none; padding: 12px 20px; font-size: 15px; font-weight: 600; color: #999; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
-.tab:hover { color: var(--primary-color, #1a6bc4); }
-.tabActive { color: var(--primary-color, #1a6bc4) !important; border-bottom-color: var(--primary-color, #1a6bc4) !important; }
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 28px;
+  border-bottom: 2px solid #f0f0f0;
+}
+.tab {
+  background: none;
+  border: none;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #999;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.15s;
+}
+.tab:hover {
+  color: var(--primary-color, #1a6bc4);
+}
+.tabActive {
+  color: var(--primary-color, #1a6bc4) !important;
+  border-bottom-color: var(--primary-color, #1a6bc4) !important;
+}
 
 /* Lookup */
 /* .lookupSection {} */
-.lookupBox { display: flex; gap: 12px; margin-bottom: 24px; }
+.lookupBox {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
 .lookupInput {
-  flex: 1; height: 52px; border: 2px solid #e8e8e8; border-radius: 14px;
-  padding: 0 18px; font-size: 16px; font-weight: 600; letter-spacing: 1px;
-  outline: none; text-transform: uppercase;
+  flex: 1;
+  height: 52px;
+  border: 2px solid #e8e8e8;
+  border-radius: 14px;
+  padding: 0 18px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  outline: none;
+  text-transform: uppercase;
 }
-.lookupInput:focus { border-color: var(--primary-color, #1a6bc4); }
+.lookupInput:focus {
+  border-color: var(--primary-color, #1a6bc4);
+}
 .lookupBtn {
-  height: 52px; padding: 0 28px; background: var(--primary-color, #1a6bc4);
-  color: #fff; border: none; border-radius: 14px; font-size: 15px; font-weight: 700;
-  cursor: pointer; white-space: nowrap;
+  height: 52px;
+  padding: 0 28px;
+  background: var(--primary-color, #1a6bc4);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
 }
-.lookupBtn:disabled { opacity: 0.6; cursor: not-allowed; }
-.lookupError { color: #e74c3c; font-size: 14px; margin-bottom: 16px; }
+.lookupBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.lookupError {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
 
 /* Detail card */
-.detailCard { background: #fff; border: 1px solid #e8e8e8; border-radius: 20px; padding: 28px; }
-.detailHeader { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
-.detailCodeLabel { font-size: 12px; color: #999; margin: 0; }
-.detailCode { font-size: 28px; font-weight: 800; letter-spacing: 2px; color: #1a1a2e; margin: 4px 0 0; }
+.detailCard {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 20px;
+  padding: 28px;
+}
+.detailHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+.detailCodeLabel {
+  font-size: 12px;
+  color: #999;
+  margin: 0;
+}
+.detailCode {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #1a1a2e;
+  margin: 4px 0 0;
+}
 
-.detailFlight { background: #fafafa; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
-.detailFlightLabel { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #999; margin: 0 0 10px; }
-.detailFlightRow { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-.detailAirline { font-size: 14px; font-weight: 600; color: #1a1a2e; margin: 0; }
-.detailFlightNum { font-size: 12px; color: #999; margin: 2px 0 0; }
-.detailTimes { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; }
-.detailArrow { color: #ccc; font-weight: 400; }
-.detailFlightDate { font-size: 12px; color: #888; margin-left: auto; }
+.detailFlight {
+  background: #fafafa;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.detailFlightLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #999;
+  margin: 0 0 10px;
+}
+.detailFlightRow {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.detailAirline {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 0;
+}
+.detailFlightNum {
+  font-size: 12px;
+  color: #999;
+  margin: 2px 0 0;
+}
+.detailTimes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.detailArrow {
+  color: #ccc;
+  font-weight: 400;
+}
+.detailFlightDate {
+  font-size: 12px;
+  color: #888;
+  margin-left: auto;
+}
 
-.detailSection { margin: 20px 0; }
-.detailSectionTitle { font-size: 13px; font-weight: 700; color: #555; text-transform: uppercase; margin: 0 0 10px; }
-.detailPaxRow { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 14px; color: #1a1a2e; }
-.detailPaxMeta { color: #999; font-size: 12px; margin-left: auto; }
-.detailBaggage { background: #f0f4ff; color: var(--primary-color, #1a6bc4); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+.detailSection {
+  margin: 20px 0;
+}
+.detailSectionTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #555;
+  text-transform: uppercase;
+  margin: 0 0 10px;
+}
+.detailPaxRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f5f5f5;
+  font-size: 14px;
+  color: #1a1a2e;
+}
+.detailPaxMeta {
+  color: #999;
+  font-size: 12px;
+  margin-left: auto;
+}
+.detailBaggage {
+  background: #f0f4ff;
+  color: var(--primary-color, #1a6bc4);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
 
-.detailPrice { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-top: 1px dashed #e8e8e8; margin-top: 8px; font-size: 16px; font-weight: 600; }
-.detailPriceValue { font-size: 24px; font-weight: 800; color: #e74c3c; }
-.detailContact { display: flex; gap: 16px; font-size: 13px; color: #888; padding-top: 12px; }
+.detailPrice {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-top: 1px dashed #e8e8e8;
+  margin-top: 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.detailPriceValue {
+  font-size: 24px;
+  font-weight: 800;
+  color: #e74c3c;
+}
+.detailContact {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: #888;
+  padding-top: 12px;
+}
 
 /* My bookings */
 /* .mySection {} */
-.filterRow { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-.filterBtn { border: 1.5px solid #e8e8e8; border-radius: 20px; padding: 8px 18px; font-size: 13px; font-weight: 600; background: #fff; color: #666; cursor: pointer; transition: all 0.15s; }
-.filterBtn:hover { border-color: var(--primary-color, #1a6bc4); color: var(--primary-color, #1a6bc4); }
-.filterActive { border-color: var(--primary-color, #1a6bc4) !important; background: #f0f4ff !important; color: var(--primary-color, #1a6bc4) !important; }
+.filterRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.filterBtn {
+  border: 1.5px solid #e8e8e8;
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #fff;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.filterBtn:hover {
+  border-color: var(--primary-color, #1a6bc4);
+  color: var(--primary-color, #1a6bc4);
+}
+.filterActive {
+  border-color: var(--primary-color, #1a6bc4) !important;
+  background: #f0f4ff !important;
+  color: var(--primary-color, #1a6bc4) !important;
+}
 
-.bookingGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.bookingGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
 
 .bookingCard {
-  background: #fff; border: 1px solid #e8e8e8; border-radius: 16px;
-  padding: 18px; cursor: pointer; transition: box-shadow 0.15s;
-  display: flex; flex-direction: column; gap: 12px;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 16px;
+  padding: 18px;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-.bookingCard:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-.cardTop { display: flex; justify-content: space-between; align-items: flex-start; }
-.cardCode { font-size: 18px; font-weight: 800; letter-spacing: 1px; color: #1a1a2e; margin: 0; }
-.cardDate { font-size: 12px; color: #999; margin: 3px 0 0; }
+.bookingCard:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.cardCode {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #1a1a2e;
+  margin: 0;
+}
+.cardDate {
+  font-size: 12px;
+  color: #999;
+  margin: 3px 0 0;
+}
 
-.statusBadge { font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; }
+.statusBadge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
 
 /* .cardFlight {} */
-.cardRoute { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 700; color: #1a1a2e; }
-.cardArrow { color: #ccc; }
-.cardTimes { font-size: 12px; color: #888; margin-top: 4px; }
+.cardRoute {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+.cardArrow {
+  color: #ccc;
+}
+.cardTimes {
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+}
 
-.cardBottom { display: flex; justify-content: space-between; align-items: center; }
-.cardAirline { font-size: 13px; color: #666; }
-.cardPrice { font-size: 16px; font-weight: 800; color: #e74c3c; }
+.cardBottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cardAirline {
+  font-size: 13px;
+  color: #666;
+}
+.cardPrice {
+  font-size: 16px;
+  font-weight: 800;
+  color: #e74c3c;
+}
 
 .cancelBtn {
-  background: #fce4ec; color: #e74c3c; border: 1px solid #e74c3c;
-  border-radius: 10px; padding: 8px 16px; font-size: 13px; font-weight: 600;
-  cursor: pointer; width: 100%; transition: all 0.15s;
+  background: #fce4ec;
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.15s;
 }
-.cancelBtn:hover:not(:disabled) { background: #e74c3c; color: #fff; }
-.cancelBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+.cancelBtn:hover:not(:disabled) {
+  background: #e74c3c;
+  color: #fff;
+}
+.cancelBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
-.loading { color: #999; text-align: center; padding: 40px; }
-.emptyState { text-align: center; padding: 60px; color: #999; }
-.emptyState button { margin-top: 12px; background: var(--primary-color, #1a6bc4); color: #fff; border: none; border-radius: 10px; padding: 12px 24px; cursor: pointer; font-size: 14px; }
+.loading {
+  color: #999;
+  text-align: center;
+  padding: 40px;
+}
+.emptyState {
+  text-align: center;
+  padding: 60px;
+  color: #999;
+}
+.emptyState button {
+  margin-top: 12px;
+  background: var(--primary-color, #1a6bc4);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-size: 14px;
+}

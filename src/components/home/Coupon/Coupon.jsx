@@ -13,11 +13,11 @@ export default function Coupon() {
       .catch(() => {
         // fallback nếu API chưa có
         setCoupons([
-          { discount: "20% OFF", code: "VIVUDEE20", description: "Valid for new users only" },
-          { discount: "15% OFF", code: "VIVUDEE15", description: "Valid for new users only" },
-          { discount: "10% OFF", code: "VIVUDEE10", description: "Valid for all users" },
-          { discount: "25% OFF", code: "VIVUDEE25", description: "Weekend flights only" },
-          { discount: "30% OFF", code: "VIVUDEE30", description: "Limited time offer" },
+          { discount: "30% OFF", code: "WELCOME30K", description: "Valid for new users only" },
+          { discount: "40% OFF", code: "WELCOME40K", description: "Valid for new users only" },
+          { discount: "50% OFF", code: "WELCOME50K", description: "Valid for all users" },
+          // { discount: "25% OFF", code: "VIVUDEE25", description: "Weekend flights only" },
+          // { discount: "30% OFF", code: "VIVUDEE30", description: "Limited time offer" },
         ]);
       });
   }, []);
