@@ -9,7 +9,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser, verifyOTP, resendOTP } from "../../services/authService";
 
-
 const Register = () => {
   const navigate = useNavigate();
   const formatTime = (seconds) => {
@@ -81,7 +80,9 @@ const Register = () => {
       setOtp(["", "", "", "", "", ""]);
       setShowOTP(true);
       setCountdown(300);
-      if (res.data?.otp_test) alert("OTP (dev): " + res.data.otp_test);
+      if (process.env.NODE_ENV === "development" && res.data?.otp_test) {
+        console.log("OTP (dev):", res.data.otp_test);
+      }
     } catch (error) {
       setError(
         error.response?.data?.message ||
@@ -267,7 +268,7 @@ const Register = () => {
               onClick={handleRegister}
               disabled={loading} // ✅ chống spam click
             >
-              {loading ? "Sending OTP..." : "Sign Up"} 
+              {loading ? "Sending OTP..." : "Sign Up"}
             </button>
             <p className={styles.registerText}>
               Already have an account?{" "}
