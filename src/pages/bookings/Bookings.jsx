@@ -126,7 +126,7 @@ const Bookings = () => {
       </div>
       <div className={styles.cardBottom}>
         <span className={styles.cardAirline}>{b.flight?.airline?.name}</span>
-        <span className={styles.cardPrice}>{fmt(b.total_price)}</span>
+        <span className={styles.cardPrice}>{fmt(b.final_amount ?? b.total_price)}</span>
       </div>
       {showCancel && b.status === "confirmed" && (
         <button
@@ -201,7 +201,17 @@ const Bookings = () => {
       {/* Price */}
       <div className={styles.detailPrice}>
         <span>Total</span>
-        <span className={styles.detailPriceValue}>{fmt(data.price?.total_price || 0)}</span>
+        <div className={styles.detailPriceRight}>
+          {data.price?.discount_amount > 0 && (
+            <span className={styles.detailOriginalPrice}>{fmt(data.price.total_price)}</span>
+          )}
+          <span className={styles.detailPriceValue}>
+            {fmt(data.price?.final_amount ?? data.price?.total_price ?? 0)}
+          </span>
+          {data.price?.discount_amount > 0 && (
+            <span className={styles.detailDiscountBadge}>-{fmt(data.price.discount_amount)}</span>
+          )}
+        </div>
       </div>
 
       {/* Contact */}
