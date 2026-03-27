@@ -63,7 +63,7 @@ const Contact = () => {
         <div className={styles.infoGrid}>
           {[
             { icon: "📞", title: "Hotline",     value: "1900 6789",           sub: "Mon – Sun: 7:00 – 22:00" },
-            { icon: "📧", title: "Email",        value: "support@vivudee.com", sub: "Response within 24 hours" },
+            { icon: "📧", title: "Email",        value: "nguyentuminhlong@gmail.com", sub: "Response within 24 hours" },
             { icon: "💬", title: "Live Chat",    value: "Chat with us",        sub: "Average response in 5 min" },
             { icon: "📍", title: "Office",       value: "Ho Chi Minh City",    sub: "123 Nguyen Hue, District 1" },
           ].map((item) => (
