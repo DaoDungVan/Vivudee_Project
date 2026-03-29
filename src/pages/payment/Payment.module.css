@@ -1,4 +1,4 @@
-/* src/pages/payment/Payment.module.css */
+/* src/pages/payment/Payment.module.css — full file */
 
 .wrapper {
   max-width: 1100px;
@@ -30,35 +30,21 @@
   align-items: center;
   justify-content: space-between;
   color: #fff;
+  flex-wrap: wrap;
+  gap: 12px;
 }
-.codeLabel {
-  font-size: 12px;
-  opacity: 0.8;
-  margin: 0;
-}
+
+.codeLabel { font-size: 12px; opacity: 0.8; margin: 0; }
 .codeValue {
   font-size: 26px;
   font-weight: 800;
   letter-spacing: 2px;
   margin: 4px 0 0;
 }
-.heldTimer {
-  text-align: right;
-}
-.timerLabel {
-  font-size: 11px;
-  opacity: 0.85;
-  display: block;
-  margin-bottom: 4px;
-}
-.timerValue {
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: 2px;
-}
-.timerExpired {
-  color: #fca5a5;
-}
+.heldTimer { text-align: right; }
+.timerLabel { font-size: 11px; opacity: 0.85; display: block; margin-bottom: 4px; }
+.timerValue { font-size: 28px; font-weight: 800; letter-spacing: 2px; }
+.timerExpired { color: #fca5a5; }
 
 .expiredBanner {
   background: #fef2f2;
@@ -69,6 +55,24 @@
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* FIX: button trong expired banner */
+.expiredBackBtn {
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 /* ── Invoice ───────────────────────── */
@@ -79,56 +83,25 @@
   padding: 24px;
   margin-bottom: 16px;
 }
-.invoiceTitle {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1a1a2e;
-  margin: 0 0 20px;
-}
+.invoiceTitle { font-size: 16px; font-weight: 700; color: #1a1a2e; margin: 0 0 20px; }
+
 .invoiceRow {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   padding: 12px 0;
   border-bottom: 1px solid #f5f5f5;
+  gap: 12px;
 }
-/* .invoiceLeft {} */
-.invoiceFlightLabel {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #999;
-  margin: 0;
-}
-.invoiceFlightName {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1a1a2e;
-  margin: 4px 0 2px;
-}
-.invoiceFlightRoute {
-  font-size: 12px;
-  color: #888;
-  margin: 0;
-}
-.invoicePrice {
-  font-size: 15px;
-  font-weight: 700;
-  color: #1a1a2e;
-  white-space: nowrap;
-}
-.invoiceDivider {
-  border: none;
-  border-top: 1px dashed #e8e8e8;
-  margin: 12px 0;
-}
-.invoiceSectionLabel {
-  font-size: 12px;
-  font-weight: 700;
-  color: #999;
-  text-transform: uppercase;
-  margin: 0 0 8px;
-}
+
+.invoiceFlightLabel { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #999; margin: 0; }
+.invoiceFlightName  { font-size: 14px; font-weight: 600; color: #1a1a2e; margin: 4px 0 2px; }
+.invoiceFlightRoute { font-size: 12px; color: #888; margin: 0; }
+.invoicePrice       { font-size: 15px; font-weight: 700; color: #1a1a2e; white-space: nowrap; }
+
+.invoiceDivider { border: none; border-top: 1px dashed #e8e8e8; margin: 12px 0; }
+.invoiceSectionLabel { font-size: 12px; font-weight: 700; color: #999; text-transform: uppercase; margin: 0 0 8px; }
+
 .invoicePaxRow {
   display: flex;
   justify-content: space-between;
@@ -137,33 +110,18 @@
   padding: 3px 0;
 }
 .invoicePaxType { color: #999; }
-.invoiceRowSmall {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  color: #666;
-  padding: 6px 0;
-}
-.discountRow {
-  color: #16a34a;
-  font-weight: 600;
-}
+
+.invoiceRowSmall { display: flex; justify-content: space-between; font-size: 13px; color: #666; padding: 6px 0; }
+.discountRow     { color: #16a34a; font-weight: 600; }
+
 .invoiceTotal {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding-top: 16px;
 }
-.invoiceTotal span:first-child {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1a1a2e;
-}
-.invoiceTotalPrice {
-  font-size: 22px;
-  font-weight: 800;
-  color: #e74c3c;
-}
+.invoiceTotal span:first-child { font-size: 15px; font-weight: 600; color: #1a1a2e; }
+.invoiceTotalPrice { font-size: 22px; font-weight: 800; color: #e74c3c; }
 
 /* ── Coupon ────────────────────────── */
 .couponCard {
@@ -173,16 +131,84 @@
   padding: 20px 24px;
   margin-bottom: 16px;
 }
-.couponTitle {
-  font-size: 15px;
-  font-weight: 700;
-  color: #1a1a2e;
-  margin: 0 0 14px;
-}
-.couponInputRow {
+
+/* FIX: header row coupon có nút "My Coupons" */
+.couponCardHeader {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.couponTitle { font-size: 15px; font-weight: 700; color: #1a1a2e; margin: 0; }
+
+.showCouponsBtn {
+  background: transparent;
+  border: 1.5px solid var(--primary-color, #1a6bc4);
+  color: var(--primary-color, #1a6bc4);
+  border-radius: 16px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.showCouponsBtn:hover {
+  background: var(--primary-color, #1a6bc4);
+  color: #fff;
+}
+
+/* FIX: Danh sách coupon available */
+.couponListBox {
+  background: #f8faff;
+  border: 1px solid #dde9ff;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.couponListItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e8eeff;
   gap: 10px;
 }
+
+.couponListItem:last-child { border-bottom: none; }
+
+.couponListLeft { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+
+.couponListCode {
+  font-size: 14px;
+  font-weight: 800;
+  color: #1a6bc4;
+  letter-spacing: 1px;
+}
+
+.couponListDesc { font-size: 12px; color: #555; }
+.couponListMin  { font-size: 11px; color: #999; }
+
+.couponListUseBtn {
+  background: #1a6bc4;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.couponListUseBtn:hover { background: #155da0; }
+
+.couponInputRow { display: flex; gap: 10px; }
+
 .couponInput {
   flex: 1;
   height: 44px;
@@ -195,12 +221,10 @@
   outline: none;
   transition: border-color 0.2s;
 }
-.couponInput:focus {
-  border-color: #1a6bc4;
-}
-.couponInputError {
-  border-color: #ef4444 !important;
-}
+
+.couponInput:focus    { border-color: #1a6bc4; }
+.couponInputError     { border-color: #ef4444 !important; }
+
 .couponApplyBtn {
   height: 44px;
   padding: 0 20px;
@@ -216,17 +240,9 @@
 }
 .couponApplyBtn:hover:not(:disabled) { background: #155da0; }
 .couponApplyBtn:disabled { opacity: 0.6; cursor: not-allowed; }
-.couponErrorMsg {
-  color: #ef4444;
-  font-size: 12px;
-  margin: 6px 0 0;
-}
-.couponHint {
-  color: #999;
-  font-size: 11px;
-  margin: 8px 0 0;
-  line-height: 1.5;
-}
+.couponErrorMsg { color: #ef4444; font-size: 12px; margin: 6px 0 0; }
+.couponHint     { color: #999; font-size: 11px; margin: 8px 0 0; line-height: 1.5; }
+
 .couponApplied {
   display: flex;
   align-items: center;
@@ -236,11 +252,7 @@
   border-radius: 10px;
   padding: 10px 14px;
 }
-.couponAppliedInfo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+.couponAppliedInfo { display: flex; align-items: center; gap: 10px; }
 .couponTag {
   background: #22c55e;
   color: #fff;
@@ -250,41 +262,15 @@
   border-radius: 6px;
   letter-spacing: 1px;
 }
-.couponDiscount {
-  font-size: 13px;
-  color: #16a34a;
-  font-weight: 600;
-}
-.couponRemoveBtn {
-  background: none;
-  border: 1px solid #fca5a5;
-  color: #ef4444;
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 12px;
-  cursor: pointer;
-}
+.couponDiscount  { font-size: 13px; color: #16a34a; font-weight: 600; }
+.couponRemoveBtn { background: none; border: 1px solid #fca5a5; color: #ef4444; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
 .couponRemoveBtn:hover { background: #fef2f2; }
 
 /* ── Method ────────────────────────── */
-.methodCard {
-  background: #fff;
-  border: 1px solid #e8e8e8;
-  border-radius: 20px;
-  padding: 20px 24px;
-  margin-bottom: 20px;
-}
-.methodTitle {
-  font-size: 15px;
-  font-weight: 700;
-  color: #1a1a2e;
-  margin: 0 0 14px;
-}
-.methodGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
+.methodCard { background: #fff; border: 1px solid #e8e8e8; border-radius: 20px; padding: 20px 24px; margin-bottom: 20px; }
+.methodTitle { font-size: 15px; font-weight: 700; color: #1a1a2e; margin: 0 0 14px; }
+.methodGrid  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
 .methodBtn {
   border: 1.5px solid #e8e8e8;
   border-radius: 12px;
@@ -298,21 +284,12 @@
   transition: all 0.15s;
   position: relative;
 }
-.methodBtn img {
-  width: 44px;
-  height: 26px;
-  object-fit: contain;
-}
+
+.methodBtn img { width: 44px; height: 26px; object-fit: contain; }
 .methodBtn span { font-size: 11px; color: #666; }
 .methodBtn:hover:not(:disabled) { border-color: #1a6bc4; }
-.methodActive {
-  border-color: #1a6bc4 !important;
-  background: #f0f4ff !important;
-}
-.methodDisabled {
-  opacity: 0.45;
-  cursor: not-allowed !important;
-}
+.methodActive   { border-color: #1a6bc4 !important; background: #f0f4ff !important; }
+.methodDisabled { opacity: 0.45; cursor: not-allowed !important; }
 .comingSoon {
   font-size: 9px !important;
   background: #f0f0f0;
@@ -336,16 +313,15 @@
 }
 
 /* ── Action buttons ────────────────── */
-.actionRow {
-  display: flex;
-  gap: 12px;
-}
-.cancelBtn {
+.actionRow { display: flex; gap: 12px; }
+
+/* FIX: Back button */
+.backBtn {
   flex: 0 0 auto;
   height: 54px;
-  padding: 0 24px;
+  padding: 0 20px;
   background: #f5f5f5;
-  color: #666;
+  color: #444;
   border: none;
   border-radius: 14px;
   font-size: 15px;
@@ -353,7 +329,23 @@
   cursor: pointer;
   transition: background 0.15s;
 }
+.backBtn:hover { background: #e5e5e5; }
+
+.cancelBtn {
+  flex: 0 0 auto;
+  height: 54px;
+  padding: 0 20px;
+  background: #f5f5f5;
+  color: #666;
+  border: none;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
 .cancelBtn:hover { background: #ebebeb; }
+
 .payBtn {
   flex: 1;
   height: 54px;
@@ -365,20 +357,14 @@
   font-weight: 700;
   cursor: pointer;
   transition: opacity 0.15s;
-  box-shadow: 0 4px 16px rgba(231,76,60,0.25);
+  box-shadow: 0 4px 16px rgba(231, 76, 60, 0.25);
 }
 .payBtn:hover:not(:disabled) { opacity: 0.9; }
 .payBtn:disabled { opacity: 0.55; cursor: not-allowed; }
 .spinner { display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-/* ── RIGHT side ────────────────────── */
-.right {
-  position: sticky;
-  top: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+/* ── RIGHT ─────────────────────────── */
+.right { position: sticky; top: 24px; display: flex; flex-direction: column; gap: 16px; }
 
 /* ── QR Card ───────────────────────── */
 .qrCard {
@@ -391,23 +377,12 @@
   align-items: center;
   text-align: center;
 }
-.qrHeader {
-  margin-bottom: 10px;
-}
-.vietqrLogo {
-  height: 32px;
-  object-fit: contain;
-}
-.qrInstruction {
-  font-size: 14px;
-  color: #444;
-  margin: 0 0 4px;
-}
-.qrExpires {
-  font-size: 12px;
-  color: #888;
-  margin: 0 0 16px;
-}
+
+.qrHeader        { margin-bottom: 10px; }
+.vietqrLogo      { height: 32px; object-fit: contain; }
+.qrInstruction   { font-size: 14px; color: #444; margin: 0 0 4px; }
+.qrExpires       { font-size: 12px; color: #888; margin: 0 0 16px; }
+
 .qrImageWrapper {
   width: 220px;
   height: 220px;
@@ -416,12 +391,34 @@
   border: 2px solid #e8e8e8;
   margin-bottom: 16px;
   background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
 }
-.qrImage {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+
+.qrImage { width: 100%; height: 100%; object-fit: contain; }
+
+/* FIX: QR skeleton loading */
+.qrSkeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
 }
+
+.qrSkeleton span { font-size: 12px; color: #aaa; }
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 .qrPlaceholder {
   width: 220px;
   height: 220px;
@@ -435,7 +432,7 @@
   font-size: 13px;
 }
 
-/* Bank info block */
+/* Bank info */
 .bankInfo {
   width: 100%;
   background: #f8faff;
@@ -445,47 +442,14 @@
   margin-bottom: 14px;
   text-align: left;
 }
-.bankRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 5px 0;
-  gap: 8px;
-}
-.bankLabel {
-  font-size: 12px;
-  color: #888;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.bankValue {
-  font-size: 13px;
-  font-weight: 600;
-  color: #1a1a2e;
-  text-align: right;
-  word-break: break-all;
-}
-.bankAmount {
-  color: #e74c3c;
-  font-size: 15px;
-}
-.bankContent {
-  color: #1a6bc4;
-  font-size: 12px;
-  letter-spacing: 0.5px;
-}
+.bankRow { display: flex; justify-content: space-between; align-items: flex-start; padding: 5px 0; gap: 8px; }
+.bankLabel { font-size: 12px; color: #888; white-space: nowrap; flex-shrink: 0; }
+.bankValue { font-size: 13px; font-weight: 600; color: #1a1a2e; text-align: right; word-break: break-all; }
+.bankAmount { color: #e74c3c; font-size: 15px; }
+.bankContent { color: #1a6bc4; font-size: 12px; letter-spacing: 0.5px; }
 
-.qrNote {
-  font-size: 12px;
-  color: #888;
-  line-height: 1.6;
-}
-.qrNoteImportant {
-  color: #d97706;
-  font-weight: 600;
-  font-size: 11px;
-  margin: 4px 0 0;
-}
+.qrNote           { font-size: 12px; color: #888; line-height: 1.6; }
+.qrNoteImportant  { color: #d97706; font-weight: 600; font-size: 11px; margin: 4px 0 0; }
 
 .pollingIndicator {
   display: flex;
@@ -496,6 +460,7 @@
   font-weight: 600;
   margin-top: 12px;
 }
+
 .pollingDot {
   width: 8px;
   height: 8px;
@@ -503,159 +468,61 @@
   border-radius: 50%;
   animation: pulse 1.5s ease-in-out infinite;
 }
+
 @keyframes pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.7); }
+  50%       { opacity: 0.4; transform: scale(0.7); }
 }
 
-/* QR Preview (before init) */
-.qrPreview {
-  width: 100%;
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 28px 20px;
-  text-align: center;
-  margin: 12px 0;
-}
+/* QR Preview */
+.qrPreview { width: 100%; background: #f8f9fa; border-radius: 12px; padding: 28px 20px; margin: 12px 0; }
 .qrPreviewIcon { font-size: 48px; margin-bottom: 12px; }
-.qrPreview p {
-  font-size: 13px;
-  color: #666;
-  margin: 0 0 8px;
-  line-height: 1.5;
-}
-.qrPreviewSub {
-  font-size: 11px !important;
-  color: #aaa !important;
-}
+.qrPreview p   { font-size: 13px; color: #666; margin: 0 0 8px; line-height: 1.5; }
+.qrPreviewSub  { font-size: 11px !important; color: #aaa !important; }
 
-/* ── Pay Code Card ─────────────────── */
-.payCodeCard {
-  background: #f0f4ff;
-  border: 1px dashed #93c5fd;
-  border-radius: 14px;
-  padding: 16px 20px;
-  text-align: center;
-}
-.payCodeLabel {
-  font-size: 11px;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin: 0 0 4px;
-}
-.payCodeValue {
-  font-size: 16px;
-  font-weight: 800;
-  color: #1a6bc4;
-  letter-spacing: 1px;
-  margin: 0 0 6px;
-}
-.payCodeNote {
-  font-size: 11px;
-  color: #888;
-  margin: 0;
-}
+/* Pay code */
+.payCodeCard  { background: #f0f4ff; border: 1px dashed #93c5fd; border-radius: 14px; padding: 16px 20px; text-align: center; }
+.payCodeLabel { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px; }
+.payCodeValue { font-size: 16px; font-weight: 800; color: #1a6bc4; letter-spacing: 1px; margin: 0 0 6px; }
+.payCodeNote  { font-size: 11px; color: #888; margin: 0; }
 
-/* ── Contact Card ──────────────────── */
-.contactCard {
-  background: #f9f9f9;
-  border-radius: 12px;
-  padding: 14px 16px;
-  width: 100%;
-  text-align: left;
-  margin-top: 12px;
-}
+/* Contact */
+.contactCard  { background: #f9f9f9; border-radius: 12px; padding: 14px 16px; width: 100%; text-align: left; margin-top: 12px; }
 .contactTitle { font-size: 11px; color: #999; margin: 0 0 4px; }
 .contactEmail { font-size: 14px; font-weight: 600; color: #1a1a2e; margin: 0 0 2px; }
 .contactPhone { font-size: 13px; color: #666; margin: 0; }
 
 /* ── Success ───────────────────────── */
-.successWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 70vh;
-  padding: 40px 24px;
-}
-.successCard {
-  background: #fff;
-  border: 1px solid #e8e8e8;
-  border-radius: 24px;
-  padding: 48px;
-  text-align: center;
-  max-width: 480px;
-  width: 100%;
-}
-.successIcon { margin-bottom: 16px; }
-.successCard h2 {
-  font-size: 28px;
-  font-weight: 800;
-  color: #1a1a2e;
-  margin: 0 0 8px;
-}
-.successCard p { color: #666; margin: 0 0 16px; }
-.successCode {
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: 3px;
-  color: #1a6bc4;
-  background: #f0f4ff;
-  padding: 16px 32px;
-  border-radius: 14px;
-  margin: 16px 0;
-}
-.successNote { font-size: 14px; color: #888; margin: 0 0 32px; }
-.successBtns { display: flex; gap: 12px; justify-content: center; }
-.btnPrimary {
-  background: #1a6bc4;
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  padding: 14px 28px;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-}
-.btnSecondary {
-  background: #f5f5f5;
-  color: #444;
-  border: none;
-  border-radius: 12px;
-  padding: 14px 28px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-}
+.successWrapper { display: flex; align-items: center; justify-content: center; min-height: 70vh; padding: 40px 24px; }
+.successCard    { background: #fff; border: 1px solid #e8e8e8; border-radius: 24px; padding: 48px; text-align: center; max-width: 480px; width: 100%; }
+.successIcon    { margin-bottom: 16px; }
+.successCard h2 { font-size: 28px; font-weight: 800; color: #1a1a2e; margin: 0 0 8px; }
+.successCard p  { color: #666; margin: 0 0 16px; }
+.successCode    { font-size: 28px; font-weight: 800; letter-spacing: 3px; color: #1a6bc4; background: #f0f4ff; padding: 16px 32px; border-radius: 14px; margin: 16px 0; }
+.successNote    { font-size: 14px; color: #888; margin: 0 0 32px; }
+.successBtns    { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btnPrimary     { background: #1a6bc4; color: #fff; border: none; border-radius: 12px; padding: 14px 28px; font-size: 15px; font-weight: 700; cursor: pointer; }
+.btnSecondary   { background: #f5f5f5; color: #444; border: none; border-radius: 12px; padding: 14px 28px; font-size: 15px; font-weight: 600; cursor: pointer; }
 
 /* ── Empty ─────────────────────────── */
-.empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 60vh;
-  gap: 16px;
-}
-.empty button {
-  background: #1a6bc4;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: 12px 24px;
-  cursor: pointer;
-}
+.empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; gap: 16px; }
+.empty button { background: #1a6bc4; color: #fff; border: none; border-radius: 10px; padding: 12px 24px; cursor: pointer; }
 
 /* ── Responsive ────────────────────── */
 @media (max-width: 900px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-  .right {
-    position: static;
-    order: -1;
-  }
-  .methodGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .layout { grid-template-columns: 1fr; }
+  .right  { position: static; order: -1; }
+  .methodGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .wrapper { padding: 20px 14px 60px; }
+  .pageTitle { font-size: 20px; }
+  .bookingCodeCard { flex-direction: column; text-align: center; }
+  .heldTimer { text-align: center; }
+  .actionRow { flex-direction: column; }
+  .backBtn, .cancelBtn, .payBtn { width: 100%; }
+  .methodGrid { grid-template-columns: repeat(2, 1fr); }
+  .successCard { padding: 32px 20px; }
+  .successCard h2 { font-size: 22px; }
 }

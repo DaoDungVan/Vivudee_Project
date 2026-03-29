@@ -1,3 +1,7 @@
+// src/components/home/SearchFlightForm/SearchFlightForm.jsx
+// FIX: thay toàn bộ alert() bằng inline error message
+// FIX: placeholder "From / To" hiển thị đúng chữ
+
 import { useState, useRef, useEffect } from "react";
 import { getAirports } from "../../../services/airportService";
 import styles from "./SearchFlightForm.module.css";
@@ -5,110 +9,65 @@ import swapIcon from "../../../assets/icons/swap.png";
 import { useNavigate } from "react-router-dom";
 
 export default function SearchFlightForm({ initialData }) {
-  /* =========================
-     TRIP TYPE
-  ========================== */
-
-  const [tripType, setTripType] = useState(initialData?.tripType || "oneway");
-
-  /* =========================
-     AIRPORT (API)
-  ========================== */
-
-  const [airports, setAirports] = useState([]);
+  const [tripType,    setTripType]    = useState(initialData?.tripType || "oneway");
+  const [airports,     setAirports]     = useState([]);
   const [airportResults, setAirportResults] = useState([]);
-
-  const [from, setFrom] = useState(initialData?.from || "Hồ Chí Minh (SGN)");
-  const [to, setTo] = useState(initialData?.to || "Bangkok (BKK)");
-
+  const [from,        setFrom]        = useState(initialData?.from || "");
+  const [to,          setTo]          = useState(initialData?.to   || "");
   const [activeInput, setActiveInput] = useState(null);
-  const airportRef = useRef();
+  const airportRef    = useRef();
 
-  /* =========================
-     DATE
-  ========================== */
-
-  const [departureDate, setDepartureDate] = useState(initialData?.departureDate || "",);
-  const [returnDate, setReturnDate] = useState(initialData?.returnDate || "");
-
-  /* =========================
-     PASSENGERS
-  ========================== */
+  const [departureDate, setDepartureDate] = useState(initialData?.departureDate || "");
+  const [returnDate,    setReturnDate]    = useState(initialData?.returnDate    || "");
 
   const [passengers, setPassengers] = useState({
-    adult: Number(initialData?.adults) || 1,
+    adult: Number(initialData?.adults)    || 1,
     child: Number(initialData?.children) || 0,
   });
 
   const [showPassenger, setShowPassenger] = useState(false);
   const passengerRef = useRef();
 
-  /* =========================
-     SEAT CLASS
-  ========================== */
-
-  const [seatClass, setSeatClass] = useState(
-    initialData?.seatClass || "Economy",
-  );
-
+  const [seatClass,     setSeatClass]    = useState(initialData?.seatClass || "Economy");
   const [showSeatClass, setShowSeatClass] = useState(false);
   const seatClassRef = useRef();
-  const seatOptions = ["Economy", "Business", "First"];
+  const seatOptions  = ["Economy", "Business", "First"];
 
-  /* =========================
-     SYNC initialData
-  ========================== */
+  // FIX: state lỗi inline thay vì alert()
+  const [searchError, setSearchError] = useState("");
 
   useEffect(() => {
     if (initialData) {
       setTripType(initialData.tripType || "oneway");
       setDepartureDate(initialData.departureDate || "");
       setReturnDate(initialData.returnDate || "");
-
       setPassengers({
-        adult: Number(initialData.adults) || 1,
+        adult: Number(initialData.adults)    || 1,
         child: Number(initialData.children) || 0,
       });
-
       setSeatClass(initialData.seatClass || "Economy");
     }
   }, [initialData]);
 
-  /* =========================
-     FETCH AIRPORTS
-  ========================== */
-
   useEffect(() => {
     const fetchAirports = async () => {
       try {
-        const res = await getAirports();
+        const res  = await getAirports();
         const data = res.data.data || [];
-
         setAirports(data);
         setAirportResults(data);
       } catch (err) {
         console.log("ERROR airports:", err);
       }
     };
-
     fetchAirports();
   }, []);
 
-  /* =========================
-     MAP CODE -> LABEL
-  ========================== */
-
   const getAirportLabel = (code) => {
     if (!code) return "";
-
     const airport = airports.find((a) => a.code === code);
-
     return airport ? `${airport.city} (${airport.code})` : code;
   };
-
-  /* =========================
-     PREFILL LABEL SAU API
-  ========================== */
 
   useEffect(() => {
     if (airports.length > 0 && initialData) {
@@ -117,62 +76,27 @@ export default function SearchFlightForm({ initialData }) {
     }
   }, [airports, initialData]);
 
-  /* =========================
-     CLOSE DROPDOWN
-  ========================== */
-
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        passengerRef.current &&
-        !passengerRef.current.contains(event.target)
-      ) {
+      if (passengerRef.current && !passengerRef.current.contains(event.target))
         setShowPassenger(false);
-      }
-
-      if (airportRef.current && !airportRef.current.contains(event.target)) {
+      if (airportRef.current && !airportRef.current.contains(event.target))
         setActiveInput(null);
-      }
-
-      if (
-        seatClassRef.current &&
-        !seatClassRef.current.contains(event.target)
-      ) {
+      if (seatClassRef.current && !seatClassRef.current.contains(event.target))
         setShowSeatClass(false);
-      }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  /* =========================
-     PASSENGER COUNTER
-  ========================== */
-
-  const increase = (type) => {
-    setPassengers((prev) => ({
-      ...prev,
-      [type]: prev[type] + 1,
-    }));
-  };
+  const increase = (type) =>
+    setPassengers((prev) => ({ ...prev, [type]: prev[type] + 1 }));
 
   const decrease = (type) => {
     if (passengers[type] === 0) return;
     if (type === "adult" && passengers.adult === 1) return;
-
-    setPassengers((prev) => ({
-      ...prev,
-      [type]: prev[type] - 1,
-    }));
+    setPassengers((prev) => ({ ...prev, [type]: prev[type] - 1 }));
   };
-
-  /* =========================
-     SWAP AIRPORT
-  ========================== */
 
   const swapAirport = () => {
     const temp = from;
@@ -180,17 +104,13 @@ export default function SearchFlightForm({ initialData }) {
     setTo(temp);
   };
 
-  /* =========================
-     SEARCH AIRPORT
-  ========================== */
-
   const searchAirport = (value, type) => {
     const results = airports.filter((airport) =>
-      airport.city.toLowerCase().includes(value.toLowerCase()),
+      airport.city.toLowerCase().includes(value.toLowerCase()) ||
+      airport.code.toLowerCase().includes(value.toLowerCase()) ||
+      airport.name.toLowerCase().includes(value.toLowerCase()),
     );
-
     setAirportResults(results);
-
     if (type === "from") setFrom(value);
     else setTo(value);
   };
@@ -202,66 +122,66 @@ export default function SearchFlightForm({ initialData }) {
 
   const selectAirport = (airport, type) => {
     const value = `${airport.city} (${airport.code})`;
-
     if (type === "from") setFrom(value);
     else setTo(value);
-
     setActiveInput(null);
+    setSearchError("");
   };
-
-  /* =========================
-     SEARCH
-  ========================== */
 
   const navigate = useNavigate();
 
   const getCode = (value) => {
     if (!value) return "";
-    if (value.includes("(")) {
-      return value.match(/\((.*?)\)/)?.[1];
-    }
+    if (value.includes("(")) return value.match(/\((.*?)\)/)?.[1] || value;
     return value;
   };
 
   const handleSearch = () => {
+    setSearchError("");
+
+    // FIX: validation với thông báo cụ thể, không dùng alert()
+    if (!from.trim()) {
+      setSearchError("Please select a departure city");
+      return;
+    }
+    if (!to.trim()) {
+      setSearchError("Please select a destination city");
+      return;
+    }
     if (!departureDate) {
-      alert("Please select departure date");
+      setSearchError("Please select a departure date");
       return;
     }
-
     if (tripType === "roundtrip" && !returnDate) {
-      alert("Please select return date");
+      setSearchError("Please select a return date for round-trip");
       return;
     }
-
-    if (from === to) {
-      alert("From and To cannot be the same");
+    const fromCode = getCode(from);
+    const toCode   = getCode(to);
+    if (fromCode && toCode && fromCode.toUpperCase() === toCode.toUpperCase()) {
+      setSearchError("Departure and destination cannot be the same airport");
       return;
     }
 
     const searchData = {
-      from: getCode(from),
-      to: getCode(to),
+      from: fromCode,
+      to:   toCode,
       departureDate,
       returnDate: tripType === "roundtrip" ? returnDate : "",
-      adults: passengers.adult,
+      adults:   passengers.adult,
       children: passengers.child,
       seatClass,
       tripType,
     };
 
-    console.log("Search flight:", searchData);
-
-    const query = new URLSearchParams(searchData).toString();
-
-    navigate(`/flights?${query}`);
+    navigate(`/flights?${new URLSearchParams(searchData).toString()}`);
   };
 
   const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className={styles.formCard}>
-      {/* TOP */}
+      {/* TOP ROW */}
       <div className={styles.topRow}>
         <div className={styles.tripType}>
           <button
@@ -270,7 +190,6 @@ export default function SearchFlightForm({ initialData }) {
           >
             One-way
           </button>
-
           <button
             className={tripType === "roundtrip" ? styles.active : ""}
             onClick={() => setTripType("roundtrip")}
@@ -282,26 +201,28 @@ export default function SearchFlightForm({ initialData }) {
         <div className={styles.options}>
           {/* PASSENGER */}
           <div className={styles.dropdown} ref={passengerRef}>
-            <div
-              className={styles.dropdownBtn}
-              onClick={() => setShowPassenger(!showPassenger)}
-            >
-              {passengers.adult} Adult, {passengers.child} Child
+            <div className={styles.dropdownBtn} onClick={() => setShowPassenger(!showPassenger)}>
+              {passengers.adult} Adult{passengers.adult > 1 ? "s" : ""}
+              {passengers.child > 0 ? `, ${passengers.child} Child${passengers.child > 1 ? "ren" : ""}` : ""} ▾
             </div>
-
             {showPassenger && (
               <div className={styles.passengerBox}>
                 <div className={styles.passengerRow}>
-                  <span>Adult</span>
+                  <div>
+                    <span>Adult</span>
+                    <span className={styles.passengerSub}>12+ years</span>
+                  </div>
                   <div className={styles.counter}>
                     <button onClick={() => decrease("adult")}>-</button>
                     <span>{passengers.adult}</span>
                     <button onClick={() => increase("adult")}>+</button>
                   </div>
                 </div>
-
                 <div className={styles.passengerRow}>
-                  <span>Child</span>
+                  <div>
+                    <span>Child</span>
+                    <span className={styles.passengerSub}>2–11 years</span>
+                  </div>
                   <div className={styles.counter}>
                     <button onClick={() => decrease("child")}>-</button>
                     <span>{passengers.child}</span>
@@ -314,23 +235,16 @@ export default function SearchFlightForm({ initialData }) {
 
           {/* SEAT CLASS */}
           <div className={styles.dropdown} ref={seatClassRef}>
-            <div
-              className={styles.dropdownBtn}
-              onClick={() => setShowSeatClass(!showSeatClass)}
-            >
+            <div className={styles.dropdownBtn} onClick={() => setShowSeatClass(!showSeatClass)}>
               {seatClass} ▾
             </div>
-
             {showSeatClass && (
               <div className={styles.seatBox}>
                 {seatOptions.map((option) => (
                   <div
                     key={option}
                     className={`${styles.seatItem} ${seatClass === option ? styles.seatActive : ""}`}
-                    onClick={() => {
-                      setSeatClass(option);
-                      setShowSeatClass(false);
-                    }}
+                    onClick={() => { setSeatClass(option); setShowSeatClass(false); }}
                   >
                     {option}
                   </div>
@@ -341,18 +255,18 @@ export default function SearchFlightForm({ initialData }) {
         </div>
       </div>
 
-      {/* SEARCH */}
+      {/* SEARCH ROW */}
       <div className={styles.searchRow} ref={airportRef}>
         {/* FROM */}
         <div className={styles.field}>
-          <label>From</label>
+          <label>Departure city</label>
           <input
             value={from}
+            placeholder="City or airport"
             onClick={() => openAirportList("from")}
             onChange={(e) => searchAirport(e.target.value, "from")}
           />
-
-          {activeInput === "from" && (
+          {activeInput === "from" && airportResults.length > 0 && (
             <div className={styles.airportDropdown}>
               {airportResults.map((airport) => (
                 <div
@@ -369,20 +283,20 @@ export default function SearchFlightForm({ initialData }) {
         </div>
 
         {/* SWAP */}
-        <button className={styles.swap} onClick={swapAirport}>
+        <button className={styles.swap} onClick={swapAirport} type="button">
           <img src={swapIcon} alt="swap" />
         </button>
 
         {/* TO */}
         <div className={styles.field}>
-          <label>To</label>
+          <label>Destination city</label>
           <input
             value={to}
+            placeholder="City or airport"
             onClick={() => openAirportList("to")}
             onChange={(e) => searchAirport(e.target.value, "to")}
           />
-
-          {activeInput === "to" && (
+          {activeInput === "to" && airportResults.length > 0 && (
             <div className={styles.airportDropdown}>
               {airportResults.map((airport) => (
                 <div
@@ -398,18 +312,18 @@ export default function SearchFlightForm({ initialData }) {
           )}
         </div>
 
-        {/* DEPARTURE */}
+        {/* DEPARTURE DATE */}
         <div className={styles.field}>
           <label>Departure date</label>
           <input
             type="date"
             value={departureDate}
             min={today}
-            onChange={(e) => setDepartureDate(e.target.value)}
+            onChange={(e) => { setDepartureDate(e.target.value); setSearchError(""); }}
           />
         </div>
 
-        {/* RETURN */}
+        {/* RETURN DATE */}
         {tripType === "roundtrip" && (
           <div className={styles.field}>
             <label>Return date</label>
@@ -417,15 +331,22 @@ export default function SearchFlightForm({ initialData }) {
               type="date"
               value={returnDate}
               min={departureDate || today}
-              onChange={(e) => setReturnDate(e.target.value)}
+              onChange={(e) => { setReturnDate(e.target.value); setSearchError(""); }}
             />
           </div>
         )}
 
-        <button className={styles.searchBtn} onClick={handleSearch}>
-          Search Flights
+        <button className={styles.searchBtn} onClick={handleSearch} type="button">
+          🔍 Search Flights
         </button>
       </div>
+
+      {/* FIX: inline error thay vì alert() */}
+      {searchError && (
+        <div className={styles.searchError}>
+          ⚠️ {searchError}
+        </div>
+      )}
     </div>
   );
 }

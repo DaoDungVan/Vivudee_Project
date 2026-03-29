@@ -1,44 +1,96 @@
-.airlinesSection{
-  padding:80px 0;
+.airlinesSection {
+  padding: 70px 0 50px;
 }
 
-.container{
-  max-width:1200px;
-  margin:0 auto;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
-.title{
-  font-size:28px;
-  font-weight:700;
-  margin-bottom:40px;
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-.grid{
-  display:grid;
-  grid-template-columns:repeat(6,1fr);
-  gap:30px;
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
 }
 
-.card{
-  background:white;
-  border-radius:12px;
-  padding:20px;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  box-shadow:0 6px 18px rgba(0,0,0,0.08);
-
-  transition:0.25s;
+/* FIX: nút Show All / Show Less */
+.toggleBtn {
+  padding: 8px 20px;
+  border: 1.5px solid var(--primary-color);
+  background: transparent;
+  color: var(--primary-color);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
 }
 
-.card:hover{
-  transform:translateY(-5px);
-  box-shadow:0 12px 30px rgba(0,0,0,0.15);
+.toggleBtn:hover {
+  background: var(--primary-color);
+  color: #fff;
 }
 
-.card img{
-  max-width:100%;
-  max-height:40px;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+  transition: 0.25s;
+  min-height: 72px;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.card img {
+  max-width: 100%;
+  max-height: 40px;
+  object-fit: contain;
+}
+
+.fallbackName {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  text-align: center;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .title { font-size: 22px; }
+}
+
+@media (max-width: 400px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
 }

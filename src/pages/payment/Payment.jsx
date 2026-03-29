@@ -1,9 +1,20 @@
 // src/pages/payment/Payment.jsx
+// FIX 1: Thêm danh sách coupon gợi ý (fetch từ /coupons/available)
+// FIX 2: Thêm nút "Back to Booking" khi chưa thanh toán
+// FIX 3: Hiển thị loading indicator khi đang tải QR thay vì chờ trắng
+// FIX 4: Thông báo rõ khi chưa thanh toán (nút quay về + tiếp tục)
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
-import { initPayment, getPaymentByCode, cancelPayment, buildVietQRUrl } from "../../services/paymentService";
+import {
+  initPayment,
+  getPaymentByCode,
+  cancelPayment,
+  buildVietQRUrl,
+} from "../../services/paymentService";
+import API from "../../services/axiosInstance";
 import styles from "./Payment.module.css";
 
 import visaImg   from "../../assets/images/payments/visa.png";
@@ -36,8 +47,8 @@ const formatCountdown = (expiresAt) => {
 
 const PAYMENT_METHODS = [
   { id: "BANK_QR", label: "VietQR / Bank Transfer", img: vietqrImg },
-  { id: "MOMO",    label: "MoMo",                   img: momoImg, disabled: true },
-  { id: "VISA",    label: "Visa / Credit Card",     img: visaImg, disabled: true },
+  { id: "MOMO",    label: "MoMo",                   img: momoImg,   disabled: true },
+  { id: "VISA",    label: "Visa / Credit Card",     img: visaImg,   disabled: true },
   { id: "MASTER",  label: "Mastercard",              img: masterImg, disabled: true },
   { id: "PAYPAL",  label: "PayPal",                  img: paypalImg, disabled: true },
 ];
@@ -46,23 +57,26 @@ const Payment = () => {
   const navigate  = useNavigate();
   const { state } = useLocation();
 
-  // ── State ────────────────────────────────────────────────
-  const [selectedMethod, setSelectedMethod] = useState("BANK_QR");
-  const [couponCode, setCouponCode]         = useState("");
-  const [couponError, setCouponError]       = useState("");
-  const [couponApplied, setCouponApplied]   = useState(null);
-  const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const [selectedMethod,  setSelectedMethod]  = useState("BANK_QR");
+  const [couponCode,      setCouponCode]       = useState("");
+  const [couponError,     setCouponError]      = useState("");
+  const [couponApplied,   setCouponApplied]    = useState(null);
+  const [applyingCoupon,  setApplyingCoupon]   = useState(false);
+  const [availCoupons,    setAvailCoupons]     = useState([]);  // FIX: danh sách coupon gợi ý
+  const [showCouponList,  setShowCouponList]   = useState(false);
 
-  const [paymentData, setPaymentData]       = useState(null);
-  const [initLoading, setInitLoading]       = useState(false);
-  const [initError, setInitError]           = useState("");
+  const [paymentData,  setPaymentData]  = useState(null);
+  const [initLoading,  setInitLoading]  = useState(false);
+  const [initError,    setInitError]    = useState("");
 
-  const [countdown, setCountdown]           = useState(null);
-  const [expired, setExpired]               = useState(false);
-  const [polling, setPolling]               = useState(false);
-  const [paid, setPaid]                     = useState(false);
+  const [countdown, setCountdown] = useState(null);
+  const [expired,   setExpired]   = useState(false);
+  const [paid,      setPaid]      = useState(false);
 
-  // ── Guard ────────────────────────────────────────────────
+  // FIX: loading state riêng cho QR image
+  const [qrLoading, setQrLoading] = useState(false);
+
+  // Guard
   if (!state?.bookingData) {
     return (
       <div className={styles.empty}>
@@ -79,7 +93,16 @@ const Payment = () => {
 
   const finalAmount = paymentData?.payment?.final_amount ?? couponApplied?.final_amount ?? totalPrice;
 
-  // ── Held seat countdown ──────────────────────────────────
+  // FIX: Fetch danh sách coupon available
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    API.get("/coupons/available")
+      .then((res) => setAvailCoupons(res.data?.coupons || res.data?.data || []))
+      .catch(() => setAvailCoupons([]));
+  }, []);
+
+  // Held seat countdown
   useEffect(() => {
     if (!heldUntil) return;
     const iv = setInterval(() => {
@@ -90,15 +113,15 @@ const Payment = () => {
     return () => clearInterval(iv);
   }, [heldUntil]);
 
-  // ── Poll payment status ──────────────────────────────────
+  // Poll payment status
   useEffect(() => {
     if (!paymentData?.payment?.payment_code || paid) return;
     let active = true;
     const poll = async () => {
       try {
-        const res = await getPaymentByCode(paymentData.payment.payment_code);
+        const res    = await getPaymentByCode(paymentData.payment.payment_code);
         const status = res?.payment?.status?.toUpperCase();
-        if (["PAID","SUCCESS","COMPLETED","CONFIRMED"].includes(status)) {
+        if (["PAID", "SUCCESS", "COMPLETED", "CONFIRMED"].includes(status)) {
           if (active) setPaid(true);
         }
       } catch (_) {}
@@ -107,14 +130,14 @@ const Payment = () => {
     return () => { active = false; clearInterval(iv); };
   }, [paymentData, paid]);
 
-  // ── Apply coupon ─────────────────────────────────────────
+  // Apply coupon
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
       setCouponError("Please enter a coupon code");
       return;
     }
     if (totalPrice < 300000) {
-      setCouponError("Minimum order value of 300,000 ₫ required to use a promo code");
+      setCouponError("Minimum order value of 300,000 ₫ required");
       return;
     }
     setApplyingCoupon(true);
@@ -129,7 +152,14 @@ const Payment = () => {
     setCouponError("");
   };
 
-  // ── Init Payment ─────────────────────────────────────────
+  // FIX: Quick-select coupon từ danh sách
+  const handleSelectCoupon = (code) => {
+    setCouponCode(code);
+    setShowCouponList(false);
+    setCouponError("");
+  };
+
+  // Init Payment
   const handleInitPayment = async () => {
     if (!bookingId) {
       setInitError("Missing booking ID, cannot initialize payment.");
@@ -137,6 +167,7 @@ const Payment = () => {
     }
     setInitLoading(true);
     setInitError("");
+    setQrLoading(true);
     try {
       const payload = {
         booking_id:     bookingId,
@@ -148,16 +179,16 @@ const Payment = () => {
       };
       const res = await initPayment(payload);
       setPaymentData(res);
-      setPolling(true);
     } catch (err) {
       const msg = err?.response?.data?.message || err?.response?.data?.error || err?.message || "Payment initialization failed";
       setInitError(msg);
     } finally {
       setInitLoading(false);
+      // QR loading sẽ tắt khi ảnh load xong
     }
   };
 
-  // ── Cancel ───────────────────────────────────────────────
+  // Cancel
   const handleCancel = async () => {
     if (paymentData?.payment?.payment_code) {
       try { await cancelPayment(paymentData.payment.payment_code); } catch (_) {}
@@ -165,7 +196,12 @@ const Payment = () => {
     navigate("/");
   };
 
-  // ── Paid screen ──────────────────────────────────────────
+  // FIX: Nút quay về booking (trước khi init payment)
+  const handleBackToBooking = () => {
+    navigate(-1); // quay lại trang Booking trước đó
+  };
+
+  // Paid screen
   if (paid) {
     const pCode = paymentData?.payment?.payment_code || bookingCode;
     return (
@@ -175,9 +211,9 @@ const Payment = () => {
           <div className={styles.successCard}>
             <div className={styles.successIcon}>
               <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-                <circle cx="36" cy="36" r="36" fill="#22c55e" opacity="0.12"/>
-                <circle cx="36" cy="36" r="26" fill="#22c55e"/>
-                <path d="M24 36l8 8 16-16" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="36" cy="36" r="36" fill="#22c55e" opacity="0.12" />
+                <circle cx="36" cy="36" r="26" fill="#22c55e" />
+                <path d="M24 36l8 8 16-16" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
             <h2>Payment Successful!</h2>
@@ -201,7 +237,7 @@ const Payment = () => {
     );
   }
 
-  // ── Extract QR info from payment response ─────────────────
+  // Extract QR info
   const instruction     = paymentData?.payment?.instruction || {};
   const bankName        = instruction.bank_name || "VietinBank";
   const bankAccount     = instruction.bank_account || "";
@@ -210,7 +246,6 @@ const Payment = () => {
   const paymentCode     = paymentData?.payment?.payment_code || "";
   const expiresAt       = paymentData?.payment?.expires_at || null;
 
-  // Build QR image URL: prefer backend-provided URL, fall back to VietQR generator
   const qrImageUrl =
     instruction.qr_url ||
     instruction.qr_payload ||
@@ -218,20 +253,27 @@ const Payment = () => {
       ? buildVietQRUrl({
           bankCode:        instruction.bank_code || "ICB",
           accountNumber:   bankAccount,
-          accountName:     accountName,
+          accountName,
           amount:          paymentData?.payment?.final_amount || finalAmount,
-          transferContent: transferContent,
+          transferContent,
         })
       : null);
 
-  // ── Main render ───────────────────────────────────────────
+  const discountDisplay = availCoupons.length > 0
+    ? availCoupons.map((c) => {
+        if (c.discount_percent) return `-${c.discount_percent}%`;
+        if (c.discount_amount)  return `-${fmt(c.discount_amount)}`;
+        return "";
+      })
+    : [];
+
   return (
     <>
       <NavBar />
       <div className={styles.wrapper}>
         <div className={styles.layout}>
 
-          {/* ─── LEFT ─────────────────────────────── */}
+          {/* ── LEFT ─────────────────────────────── */}
           <div className={styles.left}>
             <h2 className={styles.pageTitle}>Payment</h2>
 
@@ -254,6 +296,9 @@ const Payment = () => {
             {expired && (
               <div className={styles.expiredBanner}>
                 ⚠️ Seat hold has expired. Please search for flights again.
+                <button className={styles.expiredBackBtn} onClick={() => navigate("/flights")}>
+                  Search Again
+                </button>
               </div>
             )}
 
@@ -300,6 +345,7 @@ const Payment = () => {
               {passengers?.map((p, i) => (
                 <div key={i} className={styles.invoicePaxRow}>
                   <span>{p.fullName}</span>
+                  {/* FIX: hiển thị đúng Adult/Child */}
                   <span className={styles.invoicePaxType}>
                     {i < (state.passengers?.adults || 1) ? "Adult" : "Child"}
                   </span>
@@ -319,7 +365,7 @@ const Payment = () => {
                   <span>🎟 Discount ({couponApplied.code})</span>
                   <span>
                     {paymentData?.payment?.discount_amount > 0
-                      ? `- ${fmt(paymentData.payment.discount_amount)}`
+                      ? `− ${fmt(paymentData.payment.discount_amount)}`
                       : "Applied at checkout"}
                   </span>
                 </div>
@@ -331,17 +377,60 @@ const Payment = () => {
               </div>
             </div>
 
-            {/* Coupon */}
+            {/* FIX: Coupon — thêm danh sách gợi ý */}
             {!paymentData && (
               <div className={styles.couponCard}>
-                <h3 className={styles.couponTitle}>🎟 Promo Code</h3>
+                <div className={styles.couponCardHeader}>
+                  <h3 className={styles.couponTitle}>🎟 Promo Code</h3>
+                  {availCoupons.length > 0 && (
+                    <button
+                      className={styles.showCouponsBtn}
+                      onClick={() => setShowCouponList((v) => !v)}
+                    >
+                      {showCouponList ? "Hide" : `My Coupons (${availCoupons.length})`}
+                    </button>
+                  )}
+                </div>
+
+                {/* Danh sách coupon available */}
+                {showCouponList && availCoupons.length > 0 && (
+                  <div className={styles.couponListBox}>
+                    {availCoupons.map((c, i) => (
+                      <div key={c.id || i} className={styles.couponListItem}>
+                        <div className={styles.couponListLeft}>
+                          <span className={styles.couponListCode}>{c.code}</span>
+                          <span className={styles.couponListDesc}>
+                            {c.name || c.description || (c.discount_percent ? `${c.discount_percent}% off` : `${fmt(c.discount_amount || 0)} off`)}
+                          </span>
+                          {c.min_order_amount > 0 && (
+                            <span className={styles.couponListMin}>
+                              Min. {fmt(c.min_order_amount)}
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          className={styles.couponListUseBtn}
+                          onClick={() => {
+                            handleSelectCoupon(c.code);
+                            setCouponApplied({ code: c.code, voucher_code: c.code });
+                          }}
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {couponApplied ? (
                   <div className={styles.couponApplied}>
                     <div className={styles.couponAppliedInfo}>
                       <span className={styles.couponTag}>✓ {couponApplied.code}</span>
                       <span className={styles.couponDiscount}>Applied</span>
                     </div>
-                    <button className={styles.couponRemoveBtn} onClick={handleRemoveCoupon}>Remove</button>
+                    <button className={styles.couponRemoveBtn} onClick={handleRemoveCoupon}>
+                      Remove
+                    </button>
                   </div>
                 ) : (
                   <>
@@ -364,7 +453,7 @@ const Payment = () => {
                     </div>
                     {couponError && <p className={styles.couponErrorMsg}>{couponError}</p>}
                     <p className={styles.couponHint}>
-                      Coupon will be validated at checkout. Discount appears after payment is initialized.
+                      Discount is applied after payment initialization.
                     </p>
                   </>
                 )}
@@ -386,7 +475,7 @@ const Payment = () => {
                     >
                       <img src={m.img} alt={m.label} />
                       <span>{m.label}</span>
-                      {m.disabled && <span className={styles.comingSoon}>Coming soon</span>}
+                      {m.disabled && <span className={styles.comingSoon}>Soon</span>}
                     </button>
                   ))}
                 </div>
@@ -395,11 +484,12 @@ const Payment = () => {
 
             {initError && <div className={styles.errorBanner}>{initError}</div>}
 
-            {/* Action buttons */}
+            {/* FIX: Action buttons — thêm "Back" trước khi init, thêm thông báo */}
             {!paymentData ? (
               <div className={styles.actionRow}>
-                <button className={styles.cancelBtn} onClick={handleCancel}>
-                  Cancel
+                {/* FIX: Nút quay về booking */}
+                <button className={styles.backBtn} onClick={handleBackToBooking}>
+                  ← Back
                 </button>
                 <button
                   className={styles.payBtn}
@@ -423,18 +513,16 @@ const Payment = () => {
                   onClick={handleInitPayment}
                   disabled={initLoading}
                 >
-                  New Transaction
+                  New QR
                 </button>
               </div>
             )}
           </div>
 
-          {/* ─── RIGHT — QR Code ────────────────────── */}
+          {/* ── RIGHT — QR Code ────────────────────── */}
           <div className={styles.right}>
-
             {paymentData ? (
               <>
-                {/* QR Card */}
                 <div className={styles.qrCard}>
                   <div className={styles.qrHeader}>
                     <img src={vietqrImg} alt="VietQR" className={styles.vietqrLogo} />
@@ -450,13 +538,20 @@ const Payment = () => {
                     </p>
                   )}
 
+                  {/* FIX: QR loading skeleton trước khi ảnh tải xong */}
                   {qrImageUrl ? (
                     <div className={styles.qrImageWrapper}>
+                      {qrLoading && <div className={styles.qrSkeleton}><span>Generating QR...</span></div>}
                       <img
                         src={qrImageUrl}
                         alt="VietQR Code"
                         className={styles.qrImage}
-                        onError={(e) => { e.target.style.display = "none"; }}
+                        style={{ display: qrLoading ? "none" : "block" }}
+                        onLoad={() => setQrLoading(false)}
+                        onError={(e) => {
+                          setQrLoading(false);
+                          e.target.style.display = "none";
+                        }}
                       />
                     </div>
                   ) : (
@@ -465,34 +560,36 @@ const Payment = () => {
                     </div>
                   )}
 
-                  {/* Bank info block */}
+                  {/* Bank info */}
                   <div className={styles.bankInfo}>
                     <div className={styles.bankRow}>
                       <span className={styles.bankLabel}>Bank:</span>
                       <span className={styles.bankValue}>{bankName}</span>
                     </div>
                     <div className={styles.bankRow}>
-                      <span className={styles.bankLabel}>Account No.:</span>
+                      <span className={styles.bankLabel}>Account:</span>
                       <span className={styles.bankValue}>{bankAccount}</span>
                     </div>
                     <div className={styles.bankRow}>
-                      <span className={styles.bankLabel}>Account Name:</span>
+                      <span className={styles.bankLabel}>Name:</span>
                       <span className={styles.bankValue}>{accountName}</span>
                     </div>
                     <div className={styles.bankRow}>
                       <span className={styles.bankLabel}>Amount:</span>
-                      <span className={`${styles.bankValue} ${styles.bankAmount}`}>{fmt(paymentData.payment?.final_amount || finalAmount)}</span>
+                      <span className={`${styles.bankValue} ${styles.bankAmount}`}>
+                        {fmt(paymentData.payment?.final_amount || finalAmount)}
+                      </span>
                     </div>
                     <div className={styles.bankRow}>
-                      <span className={styles.bankLabel}>Reference:</span>
+                      <span className={styles.bankLabel}>Ref:</span>
                       <span className={`${styles.bankValue} ${styles.bankContent}`}>{transferContent}</span>
                     </div>
                   </div>
 
                   <div className={styles.qrNote}>
-                    <p>📱 Open your banking app and scan the QR code to pay</p>
+                    <p>📱 Open banking app → scan QR or transfer manually</p>
                     <p className={styles.qrNoteImportant}>
-                      ⚠️ Use the exact reference to ensure automatic confirmation
+                      ⚠️ Use exact reference for auto confirmation
                     </p>
                   </div>
 
@@ -502,7 +599,6 @@ const Payment = () => {
                   </div>
                 </div>
 
-                {/* Payment code */}
                 <div className={styles.payCodeCard}>
                   <p className={styles.payCodeLabel}>Payment Code</p>
                   <p className={styles.payCodeValue}>{paymentCode}</p>
@@ -512,7 +608,7 @@ const Payment = () => {
                 </div>
               </>
             ) : (
-              /* Before init — show preview */
+              /* Before init */
               <div className={styles.qrCard}>
                 <div className={styles.qrHeader}>
                   <img src={vietqrImg} alt="VietQR" className={styles.vietqrLogo} />

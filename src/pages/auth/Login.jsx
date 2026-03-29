@@ -3,87 +3,64 @@ import NavBar from "../../components/common/NavBar/Navbar";
 import styles from "./Login.module.css";
 
 import { FcGoogle } from "react-icons/fc";
-import { FaFacebook } from "react-icons/fa";
-import { FaApple, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaFacebook, FaEye, FaEyeSlash } from "react-icons/fa";
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { loginUser } from "../../services/authService";
+import { signInWithGoogle, signInWithFacebook } from "../../lib/supabase";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [error, setError] = useState("");
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState("");
+  const navigate = useNavigate();
 
   const validate = () => {
-    const newErrors = {};
-    const trimmedEmail = email.trim();
-    const trimmedPassword = password.trim();
-
-    if (!trimmedEmail) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-      newErrors.email = "Invalid email format (e.g. example@email.com)";
-    }
-
-    if (!trimmedPassword) {
-      newErrors.password = "Password is required";
-    } else if (trimmedPassword.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    }
-
-    return newErrors;
+    const errs = {};
+    if (!email.trim()) errs.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
+      errs.email = "Invalid email format";
+    if (!password.trim()) errs.password = "Password is required";
+    else if (password.trim().length < 8)
+      errs.password = "Password must be at least 8 characters";
+    return errs;
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
     setErrors({});
-
-    const trimmedEmail = email.trim();
-    const trimmedPassword = password.trim();
-
     setLoading(true);
-
     try {
       const res = await loginUser({
-        email: trimmedEmail,
-        password: trimmedPassword,
+        email: email.trim(),
+        password: password.trim(),
       });
       const token = res.data?.token;
-
       if (!token) {
         setError("No token received");
         return;
       }
-
       localStorage.setItem("token", token);
-      if (res.data?.user) {
+      if (res.data?.user)
         localStorage.setItem("user", JSON.stringify(res.data.user));
-      }
-
-      // ✅ FIX CHÍNH: báo cho NavBar biết localStorage đã thay đổi
-      // mà không cần reload trang → tránh lag/chậm
       window.dispatchEvent(new Event("storage"));
-
       navigate("/");
-    } catch (error) {
+    } catch (err) {
       setError(
-        error.response?.data?.message ||
-          error.response?.data?.error ||
+        err.response?.data?.message ||
+          err.response?.data?.error ||
           "Login failed",
       );
     } finally {
@@ -91,34 +68,55 @@ const Login = () => {
     }
   };
 
+  const handleGoogleLogin = () => {
+    setSocialLoading("google");
+    setError("");
+    signInWithGoogle(); // redirect sang Supabase → Google
+  };
+
+  const handleFacebookLogin = () => {
+    setSocialLoading("facebook");
+    setError("");
+    signInWithFacebook(); // redirect sang Supabase → Facebook
+  };
+
   return (
     <>
       <NavBar />
-
       <div className={styles.wrapper}>
         <h2 className={styles.title}>Login to your account</h2>
-
         <div className={styles.card}>
           <h3 className={styles.cardTitle}>Welcome back!</h3>
           <p className={styles.cardDesc}>
             Sign in to continue your journey with Vivudee
           </p>
 
-          {/* SOCIAL */}
+          {/* SOCIAL — Apple đã xóa */}
           <div className={styles.social}>
-            <button className={styles.socialBtn}>
-              <FcGoogle />
+            <button
+              className={styles.socialBtn}
+              onClick={handleGoogleLogin}
+              disabled={!!socialLoading}
+            >
+              {socialLoading === "google" ? (
+                <span className={styles.socialSpinner} />
+              ) : (
+                <FcGoogle />
+              )}
               <span>Google</span>
             </button>
 
-            <button className={styles.socialBtn}>
-              <FaFacebook className={styles.fbIcon} />
+            <button
+              className={styles.socialBtn}
+              onClick={handleFacebookLogin}
+              disabled={!!socialLoading}
+            >
+              {socialLoading === "facebook" ? (
+                <span className={styles.socialSpinner} />
+              ) : (
+                <FaFacebook className={styles.fbIcon} />
+              )}
               <span>Facebook</span>
-            </button>
-
-            <button className={styles.socialBtn}>
-              <FaApple />
-              <span>Apple ID</span>
             </button>
           </div>
 
@@ -126,11 +124,9 @@ const Login = () => {
             <span>or sign in with email</span>
           </div>
 
-          {/* FORM */}
           <form className={styles.form} onSubmit={handleLogin}>
             {error && <p className={styles.error}>{error}</p>}
 
-            {/* Email */}
             <label className={styles.label}>Email address</label>
             <input
               type="text"
@@ -139,13 +135,14 @@ const Login = () => {
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                setErrors((prev) => ({ ...prev, email: "" }));
+                setErrors((p) => ({ ...p, email: "" }));
                 setError("");
               }}
             />
-            {errors.email && <p className={styles.fieldError}>{errors.email}</p>}
+            {errors.email && (
+              <p className={styles.fieldError}>{errors.email}</p>
+            )}
 
-            {/* Password */}
             <label className={styles.label}>Password</label>
             <div className={styles.password}>
               <input
@@ -155,7 +152,7 @@ const Login = () => {
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
-                  setErrors((prev) => ({ ...prev, password: "" }));
+                  setErrors((p) => ({ ...p, password: "" }));
                   setError("");
                 }}
               />
@@ -166,17 +163,16 @@ const Login = () => {
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </span>
             </div>
+            {errors.password && (
+              <p className={styles.fieldError}>{errors.password}</p>
+            )}
 
-            {errors.password && <p className={styles.fieldError}>{errors.password}</p>}
-
-            {/* Forgot */}
             <div className={styles.forgot}>
               <span onClick={() => navigate("/forgot-password")}>
                 Forgot password?
               </span>
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               className={styles.loginBtn}
@@ -185,7 +181,6 @@ const Login = () => {
               {loading ? "Signing in..." : "Sign In"}
             </button>
 
-            {/* Register */}
             <p className={styles.registerText}>
               Don't have an account?{" "}
               <span
@@ -198,8 +193,6 @@ const Login = () => {
           </form>
         </div>
       </div>
-
-      {/* <Footer /> */}
     </>
   );
 };
