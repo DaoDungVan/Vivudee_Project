@@ -424,6 +424,37 @@
   font-size: 14px;
 }
 
+/* ── Confirm cancel inline ──────────────── */
+.confirmRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.confirmText { font-size: 13px; color: #555; flex: 1; }
+.confirmYes {
+  background: #e74c3c; color: #fff;
+  border: none; border-radius: 8px;
+  padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.confirmYes:disabled { opacity: 0.6; cursor: not-allowed; }
+.confirmNo {
+  background: #f5f5f5; color: #555;
+  border: none; border-radius: 8px;
+  padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+
+.cancelErrorBanner {
+  background: #fff5f5;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: #dc2626;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
 /* ── Responsive ─────────────────────────── */
 @media (max-width: 600px) {
   .wrapper { padding: 24px 16px 60px; }

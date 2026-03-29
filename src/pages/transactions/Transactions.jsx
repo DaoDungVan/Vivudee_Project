@@ -6,7 +6,7 @@ import Footer from "../../components/common/Footer/Footer";
 import API from "../../services/axiosInstance";
 import styles from "./Transactions.module.css";
 
-const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n) + " ₫";
+const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n) + " VND";
 
 const STATUS_MAP = {
   PENDING:   { label: "Pending",   cls: "pending" },

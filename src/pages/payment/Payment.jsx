@@ -17,7 +17,7 @@ import momoImg   from "../../assets/images/payments/momo.png";
 import vietqrImg from "../../assets/images/payments/vietqr.png";
 import paypalImg from "../../assets/images/payments/paypal.png";
 
-const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n) + " ₫";
+const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n) + " VND";
 
 const formatTime = (iso) => {
   if (!iso) return "--:--";
@@ -71,6 +71,7 @@ const Payment = () => {
   const [expired,   setExpired]   = useState(false);
   const [paid,      setPaid]      = useState(false);
   const [qrLoading, setQrLoading] = useState(false);
+  const [qrError,   setQrError]   = useState(false);
 
   if (!state?.bookingData) {
     return (
@@ -131,7 +132,7 @@ const Payment = () => {
 
   const handleApplyCoupon = () => {
     if (!couponCode.trim()) { setCouponError("Please enter a coupon code"); return; }
-    if (totalPrice < 300000) { setCouponError("Minimum order value of 300,000 ₫ required"); return; }
+    if (totalPrice < 300000) { setCouponError("Minimum order value of 300,000 VND required"); return; }
     setCouponError("");
     setCouponApplied({ code: couponCode.trim(), voucher_code: couponCode.trim() });
   };
@@ -147,6 +148,7 @@ const Payment = () => {
     setInitLoading(true);
     setInitError("");
     setQrLoading(true);
+    setQrError(false);
 
     // FIX: Với MoMo hiện overlay ngay lập tức để user biết đang xử lý
     // vì Render cold start có thể mất 10-20s
@@ -168,12 +170,12 @@ const Payment = () => {
       if (selectedMethod === "MOMO") {
         const payUrl = res?.payment?.instruction?.pay_url;
         if (payUrl) {
-          // Điều hướng cùng tab — MoMo xử lý xong redirect về backend
           window.location.href = payUrl;
           return;
         } else {
           setMomoRedirecting(false);
-          setInitError("Không lấy được link thanh toán MoMo. Vui lòng thử lại.");
+          setSelectedMethod("BANK_QR");
+          setInitError("Could not connect to MoMo. Switched to VietQR — please use bank transfer to complete your payment.");
           return;
         }
       }
@@ -182,8 +184,18 @@ const Payment = () => {
       setPaymentData(res);
     } catch (err) {
       setMomoRedirecting(false);
-      const msg = err?.response?.data?.message || err?.response?.data?.error || err?.message || "Payment initialization failed";
-      setInitError(msg);
+      const raw = err?.response?.data?.message || err?.response?.data?.error || err?.message || "";
+      const isPendingExists = raw.toLowerCase().includes("pending payment");
+      const isMomoError = selectedMethod === "MOMO";
+      if (isPendingExists) {
+        setInitError("A payment for this booking already exists. Please use VietQR / Bank Transfer to complete it.");
+        setSelectedMethod("BANK_QR");
+      } else if (isMomoError) {
+        setSelectedMethod("BANK_QR");
+        setInitError("MoMo is currently unavailable. Switched to VietQR — please use bank transfer to complete your payment.");
+      } else {
+        setInitError(raw || "Payment initialization failed. Please try again.");
+      }
     } finally {
       setInitLoading(false);
     }
@@ -263,9 +275,9 @@ const Payment = () => {
           <div className={styles.momoOverlayCard}>
             <img src={momoImg} alt="MoMo" className={styles.momoOverlayLogo} />
             <div className={styles.momoOverlaySpinner} />
-            <p className={styles.momoOverlayTitle}>Đang kết nối MoMo...</p>
+            <p className={styles.momoOverlayTitle}>Connecting to MoMo...</p>
             <p className={styles.momoOverlayNote}>
-              Vui lòng chờ, bạn sẽ được chuyển đến trang thanh toán MoMo
+              Please wait, you will be redirected to the MoMo payment page
             </p>
           </div>
         </div>
@@ -494,8 +506,8 @@ const Payment = () => {
                   <div className={styles.momoMethodNote}>
                     <span>📱</span>
                     <span>
-                      Bạn sẽ được chuyển sang trang MoMo. Trên máy tính, dùng QR hoặc đăng nhập tài khoản MoMo tại đó.
-                      Lỗi <em>"Failed to launch intent"</em> trên PC là bình thường — chọn <strong>Thanh toán bằng Ví MoMo</strong> trên trang MoMo.
+                      You will be redirected to MoMo. On desktop, scan the QR or log in to your MoMo account.
+                      The <em>"Failed to launch intent"</em> error on PC is normal — select <strong>Pay with MoMo Wallet</strong> on the MoMo page.
                     </span>
                   </div>
                 )}
@@ -552,7 +564,7 @@ const Payment = () => {
                     </p>
                   )}
 
-                  {qrImageUrl ? (
+                  {qrImageUrl && !qrError ? (
                     <div className={styles.qrImageWrapper}>
                       {qrLoading && (
                         <div className={styles.qrSkeleton}><span>Generating QR...</span></div>
@@ -563,11 +575,15 @@ const Payment = () => {
                         className={styles.qrImage}
                         style={{ display: qrLoading ? "none" : "block" }}
                         onLoad={() => setQrLoading(false)}
-                        onError={(e) => { setQrLoading(false); e.target.style.display = "none"; }}
+                        onError={() => { setQrLoading(false); setQrError(true); }}
                       />
                     </div>
                   ) : (
-                    <div className={styles.qrPlaceholder}><p>Loading QR...</p></div>
+                    <div className={styles.qrUnavailable}>
+                      <span className={styles.qrUnavailableIcon}>🏦</span>
+                      <p className={styles.qrUnavailableText}>QR unavailable</p>
+                      <p className={styles.qrUnavailableSub}>Please transfer manually using the bank details below</p>
+                    </div>
                   )}
 
                   <div className={styles.bankInfo}>
@@ -575,14 +591,18 @@ const Payment = () => {
                       <span className={styles.bankLabel}>Bank:</span>
                       <span className={styles.bankValue}>{bankName}</span>
                     </div>
-                    <div className={styles.bankRow}>
-                      <span className={styles.bankLabel}>Account:</span>
-                      <span className={styles.bankValue}>{bankAccount}</span>
-                    </div>
-                    <div className={styles.bankRow}>
-                      <span className={styles.bankLabel}>Name:</span>
-                      <span className={styles.bankValue}>{accountName}</span>
-                    </div>
+                    {bankAccount && (
+                      <div className={styles.bankRow}>
+                        <span className={styles.bankLabel}>Account:</span>
+                        <span className={styles.bankValue}>{bankAccount}</span>
+                      </div>
+                    )}
+                    {accountName && (
+                      <div className={styles.bankRow}>
+                        <span className={styles.bankLabel}>Name:</span>
+                        <span className={styles.bankValue}>{accountName}</span>
+                      </div>
+                    )}
                     <div className={styles.bankRow}>
                       <span className={styles.bankLabel}>Amount:</span>
                       <span className={`${styles.bankValue} ${styles.bankAmount}`}>
@@ -631,13 +651,13 @@ const Payment = () => {
                   </div>
                   <p>
                     {selectedMethod === "MOMO"
-                      ? "Bạn sẽ được chuyển sang trang MoMo để thanh toán"
+                      ? "You will be redirected to MoMo to complete payment"
                       : "Your VietQR code will appear here after clicking Pay"
                     }
                   </p>
                   <p className={styles.qrPreviewSub}>
                     {selectedMethod === "MOMO"
-                      ? "Sau khi thanh toán xong, MoMo sẽ hiển thị kết quả giao dịch"
+                      ? "After payment, MoMo will display the transaction result"
                       : "Supports all Vietnamese banks via VietQR"
                     }
                   </p>

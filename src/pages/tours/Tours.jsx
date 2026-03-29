@@ -154,9 +154,9 @@ const Tours = () => {
                 <div className={styles.cardFooter}>
                   <div className={styles.pricing}>
                     {tour.originalPrice && (
-                      <span className={styles.originalPrice}>{fmt(tour.originalPrice)}₫</span>
+                      <span className={styles.originalPrice}>{fmt(tour.originalPrice)}VND</span>
                     )}
-                    <span className={styles.price}>{fmt(tour.price)}₫</span>
+                    <span className={styles.price}>{fmt(tour.price)}VND</span>
                     <span className={styles.priceNote}>/person</span>
                   </div>
                   <div className={styles.rating}>

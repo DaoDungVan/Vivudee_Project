@@ -60,7 +60,7 @@ const Coupons = () => {
     if (c.discount_type === "percent" || c.discount_percent) {
       return `-${c.discount_percent || c.discount_value}%`;
     }
-    return `-${fmt(c.discount_amount || c.discount_value)} ₫`;
+    return `-${fmt(c.discount_amount || c.discount_value)} VND`;
   };
 
   return (
@@ -95,8 +95,8 @@ const Coupons = () => {
               <div className={styles.checkSuccessInfo}>
                 <p><strong>Code:</strong> {checkResult.code || checkCode}</p>
                 {checkResult.discount_percent && <p><strong>Discount:</strong> {checkResult.discount_percent}%</p>}
-                {checkResult.discount_amount  && <p><strong>Discount:</strong> {fmt(checkResult.discount_amount)} ₫</p>}
-                {checkResult.min_order_amount && <p><strong>Min. order:</strong> {fmt(checkResult.min_order_amount)} ₫</p>}
+                {checkResult.discount_amount  && <p><strong>Discount:</strong> {fmt(checkResult.discount_amount)} VND</p>}
+                {checkResult.min_order_amount && <p><strong>Min. order:</strong> {fmt(checkResult.min_order_amount)} VND</p>}
                 {checkResult.expires_at && (
                   <p><strong>Expires:</strong> {new Date(checkResult.expires_at).toLocaleDateString("en-GB")}</p>
                 )}
@@ -124,7 +124,7 @@ const Coupons = () => {
                   <p className={styles.couponDiscount}>{discountDisplay(c)}</p>
                   <p className={styles.couponName}>{c.name || c.description || "Promotion"}</p>
                   {c.min_order_amount > 0 && (
-                    <p className={styles.couponMin}>Min. order: {fmt(c.min_order_amount)} ₫</p>
+                    <p className={styles.couponMin}>Min. order: {fmt(c.min_order_amount)} VND</p>
                   )}
                   {c.expires_at && (
                     <p className={styles.couponExpiry}>
