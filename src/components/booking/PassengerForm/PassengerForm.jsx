@@ -7,9 +7,9 @@ const buildBaggageOptions = (flight) => {
   const pricePerKg = flight?.seat?.extra_baggage_price || 250000;
   return [
     { kg: 0,  label: "No extra", price: 0 },
-    { kg: 5,  label: "+5 kg",    price: pricePerKg },
-    { kg: 10, label: "+10 kg",   price: pricePerKg },
-    { kg: 20, label: "+20 kg",   price: pricePerKg },
+    { kg: 5,  label: "+5 kg",    price: 5  * pricePerKg },
+    { kg: 10, label: "+10 kg",   price: 10 * pricePerKg },
+    { kg: 20, label: "+20 kg",   price: 20 * pricePerKg },
   ];
 };
 

@@ -350,3 +350,18 @@ giống form thực tế hơn placeholder-only */
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+@media (max-width: 480px) {
+  .wrapper {
+    padding: 80px 16px 40px;
+    align-items: stretch;
+  }
+  .card {
+    width: 100%;
+    padding: 24px 18px;
+    margin-top: 16px;
+  }
+  .otpBox {
+    width: calc(100% - 32px);
+  }
+}

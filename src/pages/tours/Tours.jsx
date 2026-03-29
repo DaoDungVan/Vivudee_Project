@@ -1,5 +1,6 @@
 // src/pages/tours/Tours.jsx
 import { useState } from "react";
+import { toast } from "react-toastify";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import styles from "./Tours.module.css";
@@ -162,7 +163,7 @@ const Tours = () => {
                     ⭐ {tour.rating} <span className={styles.reviews}>({tour.reviews})</span>
                   </div>
                 </div>
-                <button className={styles.bookBtn} onClick={() => alert("Tour booking coming soon!")}>
+                <button className={styles.bookBtn} onClick={() => toast.info("Tour booking coming soon!")}>
                   Book Now
                 </button>
               </div>

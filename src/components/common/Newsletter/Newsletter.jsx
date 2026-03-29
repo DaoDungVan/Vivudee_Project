@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 import styles from "./Newsletter.module.css";
 
 export default function Newsletter() {
@@ -8,11 +9,11 @@ export default function Newsletter() {
   const handleSubscribe = () => {
 
     if (!email) {
-      alert("Please enter your email");
+      toast.error("Please enter your email");
       return;
     }
 
-    alert("Subscribed with: " + email);
+    toast.success("Subscribed successfully!");
 
     // TODO:
     // connect newsletter API later

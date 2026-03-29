@@ -5,6 +5,7 @@
 .container{
   max-width:1200px;
   margin:0 auto;
+  padding: 0 20px;
 }
 
 .title{
@@ -135,4 +136,17 @@
 
 .copyBtn:hover{
   opacity:0.9;
+}
+
+@media (max-width: 600px) {
+  .couponSection {
+    padding: 48px 0;
+  }
+  .title {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+  .card {
+    min-width: 280px;
+  }
 }

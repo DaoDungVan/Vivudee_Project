@@ -124,3 +124,23 @@ li:hover {
   align-items: center;
   border-radius: 10px;
 }
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+}
+
+@media (max-width: 560px) {
+  .footer {
+    padding: 40px 0;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .payPartner {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

@@ -189,3 +189,9 @@
   .sidebar { position: static; }
   .formGrid { grid-template-columns: 1fr; }
 }
+
+@media (max-width: 480px) {
+  .wrapper { padding: 20px 14px 60px; }
+  .card { padding: 20px 16px; }
+  .securityItem { flex-direction: column; align-items: flex-start; gap: 10px; }
+}

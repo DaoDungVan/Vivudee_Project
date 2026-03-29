@@ -8,11 +8,14 @@ import {
   FaCreditCard,
   FaTicketAlt,
   FaSignOutAlt,
+  FaBars,
+  FaTimes,
 } from "react-icons/fa";
 
 function NavBar() {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   // ✅ Chuyển sang state để React re-render khi thay đổi
   const [user, setUser] = useState(() => {
@@ -72,6 +75,8 @@ function NavBar() {
     navigate("/");
   };
 
+  const closeMobile = () => setMobileOpen(false);
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.container}>
@@ -79,6 +84,7 @@ function NavBar() {
           <img src={logo} alt="Vivudee Logo" onClick={() => navigate("/")} />
         </div>
 
+        {/* Desktop nav */}
         <div className={styles.rightSection}>
           <div className={styles.menu}>
             <span onClick={() => navigate("/flights")}>Flights</span>
@@ -107,21 +113,16 @@ function NavBar() {
                     <p className={styles.icons} onClick={() => { navigate("/profile"); setShowMenu(false); }}>
                       <FaUser /> Profile
                     </p>
-
                     <p className={styles.icons} onClick={() => { navigate("/my-booking"); setShowMenu(false); }}>
                       <FaPlane /> My Booking
                     </p>
-
                     <p className={styles.icons} onClick={() => { navigate("/transactions"); setShowMenu(false); }}>
                       <FaCreditCard /> Transactions
                     </p>
-
                     <p className={styles.icons} onClick={() => { navigate("/coupons"); setShowMenu(false); }}>
                       <FaTicketAlt /> Coupons
                     </p>
-
                     <hr className={styles.dividerLine} />
-
                     <p className={styles.logout} onClick={handleLogout}>
                       <FaSignOutAlt /> Logout
                     </p>
@@ -130,23 +131,43 @@ function NavBar() {
               </div>
             ) : (
               <>
-                <button
-                  className={styles.login}
-                  onClick={() => navigate("/login")}
-                >
-                  Login
-                </button>
-                <button
-                  className={styles.register}
-                  onClick={() => navigate("/register")}
-                >
-                  Register
-                </button>
+                <button className={styles.login} onClick={() => navigate("/login")}>Login</button>
+                <button className={styles.register} onClick={() => navigate("/register")}>Register</button>
               </>
             )}
           </div>
         </div>
+
+        {/* Hamburger button (mobile only) */}
+        <button className={styles.hamburger} onClick={() => setMobileOpen((p) => !p)} aria-label="Toggle menu">
+          {mobileOpen ? <FaTimes /> : <FaBars />}
+        </button>
       </div>
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div className={styles.mobileMenu}>
+          <span onClick={() => { navigate("/flights"); closeMobile(); }}>Flights</span>
+          <span onClick={() => { navigate("/tours"); closeMobile(); }}>Tour</span>
+          <span onClick={() => { navigate("/bookings"); closeMobile(); }}>Bookings</span>
+          <span onClick={() => { navigate("/contact"); closeMobile(); }}>Contact Us</span>
+          <hr className={styles.mobileDivider} />
+          {token ? (
+            <>
+              <span onClick={() => { navigate("/profile"); closeMobile(); }}><FaUser /> Profile</span>
+              <span onClick={() => { navigate("/my-booking"); closeMobile(); }}><FaPlane /> My Booking</span>
+              <span onClick={() => { navigate("/transactions"); closeMobile(); }}><FaCreditCard /> Transactions</span>
+              <span onClick={() => { navigate("/coupons"); closeMobile(); }}><FaTicketAlt /> Coupons</span>
+              <span className={styles.mobileLogout} onClick={() => { handleLogout(); closeMobile(); }}><FaSignOutAlt /> Logout</span>
+            </>
+          ) : (
+            <div className={styles.mobileAuth}>
+              <button className={styles.login} onClick={() => { navigate("/login"); closeMobile(); }}>Login</button>
+              <button className={styles.register} onClick={() => { navigate("/register"); closeMobile(); }}>Register</button>
+            </div>
+          )}
+        </div>
+      )}
     </nav>
   );
 }

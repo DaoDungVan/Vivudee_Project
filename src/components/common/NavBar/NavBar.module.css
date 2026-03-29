@@ -192,3 +192,70 @@
 .hiUser{
   font-weight: bold;
 }
+
+/* Hamburger button — hidden on desktop */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--text-primary);
+  padding: 4px;
+}
+
+/* Mobile dropdown menu */
+.mobileMenu {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-top: 1px solid #eee;
+  padding: 12px 20px 20px;
+  gap: 4px;
+}
+
+.mobileMenu span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 8px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.mobileMenu span:hover {
+  background: #f5f7fb;
+  color: var(--primary-color);
+}
+
+.mobileLogout {
+  color: #e53935 !important;
+}
+
+.mobileDivider {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 6px 0;
+}
+
+.mobileAuth {
+  display: flex;
+  gap: 10px;
+  padding: 8px 8px 0;
+}
+
+.mobileAuth button {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .rightSection {
+    display: none;
+  }
+  .hamburger {
+    display: block;
+  }
+}

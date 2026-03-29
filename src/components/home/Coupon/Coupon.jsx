@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import styles from "./Coupon.module.css";
 import planeIcon from "../../../assets/icons/plane.png";
 import API from "../../../services/axiosInstance";
@@ -24,7 +25,7 @@ export default function Coupon() {
 
   const copyCode = (code) => {
     navigator.clipboard.writeText(code);
-    alert("Copied: " + code);
+    toast.success(`Copied: ${code}`);
   };
 
   let isDown = false, startX, scrollLeft;
