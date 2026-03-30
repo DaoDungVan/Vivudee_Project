@@ -1,7 +1,7 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
 import NavBar  from "../../components/common/NavBar/Navbar";
 import Footer  from "../../components/common/Footer/Footer";
-import styles  from "./PaymentMomoResult.module.css";
+import styles  from "./Payment.module.css";
 
 
 const PaymentMomoResult = () => {
