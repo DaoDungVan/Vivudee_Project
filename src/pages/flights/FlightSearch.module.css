@@ -1,29 +1,44 @@
-/* WRAPPER (GIỮ NGUYÊN) */
 .wrapper {
   background: #f5f7fb;
   min-height: 100vh;
 }
 
-/* 🔥 GRID LAYOUT (FIX NHẸ - KHÔNG PHÁ CÁI ĐÚNG) */
 .mainLayout {
   display: grid;
   grid-template-columns: 280px 1fr;
   gap: 20px;
   align-items: start;
-
-  width: 100%;              /* ✅ fix */
+  width: 100%;
   max-width: 1400px;
   margin: 0 auto;
   padding: 20px;
 }
 
-/* 🔥 CONTENT */
+.filterColumn {
+  min-width: 0;
+}
+
+.filterToggleRow {
+  display: none;
+}
+
+.filterToggleBtn {
+  border: 1px solid #d6deea;
+  background: #fff;
+  color: #252a42;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .content {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
-/* SEARCH FORM (GIỮ + FIX NHẸ) */
 .content :global(.formCard) {
   width: 100% !important;
   max-width: 100%;
@@ -31,31 +46,28 @@
   padding: 24px 30px;
 }
 
-/* wrap input */
 .content :global(.searchRow) {
   flex-wrap: wrap;
   gap: 10px;
 }
 
-/* ❗ FIX input (KHÔNG ÉP CỨNG NỮA) */
 .content :global(.field input) {
   width: 100%;
   min-width: 120px;
 }
 
-/* TITLE (GIỮ) */
 .title {
   font-size: 24px;
   font-weight: 600;
   margin: 20px 0;
+  line-height: 1.3;
 }
 
-/* 🔥 QUAN TRỌNG: SCROLL ONLY RIGHT SIDE */
-.results {            /* ✅ FIX */
+.results {
   padding-right: 10px;
+  min-width: 0;
 }
 
-/* SCROLLBAR (GIỮ) */
 .results::-webkit-scrollbar {
   width: 6px;
 }
@@ -65,15 +77,13 @@
   border-radius: 10px;
 }
 
-/* TEXT (GIỮ) */
-.loading {
+.loading,
+.empty {
   text-align: center;
   padding: 30px;
 }
 
 .empty {
-  text-align: center;
-  padding: 30px;
   color: #999;
 }
 
@@ -84,15 +94,12 @@
 
 .topSticky {
   position: sticky;
-  top: 110px; /* 🔥 chiều cao navbar */
-
+  top: 88px;
   z-index: 50;
   background: #f5f7fb;
-
   padding-bottom: 10px;
 }
 
-/* SLIDER */
 .sliderWrapper {
   overflow: hidden;
   width: 100%;
@@ -111,15 +118,14 @@
 .page {
   width: 50%;
   padding-right: 10px;
+  min-width: 0;
 }
 
-/* BACK BUTTON */
 .backBtn {
   margin-top: 20px;
   padding: 10px 16px;
   border-radius: 8px;
   border: none;
-
   background: #0e81cd;
   color: white;
   cursor: pointer;
@@ -129,21 +135,20 @@
   opacity: 0.9;
 }
 
-/* TITLE + TABS */
 .titleRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 15px;
+  flex-wrap: wrap;
 }
 
-/* TAB GROUP */
 .tabs {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
-/* BUTTON */
 .tabBtn {
   padding: 8px 14px;
   border-radius: 20px;
@@ -154,9 +159,6 @@
   transition: 0.2s;
 }
 
-
-
-/* ACTIVE */
 .activeTab {
   background: #f47703;
   color: white;
@@ -165,6 +167,7 @@
 }
 
 .activeTab::after {
+  content: "";
   position: absolute;
   bottom: -4px;
   left: 20%;
@@ -174,15 +177,57 @@
   border-radius: 10px;
 }
 
-/* DISABLED */
 .tabBtn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
 
-/* RESPONSIVE (GIỮ) */
 @media (max-width: 992px) {
   .mainLayout {
     grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .filterColumn {
+    display: none;
+  }
+
+  .filterColumnOpen {
+    display: block;
+  }
+
+  .filterToggleRow {
+    display: flex;
+    margin-top: 14px;
+  }
+
+  .topSticky {
+    position: static;
+    padding-bottom: 0;
+  }
+
+  .results,
+  .page {
+    padding-right: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .mainLayout {
+    padding: 12px;
+  }
+
+  .content :global(.formCard) {
+    padding: 18px 16px;
+  }
+
+  .title {
+    font-size: 20px;
+    margin: 16px 0;
+  }
+
+  .tabBtn {
+    flex: 1 1 140px;
   }
 }

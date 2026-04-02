@@ -3,7 +3,11 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
-import API from "../../services/axiosInstance";
+import {
+  getAvailableCoupons,
+  getCouponErrorMessage,
+  validateCoupon,
+} from "../../services/couponService";
 import styles from "./Coupons.module.css";
 
 const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n);
@@ -16,6 +20,7 @@ const Coupons = () => {
   const [checking, setChecking]       = useState(false);
   const [checkResult, setCheckResult] = useState(null);
   const [checkError, setCheckError]   = useState("");
+  const [apiError, setApiError]       = useState("");
 
   useEffect(() => {
     if (!localStorage.getItem("token")) { navigate("/login"); return; }
@@ -25,10 +30,14 @@ const Coupons = () => {
   const fetchCoupons = async () => {
     setLoading(true);
     try {
-      const res = await API.get("/coupons/available");
-      setCoupons(res.data?.coupons || res.data?.data || []);
-    } catch {
+      const list = await getAvailableCoupons();
+      setCoupons(list);
+      setApiError("");
+    } catch (err) {
       setCoupons([]);
+      setApiError(
+        getCouponErrorMessage(err, "Unable to load coupons right now."),
+      );
     } finally {
       setLoading(false);
     }
@@ -43,10 +52,12 @@ const Coupons = () => {
     setCheckResult(null);
     setCheckError("");
     try {
-      const res = await API.post("/coupons/validate", { code: checkCode.trim().toUpperCase() });
-      setCheckResult(res.data?.coupon || res.data);
+      const coupon = await validateCoupon(checkCode);
+      setCheckResult(coupon);
     } catch (err) {
-      setCheckError(err?.response?.data?.message || "Invalid or expired coupon code");
+      setCheckError(
+        getCouponErrorMessage(err, "Invalid or expired coupon code"),
+      );
     } finally {
       setChecking(false);
     }
@@ -70,6 +81,7 @@ const Coupons = () => {
         <div className={styles.header}>
           <h1 className={styles.title}>🎟 My Coupons</h1>
           <p className={styles.subtitle}>Promo codes available for your account</p>
+          {apiError && <p className={styles.apiError}>{apiError}</p>}
         </div>
 
         {/* Check coupon box */}

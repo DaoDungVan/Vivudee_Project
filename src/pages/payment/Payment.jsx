@@ -8,7 +8,10 @@ import {
   cancelPayment,
   buildVietQRUrl,
 } from "../../services/paymentService";
-import API from "../../services/axiosInstance";
+import {
+  getAvailableCoupons,
+  getCouponErrorMessage,
+} from "../../services/couponService";
 import styles from "./Payment.module.css";
 
 import visaImg   from "../../assets/images/payments/visa.png";
@@ -59,6 +62,7 @@ const Payment = () => {
   const [availCoupons,   setAvailCoupons]   = useState([]);
   const [showCouponList, setShowCouponList] = useState(false);
   const [couponsLoading, setCouponsLoading] = useState(false);
+  const [couponApiError, setCouponApiError] = useState("");
 
   const [paymentData, setPaymentData] = useState(null);
   const [initLoading, setInitLoading] = useState(false);
@@ -93,12 +97,17 @@ const Payment = () => {
     const token = localStorage.getItem("token");
     if (!token) return; // chưa login → không fetch
     setCouponsLoading(true);
-    API.get("/coupons/available")
-      .then((res) => {
-        const list = res.data?.coupons || res.data?.data || [];
+    getAvailableCoupons()
+      .then((list) => {
         setAvailCoupons(list);
+        setCouponApiError("");
       })
-      .catch(() => setAvailCoupons([]))
+      .catch((err) => {
+        setAvailCoupons([]);
+        setCouponApiError(
+          getCouponErrorMessage(err, "Unable to load available coupons."),
+        );
+      })
       .finally(() => setCouponsLoading(false));
   }, []);
 
@@ -409,6 +418,10 @@ const Payment = () => {
                 </div>
 
                 {/* Danh sách coupon */}
+                {couponApiError && (
+                  <p className={styles.couponApiError}>{couponApiError}</p>
+                )}
+
                 {showCouponList && availCoupons.length > 0 && (
                   <div className={styles.couponListBox}>
                     {availCoupons.map((c, i) => (

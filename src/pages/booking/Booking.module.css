@@ -11,6 +11,11 @@
   align-items: start;
 }
 
+.left,
+.right {
+  min-width: 0;
+}
+
 /* ── Page title ── */
 .pageTitle {
   font-size: 24px;
@@ -35,6 +40,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .cardTitle {
@@ -107,10 +114,12 @@
 .genderGroup {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .genderBtn {
   flex: 1;
+  min-width: 88px;
   height: 44px;
   border: 1.5px solid #e8e8e8;
   border-radius: 10px;
@@ -311,5 +320,14 @@
   }
   .card {
     padding: 18px 16px;
+  }
+
+  .summaryRow {
+    flex-wrap: wrap;
+  }
+
+  .summaryInfo,
+  .summaryTimes {
+    width: 100%;
   }
 }

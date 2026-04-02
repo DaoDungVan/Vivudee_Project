@@ -13,6 +13,11 @@
   align-items: start;
 }
 
+.left,
+.right {
+  min-width: 0;
+}
+
 .pageTitle {
   font-size: 24px;
   font-weight: 800;
@@ -96,7 +101,7 @@
 
 .invoiceFlightLabel { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #999; margin: 0; }
 .invoiceFlightName  { font-size: 14px; font-weight: 600; color: #1a1a2e; margin: 4px 0 2px; }
-.invoiceFlightRoute { font-size: 12px; color: #888; margin: 0; }
+.invoiceFlightRoute { font-size: 12px; color: #888; margin: 0; overflow-wrap: anywhere; }
 .invoicePrice       { font-size: 15px; font-weight: 700; color: #1a1a2e; white-space: nowrap; }
 
 .invoiceDivider { border: none; border-top: 1px dashed #e8e8e8; margin: 12px 0; }
@@ -138,6 +143,8 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 14px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .couponTitle { font-size: 15px; font-weight: 700; color: #1a1a2e; margin: 0; }
@@ -242,6 +249,7 @@
 .couponApplyBtn:disabled { opacity: 0.6; cursor: not-allowed; }
 .couponErrorMsg { color: #ef4444; font-size: 12px; margin: 6px 0 0; }
 .couponHint     { color: #999; font-size: 11px; margin: 8px 0 0; line-height: 1.5; }
+.couponApiError { color: #dc2626; font-size: 12px; margin: 0 0 12px; line-height: 1.5; }
 
 .couponApplied {
   display: flex;
@@ -269,7 +277,7 @@
 /* ── Method ────────────────────────── */
 .methodCard { background: #fff; border: 1px solid #e8e8e8; border-radius: 20px; padding: 20px 24px; margin-bottom: 20px; }
 .methodTitle { font-size: 15px; font-weight: 700; color: #1a1a2e; margin: 0 0 14px; }
-.methodGrid  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.methodGrid  { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
 
 .methodBtn {
   border: 1.5px solid #e8e8e8;
@@ -384,8 +392,8 @@
 .qrExpires       { font-size: 12px; color: #888; margin: 0 0 16px; }
 
 .qrImageWrapper {
-  width: 220px;
-  height: 220px;
+  width: min(220px, 100%);
+  aspect-ratio: 1;
   border-radius: 12px;
   overflow: hidden;
   border: 2px solid #e8e8e8;
@@ -433,7 +441,7 @@
 }
 
 .qrUnavailable {
-  width: 220px;
+  width: min(220px, 100%);
   min-height: 120px;
   border-radius: 12px;
   border: 2px dashed #e0e0e0;
@@ -635,14 +643,14 @@
 .momoOverlayCard {
   background: #fff;
   border-radius: 20px;
-  padding: 40px 48px;
+  padding: clamp(24px, 4vw, 40px);
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
   max-width: 340px;
-  width: 100%;
+  width: calc(100vw - 32px);
   box-shadow: 0 20px 60px rgba(0,0,0,0.25);
 }
 
@@ -718,7 +726,6 @@
 @media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; }
   .right  { position: static; order: -1; }
-  .methodGrid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 600px) {
@@ -728,7 +735,29 @@
   .heldTimer { text-align: center; }
   .actionRow { flex-direction: column; }
   .backBtn, .cancelBtn, .payBtn { width: 100%; }
-  .methodGrid { grid-template-columns: repeat(2, 1fr); }
   .successCard { padding: 32px 20px; }
   .successCard h2 { font-size: 22px; }
+  .couponInputRow,
+  .couponApplied {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .couponListItem {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .couponListUseBtn,
+  .couponApplyBtn {
+    width: 100%;
+  }
+
+  .bankRow {
+    flex-direction: column;
+  }
+
+  .bankValue {
+    text-align: left;
+  }
 }

@@ -26,6 +26,8 @@
   display: flex;
   align-items: center;
   gap: 15px;
+  flex: 1;
+  min-width: 0;
 }
 
 .logoWrapper {
@@ -47,13 +49,18 @@
   margin-bottom: 5px;
 }
 
+.info {
+  min-width: 0;
+}
+
 /* ================= TIMELINE ================= */
 .timeline {
   display: flex;
   align-items: center;
   gap: 10px;
   font-size: 14px;
-  width: 220px;
+  width: min(220px, 100%);
+  max-width: 100%;
 }
 
 .timeline span {
@@ -96,11 +103,13 @@
   font-size: 13px;
   color: var(--text-primary);
   margin-top: 4px;
+  overflow-wrap: anywhere;
 }
 
 /* ================= RIGHT ================= */
 .right {
   text-align: right;
+  flex-shrink: 0;
 }
 
 .price {
@@ -289,5 +298,10 @@
   .detailContainer {
     flex-direction: column;
     gap: 16px;
+  }
+
+  .airline {
+    flex-direction: column;
+    gap: 6px;
   }
 }

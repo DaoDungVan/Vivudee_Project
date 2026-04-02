@@ -6,10 +6,11 @@
 .container{
   max-width:1200px;
   margin:0 auto;
+  padding: 0 20px;
 }
 
 .title{
-  font-size:28px;
+  font-size:clamp(24px, 3vw, 28px);
   font-weight:700;
   margin-bottom:40px;
 }
@@ -29,6 +30,7 @@
   box-shadow:0 8px 20px rgba(0,0,0,0.08);
 
   transition:0.25s;
+  height: 100%;
 }
 
 .card h3{
@@ -66,4 +68,34 @@
 .card p{
   font-size:14px;
   color:#777;
+}
+
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .whySection {
+    padding: 56px 0;
+  }
+
+  .title {
+    margin-bottom: 24px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .card {
+    padding: 22px 18px;
+  }
+
+  .icon img {
+    width: 84px;
+  }
 }

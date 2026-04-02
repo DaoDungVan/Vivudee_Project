@@ -1,15 +1,11 @@
 :root {
   --primary-color: #0e81cd;
   --secondary-color: #d1f0ff;
-
   --text-primary: #252a42;
   --text-white: #ffffff;
-
   --navbar-color: #ffffff;
-
   --bg-primary: #fbfbfb;
   --bg-secondary: rgba(209, 240, 255, 0.3);
-
   --footer-color: #05285d;
 }
 
@@ -18,34 +14,31 @@
   padding: 60px 0;
 }
 
-/* container */
-
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
 }
 
-/* GRID */
-
 .grid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
-
   gap: 40px;
-
   margin-bottom: 40px;
+  align-items: start;
 }
 
-/* BRAND */
-
-.brand h2 {
-  color: white;
-  margin-bottom: 10px;
+.brand img {
+  width: clamp(150px, 22vw, 220px);
 }
 
-.menufooter h3 {
+.menufooter h3,
+.brand h3 {
   color: var(--text-white);
+}
+
+.brand h3 {
+  padding-top: 32px;
 }
 
 .brand p {
@@ -53,43 +46,27 @@
   opacity: 0.8;
 }
 
-.brand h3 {
-  padding-top: 50px;
-  color: white;
-}
-
-/* TITLES */
-
-h3 {
-  color: white;
-  margin-bottom: 10px;
-}
-
-/* LIST */
-
-ul {
+.menufooter ul {
   list-style: none;
   padding: 0;
 }
 
-li {
+.menufooter li,
+.brand li {
   color: white;
   margin-bottom: 8px;
   opacity: 0.8;
   cursor: pointer;
 }
 
-li:hover {
+.menufooter li:hover,
+.brand li:hover {
   opacity: 1;
 }
 
-/* COPYRIGHT */
-
 .bottom {
   border-top: 1px solid rgba(255, 255, 255, 0.2);
-
-  padding-top: 50px;
-
+  padding-top: 32px;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -104,25 +81,30 @@ li:hover {
 
 .bottom span {
   color: white;
-  opacity: 0.3;
+  opacity: 0.45;
+  line-height: 1.6;
 }
 
 .payPartner {
   display: grid;
   gap: 10px;
-  grid-template-columns: repeat(5, 1fr);
-}
-
-.icon img {
-  max-width: 35px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .sigleItem {
   background-color: white;
-  padding: 5px 20px;
+  min-height: 52px;
+  padding: 8px 12px;
   display: flex;
   align-items: center;
+  justify-content: center;
   border-radius: 10px;
+}
+
+.icon img {
+  max-width: 35px;
+  max-height: 24px;
+  object-fit: contain;
 }
 
 @media (max-width: 900px) {
@@ -136,11 +118,21 @@ li:hover {
   .footer {
     padding: 40px 0;
   }
+
   .grid {
     grid-template-columns: 1fr;
     gap: 24px;
   }
+
+  .brand h3 {
+    padding-top: 24px;
+  }
+
   .payPartner {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .bottom {
+    padding-top: 24px;
   }
 }

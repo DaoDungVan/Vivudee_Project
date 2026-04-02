@@ -43,7 +43,9 @@ export default function HeroBanner() {
         <p>Compare hundreds of airlines. Book the best deal for your trip.</p>
       </div>
 
-      <SearchFlightForm />
+      <div className={styles.formWrap}>
+        <SearchFlightForm />
+      </div>
 
       {/* Dot indicators */}
       <div className={styles.dots}>

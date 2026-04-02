@@ -1,7 +1,7 @@
 /* src/components/home/SearchFlightForm/SearchFlightForm.module.css */
 
 .formCard {
-  width: min(1150px, 95vw);
+  width: min(1150px, 100%);
   background: white;
   padding: 40px 50px;
   border-radius: 25px;
@@ -52,11 +52,13 @@
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 /* PASSENGER + SEAT CLASS DROPDOWN */
 .dropdown {
   position: relative;
+  min-width: 0;
 }
 
 .dropdownBtn {
@@ -70,6 +72,9 @@
   cursor: pointer;
   transition: border 0.2s;
   white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dropdownBtn:hover {
@@ -200,7 +205,7 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  flex: 1;
+  flex: 1 1 170px;
   min-width: 140px;
 }
 
@@ -284,6 +289,7 @@
   flex-shrink: 0;
   height: 46px;
   align-self: flex-end;
+  max-width: 220px;
 }
 
 .searchBtn:hover {
@@ -314,7 +320,9 @@
   position: absolute;
   top: 100%;
   left: 0;
-  width: max(260px, 100%);
+  width: 100%;
+  min-width: 260px;
+  max-width: min(360px, calc(100vw - 32px));
   max-height: 260px;
   overflow-y: auto;
   background: white;
@@ -387,6 +395,7 @@
 
   .searchBtn {
     width: 100%;
+    max-width: none;
     margin-top: 4px;
   }
 }
@@ -403,6 +412,28 @@
     align-items: flex-start;
   }
 
+  .options {
+    width: 100%;
+  }
+
+  .dropdown {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .dropdownBtn,
+  .passengerBox,
+  .seatBox {
+    width: 100%;
+  }
+
+  .passengerBox,
+  .seatBox {
+    left: 0;
+    right: auto;
+    min-width: 0;
+  }
+
   .field {
     min-width: 100%;
     flex: 1 1 100%;
@@ -415,5 +446,10 @@
 
   .searchRow {
     gap: 8px;
+  }
+
+  .airportDropdown {
+    min-width: 100%;
+    max-width: 100%;
   }
 }

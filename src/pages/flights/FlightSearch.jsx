@@ -80,6 +80,7 @@ const FlightSearch = () => {
 
   const [step, setStep] = useState("outbound");
   const [showBooking, setShowBooking] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const [filters, setFilters] = useState({
     airlines: [],
@@ -197,6 +198,13 @@ const FlightSearch = () => {
 
   const filteredOutbound = applyFilters(outboundFlights, filters);
   const filteredReturn = applyFilters(returnFlights, filters);
+  const activeFilterCount =
+    filters.airlines.length +
+    filters.departureSlots.length +
+    filters.arrivalSlots.length +
+    (filters.priceMax !== null ? 1 : 0) +
+    (filters.durationMax !== null ? 1 : 0) +
+    (filters.sortPrice ? 1 : 0);
 
   return (
     <>
@@ -204,16 +212,31 @@ const FlightSearch = () => {
 
       <div className={styles.wrapper}>
         <div className={styles.mainLayout}>
-          <FilterPanel
-            filters={filters}
-            setFilters={setFilters}
-            outboundFlights={outboundFlights}
-            returnFlights={returnFlights}
-          />
+          <div
+            className={`${styles.filterColumn} ${filtersOpen ? styles.filterColumnOpen : ""}`}
+          >
+            <FilterPanel
+              filters={filters}
+              setFilters={setFilters}
+              outboundFlights={outboundFlights}
+              returnFlights={returnFlights}
+            />
+          </div>
 
           <div className={styles.content}>
             <div className={styles.topSticky}>
               <SearchFlightForm initialData={initialData} />
+
+              <div className={styles.filterToggleRow}>
+                <button
+                  className={styles.filterToggleBtn}
+                  type="button"
+                  onClick={() => setFiltersOpen((prev) => !prev)}
+                >
+                  {filtersOpen ? "Hide filters" : "Show filters"}
+                  {activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
+                </button>
+              </div>
 
               <div className={styles.titleRow}>
                 <h2 className={styles.title}>

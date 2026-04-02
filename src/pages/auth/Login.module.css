@@ -7,6 +7,7 @@
   align-items: center;
 
   padding-top: 100px;
+  padding-inline: 16px;
 }
 
 /* NOTE: flex + align-items giúp căn giữa ngang */
@@ -17,7 +18,7 @@
 }
 
 .card {
-  width: 420px;
+  width: min(420px, 100%);
   background: white;
 
   padding: 30px;
@@ -45,6 +46,7 @@
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 /* Button */
@@ -276,5 +278,11 @@ giống form thực tế hơn placeholder-only */
     width: 100%;
     padding: 24px 18px;
     margin-top: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .social {
+    flex-direction: column;
   }
 }

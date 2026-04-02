@@ -184,3 +184,32 @@
   font-size: 13px;
   color: #999;
 }
+
+@media (max-width: 992px) {
+  .panel {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .panel {
+    padding: 18px 16px;
+  }
+
+  .panelHeader,
+  .rangeLabels {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .slot {
+    padding: 10px;
+  }
+}

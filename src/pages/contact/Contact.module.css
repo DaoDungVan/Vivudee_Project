@@ -8,7 +8,7 @@
   color: #fff;
 }
 .hero h1 {
-  font-size: 34px;
+  font-size: clamp(28px, 5vw, 34px);
   font-weight: 900;
   margin: 0 0 10px;
 }
@@ -55,6 +55,7 @@
   font-weight: 800;
   color: #1a1a2e;
   margin: 0 0 4px;
+  overflow-wrap: anywhere;
 }
 .infoSub {
   font-size: 11px;
@@ -65,7 +66,7 @@
 /* Main grid */
 .mainGrid {
   display: grid;
-  grid-template-columns: 1fr 420px;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
   gap: 32px;
   margin-bottom: 44px;
   align-items: start;
@@ -238,7 +239,7 @@
 @media (max-width: 600px) {
   .hero h1 { font-size: 24px; }
   .hero { padding: 36px 16px; }
-  .infoGrid { grid-template-columns: repeat(2, 1fr); }
+  .infoGrid { grid-template-columns: 1fr; }
   .formRow { grid-template-columns: 1fr; }
   .formSection { padding: 20px 16px; }
   .faqSection { padding: 20px 16px; }
@@ -246,5 +247,8 @@
 }
 
 @media (max-width: 400px) {
-  .infoGrid { grid-template-columns: 1fr 1fr; }
+  .socialLink {
+    width: 100%;
+    justify-content: center;
+  }
 }
