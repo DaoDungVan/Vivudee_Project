@@ -60,7 +60,6 @@ const Payment = () => {
   const [couponApplied,  setCouponApplied]  = useState(null);
   const [applyingCoupon, setApplyingCoupon] = useState(false);
   const [availCoupons,   setAvailCoupons]   = useState([]);
-  const [showCouponList, setShowCouponList] = useState(false);
   const [couponsLoading, setCouponsLoading] = useState(false);
   const [couponApiError, setCouponApiError] = useState("");
 
@@ -403,15 +402,6 @@ const Payment = () => {
               <div className={styles.couponCard}>
                 <div className={styles.couponCardHeader}>
                   <h3 className={styles.couponTitle}>🎟 Promo Code</h3>
-                  {/* Chỉ hiện nút My Coupons nếu đã login và có coupon */}
-                  {!couponsLoading && availCoupons.length > 0 && (
-                    <button
-                      className={styles.showCouponsBtn}
-                      onClick={() => setShowCouponList((v) => !v)}
-                    >
-                      {showCouponList ? "Hide" : `My Coupons (${availCoupons.length})`}
-                    </button>
-                  )}
                   {couponsLoading && (
                     <span className={styles.couponsLoadingText}>Loading...</span>
                   )}
@@ -422,37 +412,44 @@ const Payment = () => {
                   <p className={styles.couponApiError}>{couponApiError}</p>
                 )}
 
-                {showCouponList && availCoupons.length > 0 && (
+                {!couponsLoading && availCoupons.length > 0 && (
                   <div className={styles.couponListBox}>
-                    {availCoupons.map((c, i) => (
-                      <div key={c.id || i} className={styles.couponListItem}>
-                        <div className={styles.couponListLeft}>
-                          <span className={styles.couponListCode}>{c.code}</span>
-                          <span className={styles.couponListDesc}>
-                            {c.name || c.description ||
-                              (c.discount_percent
-                                ? `${c.discount_percent}% off`
-                                : `${fmt(c.discount_amount || 0)} off`)}
-                          </span>
-                          {c.min_order_amount > 0 && (
-                            <span className={styles.couponListMin}>
-                              Min. {fmt(c.min_order_amount)}
-                            </span>
-                          )}
-                        </div>
-                        <button
-                          className={styles.couponListUseBtn}
-                          onClick={() => {
-                            setCouponCode(c.code);
-                            setCouponApplied({ code: c.code, voucher_code: c.code });
-                            setShowCouponList(false);
-                            setCouponError("");
-                          }}
+                    {availCoupons.map((c, i) => {
+                      const eligible = !c.min_order_amount || totalPrice >= c.min_order_amount;
+                      return (
+                        <div
+                          key={c.id || i}
+                          className={`${styles.couponListItem} ${!eligible ? styles.couponListItemDisabled : ""}`}
                         >
-                          Apply
-                        </button>
-                      </div>
-                    ))}
+                          <div className={styles.couponListLeft}>
+                            <span className={styles.couponListCode}>{c.code}</span>
+                            <span className={styles.couponListDesc}>
+                              {c.name || c.description ||
+                                (c.discount_percent
+                                  ? `${c.discount_percent}% off`
+                                  : `${fmt(c.discount_amount || 0)} off`)}
+                            </span>
+                            {c.min_order_amount > 0 && (
+                              <span className={`${styles.couponListMin} ${!eligible ? styles.couponListMinNotMet : ""}`}>
+                                {eligible ? `Min. ${fmt(c.min_order_amount)}` : `Requires min. ${fmt(c.min_order_amount)}`}
+                              </span>
+                            )}
+                          </div>
+                          <button
+                            className={`${styles.couponListUseBtn} ${!eligible ? styles.couponListUseBtnDisabled : ""}`}
+                            disabled={!eligible}
+                            onClick={() => {
+                              if (!eligible) return;
+                              setCouponCode(c.code);
+                              setCouponApplied({ code: c.code, voucher_code: c.code });
+                              setCouponError("");
+                            }}
+                          >
+                            Apply
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
 
