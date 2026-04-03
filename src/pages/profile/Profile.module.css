@@ -178,11 +178,212 @@
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+}
+
+.changeBtn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #1a6bc4;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+  z-index: 0;
+}
+
+.changeBtn span,
+.changeBtn {
+  position: relative;
+  z-index: 1;
+}
+
+.changeBtn:hover {
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(26, 107, 196, 0.35);
+  transform: translateY(-1px);
+}
+
+.changeBtn:hover::after {
+  transform: scaleX(1);
+}
+
+.changeBtn:active {
+  transform: scale(0.97);
+  box-shadow: none;
 }
 .verifiedBadge {
   color: #22c55e;
   font-size: 13px;
   font-weight: 700;
+}
+
+/* ── Change Password Modal ── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modalBox {
+  background: #fff;
+  border-radius: 18px;
+  padding: 28px 24px;
+  width: min(380px, calc(100vw - 32px));
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+}
+
+.modalTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin: 0 0 6px;
+}
+
+.modalDesc {
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.modalError {
+  color: #dc2626;
+  font-size: 13px;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
+
+.modalSuccess {
+  color: #16a34a;
+  font-size: 13px;
+  font-weight: 600;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
+
+.modalLabel {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: left;
+  margin-bottom: 6px;
+}
+
+.modalInput {
+  width: 100%;
+  padding: 11px 40px 11px 14px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  margin-bottom: 14px;
+}
+
+.modalInput:focus {
+  border-color: #1a6bc4;
+}
+
+.modalPasswordWrap {
+  position: relative;
+}
+
+.modalEye {
+  position: absolute;
+  right: 13px;
+  top: 13px;
+  cursor: pointer;
+  color: #888;
+}
+
+.otpInputs {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin: 4px 0 18px;
+}
+
+.otpInput {
+  flex: 1;
+  max-width: 42px;
+  height: 48px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  border-radius: 8px;
+  border: 1.5px solid #ddd;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.otpInput:focus {
+  border-color: #1a6bc4;
+  box-shadow: 0 0 0 3px rgba(26, 107, 196, 0.1);
+}
+
+.modalPrimaryBtn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #1a6bc4;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  margin-bottom: 10px;
+}
+
+.modalPrimaryBtn:hover:not(:disabled) { opacity: 0.88; }
+.modalPrimaryBtn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.modalCancelBtn {
+  width: 100%;
+  padding: 11px;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  color: #555;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modalCancelBtn:hover { background: #f5f7fb; }
+
+.resendText {
+  display: block;
+  margin: 4px 0 10px;
+  font-size: 13px;
+  color: #1a6bc4;
+  cursor: pointer;
+}
+
+.resendText:hover { text-decoration: underline; }
+
+.resendDisabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  text-decoration: none !important;
 }
 
 @media (max-width: 768px) {
@@ -195,4 +396,7 @@
   .wrapper { padding: 20px 14px 60px; }
   .card { padding: 20px 16px; }
   .securityItem { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .modalBox { padding: 22px 18px; }
+  .otpInputs { gap: 4px; }
+  .otpInput { max-width: 36px; }
 }

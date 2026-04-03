@@ -19,3 +19,18 @@ export const verifyOTP = (data) => {
 export const resendOTP = (data) => {
   return API.post("/auth/resend-otp", data);
 };
+
+// FORGOT PASSWORD — gửi OTP về email
+export const forgotPassword = (data) => {
+  return API.post("/auth/forgot-password", data);
+};
+
+// RESET PASSWORD — xác thực OTP + đổi mật khẩu
+export const resetPassword = (data) => {
+  return API.post("/auth/reset-password", data);
+};
+
+// CHANGE PASSWORD — đổi mật khẩu khi đã đăng nhập (cần old password)
+export const changePassword = (data) => {
+  return API.post("/auth/change-password", data);
+};

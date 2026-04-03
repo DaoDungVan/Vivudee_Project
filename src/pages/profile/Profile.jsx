@@ -3,7 +3,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import API from "../../services/axiosInstance";
+import { forgotPassword, resetPassword } from "../../services/authService";
 import styles from "./Profile.module.css";
 
 const Profile = () => {
@@ -23,9 +25,35 @@ const Profile = () => {
   const [error, setError]       = useState("");
   const [activeTab, setActiveTab] = useState("info");
 
+  // ── Change Password Modal ──
+  const [showChangePw, setShowChangePw] = useState(false);
+  const [cpStep, setCpStep] = useState(1); // 1: send OTP, 2: enter OTP, 3: new password
+  const [cpOtp, setCpOtp] = useState(["", "", "", "", "", ""]);
+  const [cpOtpCode, setCpOtpCode] = useState(""); // giá trị OTP đã nhập (6 ký tự)
+  const [cpNewPassword, setCpNewPassword] = useState("");
+  const [cpConfirmPassword, setCpConfirmPassword] = useState("");
+  const [cpShowNew, setCpShowNew] = useState(false);
+  const [cpShowConfirm, setCpShowConfirm] = useState(false);
+  const [cpLoading, setCpLoading] = useState(false);
+  const [cpError, setCpError] = useState("");
+  const [cpSuccess, setCpSuccess] = useState("");
+  const [cpCountdown, setCpCountdown] = useState(0);
+
   useEffect(() => {
     if (!localStorage.getItem("token")) navigate("/login");
   }, [navigate]);
+
+  useEffect(() => {
+    if (!showChangePw || cpStep !== 2 || cpCountdown <= 0) return;
+    const timer = setInterval(() => setCpCountdown((prev) => prev - 1), 1000);
+    return () => clearInterval(timer);
+  }, [showChangePw, cpStep, cpCountdown]);
+
+  const formatTime = (seconds) => {
+    const m = String(Math.floor(seconds / 60)).padStart(2, "0");
+    const s = String(seconds % 60).padStart(2, "0");
+    return `${m}:${s}`;
+  };
 
   const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.full_name || user?.email || "User")}&background=1a6bc4&color=fff&size=128`;
 
@@ -48,6 +76,111 @@ const Profile = () => {
       setError(err?.response?.data?.message || "Update failed");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ── Change Password handlers ──
+  const openChangePw = () => {
+    setShowChangePw(true);
+    setCpStep(1);
+    setCpOtp(["", "", "", "", "", ""]);
+    setCpOtpCode("");
+    setCpNewPassword("");
+    setCpConfirmPassword("");
+    setCpError("");
+    setCpSuccess("");
+    setCpCountdown(0);
+  };
+
+  const closeChangePw = () => setShowChangePw(false);
+
+  const handleSendCpOTP = async () => {
+    setCpError("");
+    setCpLoading(true);
+    try {
+      await forgotPassword({ email: user.email });
+      setCpStep(2);
+      setCpOtp(["", "", "", "", "", ""]);
+      setCpCountdown(300);
+    } catch (err) {
+      setCpError(
+        err.response?.data?.error || err.response?.data?.message || "Failed to send OTP"
+      );
+    } finally {
+      setCpLoading(false);
+    }
+  };
+
+  const handleCpOtpChange = (value, index) => {
+    if (!/^[0-9]?$/.test(value)) return;
+    const newOtp = [...cpOtp];
+    newOtp[index] = value;
+    setCpOtp(newOtp);
+    if (value && index < 5) document.getElementById(`cp-otp-${index + 1}`).focus();
+  };
+
+  const handleCpKeyDown = (e, index) => {
+    if (e.key === "Backspace" && !cpOtp[index] && index > 0)
+      document.getElementById(`cp-otp-${index - 1}`).focus();
+  };
+
+  const handleCpVerifyOTP = () => {
+    setCpError("");
+    const code = cpOtp.join("");
+    if (code.length < 6) {
+      setCpError("Please enter the complete 6-digit OTP");
+      return;
+    }
+    setCpOtpCode(code);
+    setCpStep(3);
+    setCpNewPassword("");
+    setCpConfirmPassword("");
+  };
+
+  const handleResendCpOTP = async () => {
+    if (cpCountdown > 0) return;
+    setCpError("");
+    setCpLoading(true);
+    try {
+      await forgotPassword({ email: user.email });
+      setCpCountdown(300);
+      setCpOtp(["", "", "", "", "", ""]);
+    } catch (err) {
+      setCpError(
+        err.response?.data?.error || err.response?.data?.message || "Resend failed"
+      );
+    } finally {
+      setCpLoading(false);
+    }
+  };
+
+  const handleCpReset = async () => {
+    setCpError("");
+    if (!cpNewPassword) { setCpError("Password is required"); return; }
+    if (cpNewPassword.length < 8) { setCpError("Password must be at least 8 characters"); return; }
+    if (cpNewPassword !== cpConfirmPassword) { setCpError("Passwords do not match"); return; }
+    setCpLoading(true);
+    try {
+      await resetPassword({
+        email: user.email,
+        otp: cpOtpCode,
+        new_password: cpNewPassword,
+        confirm_password: cpConfirmPassword,
+      });
+      setCpSuccess("Password changed successfully! Please log in again.");
+      // Đăng xuất sau 2 giây
+      setTimeout(() => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.dispatchEvent(new Event("storage"));
+        navigate("/login");
+      }, 2000);
+    } catch (err) {
+      setCpError(
+        err.response?.data?.error || err.response?.data?.message || "Reset failed. Please try again."
+      );
+    } finally {
+      setCpLoading(false);
     }
   };
 
@@ -147,7 +280,9 @@ const Profile = () => {
                     <p className={styles.securityLabel}>Password</p>
                     <p className={styles.securitySub}>••••••••</p>
                   </div>
-                  <button className={styles.changeBtn}>Change Password</button>
+                  <button className={styles.changeBtn} onClick={openChangePw}>
+                    Change Password
+                  </button>
                 </div>
                 <div className={styles.securityItem}>
                   <div>
@@ -162,6 +297,138 @@ const Profile = () => {
         </div>
       </div>
       <Footer />
+
+      {/* CHANGE PASSWORD MODAL */}
+      {showChangePw && (
+        <div
+          className={styles.modalOverlay}
+          onClick={(e) => { if (e.target === e.currentTarget) closeChangePw(); }}
+        >
+          <div className={styles.modalBox}>
+
+            {/* Step 1: Gửi OTP */}
+            {cpStep === 1 && (
+              <>
+                <h3 className={styles.modalTitle}>Change Password</h3>
+                <p className={styles.modalDesc}>
+                  We'll send a verification code to <strong>{user?.email}</strong> to confirm it's you.
+                </p>
+                {cpError && <p className={styles.modalError}>{cpError}</p>}
+                <button
+                  className={styles.modalPrimaryBtn}
+                  onClick={handleSendCpOTP}
+                  disabled={cpLoading}
+                >
+                  {cpLoading ? "Sending..." : "Send OTP to Email"}
+                </button>
+                <button className={styles.modalCancelBtn} onClick={closeChangePw}>
+                  Cancel
+                </button>
+              </>
+            )}
+
+            {/* Step 2: Nhập OTP */}
+            {cpStep === 2 && (
+              <>
+                <h3 className={styles.modalTitle}>Enter OTP</h3>
+                <p className={styles.modalDesc}>
+                  Code sent to <strong>{user?.email}</strong>
+                </p>
+                {cpError && <p className={styles.modalError}>{cpError}</p>}
+                <div className={styles.otpInputs}>
+                  {cpOtp.map((digit, index) => (
+                    <input
+                      key={index}
+                      id={`cp-otp-${index}`}
+                      type="text"
+                      maxLength="1"
+                      className={styles.otpInput}
+                      value={digit}
+                      onChange={(e) => handleCpOtpChange(e.target.value, index)}
+                      onKeyDown={(e) => handleCpKeyDown(e, index)}
+                    />
+                  ))}
+                </div>
+                <button
+                  className={styles.modalPrimaryBtn}
+                  onClick={handleCpVerifyOTP}
+                  disabled={cpOtp.some((d) => d === "")}
+                >
+                  Verify OTP
+                </button>
+                <p
+                  className={`${styles.resendText} ${cpCountdown > 0 ? styles.resendDisabled : ""}`}
+                  onClick={handleResendCpOTP}
+                >
+                  {cpLoading
+                    ? "Resending..."
+                    : cpCountdown > 0
+                    ? `Resend OTP (${formatTime(cpCountdown)})`
+                    : "Resend OTP"}
+                </p>
+                <button className={styles.modalCancelBtn} onClick={closeChangePw}>
+                  Cancel
+                </button>
+              </>
+            )}
+
+            {/* Step 3: Nhập mật khẩu mới */}
+            {cpStep === 3 && (
+              <>
+                <h3 className={styles.modalTitle}>New Password</h3>
+                <p className={styles.modalDesc}>Enter your new password below.</p>
+
+                {cpError && <p className={styles.modalError}>{cpError}</p>}
+                {cpSuccess && <p className={styles.modalSuccess}>{cpSuccess}</p>}
+
+                {!cpSuccess && (
+                  <>
+                    <label className={styles.modalLabel}>New Password</label>
+                    <div className={styles.modalPasswordWrap}>
+                      <input
+                        type={cpShowNew ? "text" : "password"}
+                        placeholder="Enter new password"
+                        className={styles.modalInput}
+                        value={cpNewPassword}
+                        onChange={(e) => { setCpNewPassword(e.target.value); setCpError(""); }}
+                      />
+                      <span className={styles.modalEye} onClick={() => setCpShowNew(!cpShowNew)}>
+                        {cpShowNew ? <FaEyeSlash /> : <FaEye />}
+                      </span>
+                    </div>
+
+                    <label className={styles.modalLabel}>Confirm Password</label>
+                    <div className={styles.modalPasswordWrap}>
+                      <input
+                        type={cpShowConfirm ? "text" : "password"}
+                        placeholder="Confirm new password"
+                        className={styles.modalInput}
+                        value={cpConfirmPassword}
+                        onChange={(e) => { setCpConfirmPassword(e.target.value); setCpError(""); }}
+                      />
+                      <span className={styles.modalEye} onClick={() => setCpShowConfirm(!cpShowConfirm)}>
+                        {cpShowConfirm ? <FaEyeSlash /> : <FaEye />}
+                      </span>
+                    </div>
+
+                    <button
+                      className={styles.modalPrimaryBtn}
+                      onClick={handleCpReset}
+                      disabled={cpLoading}
+                    >
+                      {cpLoading ? "Saving..." : "Reset Password"}
+                    </button>
+                    <button className={styles.modalCancelBtn} onClick={closeChangePw}>
+                      Cancel
+                    </button>
+                  </>
+                )}
+              </>
+            )}
+
+          </div>
+        </div>
+      )}
     </>
   );
 };
