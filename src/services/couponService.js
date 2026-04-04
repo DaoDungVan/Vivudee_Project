@@ -70,10 +70,6 @@ const isMissingCouponEndpoint = (error) => {
   );
 };
 
-const isUnavailableForPublicUse = (error) => {
-  const status = error?.response?.status;
-  return status === 401 || status === 403 || isMissingCouponEndpoint(error);
-};
 
 export const getCouponErrorMessage = (error, fallbackMessage) => {
   if (isMissingCouponEndpoint(error)) {
@@ -98,11 +94,8 @@ export const getHomeCoupons = async () => {
     return coupons.length > 0
       ? coupons
       : featuredCouponsFallback.map(normalizeCoupon);
-  } catch (error) {
-    if (isUnavailableForPublicUse(error)) {
-      return featuredCouponsFallback.map(normalizeCoupon);
-    }
-    throw error;
+  } catch {
+    return featuredCouponsFallback.map(normalizeCoupon);
   }
 };
 
