@@ -51,6 +51,13 @@ const PAYMENT_METHODS = [
   { id: "PAYPAL",  label: "PayPal",                   img: paypalImg, disabled: true },
 ];
 
+const computeDiscount = (coupon, price) => {
+  if (!coupon) return 0;
+  if (coupon.discount_percent) return Math.round(price * coupon.discount_percent / 100);
+  if (coupon.discount_amount)  return Number(coupon.discount_amount);
+  return 0;
+};
+
 const Payment = () => {
   const navigate  = useNavigate();
   const { state } = useLocation();
@@ -143,7 +150,16 @@ const Payment = () => {
     if (!couponCode.trim()) { setCouponError("Please enter a coupon code"); return; }
     if (totalPrice < 300000) { setCouponError("Minimum order value of 300,000 VND required"); return; }
     setCouponError("");
-    setCouponApplied({ code: couponCode.trim(), voucher_code: couponCode.trim() });
+    // Try to match against available coupons for immediate discount preview
+    const matched = availCoupons.find(c => c.code.toUpperCase() === couponCode.trim().toUpperCase());
+    const discount = matched ? computeDiscount(matched, totalPrice) : 0;
+    setCouponApplied({
+      code: couponCode.trim().toUpperCase(),
+      voucher_code: couponCode.trim().toUpperCase(),
+      discount_amount: discount,
+      final_amount: discount > 0 ? totalPrice - discount : null,
+      ...(matched || {}),
+    });
   };
 
   const handleRemoveCoupon = () => {
@@ -387,7 +403,9 @@ const Payment = () => {
                   <span>
                     {paymentData?.payment?.discount_amount > 0
                       ? `− ${fmt(paymentData.payment.discount_amount)}`
-                      : "Applied at checkout"}
+                      : couponApplied.discount_amount > 0
+                        ? `− ${fmt(couponApplied.discount_amount)}`
+                        : "Applied at checkout"}
                   </span>
                 </div>
               )}
@@ -441,8 +459,15 @@ const Payment = () => {
                             disabled={!eligible}
                             onClick={() => {
                               if (!eligible) return;
+                              const discount = computeDiscount(c, totalPrice);
                               setCouponCode(c.code);
-                              setCouponApplied({ code: c.code, voucher_code: c.code });
+                              setCouponApplied({
+                                ...c,
+                                code: c.code,
+                                voucher_code: c.code,
+                                discount_amount: discount,
+                                final_amount: discount > 0 ? totalPrice - discount : null,
+                              });
                               setCouponError("");
                             }}
                           >

@@ -9,9 +9,18 @@ const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n) + " VND";
 
 const formatTime = (iso) => {
   if (!iso) return "--:--";
-  const d = new Date(iso);
-  if (isNaN(d)) return "--:--";
-  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+  const match = String(iso).match(/(\d{2}):(\d{2})/);
+  return match ? `${match[1]}:${match[2]}` : "--:--";
+};
+
+const calcAge = (dob) => {
+  if (!dob) return null;
+  const today = new Date();
+  const birth = new Date(dob);
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  return age;
 };
 
 const emptyPassenger = () => ({
@@ -37,7 +46,12 @@ const Booking = () => {
   const paxCount   = adultCount + childCount;
 
   const [paxList,  setPaxList]  = useState(Array.from({ length: paxCount }, emptyPassenger));
-  const [contact,  setContact]  = useState({ email: "", phone: "" });
+  const [contact,  setContact]  = useState(() => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "null");
+      return { email: user?.email || "", phone: user?.phone || "" };
+    } catch { return { email: "", phone: "" }; }
+  });
   const [errors,   setErrors]   = useState({});
   const [loading,  setLoading]  = useState(false);
   const [apiError, setApiError] = useState("");
@@ -53,14 +67,29 @@ const Booking = () => {
   const validate = () => {
     const errs = {};
     paxList.forEach((p, i) => {
+      const isChild = i >= adultCount;
       if (!p.fullName.trim()) errs[`${i}_fullName`] = "Required";
-      if (!p.dob)             errs[`${i}_dob`]      = "Required";
-      if (!p.gender)          errs[`${i}_gender`]   = "Required";
-      if (!p.idNumber.trim()) errs[`${i}_idNumber`]  = "Required";
+      if (!p.dob) {
+        errs[`${i}_dob`] = "Required";
+      } else {
+        const age = calcAge(p.dob);
+        if (!isChild && age < 14) errs[`${i}_dob`] = "Adult must be at least 14 years old";
+        if (isChild && age >= 14) errs[`${i}_dob`] = "Child must be under 14 years old";
+      }
+      if (!p.gender) errs[`${i}_gender`] = "Required";
+      if (!p.idNumber.trim()) {
+        errs[`${i}_idNumber`] = "Required";
+      } else {
+        const id = p.idNumber.trim().replace(/\s/g, "");
+        const isPassport = /[a-zA-Z]/.test(id);
+        if (isPassport && id.length < 6) errs[`${i}_idNumber`] = "Passport must be at least 6 characters";
+        else if (!isPassport && id.length !== 9 && id.length !== 12) errs[`${i}_idNumber`] = "ID card must be 9 or 12 digits";
+      }
     });
     if (!contact.email.trim())  errs["email"] = "Required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) errs["email"] = "Invalid email";
     if (!contact.phone.trim())  errs["phone"] = "Required";
+    else if (!/^[0-9]{9,11}$/.test(contact.phone.trim().replace(/\s/g, ""))) errs["phone"] = "Phone must be 9–11 digits";
     return errs;
   };
 

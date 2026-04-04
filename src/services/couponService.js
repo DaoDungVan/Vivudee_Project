@@ -107,12 +107,10 @@ export const getAvailableCoupons = async () => {
     // fallback if available endpoint returns empty
     const fallback = await API.get("/coupons");
     return mapCoupons(fallback.data);
-  } catch (err) {
-    if (isMissingCouponEndpoint(err)) {
-      const fallback = await API.get("/coupons");
-      return mapCoupons(fallback.data);
-    }
-    throw err;
+  } catch {
+    // /coupons/available not ready or error → fallback to /coupons
+    const fallback = await API.get("/coupons");
+    return mapCoupons(fallback.data);
   }
 };
 
