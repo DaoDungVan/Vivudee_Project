@@ -24,8 +24,9 @@ const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n) + " VND";
 
 const formatTime = (iso) => {
   if (!iso) return "--:--";
-  const d = new Date(iso);
-  return isNaN(d) ? "--:--" : d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+  // Extract HH:MM directly from string to avoid timezone conversion (UTC → local shift)
+  const match = String(iso).match(/(\d{2}):(\d{2})/);
+  return match ? `${match[1]}:${match[2]}` : "--:--";
 };
 
 const formatDate = (iso) => {

@@ -10,15 +10,9 @@ const FlightCard = ({ flight, onSelect, isSelected }) => {
 
   const formatTime = (iso) => {
     if (!iso) return "--:--";
-
-    const date = new Date(iso);
-    if (isNaN(date)) return "--:--";
-
-    return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
+    // Extract HH:MM directly from string to avoid timezone conversion (UTC → local shift)
+    const match = String(iso).match(/(\d{2}):(\d{2})/);
+    return match ? `${match[1]}:${match[2]}` : "--:--";
   };
 
   // 🔥 toggle detail

@@ -100,8 +100,20 @@ export const getHomeCoupons = async () => {
 };
 
 export const getAvailableCoupons = async () => {
-  const res = await API.get("/coupons/available");
-  return mapCoupons(res.data);
+  try {
+    const res = await API.get("/coupons/available");
+    const list = mapCoupons(res.data);
+    if (list.length > 0) return list;
+    // fallback if available endpoint returns empty
+    const fallback = await API.get("/coupons");
+    return mapCoupons(fallback.data);
+  } catch (err) {
+    if (isMissingCouponEndpoint(err)) {
+      const fallback = await API.get("/coupons");
+      return mapCoupons(fallback.data);
+    }
+    throw err;
+  }
 };
 
 export const validateCoupon = async (code) => {
