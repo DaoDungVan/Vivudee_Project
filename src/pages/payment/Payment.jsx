@@ -244,8 +244,12 @@ const Payment = () => {
         setInitError("A payment for this booking already exists. Please use VietQR / Bank Transfer to complete it.");
         setSelectedMethod("BANK_QR");
       } else if (isMomoError) {
+        // Hiện lỗi thật từ backend thay vì thông báo chung chung (giúp debug)
         setSelectedMethod("BANK_QR");
-        setInitError("MoMo is currently unavailable. Switched to VietQR — please use bank transfer to complete your payment.");
+        setInitError(raw
+          ? `MoMo error: ${raw}. Switched to VietQR.`
+          : "MoMo is currently unavailable. Switched to VietQR — please use bank transfer to complete your payment."
+        );
       } else {
         setInitError(raw || "Payment initialization failed. Please try again.");
       }
