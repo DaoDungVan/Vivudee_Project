@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Payment dùng backend riêng (khác với backend chính) vì xử lý tiền nhạy cảm hơn.
 const PAYMENT_API = axios.create({
-  baseURL: "https://backend-pay-ticket-function.onrender.com",
+  baseURL: "https://backend-pay-ticket-function-ula1.onrender.com",
 });
 
 // Khởi tạo thanh toán — bước đầu tiên khi user bấm "Pay".
