@@ -5,14 +5,19 @@ import Footer from "../../components/common/Footer/Footer";
 import { createBooking } from "../../services/bookingService";
 import styles from "./Booking.module.css";
 
+// Định dạng tiền VND. Ví dụ: 1500000 → "1.500.000 VND"
 const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n) + " VND";
 
+// Lấy giờ phút từ chuỗi ISO hoặc "HH:MM:SS".
+// Dùng regex thay vì new Date() để tránh lệch múi giờ (UTC vs local).
 const formatTime = (iso) => {
   if (!iso) return "--:--";
   const match = String(iso).match(/(\d{2}):(\d{2})/);
   return match ? `${match[1]}:${match[2]}` : "--:--";
 };
 
+// Tính tuổi từ ngày sinh.
+// Dùng để validate: adult ≥ 14 tuổi, child < 14 tuổi.
 const calcAge = (dob) => {
   if (!dob) return null;
   const today = new Date();
@@ -23,14 +28,16 @@ const calcAge = (dob) => {
   return age;
 };
 
+// Tạo object hành khách rỗng — dùng khởi tạo mảng hành khách.
 const emptyPassenger = () => ({
   fullName: "", dob: "", gender: "", idNumber: "",
 });
 
 const Booking = () => {
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const { state } = useLocation(); // Nhận data từ trang FlightSearch (navigate với state)
 
+  // Nếu vào trang này trực tiếp mà không có dữ liệu chuyến bay → hiện thông báo lỗi
   if (!state?.selectedFlights) {
     return (
       <div className={styles.empty}>
@@ -43,9 +50,12 @@ const Booking = () => {
   const { selectedFlights, passengers, baggage, totalPrice } = state;
   const adultCount = Number(passengers?.adults || 1);
   const childCount = Number(passengers?.children || 0);
-  const paxCount   = adultCount + childCount;
+  const paxCount   = adultCount + childCount; // Tổng số hành khách
 
+  // Khởi tạo mảng hành khách: mỗi người là 1 form rỗng
   const [paxList,  setPaxList]  = useState(Array.from({ length: paxCount }, emptyPassenger));
+
+  // Lấy email/phone từ localStorage nếu đã đăng nhập → điền sẵn vào form liên hệ
   const [contact,  setContact]  = useState(() => {
     try {
       const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -56,6 +66,8 @@ const Booking = () => {
   const [loading,  setLoading]  = useState(false);
   const [apiError, setApiError] = useState("");
 
+  // Cập nhật một field cụ thể của hành khách thứ `idx`.
+  // Ví dụ: updatePax(0, "fullName", "Nguyen Van A")
   const updatePax = (idx, field, value) => {
     setPaxList((prev) => {
       const next = [...prev];
@@ -64,10 +76,12 @@ const Booking = () => {
     });
   };
 
+  // Validate toàn bộ form trước khi submit.
+  // Kiểm tra: tên, ngày sinh (+ tuổi đúng loại), giới tính, số CMND/hộ chiếu, email, phone.
   const validate = () => {
     const errs = {};
     paxList.forEach((p, i) => {
-      const isChild = i >= adultCount;
+      const isChild = i >= adultCount; // Index từ adultCount trở đi là trẻ em
       if (!p.fullName.trim()) errs[`${i}_fullName`] = "Required";
       if (!p.dob) {
         errs[`${i}_dob`] = "Required";
@@ -81,7 +95,7 @@ const Booking = () => {
         errs[`${i}_idNumber`] = "Required";
       } else {
         const id = p.idNumber.trim().replace(/\s/g, "");
-        const isPassport = /[a-zA-Z]/.test(id);
+        const isPassport = /[a-zA-Z]/.test(id); // Có chữ cái → là hộ chiếu
         if (isPassport && id.length < 6) errs[`${i}_idNumber`] = "Passport must be at least 6 characters";
         else if (!isPassport && id.length !== 9 && id.length !== 12) errs[`${i}_idNumber`] = "ID card must be 9 or 12 digits";
       }
@@ -93,10 +107,12 @@ const Booking = () => {
     return errs;
   };
 
+  // Submit form → tạo booking trên backend → chuyển sang trang Payment.
   const handleSubmit = async () => {
     const errs = validate();
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
+      // Cuộn đến field lỗi đầu tiên để user thấy
       const firstKey = Object.keys(errs)[0];
       document.getElementById(firstKey)?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
@@ -108,8 +124,8 @@ const Booking = () => {
     try {
       const isRoundTrip = !!selectedFlights.return;
 
-      // Build passengers array theo format backend yêu cầu
-      // Mỗi hành khách: 1 record outbound, thêm 1 record return nếu khứ hồi
+      // Xây dựng mảng hành khách theo định dạng backend yêu cầu.
+      // Mỗi hành khách sẽ có 2 record nếu khứ hồi: 1 outbound + 1 return.
       const passengerRecords = [];
       paxList.forEach((p, idx) => {
         const type = idx < adultCount ? "adult" : "child";
@@ -127,6 +143,7 @@ const Booking = () => {
         }
       });
 
+      // Payload gửi lên API POST /bookings
       const payload = {
         outbound_flight_id:  selectedFlights.outbound.flight_id,
         outbound_seat_class: selectedFlights.outbound.seat?.class || "economy",
@@ -144,8 +161,9 @@ const Booking = () => {
       };
 
       const res = await createBooking(payload);
-      const bookingData = res.data?.data;
+      const bookingData = res.data?.data; // Chứa booking_code, held_until...
 
+      // Chuyển sang trang Payment, truyền toàn bộ data cần thiết qua state
       navigate("/payment", {
         state: {
           bookingData,
@@ -162,6 +180,7 @@ const Booking = () => {
     }
   };
 
+  // Component mini hiển thị tóm tắt chuyến bay trong sidebar phải.
   const FlightSummaryCard = ({ flight, label, baggageKg }) => (
     <div className={styles.summaryFlight}>
       <p className={styles.summaryLabel}>{label}</p>
@@ -170,7 +189,7 @@ const Booking = () => {
           src={flight.airline?.logo_url || "https://cdn-icons-png.flaticon.com/512/34/34627.png"}
           alt={flight.airline?.name}
           className={styles.summaryLogo}
-          onError={(e) => { e.target.src = "https://cdn-icons-png.flaticon.com/512/34/34627.png"; }}
+          onError={(e) => { e.target.src = "https://cdn-icons-png.flaticon.com/512/34/34627.png"; }} // Fallback nếu ảnh lỗi
         />
         <div className={styles.summaryInfo}>
           <p className={styles.summaryAirline}>{flight.airline?.name}</p>
@@ -197,13 +216,13 @@ const Booking = () => {
       <div className={styles.wrapper}>
         <div className={styles.layout}>
 
-          {/* LEFT */}
+          {/* CỘT TRÁI: Form điền thông tin hành khách */}
           <div className={styles.left}>
             <h2 className={styles.pageTitle}>Passenger Information</h2>
 
             {apiError && <div className={styles.apiError}>{apiError}</div>}
 
-            {/* Contact */}
+            {/* Form liên hệ — nhận email xác nhận và phone */}
             <div className={styles.card}>
               <h3 className={styles.cardTitle}>Contact Details</h3>
               <p className={styles.cardDesc}>Booking confirmation will be sent here</p>
@@ -225,7 +244,7 @@ const Booking = () => {
               </div>
             </div>
 
-            {/* Passengers */}
+            {/* Render form cho từng hành khách động theo số lượng đã chọn */}
             {paxList.map((pax, idx) => {
               const isChild  = idx >= adultCount;
               const paxLabel = isChild ? `Child ${idx - adultCount + 1}` : `Adult ${idx + 1}`;
@@ -279,7 +298,7 @@ const Booking = () => {
             })}
           </div>
 
-          {/* RIGHT */}
+          {/* CỘT PHẢI: Tóm tắt đơn hàng (sticky sidebar) */}
           <div className={styles.right}>
             <div className={styles.summaryCard}>
               <h3 className={styles.summaryTitle}>Booking Summary</h3>

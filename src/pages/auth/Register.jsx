@@ -4,22 +4,23 @@ import NavBar  from "../../components/common/NavBar/Navbar";
 
 import { FcGoogle }                      from "react-icons/fc";
 import { FaFacebook, FaEye, FaEyeSlash } from "react-icons/fa";
-// FIX: bỏ FaApple
 
 import { useState, useEffect }                    from "react";
 import { useNavigate }                            from "react-router-dom";
 import { registerUser, verifyOTP, resendOTP }     from "../../services/authService";
-import { signInWithGoogle, signInWithFacebook }   from "../../lib/supabase"; // FIX: thêm
+import { signInWithGoogle, signInWithFacebook }   from "../../lib/supabase";
 
 const Register = () => {
   const navigate = useNavigate();
 
+  // Chuyển giây thành "MM:SS". Ví dụ: 300 → "05:00"
   const formatTime = (seconds) => {
     const m = String(Math.floor(seconds / 60)).padStart(2, "0");
     const s = String(seconds % 60).padStart(2, "0");
     return `${m}:${s}`;
   };
 
+  // State form đăng ký
   const [showPassword,        setShowPassword]        = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [fullName,            setFullName]            = useState("");
@@ -28,19 +29,21 @@ const Register = () => {
   const [password,            setPassword]            = useState("");
   const [confirmPassword,     setConfirmPassword]     = useState("");
 
+  // State modal OTP xác thực email
   const [showOTP,   setShowOTP]   = useState(false);
-  const [otp,       setOtp]       = useState(["", "", "", "", "", ""]);
-  const [userEmail, setUserEmail] = useState("");
+  const [otp,       setOtp]       = useState(["", "", "", "", "", ""]); // 6 ô riêng lẻ
+  const [userEmail, setUserEmail] = useState(""); // Lưu lại email để gửi lên API verify
 
   const [error,     setError]     = useState("");
-  const [errors,    setErrors]    = useState({});
+  const [errors,    setErrors]    = useState({});  // Lỗi từng field
   const [success,   setSuccess]   = useState("");
   const [loading,   setLoading]   = useState(false);
-  const [countdown, setCountdown] = useState(300);
+  const [countdown, setCountdown] = useState(300); // Đếm ngược 5 phút cho OTP
 
-  // FIX: loading state riêng cho social buttons
-  const [socialLoading, setSocialLoading] = useState("");
+  const [socialLoading, setSocialLoading] = useState(""); // "google" | "facebook" | ""
 
+  // Validate toàn bộ form trước khi gửi.
+  // Trả về object lỗi — nếu rỗng thì form hợp lệ.
   const validate = () => {
     const newErrors = {};
     if (!fullName.trim())
@@ -55,6 +58,7 @@ const Register = () => {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
       newErrors.email = "Invalid email format (e.g. example@email.com)";
 
+    // Phone là optional nhưng nếu có thì phải đúng định dạng VN
     if (phone.trim() && !/^(0[3-9][0-9]{8}|\+84[3-9][0-9]{8})$/.test(phone.trim()))
       newErrors.phone = "Invalid phone number (e.g. 0901234567)";
 
@@ -73,12 +77,15 @@ const Register = () => {
     return newErrors;
   };
 
+  // Đếm ngược OTP — chạy khi modal OTP đang hiện và còn thời gian.
   useEffect(() => {
     if (!showOTP || countdown <= 0) return;
     const timer = setInterval(() => setCountdown((prev) => prev - 1), 1000);
     return () => clearInterval(timer);
   }, [showOTP, countdown]);
 
+  // Gửi thông tin đăng ký lên API.
+  // Nếu thành công → backend gửi OTP về email → hiện modal nhập OTP.
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
@@ -92,6 +99,7 @@ const Register = () => {
       setOtp(["", "", "", "", "", ""]);
       setShowOTP(true);
       setCountdown(300);
+      // Chỉ trong môi trường dev: in OTP ra console để test không cần kiểm tra email thật
       if (import.meta.env.DEV && res.data?.otp_test) {
         console.log("OTP (dev):", res.data.otp_test);
       }
@@ -102,20 +110,21 @@ const Register = () => {
     }
   };
 
-  // FIX: Google login từ trang Register — dùng cùng OAuth flow
+  // Đăng ký / đăng nhập nhanh bằng Google OAuth (cùng flow với Login)
   const handleGoogleLogin = () => {
     setSocialLoading("google");
     setError("");
     signInWithGoogle();
   };
 
-  // FIX: Facebook login từ trang Register
+  // Đăng ký / đăng nhập nhanh bằng Facebook OAuth
   const handleFacebookLogin = () => {
     setSocialLoading("facebook");
     setError("");
     signInWithFacebook();
   };
 
+  // Xử lý nhập từng ô OTP — chỉ cho phép số, tự focus sang ô kế tiếp.
   const handleOtpChange = (value, index) => {
     if (!/^[0-9]?$/.test(value)) return;
     const newOtp = [...otp];
@@ -124,13 +133,16 @@ const Register = () => {
     if (value && index < 5) document.getElementById(`otp-${index + 1}`).focus();
   };
 
+  // Nhấn Backspace → lùi focus về ô trước nếu ô hiện tại rỗng.
   const handleKeyDown = (e, index) => {
     if (e.key === "Backspace" && !otp[index] && index > 0)
       document.getElementById(`otp-${index - 1}`).focus();
   };
 
+  // Xác thực OTP — gửi { email, otp } lên API.
+  // Nếu đúng → kích hoạt tài khoản → redirect sang Login.
   const handleVerifyOTP = async () => {
-    const cleanOtp = otp.join("");
+    const cleanOtp = otp.join(""); // ["1","2","3","4","5","6"] → "123456"
     setError("");
     if (!cleanOtp) { setError("Please enter OTP"); return; }
     setLoading(true);
@@ -141,7 +153,7 @@ const Register = () => {
         setShowOTP(false);
         setOtp(["", "", "", "", "", ""]);
         navigate("/login");
-      }, 800);
+      }, 800); // Delay nhỏ để user thấy thông báo thành công
     } catch (err) {
       setError("Invalid OTP");
     } finally {
@@ -149,6 +161,7 @@ const Register = () => {
     }
   };
 
+  // Gửi lại OTP. Chỉ hoạt động khi đếm ngược về 0.
   const handleResendOTP = async () => {
     if (countdown > 0) return;
     try {
@@ -171,7 +184,7 @@ const Register = () => {
           <h3 className={styles.cardTitle}>Get started!</h3>
           <p className={styles.cardDesc}>Create an account to start booking flights</p>
 
-          {/* FIX: Xóa Apple ID, thêm onClick cho Google + Facebook */}
+          {/* Đăng ký nhanh bằng mạng xã hội */}
           <div className={styles.social}>
             <button
               className={styles.socialBtn}
@@ -284,7 +297,7 @@ const Register = () => {
         </div>
       </div>
 
-      {/* OTP MODAL — giữ nguyên */}
+      {/* MODAL XÁC THỰC OTP — hiện sau khi đăng ký thành công */}
       {showOTP && (
         <div className={styles.otpOverlay}>
           <div className={styles.otpBox}>
@@ -294,6 +307,7 @@ const Register = () => {
             {error   && <p className={styles.error}>{error}</p>}
             {success && <p className={styles.success}>{success}</p>}
 
+            {/* 6 ô nhập số — mỗi ô là 1 chữ số của OTP */}
             <div className={styles.otpInputs}>
               {otp.map((digit, index) => (
                 <input
@@ -309,6 +323,7 @@ const Register = () => {
               ))}
             </div>
 
+            {/* Nút bị disable nếu chưa nhập đủ 6 ô */}
             <button
               onClick={handleVerifyOTP}
               className={styles.loginBtn}
@@ -317,6 +332,7 @@ const Register = () => {
               {loading ? "Verifying..." : "Verify"}
             </button>
 
+            {/* Đếm ngược — khi hết mới cho phép gửi lại */}
             <p
               className={`${styles.resend} ${countdown > 0 ? styles.disabled : ""}`}
               onClick={handleResendOTP}

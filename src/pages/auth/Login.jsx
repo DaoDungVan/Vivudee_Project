@@ -11,38 +11,42 @@ import { loginUser, forgotPassword } from "../../services/authService";
 import { signInWithGoogle, signInWithFacebook } from "../../lib/supabase";
 
 const Login = () => {
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);  // Ẩn/hiện mật khẩu
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [socialLoading, setSocialLoading] = useState("");
+  const [error, setError] = useState("");         // Lỗi toàn form (từ API)
+  const [errors, setErrors] = useState({});       // Lỗi từng field (validate)
+  const [loading, setLoading] = useState(false);  // Đang gọi API đăng nhập
+  const [socialLoading, setSocialLoading] = useState(""); // "google" | "facebook" | ""
   const navigate = useNavigate();
 
-  // --- Forgot Password states ---
-  const [showForgot, setShowForgot] = useState(false);
-  const [forgotStep, setForgotStep] = useState(1); // 1: nhập email, 2: nhập OTP
+  // --- Trạng thái cho luồng Quên mật khẩu ---
+  const [showForgot, setShowForgot] = useState(false);   // Hiện/ẩn modal
+  const [forgotStep, setForgotStep] = useState(1);        // Bước 1: nhập email, Bước 2: nhập OTP
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotEmailError, setForgotEmailError] = useState("");
-  const [forgotOtp, setForgotOtp] = useState(["", "", "", "", "", ""]);
+  const [forgotOtp, setForgotOtp] = useState(["", "", "", "", "", ""]); // Mảng 6 ô nhập OTP
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotError, setForgotError] = useState("");
   const [forgotSuccess, setForgotSuccess] = useState("");
-  const [forgotCountdown, setForgotCountdown] = useState(0);
+  const [forgotCountdown, setForgotCountdown] = useState(0); // Đếm ngược để gửi lại OTP
 
+  // Chuyển giây thành "MM:SS". Ví dụ: 65 → "01:05"
   const formatTime = (seconds) => {
     const m = String(Math.floor(seconds / 60)).padStart(2, "0");
     const s = String(seconds % 60).padStart(2, "0");
     return `${m}:${s}`;
   };
 
+  // Đếm ngược thời gian chờ gửi lại OTP (chạy mỗi giây).
+  // Dừng lại khi modal đóng, không ở bước 2, hoặc đếm về 0.
   useEffect(() => {
     if (!showForgot || forgotStep !== 2 || forgotCountdown <= 0) return;
     const timer = setInterval(() => setForgotCountdown((prev) => prev - 1), 1000);
-    return () => clearInterval(timer);
+    return () => clearInterval(timer); // Dọn dẹp khi component unmount hoặc effect chạy lại
   }, [showForgot, forgotStep, forgotCountdown]);
 
+  // Validate form trước khi gửi API — tránh gọi API với dữ liệu sai.
   const validate = () => {
     const errs = {};
     if (!email.trim()) errs.email = "Email is required";
@@ -54,8 +58,11 @@ const Login = () => {
     return errs;
   };
 
+  // Xử lý đăng nhập bằng email/password.
+  // Sau khi thành công: lưu token + user vào localStorage → điều hướng về trang chủ.
+  // dispatchEvent("storage") để Navbar cập nhật trạng thái login ngay lập tức.
   const handleLogin = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Ngăn form reload trang
     setError("");
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
@@ -77,7 +84,7 @@ const Login = () => {
       localStorage.setItem("token", token);
       if (res.data?.user)
         localStorage.setItem("user", JSON.stringify(res.data.user));
-      window.dispatchEvent(new Event("storage"));
+      window.dispatchEvent(new Event("storage")); // Thông báo cho Navbar biết đã login
       navigate("/");
     } catch (err) {
       setError(
@@ -90,19 +97,21 @@ const Login = () => {
     }
   };
 
+  // Đăng nhập bằng Google OAuth — redirect sang trang Google chọn tài khoản.
   const handleGoogleLogin = () => {
     setSocialLoading("google");
     setError("");
     signInWithGoogle();
   };
 
+  // Đăng nhập bằng Facebook OAuth
   const handleFacebookLogin = () => {
     setSocialLoading("facebook");
     setError("");
     signInWithFacebook();
   };
 
-  // --- Forgot Password handlers ---
+  // Mở modal quên mật khẩu và reset toàn bộ state về ban đầu.
   const openForgotModal = () => {
     setShowForgot(true);
     setForgotStep(1);
@@ -118,6 +127,8 @@ const Login = () => {
     setShowForgot(false);
   };
 
+  // Gửi OTP về email để đặt lại mật khẩu.
+  // Nếu thành công → chuyển sang bước 2 và bắt đầu đếm ngược 300 giây.
   const handleSendForgotOTP = async () => {
     setForgotEmailError("");
     setForgotError("");
@@ -134,7 +145,7 @@ const Login = () => {
       await forgotPassword({ email: forgotEmail.trim() });
       setForgotStep(2);
       setForgotOtp(["", "", "", "", "", ""]);
-      setForgotCountdown(300);
+      setForgotCountdown(300); // 5 phút đếm ngược
       setForgotSuccess("");
     } catch (err) {
       setForgotError(
@@ -145,33 +156,38 @@ const Login = () => {
     }
   };
 
+  // Xử lý nhập từng ô OTP (6 ô riêng lẻ).
+  // Chỉ cho phép nhập số. Tự động focus sang ô tiếp theo khi nhập xong.
   const handleForgotOtpChange = (value, index) => {
-    if (!/^[0-9]?$/.test(value)) return;
+    if (!/^[0-9]?$/.test(value)) return; // Chặn ký tự không phải số
     const newOtp = [...forgotOtp];
     newOtp[index] = value;
     setForgotOtp(newOtp);
     if (value && index < 5) document.getElementById(`forgot-otp-${index + 1}`).focus();
   };
 
+  // Nhấn Backspace → focus lùi về ô trước nếu ô hiện tại đang rỗng.
   const handleForgotKeyDown = (e, index) => {
     if (e.key === "Backspace" && !forgotOtp[index] && index > 0)
       document.getElementById(`forgot-otp-${index - 1}`).focus();
   };
 
+  // Xác nhận OTP đã nhập → lưu email + OTP vào state rồi chuyển sang trang reset-password.
+  // Việc gọi API verify thực sự diễn ra ở trang ResetPassword khi user nhập mật khẩu mới.
   const handleForgotVerifyOTP = () => {
     setForgotError("");
-    const otpCode = forgotOtp.join("");
+    const otpCode = forgotOtp.join(""); // Ghép mảng ["1","2","3","4","5","6"] → "123456"
     if (otpCode.length < 6) {
       setForgotError("Please enter the complete 6-digit OTP");
       return;
     }
-    // Lưu email + otp vào state navigation, verify thật sự xảy ra ở resetPassword API
     setShowForgot(false);
     navigate("/reset-password", { state: { email: forgotEmail.trim(), otp: otpCode } });
   };
 
+  // Gửi lại OTP. Chỉ hoạt động khi đếm ngược về 0.
   const handleResendForgotOTP = async () => {
-    if (forgotCountdown > 0) return;
+    if (forgotCountdown > 0) return; // Còn đang đếm → chặn
     setForgotError("");
     setForgotLoading(true);
     try {
@@ -199,6 +215,7 @@ const Login = () => {
             Sign in to continue your journey with Vivudee
           </p>
 
+          {/* Nút đăng nhập nhanh bằng mạng xã hội */}
           <div className={styles.social}>
             <button
               className={styles.socialBtn}
@@ -242,7 +259,7 @@ const Login = () => {
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                setErrors((p) => ({ ...p, email: "" }));
+                setErrors((p) => ({ ...p, email: "" })); // Xoá lỗi khi user bắt đầu sửa
                 setError("");
               }}
             />
@@ -253,7 +270,7 @@ const Login = () => {
             <label className={styles.label}>Password</label>
             <div className={styles.password}>
               <input
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? "text" : "password"} // Toggle ẩn/hiện mật khẩu
                 placeholder="Enter your password"
                 className={`${styles.input} ${errors.password ? styles.inputError : ""}`}
                 value={password}
@@ -299,10 +316,12 @@ const Login = () => {
         </div>
       </div>
 
-      {/* FORGOT PASSWORD MODAL */}
+      {/* MODAL QUÊN MẬT KHẨU
+          Click ra ngoài modal (overlay) → đóng modal */}
       {showForgot && (
         <div className={styles.otpOverlay} onClick={(e) => { if (e.target === e.currentTarget) closeForgotModal(); }}>
           <div className={styles.otpBox}>
+            {/* Bước 1: Nhập email */}
             {forgotStep === 1 && (
               <>
                 <h3 className={styles.modalTitle}>Forgot Password</h3>
@@ -340,6 +359,7 @@ const Login = () => {
               </>
             )}
 
+            {/* Bước 2: Nhập mã OTP 6 chữ số */}
             {forgotStep === 2 && (
               <>
                 <h3 className={styles.modalTitle}>Enter OTP</h3>
@@ -350,6 +370,7 @@ const Login = () => {
                 {forgotError && <p className={styles.error}>{forgotError}</p>}
                 {forgotSuccess && <p className={styles.successText}>{forgotSuccess}</p>}
 
+                {/* 6 ô nhập OTP riêng lẻ — UX tốt hơn so với 1 ô nhập liền */}
                 <div className={styles.otpInputs}>
                   {forgotOtp.map((digit, index) => (
                     <input
@@ -365,6 +386,7 @@ const Login = () => {
                   ))}
                 </div>
 
+                {/* Nút bị disable cho đến khi nhập đủ 6 chữ số */}
                 <button
                   className={styles.loginBtn}
                   onClick={handleForgotVerifyOTP}
@@ -373,6 +395,7 @@ const Login = () => {
                   Verify OTP
                 </button>
 
+                {/* Nút gửi lại: disabled khi còn đang đếm ngược */}
                 <p
                   className={`${styles.resendText} ${forgotCountdown > 0 ? styles.resendDisabled : ""}`}
                   onClick={handleResendForgotOTP}

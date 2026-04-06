@@ -15,26 +15,29 @@ import Tours from "../pages/tours/Tours";
 import Contact from "../pages/contact/Contact";
 import PaymentMomoResult from "../pages/payment/PaymentMomoResult";
 
+// Định nghĩa tất cả các đường dẫn (URL) của app và component tương ứng.
+// Khi user truy cập URL nào → React render component đó.
 function AppRoutes() {
   return (
+    // BrowserRouter: bật tính năng điều hướng bằng URL (dùng history API của trình duyệt)
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/flights" element={<FlightSearch />} />
-        <Route path="/booking" element={<Booking />} />
-        <Route path="/payment" element={<Payment />} />
-        <Route path="/payment/momo/result" element={<PaymentMomoResult />} />
-        <Route path="/bookings" element={<Bookings />} />
-        <Route path="/my-booking" element={<Bookings />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/transactions" element={<Transactions />} />
-        <Route path="/coupons" element={<Coupons />} />
-        <Route path="/tours" element={<Tours />} />
-        <Route path="/contact" element={<Contact />} />
+        <Route path="/" element={<Home />} />                              {/* Trang chủ */}
+        <Route path="/login" element={<Login />} />                        {/* Đăng nhập */}
+        <Route path="/register" element={<Register />} />                  {/* Đăng ký */}
+        <Route path="/auth/callback" element={<AuthCallback />} />         {/* Callback sau OAuth Google/Facebook */}
+        <Route path="/reset-password" element={<ResetPassword />} />       {/* Đặt lại mật khẩu */}
+        <Route path="/flights" element={<FlightSearch />} />               {/* Kết quả tìm kiếm chuyến bay */}
+        <Route path="/booking" element={<Booking />} />                    {/* Điền thông tin hành khách */}
+        <Route path="/payment" element={<Payment />} />                    {/* Thanh toán */}
+        <Route path="/payment/momo/result" element={<PaymentMomoResult />} />{/* Kết quả sau khi thanh toán MoMo */}
+        <Route path="/bookings" element={<Bookings />} />                  {/* Danh sách booking của tôi */}
+        <Route path="/my-booking" element={<Bookings />} />                {/* Alias của /bookings */}
+        <Route path="/profile" element={<Profile />} />                    {/* Thông tin cá nhân */}
+        <Route path="/transactions" element={<Transactions />} />          {/* Lịch sử giao dịch */}
+        <Route path="/coupons" element={<Coupons />} />                    {/* Danh sách mã giảm giá */}
+        <Route path="/tours" element={<Tours />} />                        {/* Tours (tính năng tương lai) */}
+        <Route path="/contact" element={<Contact />} />                    {/* Liên hệ */}
       </Routes>
     </BrowserRouter>
   );
