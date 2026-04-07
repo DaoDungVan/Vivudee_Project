@@ -14,6 +14,7 @@ import Coupons from "../pages/coupons/Coupons";
 import Tours from "../pages/tours/Tours";
 import Contact from "../pages/contact/Contact";
 import PaymentMomoResult  from "../pages/payment/PaymentMomoResult";
+import PaymentPayosResult from "../pages/payment/PaymentPayosResult";
 import PaymentPaypalResult from "../pages/payment/PaymentPaypalResult";
 
 // Định nghĩa tất cả các đường dẫn (URL) của app và component tương ứng.
@@ -32,6 +33,7 @@ function AppRoutes() {
         <Route path="/booking" element={<Booking />} />                    {/* Điền thông tin hành khách */}
         <Route path="/payment" element={<Payment />} />                    {/* Thanh toán */}
         <Route path="/payment/momo/result"   element={<PaymentMomoResult />} />   {/* Kết quả sau khi thanh toán MoMo */}
+        <Route path="/payment/payos/result"  element={<PaymentPayosResult />} />  {/* Kết quả sau khi thanh toán PayOS */}
         <Route path="/payment/paypal/result" element={<PaymentPaypalResult />} /> {/* Kết quả sau khi thanh toán PayPal */}
         <Route path="/bookings" element={<Bookings />} />                  {/* Danh sách booking của tôi */}
         <Route path="/my-booking" element={<Bookings />} />                {/* Alias của /bookings */}
