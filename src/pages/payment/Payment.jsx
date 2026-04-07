@@ -50,11 +50,11 @@ const formatCountdown = (expiresAt) => {
 // Danh sách phương thức thanh toán.
 // disabled: true = tính năng sắp ra mắt (hiển thị nhãn "Soon").
 const PAYMENT_METHODS = [
-  { id: "BANK_QR", label: "VietQR / Bank Transfer", img: vietqrImg },
-  { id: "MOMO",    label: "MoMo",                   img: momoImg   },
-  { id: "VISA",    label: "Visa / Credit Card",      img: visaImg,   disabled: true },
-  { id: "MASTER",  label: "Mastercard",               img: masterImg, disabled: true },
-  { id: "PAYPAL",  label: "PayPal",                   img: paypalImg, disabled: true },
+  { id: "BANK_QR", label: "PayOS / Bank Transfer", img: vietqrImg },
+  { id: "MOMO",    label: "MoMo",                  img: momoImg   },
+  { id: "PAYPAL",  label: "PayPal",                 img: paypalImg },
+  { id: "VISA",    label: "Visa / Credit Card",     img: visaImg,   disabled: true },
+  { id: "MASTER",  label: "Mastercard",              img: masterImg, disabled: true },
 ];
 
 // Tính số tiền giảm giá từ coupon.
@@ -89,7 +89,9 @@ const Payment = () => {
 
   // Overlay "Đang kết nối MoMo" — hiện ngay khi click Pay với MoMo
   // vì Render cold start có thể mất 10–20 giây
-  const [momoRedirecting, setMomoRedirecting] = useState(false);
+  const [momoRedirecting,  setMomoRedirecting]  = useState(false);
+  const [payosRedirecting, setPayosRedirecting] = useState(false);
+  const [paypalRedirecting, setPaypalRedirecting] = useState(false);
 
   // Đồng hồ đếm ngược ghế đang được giữ (held_until từ backend)
   const [countdown, setCountdown] = useState(null);
@@ -202,10 +204,10 @@ const Payment = () => {
     setQrLoading(true);
     setQrError(false);
 
-    // Hiện overlay MoMo ngay lập tức vì API Render cold start chậm
-    if (selectedMethod === "MOMO") {
-      setMomoRedirecting(true);
-    }
+    // Hiện overlay ngay lập tức vì API Render cold start chậm
+    if (selectedMethod === "MOMO")   setMomoRedirecting(true);
+    if (selectedMethod === "BANK_QR") setPayosRedirecting(true);
+    if (selectedMethod === "PAYPAL")  setPaypalRedirecting(true);
 
     try {
       const payload = {
@@ -214,41 +216,71 @@ const Payment = () => {
         phone:          contact?.phone,
         name:           contact?.name || passengers?.[0]?.fullName || "",
         payment_method: selectedMethod,
-        voucher_code:   couponApplied?.voucher_code || null, // Gửi mã coupon lên để backend tính giảm giá chính xác
+        voucher_code:   couponApplied?.voucher_code || null,
       };
       const res = await initPayment(payload);
 
       if (selectedMethod === "MOMO") {
         const payUrl = res?.payment?.instruction?.pay_url;
         if (payUrl) {
-          window.location.href = payUrl; // Redirect sang trang thanh toán MoMo
-          return;
-        } else {
-          // MoMo không trả về URL → tự động chuyển sang VietQR
-          setMomoRedirecting(false);
-          setSelectedMethod("BANK_QR");
-          setInitError("Could not connect to MoMo. Switched to VietQR — please use bank transfer to complete your payment.");
+          window.location.href = payUrl;
           return;
         }
+        setMomoRedirecting(false);
+        setSelectedMethod("BANK_QR");
+        setInitError("Could not connect to MoMo. Switched to PayOS — please complete your payment there.");
+        return;
       }
 
-      // BANK_QR: lưu payment data để render QR
+      if (selectedMethod === "BANK_QR") {
+        const instrType = res?.payment?.instruction?.type;
+        if (instrType === "PAYOS_CHECKOUT") {
+          const checkoutUrl = res?.payment?.instruction?.checkout_url || res?.payment?.instruction?.redirect_url;
+          if (checkoutUrl) {
+            window.location.href = checkoutUrl;
+            return;
+          }
+          setPayosRedirecting(false);
+          setInitError("Could not create PayOS payment link. Please try again.");
+          return;
+        }
+        // Fallback: BANK_TRANSFER (VietQR — khi PayOS chưa cấu hình)
+        setPayosRedirecting(false);
+        setPaymentData(res);
+        return;
+      }
+
+      if (selectedMethod === "PAYPAL") {
+        const approveUrl = res?.payment?.instruction?.approve_url || res?.payment?.instruction?.redirect_url;
+        if (approveUrl) {
+          window.location.href = approveUrl;
+          return;
+        }
+        setPaypalRedirecting(false);
+        setInitError("Could not create PayPal payment. Please try again.");
+        return;
+      }
+
       setPaymentData(res);
     } catch (err) {
       setMomoRedirecting(false);
+      setPayosRedirecting(false);
+      setPaypalRedirecting(false);
       const raw = err?.response?.data?.message || err?.response?.data?.error || err?.message || "";
       const isPendingExists = raw.toLowerCase().includes("pending payment");
-      const isMomoError = selectedMethod === "MOMO";
       if (isPendingExists) {
-        // Đã có giao dịch đang chờ → không tạo thêm, dùng VietQR để hoàn tất
-        setInitError("A payment for this booking already exists. Please use VietQR / Bank Transfer to complete it.");
+        setInitError("A payment for this booking already exists. Please use PayOS / Bank Transfer to complete it.");
         setSelectedMethod("BANK_QR");
-      } else if (isMomoError) {
-        // Hiện lỗi thật từ backend thay vì thông báo chung chung (giúp debug)
+      } else if (selectedMethod === "MOMO") {
         setSelectedMethod("BANK_QR");
         setInitError(raw
-          ? `MoMo error: ${raw}. Switched to VietQR.`
-          : "MoMo is currently unavailable. Switched to VietQR — please use bank transfer to complete your payment."
+          ? `MoMo error: ${raw}. Switched to PayOS.`
+          : "MoMo is currently unavailable. Switched to PayOS — please use bank transfer to complete your payment."
+        );
+      } else if (selectedMethod === "PAYPAL") {
+        setInitError(raw
+          ? `PayPal error: ${raw}. Please try again.`
+          : "PayPal is currently unavailable. Please try again or use another payment method."
         );
       } else {
         setInitError(raw || "Payment initialization failed. Please try again.");
@@ -327,7 +359,7 @@ const Payment = () => {
     <>
       <NavBar />
 
-      {/* Overlay MoMo: hiện trong lúc chờ API response để user không thấy màn hình đứng yên */}
+      {/* Overlay MoMo */}
       {momoRedirecting && (
         <div className={styles.momoOverlay}>
           <div className={styles.momoOverlayCard}>
@@ -336,6 +368,34 @@ const Payment = () => {
             <p className={styles.momoOverlayTitle}>Connecting to MoMo...</p>
             <p className={styles.momoOverlayNote}>
               Please wait, you will be redirected to the MoMo payment page
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Overlay PayOS */}
+      {payosRedirecting && (
+        <div className={styles.momoOverlay}>
+          <div className={styles.momoOverlayCard}>
+            <img src={vietqrImg} alt="PayOS" className={styles.momoOverlayLogo} />
+            <div className={styles.momoOverlaySpinner} />
+            <p className={styles.momoOverlayTitle}>Connecting to PayOS...</p>
+            <p className={styles.momoOverlayNote}>
+              Please wait, you will be redirected to the PayOS checkout page
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Overlay PayPal */}
+      {paypalRedirecting && (
+        <div className={styles.momoOverlay}>
+          <div className={styles.momoOverlayCard}>
+            <img src={paypalImg} alt="PayPal" className={styles.momoOverlayLogo} />
+            <div className={styles.momoOverlaySpinner} />
+            <p className={styles.momoOverlayTitle}>Connecting to PayPal...</p>
+            <p className={styles.momoOverlayNote}>
+              Please wait, you will be redirected to the PayPal checkout page
             </p>
           </div>
         </div>
@@ -585,6 +645,15 @@ const Payment = () => {
                     </span>
                   </div>
                 )}
+                {selectedMethod === "PAYPAL" && (
+                  <div className={styles.momoMethodNote}>
+                    <span>💳</span>
+                    <span>
+                      You will be redirected to PayPal. Log in to your PayPal account or pay as guest with a card.
+                      After payment, you will be redirected back to confirm your booking.
+                    </span>
+                  </div>
+                )}
               </div>
             )}
 
@@ -720,25 +789,28 @@ const Payment = () => {
               /* Trước khi init: preview phương thức đang chọn */
               <div className={styles.qrCard}>
                 <div className={styles.qrHeader}>
-                  {selectedMethod === "MOMO"
-                    ? <img src={momoImg} alt="MoMo" className={styles.momoLogoPreview} />
-                    : <img src={vietqrImg} alt="VietQR" className={styles.vietqrLogo} />
-                  }
+                  {selectedMethod === "MOMO"   && <img src={momoImg}   alt="MoMo"   className={styles.momoLogoPreview} />}
+                  {selectedMethod === "PAYPAL" && <img src={paypalImg} alt="PayPal" className={styles.momoLogoPreview} />}
+                  {selectedMethod === "BANK_QR" && <img src={vietqrImg} alt="PayOS"  className={styles.vietqrLogo} />}
                 </div>
                 <div className={styles.qrPreview}>
                   <div className={styles.qrPreviewIcon}>
-                    {selectedMethod === "MOMO" ? "📲" : "📱"}
+                    {selectedMethod === "MOMO" ? "📲" : selectedMethod === "PAYPAL" ? "💳" : "📱"}
                   </div>
                   <p>
                     {selectedMethod === "MOMO"
                       ? "You will be redirected to MoMo to complete payment"
-                      : "Your VietQR code will appear here after clicking Pay"
+                      : selectedMethod === "PAYPAL"
+                        ? "You will be redirected to PayPal to complete payment"
+                        : "You will be redirected to PayOS checkout to complete payment"
                     }
                   </p>
                   <p className={styles.qrPreviewSub}>
                     {selectedMethod === "MOMO"
                       ? "After payment, MoMo will display the transaction result"
-                      : "Supports all Vietnamese banks via VietQR"
+                      : selectedMethod === "PAYPAL"
+                        ? "After payment, PayPal will redirect you back to confirm"
+                        : "Supports all Vietnamese banks via QR transfer"
                     }
                   </p>
                 </div>
