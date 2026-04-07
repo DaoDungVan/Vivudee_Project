@@ -47,6 +47,20 @@ const formatCountdown = (expiresAt) => {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 };
 
+const normalizeHeldUntil = (heldUntil, bookingStatus) => {
+  if (!heldUntil) return heldUntil;
+
+  const parsed = new Date(heldUntil);
+  if (Number.isNaN(parsed.getTime())) return heldUntil;
+
+  const isPendingBooking = String(bookingStatus || "").toLowerCase() === "pending";
+  const looksExpired = parsed.getTime() <= Date.now();
+  if (!isPendingBooking || !looksExpired) return heldUntil;
+
+  const vietnamOffsetFix = new Date(parsed.getTime() + 7 * 60 * 60 * 1000);
+  return vietnamOffsetFix.getTime() > Date.now() ? vietnamOffsetFix.toISOString() : heldUntil;
+};
+
 // Danh sách phương thức thanh toán.
 // disabled: true = tính năng sắp ra mắt (hiển thị nhãn "Soon").
 const PAYMENT_METHODS = [
@@ -115,7 +129,7 @@ const Payment = () => {
   const { bookingData, selectedFlights, passengers, contact, totalPrice } = state;
   const bookingId   = bookingData?.booking_id || bookingData?.id;
   const bookingCode = bookingData?.booking_code;
-  const heldUntil   = bookingData?.held_until; // Thời hạn giữ ghế
+  const heldUntil   = normalizeHeldUntil(bookingData?.held_until, bookingData?.status); // Thời hạn giữ ghế
   // Số tiền cuối cùng: ưu tiên từ payment data (chính xác nhất), sau đó coupon preview, cuối là giá gốc
   const finalAmount = paymentData?.payment?.final_amount ?? couponApplied?.final_amount ?? totalPrice;
 
