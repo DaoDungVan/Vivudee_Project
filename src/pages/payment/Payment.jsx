@@ -268,9 +268,15 @@ const Payment = () => {
       setPaypalRedirecting(false);
       const raw = err?.response?.data?.message || err?.response?.data?.error || err?.message || "";
       const isPendingExists = raw.toLowerCase().includes("pending payment");
+      const isExpiredPayment =
+        raw.toLowerCase().includes("expired") ||
+        raw.toLowerCase().includes("booking not found") ||
+        raw.includes("HTTP 404");
       if (isPendingExists) {
         setInitError("A payment for this booking already exists. Please use PayOS / Bank Transfer to complete it.");
         setSelectedMethod("BANK_QR");
+      } else if (isExpiredPayment) {
+        setInitError("This booking or payment session has expired. Please search again and create a new booking.");
       } else if (selectedMethod === "MOMO") {
         setSelectedMethod("BANK_QR");
         setInitError(raw
