@@ -189,7 +189,7 @@ const FilterPanel = ({
               }`}
               onClick={() => toggleSlot("departureSlots", slot.value)}
             >
-              <span>{slot.icon}</span>
+              {/* <span>{slot.icon}</span> */}
               <span>{slot.label}</span>
             </button>
           ))}
@@ -210,7 +210,7 @@ const FilterPanel = ({
               }`}
               onClick={() => toggleSlot("arrivalSlots", slot.value)}
             >
-              <span>{slot.icon}</span>
+              {/* <span>{slot.icon}</span> */}
               <span>{slot.label}</span>
             </button>
           ))}
