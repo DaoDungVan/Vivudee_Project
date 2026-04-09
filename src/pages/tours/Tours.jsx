@@ -3,6 +3,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
+import { useTranslation } from "react-i18next";
 import styles from "./Tours.module.css";
 
 const SAMPLE_TOURS = [
@@ -89,11 +90,12 @@ const SAMPLE_TOURS = [
 const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n);
 
 const Tours = () => {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("popular");
 
   const filtered = SAMPLE_TOURS
-    .filter((t) => t.name.toLowerCase().includes(search.toLowerCase()) || t.departure.toLowerCase().includes(search.toLowerCase()))
+    .filter((tour) => tour.name.toLowerCase().includes(search.toLowerCase()) || tour.departure.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       if (sortBy === "price_asc")  return a.price - b.price;
       if (sortBy === "price_desc") return b.price - a.price;
@@ -106,12 +108,12 @@ const Tours = () => {
       <NavBar />
       <div className={styles.hero}>
         <div className={styles.heroContent}>
-          <h1>Explore Tours</h1>
-          <p>Amazing journeys designed just for you</p>
+          <h1>{t("tours.heroTitle")}</h1>
+          <p>{t("tours.heroSubtitle")}</p>
           <div className={styles.heroSearch}>
             <input
               type="text"
-              placeholder="🔍 Search tours by destination..."
+              placeholder={t("tours.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className={styles.searchInput}
@@ -122,12 +124,12 @@ const Tours = () => {
 
       <div className={styles.wrapper}>
         <div className={styles.topBar}>
-          <p className={styles.resultCount}>{filtered.length} tour{filtered.length !== 1 ? "s" : ""} found</p>
+          <p className={styles.resultCount}>{filtered.length} {filtered.length !== 1 ? t("tours.heroTitle").toLowerCase() : t("tours.heroTitle").toLowerCase()} found</p>
           <select className={styles.sortSelect} value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-            <option value="popular">Most Popular</option>
-            <option value="rating">Highest Rated</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
+            <option value="popular">{t("tours.mostPopular")}</option>
+            <option value="rating">{t("tours.highestRated")}</option>
+            <option value="price_asc">{t("tours.sortPriceAsc")}</option>
+            <option value="price_desc">{t("tours.sortPriceDesc")}</option>
           </select>
         </div>
 
@@ -144,7 +146,7 @@ const Tours = () => {
                 )}
               </div>
               <div className={styles.cardBody}>
-                <p className={styles.duration}>⏱ {tour.duration} · ✈️ From {tour.departure}</p>
+                <p className={styles.duration}>⏱ {tour.duration} · ✈️ {t("tours.from", { departure: tour.departure })}</p>
                 <h3 className={styles.tourName}>{tour.name}</h3>
                 <div className={styles.highlights}>
                   {tour.highlights.slice(0, 3).map((h, i) => (
@@ -157,14 +159,14 @@ const Tours = () => {
                       <span className={styles.originalPrice}>{fmt(tour.originalPrice)}VND</span>
                     )}
                     <span className={styles.price}>{fmt(tour.price)}VND</span>
-                    <span className={styles.priceNote}>/person</span>
+                    <span className={styles.priceNote}>{t("tours.perPerson")}</span>
                   </div>
                   <div className={styles.rating}>
                     ⭐ {tour.rating} <span className={styles.reviews}>({tour.reviews})</span>
                   </div>
                 </div>
-                <button className={styles.bookBtn} onClick={() => toast.info("Tour booking coming soon!")}>
-                  Book Now
+                <button className={styles.bookBtn} onClick={() => toast.info(t("tours.bookingComingSoon"))}>
+                  {t("tours.bookNow")}
                 </button>
               </div>
             </div>
@@ -173,8 +175,8 @@ const Tours = () => {
 
         {filtered.length === 0 && (
           <div className={styles.noResult}>
-            <p>No tours found matching "{search}"</p>
-            <button onClick={() => setSearch("")}>View All Tours</button>
+            <p>{t("tours.noResult", { search })}</p>
+            <button onClick={() => setSearch("")}>{t("tours.clearSearch")}</button>
           </div>
         )}
       </div>

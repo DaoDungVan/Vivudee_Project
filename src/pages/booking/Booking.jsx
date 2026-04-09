@@ -2,22 +2,18 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
+import { useTranslation } from "react-i18next";
 import { createBooking } from "../../services/bookingService";
 import styles from "./Booking.module.css";
 
-// Định dạng tiền VND. Ví dụ: 1500000 → "1.500.000 VND"
 const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n) + " VND";
 
-// Lấy giờ phút từ chuỗi ISO hoặc "HH:MM:SS".
-// Dùng regex thay vì new Date() để tránh lệch múi giờ (UTC vs local).
 const formatTime = (iso) => {
   if (!iso) return "--:--";
   const match = String(iso).match(/(\d{2}):(\d{2})/);
   return match ? `${match[1]}:${match[2]}` : "--:--";
 };
 
-// Tính tuổi từ ngày sinh.
-// Dùng để validate: adult ≥ 14 tuổi, child < 14 tuổi.
 const calcAge = (dob) => {
   if (!dob) return null;
   const today = new Date();
@@ -28,21 +24,18 @@ const calcAge = (dob) => {
   return age;
 };
 
-// Tạo object hành khách rỗng — dùng khởi tạo mảng hành khách.
-const emptyPassenger = () => ({
-  fullName: "", dob: "", gender: "", idNumber: "",
-});
+const emptyPassenger = () => ({ fullName: "", dob: "", gender: "", idNumber: "" });
 
 const Booking = () => {
   const navigate = useNavigate();
-  const { state } = useLocation(); // Nhận data từ trang FlightSearch (navigate với state)
+  const { state } = useLocation();
+  const { t } = useTranslation();
 
-  // Nếu vào trang này trực tiếp mà không có dữ liệu chuyến bay → hiện thông báo lỗi
   if (!state?.selectedFlights) {
     return (
       <div className={styles.empty}>
-        <p>No booking data found.</p>
-        <button onClick={() => navigate("/")}>Back to Home</button>
+        <p>{t("booking.noData")}</p>
+        <button onClick={() => navigate("/")}>{t("booking.backHome")}</button>
       </div>
     );
   }
@@ -50,12 +43,9 @@ const Booking = () => {
   const { selectedFlights, passengers, baggage, totalPrice } = state;
   const adultCount = Number(passengers?.adults || 1);
   const childCount = Number(passengers?.children || 0);
-  const paxCount   = adultCount + childCount; // Tổng số hành khách
+  const paxCount   = adultCount + childCount;
 
-  // Khởi tạo mảng hành khách: mỗi người là 1 form rỗng
   const [paxList,  setPaxList]  = useState(Array.from({ length: paxCount }, emptyPassenger));
-
-  // Lấy email/phone từ localStorage nếu đã đăng nhập → điền sẵn vào form liên hệ
   const [contact,  setContact]  = useState(() => {
     try {
       const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -66,8 +56,6 @@ const Booking = () => {
   const [loading,  setLoading]  = useState(false);
   const [apiError, setApiError] = useState("");
 
-  // Cập nhật một field cụ thể của hành khách thứ `idx`.
-  // Ví dụ: updatePax(0, "fullName", "Nguyen Van A")
   const updatePax = (idx, field, value) => {
     setPaxList((prev) => {
       const next = [...prev];
@@ -76,43 +64,39 @@ const Booking = () => {
     });
   };
 
-  // Validate toàn bộ form trước khi submit.
-  // Kiểm tra: tên, ngày sinh (+ tuổi đúng loại), giới tính, số CMND/hộ chiếu, email, phone.
   const validate = () => {
     const errs = {};
     paxList.forEach((p, i) => {
-      const isChild = i >= adultCount; // Index từ adultCount trở đi là trẻ em
-      if (!p.fullName.trim()) errs[`${i}_fullName`] = "Required";
+      const isChild = i >= adultCount;
+      if (!p.fullName.trim()) errs[`${i}_fullName`] = t("booking.required");
       if (!p.dob) {
-        errs[`${i}_dob`] = "Required";
+        errs[`${i}_dob`] = t("booking.required");
       } else {
         const age = calcAge(p.dob);
-        if (!isChild && age < 14) errs[`${i}_dob`] = "Adult must be at least 14 years old";
-        if (isChild && age >= 14) errs[`${i}_dob`] = "Child must be under 14 years old";
+        if (!isChild && age < 14) errs[`${i}_dob`] = t("booking.adultAgeErr");
+        if (isChild && age >= 14) errs[`${i}_dob`] = t("booking.childAgeErr");
       }
-      if (!p.gender) errs[`${i}_gender`] = "Required";
+      if (!p.gender) errs[`${i}_gender`] = t("booking.required");
       if (!p.idNumber.trim()) {
-        errs[`${i}_idNumber`] = "Required";
+        errs[`${i}_idNumber`] = t("booking.required");
       } else {
         const id = p.idNumber.trim().replace(/\s/g, "");
-        const isPassport = /[a-zA-Z]/.test(id); // Có chữ cái → là hộ chiếu
-        if (isPassport && id.length < 6) errs[`${i}_idNumber`] = "Passport must be at least 6 characters";
-        else if (!isPassport && id.length !== 9 && id.length !== 12) errs[`${i}_idNumber`] = "ID card must be 9 or 12 digits";
+        const isPassport = /[a-zA-Z]/.test(id);
+        if (isPassport && id.length < 6) errs[`${i}_idNumber`] = t("booking.passportErr");
+        else if (!isPassport && id.length !== 9 && id.length !== 12) errs[`${i}_idNumber`] = t("booking.idCardErr");
       }
     });
-    if (!contact.email.trim())  errs["email"] = "Required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) errs["email"] = "Invalid email";
-    if (!contact.phone.trim())  errs["phone"] = "Required";
-    else if (!/^[0-9]{9,11}$/.test(contact.phone.trim().replace(/\s/g, ""))) errs["phone"] = "Phone must be 9–11 digits";
+    if (!contact.email.trim()) errs["email"] = t("booking.required");
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) errs["email"] = t("booking.emailInvalid");
+    if (!contact.phone.trim()) errs["phone"] = t("booking.required");
+    else if (!/^[0-9]{9,11}$/.test(contact.phone.trim().replace(/\s/g, ""))) errs["phone"] = t("booking.phoneErr");
     return errs;
   };
 
-  // Submit form → tạo booking trên backend → chuyển sang trang Payment.
   const handleSubmit = async () => {
     const errs = validate();
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
-      // Cuộn đến field lỗi đầu tiên để user thấy
       const firstKey = Object.keys(errs)[0];
       document.getElementById(firstKey)?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
@@ -123,9 +107,6 @@ const Booking = () => {
 
     try {
       const isRoundTrip = !!selectedFlights.return;
-
-      // Xây dựng mảng hành khách theo định dạng backend yêu cầu.
-      // Mỗi hành khách sẽ có 2 record nếu khứ hồi: 1 outbound + 1 return.
       const passengerRecords = [];
       paxList.forEach((p, idx) => {
         const type = idx < adultCount ? "adult" : "child";
@@ -138,12 +119,9 @@ const Booking = () => {
           extra_baggage_kg: baggage?.outbound || 0,
         };
         passengerRecords.push({ ...base, flight_type: "outbound" });
-        if (isRoundTrip) {
-          passengerRecords.push({ ...base, flight_type: "return", extra_baggage_kg: baggage?.return || 0 });
-        }
+        if (isRoundTrip) passengerRecords.push({ ...base, flight_type: "return", extra_baggage_kg: baggage?.return || 0 });
       });
 
-      // Payload gửi lên API POST /bookings
       const payload = {
         outbound_flight_id:  selectedFlights.outbound.flight_id,
         outbound_seat_class: selectedFlights.outbound.seat?.class || "economy",
@@ -161,26 +139,18 @@ const Booking = () => {
       };
 
       const res = await createBooking(payload);
-      const bookingData = res.data?.data; // Chứa booking_code, held_until...
+      const bookingData = res.data?.data;
 
-      // Chuyển sang trang Payment, truyền toàn bộ data cần thiết qua state
       navigate("/payment", {
-        state: {
-          bookingData,
-          selectedFlights,
-          passengers: paxList,
-          contact,
-          totalPrice,
-        },
+        state: { bookingData, selectedFlights, passengers: paxList, contact, totalPrice },
       });
     } catch (err) {
-      setApiError(err.response?.data?.error || "Booking failed. Please try again.");
+      setApiError(err.response?.data?.error || t("booking.bookingFailed"));
     } finally {
       setLoading(false);
     }
   };
 
-  // Component mini hiển thị tóm tắt chuyến bay trong sidebar phải.
   const FlightSummaryCard = ({ flight, label, baggageKg }) => (
     <div className={styles.summaryFlight}>
       <p className={styles.summaryLabel}>{label}</p>
@@ -189,7 +159,7 @@ const Booking = () => {
           src={flight.airline?.logo_url || "https://cdn-icons-png.flaticon.com/512/34/34627.png"}
           alt={flight.airline?.name}
           className={styles.summaryLogo}
-          onError={(e) => { e.target.src = "https://cdn-icons-png.flaticon.com/512/34/34627.png"; }} // Fallback nếu ảnh lỗi
+          onError={(e) => { e.target.src = "https://cdn-icons-png.flaticon.com/512/34/34627.png"; }}
         />
         <div className={styles.summaryInfo}>
           <p className={styles.summaryAirline}>{flight.airline?.name}</p>
@@ -204,9 +174,9 @@ const Booking = () => {
       <div className={styles.summaryMeta}>
         <span>{flight.departure?.code} → {flight.arrival?.code}</span>
         <span>{flight.duration_label}</span>
-        {baggageKg > 0 && <span>+{baggageKg}kg extra</span>}
+        {baggageKg > 0 && <span>{t("booking.extraBaggageKg", { kg: baggageKg })}</span>}
       </div>
-      <p className={styles.summaryPrice}>{fmt(flight.seat?.total_price || 0)} all pax</p>
+      <p className={styles.summaryPrice}>{fmt(flight.seat?.total_price || 0)} {t("booking.allPax")}</p>
     </div>
   );
 
@@ -216,26 +186,24 @@ const Booking = () => {
       <div className={styles.wrapper}>
         <div className={styles.layout}>
 
-          {/* CỘT TRÁI: Form điền thông tin hành khách */}
           <div className={styles.left}>
-            <h2 className={styles.pageTitle}>Passenger Information</h2>
+            <h2 className={styles.pageTitle}>{t("booking.title")}</h2>
 
             {apiError && <div className={styles.apiError}>{apiError}</div>}
 
-            {/* Form liên hệ — nhận email xác nhận và phone */}
             <div className={styles.card}>
-              <h3 className={styles.cardTitle}>Contact Details</h3>
-              <p className={styles.cardDesc}>Booking confirmation will be sent here</p>
+              <h3 className={styles.cardTitle}>{t("booking.contactDetails")}</h3>
+              <p className={styles.cardDesc}>{t("booking.contactDesc")}</p>
               <div className={styles.row2}>
                 <div className={styles.field}>
-                  <label className={styles.label}>Email</label>
+                  <label className={styles.label}>{t("booking.email")}</label>
                   <input id="email" type="email" placeholder="email@example.com"
                     className={`${styles.input} ${errors.email ? styles.inputError : ""}`}
                     value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} />
                   {errors.email && <span className={styles.errMsg}>{errors.email}</span>}
                 </div>
                 <div className={styles.field}>
-                  <label className={styles.label}>Phone</label>
+                  <label className={styles.label}>{t("booking.phone")}</label>
                   <input id="phone" type="tel" placeholder="0901 234 567"
                     className={`${styles.input} ${errors.phone ? styles.inputError : ""}`}
                     value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value })} />
@@ -244,22 +212,23 @@ const Booking = () => {
               </div>
             </div>
 
-            {/* Render form cho từng hành khách động theo số lượng đã chọn */}
             {paxList.map((pax, idx) => {
               const isChild  = idx >= adultCount;
-              const paxLabel = isChild ? `Child ${idx - adultCount + 1}` : `Adult ${idx + 1}`;
+              const paxLabel = isChild
+                ? t("booking.childN", { n: idx - adultCount + 1 })
+                : t("booking.adultN", { n: idx + 1 });
               return (
                 <div key={idx} className={styles.card}>
                   <div className={styles.cardHeader}>
                     <h3 className={styles.cardTitle}>{paxLabel}</h3>
                     <span className={`${styles.paxBadge} ${isChild ? styles.childBadge : styles.adultBadge}`}>
-                      {isChild ? "Child" : "Adult"}
+                      {isChild ? t("booking.child") : t("booking.adult")}
                     </span>
                   </div>
 
                   <div className={styles.field}>
-                    <label className={styles.label}>Full Name <span className={styles.required}>*</span></label>
-                    <input id={`${idx}_fullName`} type="text" placeholder="As shown on ID / Passport"
+                    <label className={styles.label}>{t("booking.fullName")} <span className={styles.required}>*</span></label>
+                    <input id={`${idx}_fullName`} type="text" placeholder={t("booking.fullNamePlaceholder")}
                       className={`${styles.input} ${errors[`${idx}_fullName`] ? styles.inputError : ""}`}
                       value={pax.fullName} onChange={(e) => updatePax(idx, "fullName", e.target.value)} />
                     {errors[`${idx}_fullName`] && <span className={styles.errMsg}>{errors[`${idx}_fullName`]}</span>}
@@ -267,19 +236,23 @@ const Booking = () => {
 
                   <div className={styles.row2}>
                     <div className={styles.field}>
-                      <label className={styles.label}>Date of Birth <span className={styles.required}>*</span></label>
+                      <label className={styles.label}>{t("booking.dob")} <span className={styles.required}>*</span></label>
                       <input id={`${idx}_dob`} type="date"
                         className={`${styles.input} ${errors[`${idx}_dob`] ? styles.inputError : ""}`}
                         value={pax.dob} onChange={(e) => updatePax(idx, "dob", e.target.value)} />
                       {errors[`${idx}_dob`] && <span className={styles.errMsg}>{errors[`${idx}_dob`]}</span>}
                     </div>
                     <div className={styles.field}>
-                      <label className={styles.label}>Gender <span className={styles.required}>*</span></label>
+                      <label className={styles.label}>{t("booking.gender")} <span className={styles.required}>*</span></label>
                       <div id={`${idx}_gender`} className={styles.genderGroup}>
-                        {["Male", "Female", "Other"].map((g) => (
-                          <button key={g} type="button"
-                            className={`${styles.genderBtn} ${pax.gender === g ? styles.genderActive : ""}`}
-                            onClick={() => updatePax(idx, "gender", g)}>{g}</button>
+                        {[
+                          { key: "Male",   label: t("booking.male") },
+                          { key: "Female", label: t("booking.female") },
+                          { key: "Other",  label: t("booking.other") },
+                        ].map((g) => (
+                          <button key={g.key} type="button"
+                            className={`${styles.genderBtn} ${pax.gender === g.key ? styles.genderActive : ""}`}
+                            onClick={() => updatePax(idx, "gender", g.key)}>{g.label}</button>
                         ))}
                       </div>
                       {errors[`${idx}_gender`] && <span className={styles.errMsg}>{errors[`${idx}_gender`]}</span>}
@@ -287,8 +260,8 @@ const Booking = () => {
                   </div>
 
                   <div className={styles.field}>
-                    <label className={styles.label}>ID / Passport Number <span className={styles.required}>*</span></label>
-                    <input id={`${idx}_idNumber`} type="text" placeholder="ID card or passport number"
+                    <label className={styles.label}>{t("booking.idPassport")} <span className={styles.required}>*</span></label>
+                    <input id={`${idx}_idNumber`} type="text" placeholder={t("booking.idPassportPlaceholder")}
                       className={`${styles.input} ${errors[`${idx}_idNumber`] ? styles.inputError : ""}`}
                       value={pax.idNumber} onChange={(e) => updatePax(idx, "idNumber", e.target.value)} />
                     {errors[`${idx}_idNumber`] && <span className={styles.errMsg}>{errors[`${idx}_idNumber`]}</span>}
@@ -298,29 +271,28 @@ const Booking = () => {
             })}
           </div>
 
-          {/* CỘT PHẢI: Tóm tắt đơn hàng (sticky sidebar) */}
           <div className={styles.right}>
             <div className={styles.summaryCard}>
-              <h3 className={styles.summaryTitle}>Booking Summary</h3>
+              <h3 className={styles.summaryTitle}>{t("booking.bookingSummary")}</h3>
               {selectedFlights.outbound && (
-                <FlightSummaryCard flight={selectedFlights.outbound} label="Outbound" baggageKg={baggage?.outbound || 0} />
+                <FlightSummaryCard flight={selectedFlights.outbound} label={t("booking.outbound")} baggageKg={baggage?.outbound || 0} />
               )}
               {selectedFlights.return && (
-                <FlightSummaryCard flight={selectedFlights.return} label="Return" baggageKg={baggage?.return || 0} />
+                <FlightSummaryCard flight={selectedFlights.return} label={t("booking.return")} baggageKg={baggage?.return || 0} />
               )}
               <div className={styles.summaryDivider} />
               <div className={styles.summaryPaxRow}>
-                <span>Passengers</span>
-                <span>{paxCount} person{paxCount > 1 ? "s" : ""}</span>
+                <span>{t("booking.passengers")}</span>
+                <span>{paxCount > 1 ? t("booking.personsCount", { count: paxCount }) : t("booking.personCount", { count: paxCount })}</span>
               </div>
               <div className={styles.summaryTotalRow}>
-                <span>Total</span>
+                <span>{t("booking.total")}</span>
                 <span className={styles.summaryTotal}>{fmt(totalPrice)}</span>
               </div>
               <button className={styles.submitBtn} onClick={handleSubmit} disabled={loading}>
-                {loading ? "Processing..." : "Continue to Payment →"}
+                {loading ? t("booking.processing") : t("booking.continueToPayment")}
               </button>
-              <p className={styles.secureNote}>🔒 Your information is securely encrypted</p>
+              <p className={styles.secureNote}>{t("booking.secure")}</p>
             </div>
           </div>
 
