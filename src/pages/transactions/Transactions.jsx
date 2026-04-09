@@ -1,5 +1,5 @@
 // src/pages/transactions/Transactions.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
@@ -35,12 +35,7 @@ const Transactions = () => {
   const [error, setError]               = useState("");
   const [filter, setFilter]             = useState("all");
 
-  useEffect(() => {
-    if (!localStorage.getItem("token")) { navigate("/login"); return; }
-    fetchTransactions();
-  }, []);
-
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     setLoading(true); setError("");
     try {
       const res = await API.get("/payments/my");
@@ -51,7 +46,12 @@ const Transactions = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
+
+  useEffect(() => {
+    if (!localStorage.getItem("token")) { navigate("/login"); return; }
+    fetchTransactions();
+  }, [navigate, fetchTransactions]);
 
   const filtered = filter === "all"
     ? transactions

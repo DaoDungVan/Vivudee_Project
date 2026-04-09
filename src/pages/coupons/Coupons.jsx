@@ -1,5 +1,5 @@
 // src/pages/coupons/Coupons.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
@@ -24,12 +24,7 @@ const Coupons = () => {
   const [checkError, setCheckError]   = useState("");
   const [apiError, setApiError]       = useState("");
 
-  useEffect(() => {
-    if (!localStorage.getItem("token")) { navigate("/login"); return; }
-    fetchCoupons();
-  }, []);
-
-  const fetchCoupons = async () => {
+  const fetchCoupons = useCallback(async () => {
     setLoading(true);
     try {
       const list = await getAvailableCoupons();
@@ -41,7 +36,12 @@ const Coupons = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!localStorage.getItem("token")) { navigate("/login"); return; }
+    fetchCoupons();
+  }, [navigate, fetchCoupons]);
 
   const handleCheckCoupon = async () => {
     if (!checkCode.trim()) { setCheckError(t("coupons.errEnterCode")); return; }

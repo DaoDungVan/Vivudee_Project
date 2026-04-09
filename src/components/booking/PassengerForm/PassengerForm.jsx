@@ -6,23 +6,97 @@ import styles from "./PassengerForm.module.css";
 const buildBaggageOptions = (flight, t) => {
   const pricePerKg = flight?.seat?.extra_baggage_price || 250000;
   return [
-    { kg: 0,  label: t("passengerForm.noExtra"), price: 0 },
-    { kg: 5,  label: "+5 kg",  price: 5  * pricePerKg },
+    { kg: 0, label: t("passengerForm.noExtra"), price: 0 },
+    { kg: 5, label: "+5 kg", price: 5 * pricePerKg },
     { kg: 10, label: "+10 kg", price: 10 * pricePerKg },
     { kg: 20, label: "+20 kg", price: 20 * pricePerKg },
   ];
 };
+
+const FlightSummary = ({
+  flight,
+  label,
+  baggageKg,
+  onBaggageChange,
+  baggageOptions,
+  formatTime,
+  fmt,
+  t,
+}) => (
+  <div className={styles.flightBox}>
+    <p className={styles.boxLabel}>{label}</p>
+
+    <div className={styles.flightRow}>
+      <div className={styles.airlineInfo}>
+        <img
+          src={flight.airline?.logo_url || "https://cdn-icons-png.flaticon.com/512/34/34627.png"}
+          alt={flight.airline?.name}
+          className={styles.airlineLogo}
+          onError={(e) => { e.target.src = "https://cdn-icons-png.flaticon.com/512/34/34627.png"; }}
+        />
+        <div>
+          <p className={styles.airlineName}>{flight.airline?.name}</p>
+          <p className={styles.flightCode}>{flight.flight_number} · {flight.seat?.class}</p>
+        </div>
+      </div>
+
+      <div className={styles.timeline}>
+        <div className={styles.timeBlock}>
+          <span className={styles.time}>{formatTime(flight.departure?.time)}</span>
+          <span className={styles.code}>{flight.departure?.code}</span>
+        </div>
+        <div className={styles.timelineLine}>
+          <span className={styles.duration}>{flight.duration_label}</span>
+          <div className={styles.line} />
+          <span className={styles.direct}>{t("passengerForm.direct")}</span>
+        </div>
+        <div className={styles.timeBlock}>
+          <span className={styles.time}>{formatTime(flight.arrival?.time)}</span>
+          <span className={styles.code}>{flight.arrival?.code}</span>
+        </div>
+      </div>
+
+      <div className={styles.priceBlock}>
+        <span className={styles.price}>{fmt(flight.seat?.total_price || 0)}</span>
+        <span className={styles.perPax}>{t("passengerForm.allPax")}</span>
+      </div>
+    </div>
+
+    <div className={styles.includedBaggage}>
+      🧳 {flight.seat?.baggage_included_kg || 0}kg checked &nbsp;·&nbsp;
+      🎒 {flight.seat?.carry_on_kg || 7}kg cabin included
+    </div>
+
+    <div className={styles.baggageSection}>
+      <p className={styles.baggageTitle}>{t("passengerForm.extraBaggage")}</p>
+      <div className={styles.baggageCards}>
+        {baggageOptions.map((opt) => (
+          <button
+            key={opt.kg}
+            className={`${styles.baggageCard} ${baggageKg === opt.kg ? styles.baggageActive : ""}`}
+            onClick={() => onBaggageChange(opt.kg)}
+          >
+            <span className={styles.baggageKg}>{opt.label}</span>
+            <span className={styles.baggagePrice}>
+              {opt.price === 0 ? t("passengerForm.free") : fmt(opt.price)}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   const [baggageOutbound, setBaggageOutbound] = useState(0);
-  const [baggageReturn,   setBaggageReturn]   = useState(0);
+  const [baggageReturn, setBaggageReturn] = useState(0);
 
   const paxCount = Math.max(1, Number(passengers?.adults || 0) + Number(passengers?.children || 0));
 
-  const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n) + " VND";
+  const fmt = (n) => `${new Intl.NumberFormat("vi-VN").format(n)} VND`;
 
   const formatTime = (iso) => {
     if (!iso) return "--:--";
@@ -32,14 +106,14 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
   };
 
   const outboundBaggageOptions = buildBaggageOptions(selectedFlights.outbound, t);
-  const returnBaggageOptions   = buildBaggageOptions(selectedFlights.return, t);
+  const returnBaggageOptions = buildBaggageOptions(selectedFlights.return, t);
 
-  const extraOutbound = outboundBaggageOptions.find(o => o.kg === baggageOutbound)?.price || 0;
-  const extraReturn   = returnBaggageOptions.find(o => o.kg === baggageReturn)?.price     || 0;
+  const extraOutbound = outboundBaggageOptions.find((o) => o.kg === baggageOutbound)?.price || 0;
+  const extraReturn = returnBaggageOptions.find((o) => o.kg === baggageReturn)?.price || 0;
 
   const totalPrice =
     (selectedFlights.outbound?.seat?.total_price || 0) + extraOutbound * paxCount +
-    (selectedFlights.return?.seat?.total_price   || 0) + extraReturn   * paxCount;
+    (selectedFlights.return?.seat?.total_price || 0) + extraReturn * paxCount;
 
   const handleContinue = () => {
     navigate("/booking", {
@@ -51,71 +125,6 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
       },
     });
   };
-
-  const FlightSummary = ({ flight, label, baggageKg, onBaggageChange, baggageOptions }) => (
-    <div className={styles.flightBox}>
-      <p className={styles.boxLabel}>{label}</p>
-
-      <div className={styles.flightRow}>
-        <div className={styles.airlineInfo}>
-          <img
-            src={flight.airline?.logo_url || "https://cdn-icons-png.flaticon.com/512/34/34627.png"}
-            alt={flight.airline?.name}
-            className={styles.airlineLogo}
-            onError={(e) => { e.target.src = "https://cdn-icons-png.flaticon.com/512/34/34627.png"; }}
-          />
-          <div>
-            <p className={styles.airlineName}>{flight.airline?.name}</p>
-            <p className={styles.flightCode}>{flight.flight_number} · {flight.seat?.class}</p>
-          </div>
-        </div>
-
-        <div className={styles.timeline}>
-          <div className={styles.timeBlock}>
-            <span className={styles.time}>{formatTime(flight.departure?.time)}</span>
-            <span className={styles.code}>{flight.departure?.code}</span>
-          </div>
-          <div className={styles.timelineLine}>
-            <span className={styles.duration}>{flight.duration_label}</span>
-            <div className={styles.line} />
-            <span className={styles.direct}>{t("passengerForm.direct")}</span>
-          </div>
-          <div className={styles.timeBlock}>
-            <span className={styles.time}>{formatTime(flight.arrival?.time)}</span>
-            <span className={styles.code}>{flight.arrival?.code}</span>
-          </div>
-        </div>
-
-        <div className={styles.priceBlock}>
-          <span className={styles.price}>{fmt(flight.seat?.total_price || 0)}</span>
-          <span className={styles.perPax}>{t("passengerForm.allPax")}</span>
-        </div>
-      </div>
-
-      <div className={styles.includedBaggage}>
-        🧳 {flight.seat?.baggage_included_kg || 0}kg checked &nbsp;·&nbsp;
-        🎒 {flight.seat?.carry_on_kg || 7}kg cabin included
-      </div>
-
-      <div className={styles.baggageSection}>
-        <p className={styles.baggageTitle}>{t("passengerForm.extraBaggage")}</p>
-        <div className={styles.baggageCards}>
-          {baggageOptions.map((opt) => (
-            <button
-              key={opt.kg}
-              className={`${styles.baggageCard} ${baggageKg === opt.kg ? styles.baggageActive : ""}`}
-              onClick={() => onBaggageChange(opt.kg)}
-            >
-              <span className={styles.baggageKg}>{opt.label}</span>
-              <span className={styles.baggagePrice}>
-                {opt.price === 0 ? t("passengerForm.free") : fmt(opt.price)}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <div className={styles.overlay}>
@@ -138,6 +147,9 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
               baggageKg={baggageOutbound}
               onBaggageChange={setBaggageOutbound}
               baggageOptions={outboundBaggageOptions}
+              formatTime={formatTime}
+              fmt={fmt}
+              t={t}
             />
           )}
 
@@ -148,6 +160,9 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
               baggageKg={baggageReturn}
               onBaggageChange={setBaggageReturn}
               baggageOptions={returnBaggageOptions}
+              formatTime={formatTime}
+              fmt={fmt}
+              t={t}
             />
           )}
         </div>

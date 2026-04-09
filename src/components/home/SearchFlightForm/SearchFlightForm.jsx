@@ -5,6 +5,12 @@ import swapIcon from "../../../assets/icons/swap.png";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
+const getAirportLabel = (airportList, code) => {
+  if (!code) return "";
+  const airport = airportList.find((item) => item.code === code);
+  return airport ? `${airport.city} (${airport.code})` : code;
+};
+
 export default function SearchFlightForm({ initialData }) {
   const { t } = useTranslation();
   const [tripType, setTripType] = useState(initialData?.tripType || "oneway");
@@ -13,7 +19,7 @@ export default function SearchFlightForm({ initialData }) {
   const [from, setFrom] = useState(initialData?.from || "");
   const [to, setTo] = useState(initialData?.to || "");
   const [activeInput, setActiveInput] = useState(null);
-  const airportRef = useRef();
+  const airportRef = useRef(null);
 
   const [departureDate, setDepartureDate] = useState(initialData?.departureDate || "");
   const [returnDate, setReturnDate] = useState(initialData?.returnDate || "");
@@ -24,24 +30,15 @@ export default function SearchFlightForm({ initialData }) {
   });
 
   const [showPassenger, setShowPassenger] = useState(false);
-  const passengerRef = useRef();
+  const passengerRef = useRef(null);
 
   const [seatClass, setSeatClass] = useState(initialData?.seatClass || "Economy");
   const [showSeatClass, setShowSeatClass] = useState(false);
-  const seatClassRef = useRef();
+  const seatClassRef = useRef(null);
   const seatOptions = ["Economy", "Business", "First"];
 
   const [searchError, setSearchError] = useState("");
-
-  useEffect(() => {
-    if (initialData) {
-      setTripType(initialData.tripType || "oneway");
-      setDepartureDate(initialData.departureDate || "");
-      setReturnDate(initialData.returnDate || "");
-      setPassengers({ adult: Number(initialData.adults) || 1, child: Number(initialData.children) || 0 });
-      setSeatClass(initialData.seatClass || "Economy");
-    }
-  }, [initialData]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAirports = async () => {
@@ -50,25 +47,18 @@ export default function SearchFlightForm({ initialData }) {
         const data = res.data.data || [];
         setAirports(data);
         setAirportResults(data);
+
+        if (initialData) {
+          setFrom(getAirportLabel(data, initialData.from));
+          setTo(getAirportLabel(data, initialData.to));
+        }
       } catch (err) {
         console.log("ERROR airports:", err);
       }
     };
+
     fetchAirports();
-  }, []);
-
-  const getAirportLabel = (code) => {
-    if (!code) return "";
-    const airport = airports.find((a) => a.code === code);
-    return airport ? `${airport.city} (${airport.code})` : code;
-  };
-
-  useEffect(() => {
-    if (airports.length > 0 && initialData) {
-      setFrom(getAirportLabel(initialData.from));
-      setTo(getAirportLabel(initialData.to));
-    }
-  }, [airports, initialData]);
+  }, [initialData]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -76,18 +66,24 @@ export default function SearchFlightForm({ initialData }) {
       if (airportRef.current && !airportRef.current.contains(event.target)) setActiveInput(null);
       if (seatClassRef.current && !seatClassRef.current.contains(event.target)) setShowSeatClass(false);
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const increase = (type) => setPassengers((prev) => ({ ...prev, [type]: prev[type] + 1 }));
+
   const decrease = (type) => {
     if (passengers[type] === 0) return;
     if (type === "adult" && passengers.adult === 1) return;
     setPassengers((prev) => ({ ...prev, [type]: prev[type] - 1 }));
   };
 
-  const swapAirport = () => { const temp = from; setFrom(to); setTo(temp); };
+  const swapAirport = () => {
+    const temp = from;
+    setFrom(to);
+    setTo(temp);
+  };
 
   const searchAirport = (value, type) => {
     const results = airports.filter((airport) =>
@@ -100,7 +96,10 @@ export default function SearchFlightForm({ initialData }) {
     else setTo(value);
   };
 
-  const openAirportList = (type) => { setActiveInput(type); setAirportResults(airports); };
+  const openAirportList = (type) => {
+    setActiveInput(type);
+    setAirportResults(airports);
+  };
 
   const selectAirport = (airport, type) => {
     const value = `${airport.city} (${airport.code})`;
@@ -109,8 +108,6 @@ export default function SearchFlightForm({ initialData }) {
     setActiveInput(null);
     setSearchError("");
   };
-
-  const navigate = useNavigate();
 
   const getCode = (value) => {
     if (!value) return "";
@@ -130,21 +127,27 @@ export default function SearchFlightForm({ initialData }) {
       setSearchError(t("search.err_same"));
       return;
     }
-    navigate(`/flights?${new URLSearchParams({ from: fromCode, to: toCode, departureDate, returnDate: tripType === "roundtrip" ? returnDate : "", adults: passengers.adult, children: passengers.child, seatClass, tripType }).toString()}`);
+
+    navigate(`/flights?${new URLSearchParams({
+      from: fromCode,
+      to: toCode,
+      departureDate,
+      returnDate: tripType === "roundtrip" ? returnDate : "",
+      adults: passengers.adult,
+      children: passengers.child,
+      seatClass,
+      tripType,
+    }).toString()}`);
   };
 
   const today = new Date().toISOString().split("T")[0];
-
-  const passengerLabel = [
-    `${passengers.adult} ${t(passengers.adult > 1 ? "search.adults_plural" : "search.adults", { count: passengers.adult }).split(" ").slice(1).join(" ")}`,
-  ].join("");
 
   const passengerDisplay = (() => {
     const a = passengers.adult;
     const c = passengers.child;
     const adultStr = a > 1 ? `${a} ${t("search.adult")}s` : `${a} ${t("search.adult")}`;
     const childStr = c > 0 ? `, ${c} ${t("search.child")}${c > 1 ? "ren" : ""}` : "";
-    return adultStr + childStr + " ▾";
+    return `${adultStr}${childStr} ▾`;
   })();
 
   return (
@@ -160,7 +163,6 @@ export default function SearchFlightForm({ initialData }) {
         </div>
 
         <div className={styles.options}>
-          {/* PASSENGER */}
           <div className={styles.dropdown} ref={passengerRef}>
             <div className={styles.dropdownBtn} onClick={() => setShowPassenger(!showPassenger)}>
               {passengerDisplay}
@@ -193,7 +195,6 @@ export default function SearchFlightForm({ initialData }) {
             )}
           </div>
 
-          {/* SEAT CLASS */}
           <div className={styles.dropdown} ref={seatClassRef}>
             <div className={styles.dropdownBtn} onClick={() => setShowSeatClass(!showSeatClass)}>
               {seatClass} ▾
@@ -215,7 +216,6 @@ export default function SearchFlightForm({ initialData }) {
         </div>
       </div>
 
-      {/* SEARCH ROW */}
       <div className={styles.searchRow} ref={airportRef}>
         <div className={styles.field}>
           <label>{t("search.departureCity")}</label>

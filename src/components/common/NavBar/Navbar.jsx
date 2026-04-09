@@ -8,6 +8,7 @@ import {
   FaPlane,
   FaCreditCard,
   FaTicketAlt,
+  FaComments,
   FaSignOutAlt,
   FaBars,
   FaTimes,
@@ -89,7 +90,6 @@ function NavBar() {
           <img src={isDark ? logoDark : logo} alt="Vivudee Logo" onClick={() => navigate("/")} />
         </div>
 
-        {/* Desktop nav */}
         <div className={styles.rightSection}>
           <div className={styles.menu}>
             <span onClick={() => navigate("/flights")}>{t("nav.flights")}</span>
@@ -99,7 +99,6 @@ function NavBar() {
           </div>
 
           <div className={styles.auth}>
-            {/* Nút đổi ngôn ngữ */}
             <button
               className={styles.langToggle}
               onClick={toggleLang}
@@ -109,7 +108,6 @@ function NavBar() {
               {isVI ? "EN" : "VI"}
             </button>
 
-            {/* Nút chuyển Dark / Light */}
             <button
               className={styles.themeToggle}
               onClick={toggle}
@@ -142,6 +140,9 @@ function NavBar() {
                     <p className={styles.icons} onClick={() => { navigate("/coupons"); setShowMenu(false); }}>
                       <FaTicketAlt /> {t("nav.coupons")}
                     </p>
+                    <p className={styles.icons} onClick={() => { navigate("/chat"); setShowMenu(false); }}>
+                      <FaComments /> Chat
+                    </p>
                     <hr className={styles.dividerLine} />
                     <p className={styles.logout} onClick={handleLogout}>
                       <FaSignOutAlt /> {t("nav.logout")}
@@ -158,7 +159,6 @@ function NavBar() {
           </div>
         </div>
 
-        {/* Mobile right: lang + theme + hamburger */}
         <div className={styles.mobileRight}>
           <button className={styles.langToggle} onClick={toggleLang} aria-label="Toggle language">
             {isVI ? "EN" : "VI"}
@@ -176,7 +176,6 @@ function NavBar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
       {mobileOpen && (
         <div className={styles.mobileMenu}>
           <span onClick={() => { navigate("/flights"); closeMobile(); }}>{t("nav.flights")}</span>
@@ -190,6 +189,7 @@ function NavBar() {
               <span onClick={() => { navigate("/my-booking"); closeMobile(); }}><FaPlane /> {t("nav.myBooking")}</span>
               <span onClick={() => { navigate("/transactions"); closeMobile(); }}><FaCreditCard /> {t("nav.transactions")}</span>
               <span onClick={() => { navigate("/coupons"); closeMobile(); }}><FaTicketAlt /> {t("nav.coupons")}</span>
+              <span onClick={() => { navigate("/chat"); closeMobile(); }}><FaComments /> Chat</span>
               <span className={styles.mobileLogout} onClick={() => { handleLogout(); closeMobile(); }}><FaSignOutAlt /> {t("nav.logout")}</span>
             </>
           ) : (

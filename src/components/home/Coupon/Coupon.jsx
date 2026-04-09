@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 
 export default function Coupon() {
   const sliderRef = useRef(null);
+  const dragRef = useRef({ isDown: false, startX: 0, scrollLeft: 0 });
   const [coupons, setCoupons] = useState([]);
   const [error, setError] = useState("");
   const { t } = useTranslation();
@@ -25,22 +26,19 @@ export default function Coupon() {
     toast.success(t("couponHome.copied", { code }));
   };
 
-  let isDown = false;
-  let startX;
-  let scrollLeft;
-
   const handleMouseDown = (e) => {
-    isDown = true;
-    startX = e.pageX - sliderRef.current.offsetLeft;
-    scrollLeft = sliderRef.current.scrollLeft;
+    if (!sliderRef.current) return;
+    dragRef.current.isDown = true;
+    dragRef.current.startX = e.pageX - sliderRef.current.offsetLeft;
+    dragRef.current.scrollLeft = sliderRef.current.scrollLeft;
   };
-  const handleMouseLeave = () => { isDown = false; };
-  const handleMouseUp = () => { isDown = false; };
+  const handleMouseLeave = () => { dragRef.current.isDown = false; };
+  const handleMouseUp = () => { dragRef.current.isDown = false; };
   const handleMouseMove = (e) => {
-    if (!isDown) return;
+    if (!sliderRef.current || !dragRef.current.isDown) return;
     e.preventDefault();
     const x = e.pageX - sliderRef.current.offsetLeft;
-    sliderRef.current.scrollLeft = scrollLeft - (x - startX) * 1.5;
+    sliderRef.current.scrollLeft = dragRef.current.scrollLeft - (x - dragRef.current.startX) * 1.5;
   };
 
   return (

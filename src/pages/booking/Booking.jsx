@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { createBooking } from "../../services/bookingService";
 import styles from "./Booking.module.css";
 
-const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n) + " VND";
+const fmt = (n) => `${new Intl.NumberFormat("vi-VN").format(n)} VND`;
 
 const formatTime = (iso) => {
   if (!iso) return "--:--";
@@ -31,7 +31,28 @@ const Booking = () => {
   const { state } = useLocation();
   const { t } = useTranslation();
 
-  if (!state?.selectedFlights) {
+  const selectedFlights = state?.selectedFlights || null;
+  const passengers = state?.passengers || {};
+  const baggage = state?.baggage || {};
+  const totalPrice = state?.totalPrice || 0;
+  const adultCount = Number(passengers?.adults || 1);
+  const childCount = Number(passengers?.children || 0);
+  const paxCount = adultCount + childCount;
+
+  const [paxList, setPaxList] = useState(Array.from({ length: paxCount }, emptyPassenger));
+  const [contact, setContact] = useState(() => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "null");
+      return { email: user?.email || "", phone: user?.phone || "" };
+    } catch {
+      return { email: "", phone: "" };
+    }
+  });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
+
+  if (!selectedFlights) {
     return (
       <div className={styles.empty}>
         <p>{t("booking.noData")}</p>
@@ -39,22 +60,6 @@ const Booking = () => {
       </div>
     );
   }
-
-  const { selectedFlights, passengers, baggage, totalPrice } = state;
-  const adultCount = Number(passengers?.adults || 1);
-  const childCount = Number(passengers?.children || 0);
-  const paxCount   = adultCount + childCount;
-
-  const [paxList,  setPaxList]  = useState(Array.from({ length: paxCount }, emptyPassenger));
-  const [contact,  setContact]  = useState(() => {
-    try {
-      const user = JSON.parse(localStorage.getItem("user") || "null");
-      return { email: user?.email || "", phone: user?.phone || "" };
-    } catch { return { email: "", phone: "" }; }
-  });
-  const [errors,   setErrors]   = useState({});
-  const [loading,  setLoading]  = useState(false);
-  const [apiError, setApiError] = useState("");
 
   const updatePax = (idx, field, value) => {
     setPaxList((prev) => {
@@ -86,10 +91,10 @@ const Booking = () => {
         else if (!isPassport && id.length !== 9 && id.length !== 12) errs[`${i}_idNumber`] = t("booking.idCardErr");
       }
     });
-    if (!contact.email.trim()) errs["email"] = t("booking.required");
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) errs["email"] = t("booking.emailInvalid");
-    if (!contact.phone.trim()) errs["phone"] = t("booking.required");
-    else if (!/^[0-9]{9,11}$/.test(contact.phone.trim().replace(/\s/g, ""))) errs["phone"] = t("booking.phoneErr");
+    if (!contact.email.trim()) errs.email = t("booking.required");
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) errs.email = t("booking.emailInvalid");
+    if (!contact.phone.trim()) errs.phone = t("booking.required");
+    else if (!/^[0-9]{9,11}$/.test(contact.phone.trim().replace(/\s/g, ""))) errs.phone = t("booking.phoneErr");
     return errs;
   };
 
@@ -111,31 +116,33 @@ const Booking = () => {
       paxList.forEach((p, idx) => {
         const type = idx < adultCount ? "adult" : "child";
         const base = {
-          passenger_type:  type,
-          full_name:        p.fullName,
-          date_of_birth:    p.dob || null,
-          gender:           p.gender?.toLowerCase() || null,
-          passport_number:  p.idNumber || null,
+          passenger_type: type,
+          full_name: p.fullName,
+          date_of_birth: p.dob || null,
+          gender: p.gender?.toLowerCase() || null,
+          passport_number: p.idNumber || null,
           extra_baggage_kg: baggage?.outbound || 0,
         };
         passengerRecords.push({ ...base, flight_type: "outbound" });
-        if (isRoundTrip) passengerRecords.push({ ...base, flight_type: "return", extra_baggage_kg: baggage?.return || 0 });
+        if (isRoundTrip) {
+          passengerRecords.push({ ...base, flight_type: "return", extra_baggage_kg: baggage?.return || 0 });
+        }
       });
 
       const payload = {
-        outbound_flight_id:  selectedFlights.outbound.flight_id,
+        outbound_flight_id: selectedFlights.outbound.flight_id,
         outbound_seat_class: selectedFlights.outbound.seat?.class || "economy",
-        return_flight_id:    isRoundTrip ? selectedFlights.return.flight_id : undefined,
-        return_seat_class:   isRoundTrip ? selectedFlights.return.seat?.class : undefined,
-        trip_type:           isRoundTrip ? "round_trip" : "one_way",
-        adults:              adultCount,
-        children:            childCount,
-        infants:             0,
-        contact_name:        paxList[0].fullName,
-        contact_email:       contact.email,
-        contact_phone:       contact.phone,
-        passengers:          passengerRecords,
-        total_price:         totalPrice,
+        return_flight_id: isRoundTrip ? selectedFlights.return.flight_id : undefined,
+        return_seat_class: isRoundTrip ? selectedFlights.return.seat?.class : undefined,
+        trip_type: isRoundTrip ? "round_trip" : "one_way",
+        adults: adultCount,
+        children: childCount,
+        infants: 0,
+        contact_name: paxList[0].fullName,
+        contact_email: contact.email,
+        contact_phone: contact.phone,
+        passengers: passengerRecords,
+        total_price: totalPrice,
       };
 
       const res = await createBooking(payload);
@@ -185,7 +192,6 @@ const Booking = () => {
       <NavBar />
       <div className={styles.wrapper}>
         <div className={styles.layout}>
-
           <div className={styles.left}>
             <h2 className={styles.pageTitle}>{t("booking.title")}</h2>
 
@@ -197,26 +203,37 @@ const Booking = () => {
               <div className={styles.row2}>
                 <div className={styles.field}>
                   <label className={styles.label}>{t("booking.email")}</label>
-                  <input id="email" type="email" placeholder="email@example.com"
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="email@example.com"
                     className={`${styles.input} ${errors.email ? styles.inputError : ""}`}
-                    value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} />
+                    value={contact.email}
+                    onChange={(e) => setContact({ ...contact, email: e.target.value })}
+                  />
                   {errors.email && <span className={styles.errMsg}>{errors.email}</span>}
                 </div>
                 <div className={styles.field}>
                   <label className={styles.label}>{t("booking.phone")}</label>
-                  <input id="phone" type="tel" placeholder="0901 234 567"
+                  <input
+                    id="phone"
+                    type="tel"
+                    placeholder="0901 234 567"
                     className={`${styles.input} ${errors.phone ? styles.inputError : ""}`}
-                    value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value })} />
+                    value={contact.phone}
+                    onChange={(e) => setContact({ ...contact, phone: e.target.value })}
+                  />
                   {errors.phone && <span className={styles.errMsg}>{errors.phone}</span>}
                 </div>
               </div>
             </div>
 
             {paxList.map((pax, idx) => {
-              const isChild  = idx >= adultCount;
+              const isChild = idx >= adultCount;
               const paxLabel = isChild
                 ? t("booking.childN", { n: idx - adultCount + 1 })
                 : t("booking.adultN", { n: idx + 1 });
+
               return (
                 <div key={idx} className={styles.card}>
                   <div className={styles.cardHeader}>
@@ -228,31 +245,45 @@ const Booking = () => {
 
                   <div className={styles.field}>
                     <label className={styles.label}>{t("booking.fullName")} <span className={styles.required}>*</span></label>
-                    <input id={`${idx}_fullName`} type="text" placeholder={t("booking.fullNamePlaceholder")}
+                    <input
+                      id={`${idx}_fullName`}
+                      type="text"
+                      placeholder={t("booking.fullNamePlaceholder")}
                       className={`${styles.input} ${errors[`${idx}_fullName`] ? styles.inputError : ""}`}
-                      value={pax.fullName} onChange={(e) => updatePax(idx, "fullName", e.target.value)} />
+                      value={pax.fullName}
+                      onChange={(e) => updatePax(idx, "fullName", e.target.value)}
+                    />
                     {errors[`${idx}_fullName`] && <span className={styles.errMsg}>{errors[`${idx}_fullName`]}</span>}
                   </div>
 
                   <div className={styles.row2}>
                     <div className={styles.field}>
                       <label className={styles.label}>{t("booking.dob")} <span className={styles.required}>*</span></label>
-                      <input id={`${idx}_dob`} type="date"
+                      <input
+                        id={`${idx}_dob`}
+                        type="date"
                         className={`${styles.input} ${errors[`${idx}_dob`] ? styles.inputError : ""}`}
-                        value={pax.dob} onChange={(e) => updatePax(idx, "dob", e.target.value)} />
+                        value={pax.dob}
+                        onChange={(e) => updatePax(idx, "dob", e.target.value)}
+                      />
                       {errors[`${idx}_dob`] && <span className={styles.errMsg}>{errors[`${idx}_dob`]}</span>}
                     </div>
                     <div className={styles.field}>
                       <label className={styles.label}>{t("booking.gender")} <span className={styles.required}>*</span></label>
                       <div id={`${idx}_gender`} className={styles.genderGroup}>
                         {[
-                          { key: "Male",   label: t("booking.male") },
+                          { key: "Male", label: t("booking.male") },
                           { key: "Female", label: t("booking.female") },
-                          { key: "Other",  label: t("booking.other") },
+                          { key: "Other", label: t("booking.other") },
                         ].map((g) => (
-                          <button key={g.key} type="button"
+                          <button
+                            key={g.key}
+                            type="button"
                             className={`${styles.genderBtn} ${pax.gender === g.key ? styles.genderActive : ""}`}
-                            onClick={() => updatePax(idx, "gender", g.key)}>{g.label}</button>
+                            onClick={() => updatePax(idx, "gender", g.key)}
+                          >
+                            {g.label}
+                          </button>
                         ))}
                       </div>
                       {errors[`${idx}_gender`] && <span className={styles.errMsg}>{errors[`${idx}_gender`]}</span>}
@@ -261,9 +292,14 @@ const Booking = () => {
 
                   <div className={styles.field}>
                     <label className={styles.label}>{t("booking.idPassport")} <span className={styles.required}>*</span></label>
-                    <input id={`${idx}_idNumber`} type="text" placeholder={t("booking.idPassportPlaceholder")}
+                    <input
+                      id={`${idx}_idNumber`}
+                      type="text"
+                      placeholder={t("booking.idPassportPlaceholder")}
                       className={`${styles.input} ${errors[`${idx}_idNumber`] ? styles.inputError : ""}`}
-                      value={pax.idNumber} onChange={(e) => updatePax(idx, "idNumber", e.target.value)} />
+                      value={pax.idNumber}
+                      onChange={(e) => updatePax(idx, "idNumber", e.target.value)}
+                    />
                     {errors[`${idx}_idNumber`] && <span className={styles.errMsg}>{errors[`${idx}_idNumber`]}</span>}
                   </div>
                 </div>
@@ -295,7 +331,6 @@ const Booking = () => {
               <p className={styles.secureNote}>{t("booking.secure")}</p>
             </div>
           </div>
-
         </div>
       </div>
       <Footer />

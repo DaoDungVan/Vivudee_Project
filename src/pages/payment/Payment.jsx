@@ -20,24 +20,24 @@ import momoImg   from "../../assets/images/payments/momo.png";
 import vietqrImg from "../../assets/images/payments/vietqr.png";
 import paypalImg from "../../assets/images/payments/paypal.png";
 
-// Định dạng tiền VND. Ví dụ: 500000 → "500.000 VND"
+// ÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¹nh dÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡ng tiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Ân VND. VÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­ dÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â¥: 500000 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ "500.000 VND"
 const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n) + " VND";
 
-// Lấy HH:MM từ chuỗi ISO — dùng regex để tránh lệch múi giờ.
+// Lay HH:MM tu chuoi ISO bang regex de tranh lech mui gio.
 const formatTime = (iso) => {
   if (!iso) return "--:--";
   const match = String(iso).match(/(\d{2}):(\d{2})/);
   return match ? `${match[1]}:${match[2]}` : "--:--";
 };
 
-// Format ngày theo kiểu "DD/MM/YYYY". Ví dụ: "2025-06-15" → "15/06/2025"
+// Format ngay theo kieu DD/MM/YYYY.
 const formatDate = (iso) => {
   if (!iso) return "";
   return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
 };
 
-// Tính thời gian còn lại cho đến expiresAt, trả về "MM:SS".
-// Dùng để hiển thị đồng hồ đếm ngược hết hạn QR.
+// Tinh thoi gian con lai den expiresAt, tra ve MM:SS.
+// Dung de hien thi dong ho dem nguoc het han QR.
 const formatCountdown = (expiresAt) => {
   if (!expiresAt) return null;
   const diff = new Date(expiresAt) - new Date();
@@ -61,8 +61,8 @@ const normalizeHeldUntil = (heldUntil, bookingStatus) => {
   return vietnamOffsetFix.getTime() > Date.now() ? vietnamOffsetFix.toISOString() : heldUntil;
 };
 
-// Danh sách phương thức thanh toán.
-// disabled: true = tính năng sắp ra mắt (hiển thị nhãn "Soon").
+// Danh sÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ch phÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â¡ng thÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â©c thanh toÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡n.
+// disabled: true = tÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­nh nÃƒÆ’Ã¢â‚¬Å¾Ãƒâ€ Ã¢â‚¬â„¢ng sÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¯p ra mÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¯t (hiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€ Ã¢â‚¬â„¢n thÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¹ nhÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£n "Soon").
 const PAYMENT_METHODS = [
   { id: "BANK_QR", label: "PayOS / Bank Transfer", img: vietqrImg },
   { id: "MOMO",    label: "MoMo",                  img: momoImg   },
@@ -71,8 +71,8 @@ const PAYMENT_METHODS = [
   { id: "MASTER",  label: "Mastercard",              img: masterImg, disabled: true },
 ];
 
-// Tính số tiền giảm giá từ coupon.
-// Hỗ trợ 2 loại: theo % (discount_percent) hoặc số tiền cố định (discount_amount).
+// TÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­nh sÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ tiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Ân giÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â£m giÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â« coupon.
+// HÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â trÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â£ 2 loÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡i: theo % (discount_percent) hoÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â·c sÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ tiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Ân cÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¹nh (discount_amount).
 const computeDiscount = (coupon, price) => {
   if (!coupon) return 0;
   if (coupon.discount_percent) return Math.round(price * coupon.discount_percent / 100);
@@ -81,60 +81,54 @@ const computeDiscount = (coupon, price) => {
 };
 
 const Payment = () => {
-  const navigate  = useNavigate();
-  const { state } = useLocation(); // Nhận data từ trang Booking
+  const navigate = useNavigate();
+  const { state } = useLocation();
+  const bookingState = state || {};
+  const bookingData = bookingState.bookingData || null;
+  const selectedFlights = bookingState.selectedFlights || null;
+  const passengers = bookingState.passengers || [];
+  const contact = bookingState.contact || {};
+  const totalPrice = bookingState.totalPrice || 0;
+  const bookingId = bookingData?.booking_id || bookingData?.id || null;
+  const bookingCode = bookingData?.booking_code || "";
+  const heldUntil = normalizeHeldUntil(bookingData?.held_until, bookingData?.status);
 
-  // Phương thức thanh toán đang chọn (mặc định VietQR)
+  // Phuong thuc thanh toan dang chon (mac dinh VietQR)
   const [selectedMethod, setSelectedMethod] = useState("BANK_QR");
 
   // State coupon
-  const [couponCode,     setCouponCode]     = useState("");
-  const [couponError,    setCouponError]    = useState("");
-  const [couponApplied,  setCouponApplied]  = useState(null);  // Coupon đã áp dụng
+  const [couponCode, setCouponCode] = useState("");
+  const [couponError, setCouponError] = useState("");
+  const [couponApplied, setCouponApplied] = useState(null);
   const [applyingCoupon] = useState(false);
-  const [availCoupons,   setAvailCoupons]   = useState([]);    // Danh sách coupon có thể dùng
+  const [availCoupons, setAvailCoupons] = useState([]);
   const [couponsLoading, setCouponsLoading] = useState(false);
   const [couponApiError, setCouponApiError] = useState("");
 
-  // State thanh toán
-  const [paymentData, setPaymentData] = useState(null);   // Dữ liệu sau khi init payment (QR, payment_code...)
-  const [initLoading, setInitLoading] = useState(false);  // Đang gọi API init payment
-  const [initError,   setInitError]   = useState("");
+  // State thanh toan
+  const [paymentData, setPaymentData] = useState(null);
+  const [initLoading, setInitLoading] = useState(false);
+  const [initError, setInitError] = useState("");
 
-  // Overlay "Đang kết nối MoMo" — hiện ngay khi click Pay với MoMo
-  // vì Render cold start có thể mất 10–20 giây
-  const [momoRedirecting,  setMomoRedirecting]  = useState(false);
+  // Overlay redirect checkout
+  const [momoRedirecting, setMomoRedirecting] = useState(false);
   const [payosRedirecting, setPayosRedirecting] = useState(false);
   const [paypalRedirecting, setPaypalRedirecting] = useState(false);
 
-  // Đồng hồ đếm ngược ghế đang được giữ (held_until từ backend)
+  // Dong ho dem nguoc ghe dang duoc giu
   const [countdown, setCountdown] = useState(null);
-  const [expired,   setExpired]   = useState(false); // Ghế đã hết hạn giữ
+  const [expired, setExpired] = useState(false);
 
-  // Trạng thái QR
-  const [paid,      setPaid]      = useState(false);    // Đã thanh toán thành công
-  const [qrLoading, setQrLoading] = useState(false);    // Ảnh QR đang tải
-  const [qrError,   setQrError]   = useState(false);    // Ảnh QR lỗi (hiện thông tin thủ công)
+  // Trang thai QR
+  const [paid, setPaid] = useState(false);
+  const [qrLoading, setQrLoading] = useState(false);
+  const [qrError, setQrError] = useState(false);
 
-  // Guard: nếu vào trang này trực tiếp không có data → về trang chủ
-  if (!state?.bookingData) {
-    return (
-      <div className={styles.empty}>
-        <p>Booking information not found.</p>
-        <button onClick={() => navigate("/")}>Back to Home</button>
-      </div>
-    );
-  }
-
-  const { bookingData, selectedFlights, passengers, contact, totalPrice } = state;
-  const bookingId   = bookingData?.booking_id || bookingData?.id;
-  const bookingCode = bookingData?.booking_code;
-  const heldUntil   = normalizeHeldUntil(bookingData?.held_until, bookingData?.status); // Thời hạn giữ ghế
-  // Số tiền cuối cùng: ưu tiên từ payment data (chính xác nhất), sau đó coupon preview, cuối là giá gốc
+  // So tien cuoi cung: uu tien payment data, sau do coupon preview, cuoi la gia goc
   const finalAmount = paymentData?.payment?.final_amount ?? couponApplied?.final_amount ?? totalPrice;
 
-  // Tải danh sách coupon có thể dùng ngay khi vào trang Payment.
-  // Chỉ tải nếu đã đăng nhập (có token).
+  // Tai danh sach coupon co the dung ngay khi vao trang Payment.
+  // Chi tai neu da dang nhap (co token).
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -153,8 +147,7 @@ const Payment = () => {
       .finally(() => setCouponsLoading(false));
   }, []);
 
-  // Đếm ngược thời gian giữ ghế — cập nhật mỗi giây.
-  // Khi hết → đặt expired = true, hiện banner cảnh báo.
+  // Dem nguoc thoi gian giu ghe - cap nhat moi giay.
   useEffect(() => {
     if (!heldUntil) return;
     const iv = setInterval(() => {
@@ -165,27 +158,40 @@ const Payment = () => {
     return () => clearInterval(iv);
   }, [heldUntil]);
 
-  // Polling kiểm tra trạng thái thanh toán mỗi 4 giây (chỉ cho BANK_QR).
-  // Tại sao polling? Vì user chuyển khoản qua app ngân hàng,
-  // backend nhận webhook và cập nhật status → frontend cần hỏi lại định kỳ.
+  // Polling kiem tra trang thai thanh toan moi 4 giay (chi cho BANK_QR).
   useEffect(() => {
     if (!paymentData?.payment?.payment_code || paid) return;
     let active = true;
     const poll = async () => {
       try {
-        const res    = await getPaymentByCode(paymentData.payment.payment_code);
+        const res = await getPaymentByCode(paymentData.payment.payment_code);
         const status = res?.payment?.status?.toUpperCase();
-        if (["PAID", "SUCCESS", "COMPLETED", "CONFIRMED"].includes(status)) {
-          if (active) setPaid(true); // Chỉ cập nhật nếu component còn mount
+        if (["PAID", "SUCCESS", "COMPLETED", "CONFIRMED"].includes(status) && active) {
+          setPaid(true);
         }
-      } catch (_) {} // Im lặng nếu lỗi — sẽ thử lại sau 4s
+      } catch {
+        // Ignore transient polling errors and retry on the next interval.
+      }
     };
     const iv = setInterval(poll, 4000);
-    return () => { active = false; clearInterval(iv); }; // Dọn dẹp khi unmount
+    return () => {
+      active = false;
+      clearInterval(iv);
+    };
   }, [paymentData, paid]);
 
-  // Áp dụng coupon được nhập tay.
-  // So sánh với danh sách availCoupons để tính trước discount preview.
+  // Guard: neu vao trang nay truc tiep khong co data -> ve trang chu
+  if (!bookingData) {
+    return (
+      <div className={styles.empty}>
+        <p>Booking information not found.</p>
+        <button onClick={() => navigate("/")}>Back to Home</button>
+      </div>
+    );
+  }
+
+  // Ap dung coupon duoc nhap tay.
+  // So sanh voi danh sach availCoupons de tinh truoc discount preview.
   const handleApplyCoupon = () => {
     if (!couponCode.trim()) { setCouponError("Please enter a coupon code"); return; }
     if (totalPrice < 300000) { setCouponError("Minimum order value of 300,000 VND required"); return; }
@@ -201,16 +207,16 @@ const Payment = () => {
     });
   };
 
-  // Gỡ bỏ coupon đã áp dụng
+  // GÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â¡ bÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â coupon ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£ ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡p dÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â¥ng
   const handleRemoveCoupon = () => {
     setCouponApplied(null);
     setCouponCode("");
     setCouponError("");
   };
 
-  // Khởi tạo giao dịch thanh toán — gọi API để tạo payment record.
-  // Với MoMo: nhận redirect URL → chuyển hướng user sang trang MoMo.
-  // Với BANK_QR: nhận thông tin QR → hiện QR code để user quét.
+  // KhÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€¦Ã‚Â¸i tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡o giao dÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¹ch thanh toÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡n ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â gÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Âi API ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€ Ã¢â‚¬â„¢ tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡o payment record.
+  // VÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Âºi MoMo: nhÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â­n redirect URL ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ chuyÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€ Ã¢â‚¬â„¢n hÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â°ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Âºng user sang trang MoMo.
+  // VÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Âºi BANK_QR: nhÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â­n thÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng tin QR ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ hiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¡n QR code ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€ Ã¢â‚¬â„¢ user quÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©t.
   const handleInitPayment = async () => {
     if (!bookingId) { setInitError("Missing booking ID."); return; }
     setInitLoading(true);
@@ -218,7 +224,7 @@ const Payment = () => {
     setQrLoading(true);
     setQrError(false);
 
-    // Hiện overlay ngay lập tức vì API Render cold start chậm
+    // HiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¡n overlay ngay lÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â­p tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â©c vÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¬ API Render cold start chÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â­m
     if (selectedMethod === "MOMO")   setMomoRedirecting(true);
     if (selectedMethod === "BANK_QR") setPayosRedirecting(true);
     if (selectedMethod === "PAYPAL")  setPaypalRedirecting(true);
@@ -242,7 +248,7 @@ const Payment = () => {
         }
         setMomoRedirecting(false);
         setSelectedMethod("BANK_QR");
-        setInitError("Could not connect to MoMo. Switched to PayOS — please complete your payment there.");
+        setInitError("Could not connect to MoMo. Switched to PayOS ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â please complete your payment there.");
         return;
       }
 
@@ -258,7 +264,7 @@ const Payment = () => {
           setInitError("Could not create PayOS payment link. Please try again.");
           return;
         }
-        // Fallback: BANK_TRANSFER (VietQR — khi PayOS chưa cấu hình)
+        // Fallback: BANK_TRANSFER (VietQR ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â khi PayOS chÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â°a cÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¥u hÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¬nh)
         setPayosRedirecting(false);
         setPaymentData(res);
         return;
@@ -295,7 +301,7 @@ const Payment = () => {
         setSelectedMethod("BANK_QR");
         setInitError(raw
           ? `MoMo error: ${raw}. Switched to PayOS.`
-          : "MoMo is currently unavailable. Switched to PayOS — please use bank transfer to complete your payment."
+          : "MoMo is currently unavailable. Switched to PayOS ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â please use bank transfer to complete your payment."
         );
       } else if (selectedMethod === "PAYPAL") {
         setInitError(raw
@@ -310,15 +316,20 @@ const Payment = () => {
     }
   };
 
-  // Huỷ thanh toán: gọi API huỷ (nếu đã init) rồi về trang chủ.
+  // Huy thanh toan: goi API huy (neu da init) roi ve trang chu.
+  // Huy thanh toan: goi API huy (neu da init) roi ve trang chu.
   const handleCancel = async () => {
     if (paymentData?.payment?.payment_code) {
-      try { await cancelPayment(paymentData.payment.payment_code); } catch (_) {}
+      try {
+        await cancelPayment(paymentData.payment.payment_code);
+      } catch {
+        // Ignore cleanup errors when the user leaves the payment flow.
+      }
     }
     navigate("/");
   };
 
-  // MÀN HÌNH THÀNH CÔNG — hiện sau khi polling phát hiện status = PAID
+  // Payment success screen shown after polling detects a paid status.
   if (paid) {
     const pCode = paymentData?.payment?.payment_code || bookingCode;
     return (
@@ -354,7 +365,7 @@ const Payment = () => {
     );
   }
 
-  // Trích xuất thông tin chuyển khoản từ paymentData (sau khi init BANK_QR)
+  // TrÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­ch xuÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¥t thÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng tin chuyÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€ Ã¢â‚¬â„¢n khoÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â£n tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â« paymentData (sau khi init BANK_QR)
   const instruction     = paymentData?.payment?.instruction || {};
   const bankName        = instruction.bank_name || "VietinBank";
   const bankAccount     = instruction.bank_account || "";
@@ -363,7 +374,7 @@ const Payment = () => {
   const paymentCode     = paymentData?.payment?.payment_code || "";
   const expiresAt       = paymentData?.payment?.expires_at || null;
 
-  // Lấy URL ảnh QR: ưu tiên QR từ backend, nếu không có thì tự tạo bằng VietQR.io
+  // LÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¥y URL ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â£nh QR: ÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â°u tiÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âªn QR tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â« backend, nÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿u khÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng cÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³ thÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¬ tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â± tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡o bÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â±ng VietQR.io
   const qrImageUrl = instruction.qr_payload ||
     (bankAccount
       ? buildVietQRUrl({
@@ -424,11 +435,11 @@ const Payment = () => {
       <div className={styles.wrapper}>
         <div className={styles.layout}>
 
-          {/* ── CỘT TRÁI: Thông tin đơn hàng + coupon + phương thức thanh toán ── */}
+          {/* Left column: order info, coupon, and payment method */}
           <div className={styles.left}>
             <h2 className={styles.pageTitle}>Payment</h2>
 
-            {/* Mã đặt chỗ + đồng hồ đếm ngược thời gian giữ ghế */}
+            {/* MÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£ ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â·t chÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â + ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œng hÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿m ngÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â°ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â£c thÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Âi gian giÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â¯ ghÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿ */}
             <div className={styles.bookingCodeCard}>
               <div>
                 <p className={styles.codeLabel}>Booking Code</p>
@@ -436,7 +447,7 @@ const Payment = () => {
               </div>
               {heldUntil && (
                 <div className={styles.heldTimer}>
-                  <span className={styles.timerLabel}>⏱ Seat held for</span>
+                  <span className={styles.timerLabel}>ÃƒÆ’Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â± Seat held for</span>
                   <span className={`${styles.timerValue} ${expired ? styles.timerExpired : ""}`}>
                     {countdown ?? formatCountdown(heldUntil) ?? "--:--"}
                   </span>
@@ -444,31 +455,31 @@ const Payment = () => {
               )}
             </div>
 
-            {/* Banner cảnh báo khi ghế hết hạn giữ */}
+            {/* Banner cÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â£nh bÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡o khi ghÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿ hÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿t hÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡n giÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â¯ */}
             {expired && (
               <div className={styles.expiredBanner}>
-                ⚠️ Seat hold has expired. Please search again.
+                Seat hold has expired. Please search again.
                 <button className={styles.expiredBackBtn} onClick={() => navigate("/flights")}>
                   Search Again
                 </button>
               </div>
             )}
 
-            {/* Chi tiết đơn hàng: danh sách chuyến bay + hành khách + giảm giá + tổng tiền */}
+            {/* Order details: flights, passengers, discounts, and totals */}
             <div className={styles.invoiceCard}>
               <h3 className={styles.invoiceTitle}>Order Details</h3>
 
               {selectedFlights?.outbound && (
                 <div className={styles.invoiceRow}>
                   <div className={styles.invoiceLeft}>
-                    <p className={styles.invoiceFlightLabel}>✈️ Outbound</p>
+                    <p className={styles.invoiceFlightLabel}>ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“Ãƒâ€¹Ã¢â‚¬Â ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¸Ãƒâ€šÃ‚Â Outbound</p>
                     <p className={styles.invoiceFlightName}>
-                      {selectedFlights.outbound.airline?.name} · {selectedFlights.outbound.flight_number}
+                      {selectedFlights.outbound.airline?.name} ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· {selectedFlights.outbound.flight_number}
                     </p>
                     <p className={styles.invoiceFlightRoute}>
-                      {selectedFlights.outbound.departure?.code} → {selectedFlights.outbound.arrival?.code}
-                      &nbsp;·&nbsp;
-                      {formatTime(selectedFlights.outbound.departure?.time)} – {formatTime(selectedFlights.outbound.arrival?.time)}
+                      {selectedFlights.outbound.departure?.code} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ {selectedFlights.outbound.arrival?.code}
+                      &nbsp;ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â·&nbsp;
+                      {formatTime(selectedFlights.outbound.departure?.time)} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ {formatTime(selectedFlights.outbound.arrival?.time)}
                     </p>
                   </div>
                   <p className={styles.invoicePrice}>{fmt(selectedFlights.outbound.seat?.total_price || 0)}</p>
@@ -478,14 +489,14 @@ const Payment = () => {
               {selectedFlights?.return && (
                 <div className={styles.invoiceRow}>
                   <div className={styles.invoiceLeft}>
-                    <p className={styles.invoiceFlightLabel}>🔁 Return</p>
+                    <p className={styles.invoiceFlightLabel}>ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒâ€šÃ‚Â Return</p>
                     <p className={styles.invoiceFlightName}>
-                      {selectedFlights.return.airline?.name} · {selectedFlights.return.flight_number}
+                      {selectedFlights.return.airline?.name} ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· {selectedFlights.return.flight_number}
                     </p>
                     <p className={styles.invoiceFlightRoute}>
-                      {selectedFlights.return.departure?.code} → {selectedFlights.return.arrival?.code}
-                      &nbsp;·&nbsp;
-                      {formatTime(selectedFlights.return.departure?.time)} – {formatTime(selectedFlights.return.arrival?.time)}
+                      {selectedFlights.return.departure?.code} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ {selectedFlights.return.arrival?.code}
+                      &nbsp;ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â·&nbsp;
+                      {formatTime(selectedFlights.return.departure?.time)} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ {formatTime(selectedFlights.return.arrival?.time)}
                     </p>
                   </div>
                   <p className={styles.invoicePrice}>{fmt(selectedFlights.return.seat?.total_price || 0)}</p>
@@ -504,7 +515,7 @@ const Payment = () => {
               ))}
               <div className={styles.invoiceDivider} />
 
-              {/* Hành lý thêm (nếu có) */}
+              {/* Extra baggage if present */}
               {bookingData?.baggage?.extra_baggage_total > 0 && (
                 <div className={styles.invoiceRowSmall}>
                   <span>Extra Baggage</span>
@@ -512,15 +523,15 @@ const Payment = () => {
                 </div>
               )}
 
-              {/* Hiển thị dòng giảm giá nếu đã áp dụng coupon */}
+              {/* HiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€ Ã¢â‚¬â„¢n thÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¹ dÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â²ng giÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â£m giÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ nÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿u ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£ ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡p dÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â¥ng coupon */}
               {couponApplied && (
                 <div className={`${styles.invoiceRowSmall} ${styles.discountRow}`}>
-                  <span>🎟 Discount ({couponApplied.code})</span>
+                  <span>ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã‚Â½Ãƒâ€¦Ã‚Â¸ Discount ({couponApplied.code})</span>
                   <span>
                     {paymentData?.payment?.discount_amount > 0
-                      ? `− ${fmt(paymentData.payment.discount_amount)}`
+                      ? `ÃƒÆ’Ã‚Â¢Ãƒâ€¹Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ ${fmt(paymentData.payment.discount_amount)}`
                       : couponApplied.discount_amount > 0
-                        ? `− ${fmt(couponApplied.discount_amount)}`
+                        ? `ÃƒÆ’Ã‚Â¢Ãƒâ€¹Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ ${fmt(couponApplied.discount_amount)}`
                         : "Applied at checkout"}
                   </span>
                 </div>
@@ -532,11 +543,11 @@ const Payment = () => {
               </div>
             </div>
 
-            {/* Section coupon — chỉ hiện TRƯỚC khi init payment (sau đó không cho sửa nữa) */}
+            {/* Section coupon ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â chÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â° hiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¡n TRÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â¯ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€¦Ã‚Â¡C khi init payment (sau ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³ khÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng cho sÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â­a nÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â¯a) */}
             {!paymentData && (
               <div className={styles.couponCard}>
                 <div className={styles.couponCardHeader}>
-                  <h3 className={styles.couponTitle}>🎟 Promo Code</h3>
+                  <h3 className={styles.couponTitle}>ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã‚Â½Ãƒâ€¦Ã‚Â¸ Promo Code</h3>
                   {couponsLoading && (
                     <span className={styles.couponsLoadingText}>Loading...</span>
                   )}
@@ -546,7 +557,7 @@ const Payment = () => {
                   <p className={styles.couponApiError}>{couponApiError}</p>
                 )}
 
-                {/* Danh sách coupon có sẵn để user click Apply nhanh */}
+                {/* Danh sÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ch coupon cÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³ sÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Âµn ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€ Ã¢â‚¬â„¢ user click Apply nhanh */}
                 {!couponsLoading && availCoupons.length > 0 && (
                   <div className={styles.couponListBox}>
                     {availCoupons.map((c, i) => {
@@ -595,11 +606,11 @@ const Payment = () => {
                   </div>
                 )}
 
-                {/* Nếu đã áp dụng coupon → hiện trạng thái + nút Remove */}
+                {/* NÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿u ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£ ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡p dÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â¥ng coupon ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ hiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¡n trÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¡ng thÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡i + nÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âºt Remove */}
                 {couponApplied ? (
                   <div className={styles.couponApplied}>
                     <div className={styles.couponAppliedInfo}>
-                      <span className={styles.couponTag}>✓ {couponApplied.code}</span>
+                      <span className={styles.couponTag}>ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ {couponApplied.code}</span>
                       <span className={styles.couponDiscount}>Applied</span>
                     </div>
                     <button className={styles.couponRemoveBtn} onClick={handleRemoveCoupon}>
@@ -608,7 +619,7 @@ const Payment = () => {
                   </div>
                 ) : (
                   <>
-                    {/* Input nhập mã coupon thủ công */}
+                    {/* Input nhÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â­p mÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£ coupon thÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â§ cÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng */}
                     <div className={styles.couponInputRow}>
                       <input
                         type="text"
@@ -635,7 +646,7 @@ const Payment = () => {
               </div>
             )}
 
-            {/* Chọn phương thức thanh toán — chỉ hiện trước khi init */}
+            {/* ChÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Ân phÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â¡ng thÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â©c thanh toÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡n ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â chÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â° hiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¡n trÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â°ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Âºc khi init */}
             {!paymentData && (
               <div className={styles.methodCard}>
                 <h3 className={styles.methodTitle}>Payment Method</h3>
@@ -655,19 +666,19 @@ const Payment = () => {
                   ))}
                 </div>
 
-                {/* Ghi chú đặc biệt khi chọn MoMo trên PC */}
+                {/* Ghi chÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âº ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â·c biÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¡t khi chÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Ân MoMo trÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âªn PC */}
                 {selectedMethod === "MOMO" && (
                   <div className={styles.momoMethodNote}>
-                    <span>📱</span>
+                    <span>ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€šÃ‚Â±</span>
                     <span>
                       You will be redirected to MoMo. On desktop, scan the QR or log in to your MoMo account.
-                      The <em>"Failed to launch intent"</em> error on PC is normal — select <strong>Pay with MoMo Wallet</strong> on the MoMo page.
+                      The <em>"Failed to launch intent"</em> error on PC is normal ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â select <strong>Pay with MoMo Wallet</strong> on the MoMo page.
                     </span>
                   </div>
                 )}
                 {selectedMethod === "PAYPAL" && (
                   <div className={styles.momoMethodNote}>
-                    <span>💳</span>
+                    <span>ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢Ãƒâ€šÃ‚Â³</span>
                     <span>
                       You will be redirected to PayPal. Log in to your PayPal account or pay as guest with a card.
                       After payment, you will be redirected back to confirm your booking.
@@ -679,19 +690,19 @@ const Payment = () => {
 
             {initError && <div className={styles.errorBanner}>{initError}</div>}
 
-            {/* Nút hành động:
-                - Trước init: "← Back" và "Pay [số tiền]"
-                - Sau init: "Cancel" và "New Transaction" */}
+            {/* Action buttons:
+                Before init: Back and Pay [amount]
+                After init: Cancel and New Transaction */}
             {!paymentData ? (
               <div className={styles.actionRow}>
-                <button className={styles.backBtn} onClick={() => navigate(-1)}>← Back</button>
+                <button className={styles.backBtn} onClick={() => navigate(-1)}>Back</button>
                 <button
                   className={styles.payBtn}
                   onClick={handleInitPayment}
                   disabled={initLoading || expired}
                 >
                   {initLoading
-                    ? <span className={styles.spinner}>⏳ Processing...</span>
+                    ? <span className={styles.spinner}>ÃƒÆ’Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â³ Processing...</span>
                     : `Pay ${fmt(finalAmount)}`}
                 </button>
               </div>
@@ -709,11 +720,11 @@ const Payment = () => {
             )}
           </div>
 
-          {/* ── CỘT PHẢI: QR code / preview phương thức thanh toán ── */}
+          {/* ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ CÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€¹Ã…â€œT PHÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¢I: QR code / preview phÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â¡ng thÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â©c thanh toÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡n ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ */}
           <div className={styles.right}>
             {paymentData ? (
               <>
-                {/* Panel QR chuyển khoản BANK_QR */}
+                {/* Panel QR chuyÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€ Ã¢â‚¬â„¢n khoÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â£n BANK_QR */}
                 <div className={styles.qrCard}>
                   <div className={styles.qrHeader}>
                     <img src={vietqrImg} alt="VietQR" className={styles.vietqrLogo} />
@@ -729,7 +740,7 @@ const Payment = () => {
                     </p>
                   )}
 
-                  {/* Hiện ảnh QR hoặc thông báo không có QR */}
+                  {/* HiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¡n ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â£nh QR hoÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â·c thÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng bÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡o khÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng cÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³ QR */}
                   {qrImageUrl && !qrError ? (
                     <div className={styles.qrImageWrapper}>
                       {qrLoading && (
@@ -741,18 +752,18 @@ const Payment = () => {
                         className={styles.qrImage}
                         style={{ display: qrLoading ? "none" : "block" }}
                         onLoad={() => setQrLoading(false)}
-                        onError={() => { setQrLoading(false); setQrError(true); }} // QR lỗi → hiện thông tin thủ công
+                        onError={() => { setQrLoading(false); setQrError(true); }} // QR lÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Âi ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ hiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¡n thÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng tin thÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â§ cÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng
                       />
                     </div>
                   ) : (
                     <div className={styles.qrUnavailable}>
-                      <span className={styles.qrUnavailableIcon}>🏦</span>
+                      <span className={styles.qrUnavailableIcon}>ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒâ€šÃ‚Â¦</span>
                       <p className={styles.qrUnavailableText}>QR unavailable</p>
                       <p className={styles.qrUnavailableSub}>Please transfer manually using the bank details below</p>
                     </div>
                   )}
 
-                  {/* Thông tin chuyển khoản thủ công */}
+                  {/* ThÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng tin chuyÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€ Ã¢â‚¬â„¢n khoÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â£n thÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â§ cÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â´ng */}
                   <div className={styles.bankInfo}>
                     <div className={styles.bankRow}>
                       <span className={styles.bankLabel}>Bank:</span>
@@ -778,19 +789,19 @@ const Payment = () => {
                     </div>
                     <div className={styles.bankRow}>
                       <span className={styles.bankLabel}>Ref:</span>
-                      {/* Nội dung chuyển khoản phải CHÍNH XÁC để hệ thống tự xác nhận */}
+                      {/* NÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢i dung chuyÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€ Ã¢â‚¬â„¢n khoÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â£n phÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â£i CHÃƒÆ’Ã†â€™Ãƒâ€šÃ‚ÂNH XÃƒÆ’Ã†â€™Ãƒâ€šÃ‚ÂC ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€ Ã¢â‚¬â„¢ hÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¡ thÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ng tÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â± xÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡c nhÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â­n */}
                       <span className={`${styles.bankValue} ${styles.bankContent}`}>{transferContent}</span>
                     </div>
                   </div>
 
                   <div className={styles.qrNote}>
-                    <p>📱 Open banking app → scan QR or transfer manually</p>
+                    <p>Open your banking app and scan the QR or transfer manually</p>
                     <p className={styles.qrNoteImportant}>
-                      ⚠️ Use exact reference for auto confirmation
+                      Use the exact reference for auto confirmation
                     </p>
                   </div>
 
-                  {/* Indicator cho biết đang polling kiểm tra thanh toán */}
+                  {/* Indicator cho biÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚ÂºÃƒâ€šÃ‚Â¿t ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ang polling kiÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€ Ã¢â‚¬â„¢m tra thanh toÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡n */}
                   <div className={styles.pollingIndicator}>
                     <span className={styles.pollingDot} />
                     Waiting for payment confirmation...
@@ -806,7 +817,7 @@ const Payment = () => {
                 </div>
               </>
             ) : (
-              /* Trước khi init: preview phương thức đang chọn */
+              /* TrÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â°ÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»ÃƒÂ¢Ã¢â€šÂ¬Ã‚Âºc khi init: preview phÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â°ÃƒÆ’Ã¢â‚¬Â Ãƒâ€šÃ‚Â¡ng thÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Â©c ÃƒÆ’Ã¢â‚¬Å¾ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ang chÃƒÆ’Ã‚Â¡Ãƒâ€šÃ‚Â»Ãƒâ€šÃ‚Ân */
               <div className={styles.qrCard}>
                 <div className={styles.qrHeader}>
                   {selectedMethod === "MOMO"   && <img src={momoImg}   alt="MoMo"   className={styles.momoLogoPreview} />}
@@ -815,7 +826,7 @@ const Payment = () => {
                 </div>
                 <div className={styles.qrPreview}>
                   <div className={styles.qrPreviewIcon}>
-                    {selectedMethod === "MOMO" ? "📲" : selectedMethod === "PAYPAL" ? "💳" : "📱"}
+                    {selectedMethod === "MOMO" ? "ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€šÃ‚Â²" : selectedMethod === "PAYPAL" ? "ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢Ãƒâ€šÃ‚Â³" : "ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€šÃ‚Â±"}
                   </div>
                   <p>
                     {selectedMethod === "MOMO"

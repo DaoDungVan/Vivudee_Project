@@ -110,7 +110,7 @@ const Register = () => {
       await verifyOTP({ email: userEmail, otp: cleanOtp });
       setSuccess("Verify success!");
       setTimeout(() => { setShowOTP(false); setOtp(["", "", "", "", "", ""]); navigate("/login"); }, 800);
-    } catch (err) {
+    } catch {
       setError("Invalid OTP");
     } finally {
       setLoading(false);
@@ -122,7 +122,7 @@ const Register = () => {
     try {
       await resendOTP({ email: userEmail });
       setCountdown(300); setSuccess("OTP resent successfully!"); setError("");
-    } catch (err) {
+    } catch {
       setError("Resend failed");
     }
   };

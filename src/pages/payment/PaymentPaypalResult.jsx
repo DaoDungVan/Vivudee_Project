@@ -11,7 +11,6 @@ const PaymentPaypalResult = () => {
   const paymentCode = searchParams.get("paymentCode");
   const bookingCode = searchParams.get("bookingCode");
   const orderId     = searchParams.get("orderId");
-  const captureId   = searchParams.get("captureId");
   const message     = searchParams.get("message");
 
   const isSuccess   = status === "success";

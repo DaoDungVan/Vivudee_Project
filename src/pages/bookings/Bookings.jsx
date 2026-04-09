@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
@@ -48,20 +48,7 @@ const Bookings = () => {
     return map[status?.toLowerCase()] || map.pending;
   };
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const code   = params.get("code");
-    if (code) {
-      setLookupCode(code.toUpperCase());
-      handleLookup(code.toUpperCase());
-    }
-  }, []);
-
-  useEffect(() => {
-    if (tab === "my" && isLoggedIn) fetchMyBookings();
-  }, [tab, myFilter]);
-
-  const handleLookup = async (code) => {
+  const handleLookup = useCallback(async (code) => {
     const c = (code || lookupCode).trim().toUpperCase();
     if (!c) return;
     setLookupLoading(true); setLookupError(""); setLookupResult(null);
@@ -73,15 +60,28 @@ const Bookings = () => {
     } finally {
       setLookupLoading(false);
     }
-  };
+  }, [lookupCode]);
 
-  const fetchMyBookings = async () => {
+  const fetchMyBookings = useCallback(async () => {
     setMyLoading(true);
     try {
       const res = await getMyBookings(myFilter);
       setMyBookings(res.data?.data || []);
     } catch { setMyBookings([]); } finally { setMyLoading(false); }
-  };
+  }, [myFilter]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const code   = params.get("code");
+    if (code) {
+      setLookupCode(code.toUpperCase());
+      handleLookup(code.toUpperCase());
+    }
+  }, [location.search, handleLookup]);
+
+  useEffect(() => {
+    if (tab === "my" && isLoggedIn) fetchMyBookings();
+  }, [tab, isLoggedIn, fetchMyBookings]);
 
   const handleCancel = async (code) => {
     setConfirmCancel(null); setCancelLoading(code); setCancelError("");
