@@ -4,11 +4,12 @@
   align-items: center;
   justify-content: center;
   padding: 48px 16px;
-  background: #f9fafb;
+  background: var(--bg-subtle);
 }
 
 .card {
-  background: #fff;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 16px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
   padding: 48px 40px;
@@ -28,12 +29,12 @@
 .title {
   font-size: 1.6rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-dark);
   margin: 0 0 8px;
 }
 
 .subtitle {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 0.95rem;
   margin: 0 0 24px;
 }
@@ -43,7 +44,7 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  background: #f3f4f6;
+  background: var(--bg-muted);
   border-radius: 10px;
   padding: 14px 20px;
   margin-bottom: 16px;
@@ -51,7 +52,7 @@
 
 .codeLabel {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -59,19 +60,19 @@
 .codeValue {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-dark);
   letter-spacing: 0.08em;
 }
 
 .amount {
   font-size: 0.95rem;
-  color: #374151;
+  color: var(--text-secondary);
   margin: 0 0 24px;
 }
 
 .errorCode {
   font-size: 0.8rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   margin: -16px 0 20px;
 }
 
@@ -99,8 +100,8 @@
 }
 
 .btnSecondary {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--bg-muted);
+  color: var(--text-secondary);
   border: none;
   border-radius: 8px;
   padding: 12px 24px;
@@ -111,5 +112,5 @@
 }
 
 .btnSecondary:hover {
-  background: #e5e7eb;
+  background: var(--hover-bg);
 }

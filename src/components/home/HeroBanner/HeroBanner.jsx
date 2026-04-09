@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import styles from "./HeroBanner.module.css";
 import SearchFlightForm from "../SearchFlightForm/SearchFlightForm";
+import { useTranslation } from "react-i18next";
 
 const SLIDE_IMAGES = [
   "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1600&auto=format",
@@ -16,6 +17,7 @@ const SLIDE_IMAGES = [
 
 export default function HeroBanner() {
   const [index, setIndex] = useState(0);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -26,7 +28,6 @@ export default function HeroBanner() {
 
   return (
     <section className={styles.hero}>
-      {/* Tất cả ảnh xếp chồng, chỉ ảnh active mới opacity=1 */}
       {SLIDE_IMAGES.map((src, i) => (
         <div
           key={src}
@@ -34,20 +35,14 @@ export default function HeroBanner() {
           style={{ backgroundImage: `url(${src})` }}
         />
       ))}
-
-      {/* Dark overlay */}
       <div className={styles.overlay} />
-
       <div className={styles.title}>
-        <h1>Find Cheap Flights & Airline Deals</h1>
-        <p>Compare hundreds of airlines. Book the best deal for your trip.</p>
+        <h1>{t("hero.title")}</h1>
+        <p>{t("hero.subtitle")}</p>
       </div>
-
       <div className={styles.formWrap}>
         <SearchFlightForm />
       </div>
-
-      {/* Dot indicators */}
       <div className={styles.dots}>
         {SLIDE_IMAGES.map((_, i) => (
           <button

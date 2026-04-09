@@ -22,13 +22,11 @@
 }
 
 .card{
-  background:white;
-
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius:14px;
   padding:30px;
-
   box-shadow:0 8px 20px rgba(0,0,0,0.08);
-
   transition:0.25s;
   height: 100%;
 }
@@ -45,12 +43,7 @@
 .icon{
   width:60px;
   height:60px;
-
   margin:0 auto 20px;
-
-  /* border-radius:50%;
-  background:#eef6ff; */
-
   display:flex;
   align-items:center;
   justify-content:center;
@@ -67,7 +60,7 @@
 
 .card p{
   font-size:14px;
-  color:#777;
+  color: var(--text-secondary);
 }
 
 @media (max-width: 1024px) {

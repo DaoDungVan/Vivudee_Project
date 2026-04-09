@@ -2,24 +2,23 @@ import ScrollToTop from "./components/common/ScrollToTop/ScrollToTop";
 import AppRoutes from "./routes/AppRoutes";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useTheme } from "./hooks/useTheme";
 
-// Component gốc của toàn bộ app — nơi gắn các thứ dùng chung cho mọi trang.
+// Component gốc của toàn bộ app.
 function App() {
+  // Khởi tạo theme ngay khi app mount:
+  // - Đọc từ localStorage (nếu user đã chọn trước đó)
+  // - Hoặc tự nhận diện theo theme hệ thống (prefers-color-scheme)
+  // Hook tự động gắn data-theme="dark/light" lên <html>
+  const { theme } = useTheme();
+
   return (
     <>
-      {/* Định nghĩa tất cả các route (trang) của app */}
       <AppRoutes />
-
-      {/* Tự động cuộn lên đầu trang khi chuyển route.
-          Tại sao cần? Vì React không reset scroll position khi navigate,
-          người dùng có thể đang ở giữa trang A rồi nhảy sang trang B và vẫn thấy giữa trang. */}
+      {/* Cuộn lên đầu trang khi chuyển route */}
       <ScrollToTop />
-
-      {/* Hệ thống thông báo dạng toast (hiện góc phải trên).
-          position: hiện ở góc trên bên phải
-          autoClose: tự đóng sau 2.5 giây
-          Dùng toast.success("...") hoặc toast.error("...") từ bất kỳ component nào */}
-      <ToastContainer position="top-right" autoClose={2500} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover />
+      {/* Toast notification — theme theo dark/light mode của app */}
+      <ToastContainer position="top-right" autoClose={2500} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover theme={theme} />
     </>
   );
 }

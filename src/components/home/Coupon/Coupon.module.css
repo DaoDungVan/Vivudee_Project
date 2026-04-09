@@ -25,12 +25,9 @@
 .grid{
   display:flex;
   gap:20px;
-
   overflow-x:auto;
   padding-bottom:10px;
-
   scroll-behavior:smooth;
-
   cursor:grab;
 }
 
@@ -38,14 +35,12 @@
   cursor:grabbing;
 }
 
-/* scrollbar */
-
 .grid::-webkit-scrollbar{
   height:6px;
 }
 
 .grid::-webkit-scrollbar-thumb{
-  background:#ddd;
+  background: var(--divider);
   border-radius:10px;
 }
 
@@ -53,16 +48,12 @@
 
 .card{
   min-width:320px;
-
-  background:white;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius:14px;
-
   padding:20px;
-
   box-shadow:0 8px 20px rgba(0,0,0,0.08);
-
   transition:all 0.25s ease;
-
   cursor:pointer;
 }
 
@@ -83,15 +74,11 @@
   width:40px;
   height:40px;
   border-radius:50%;
-
-  background:#eaf4ff;
-
+  background: var(--info-bg);
   display:flex;
   align-items:center;
   justify-content:center;
 }
-
-
 
 .top h3{
   font-size:16px;
@@ -99,13 +86,13 @@
 
 .top p{
   font-size:13px;
-  color:#888;
+  color: var(--text-muted);
 }
 
 /* DIVIDER */
 
 .divider{
-  border-top:1px dashed #ddd;
+  border-top:1px dashed var(--divider);
   margin:15px 0;
 }
 
@@ -129,14 +116,10 @@
 .copyBtn{
   background:#3a7bd5;
   color:white;
-
   border:none;
   padding:6px 14px;
-
   border-radius:20px;
-
   cursor:pointer;
-
   transition:0.2s;
 }
 

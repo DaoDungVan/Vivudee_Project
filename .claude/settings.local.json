@@ -3,7 +3,8 @@
     "allow": [
       "Bash(node -e \"const {PayOS} = require\\('@payos/node'\\); const p = new PayOS\\({clientId:'a',apiKey:'b',checksumKey:'c'}\\); console.log\\(Object.keys\\(p.paymentRequests.invoices\\).join\\(', '\\)\\)\")",
       "Bash(node -e \"const {PayOS} = require\\('@payos/node'\\); const p = new PayOS\\({clientId:'a',apiKey:'b',checksumKey:'c'}\\); const proto = Object.getPrototypeOf\\(p\\); console.log\\(Object.getOwnPropertyNames\\(proto\\).filter\\(n=>n!=='constructor'\\).join\\(', '\\)\\)\")",
-      "Bash(node -e ':*)"
+      "Bash(node -e ':*)",
+      "Bash(npm install:*)"
     ]
   }
 }

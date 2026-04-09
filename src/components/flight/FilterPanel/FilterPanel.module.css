@@ -1,43 +1,56 @@
 .panel {
-  background: white;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   padding: 20px;
   border-radius: 12px;
-
   width: 100%;
   min-width: 0;
-
   position: sticky;
-  top: 110px; /* 🔥 tùy navbar bạn */
-
-  /* 🔥 QUAN TRỌNG */
+  top: 110px;
   height: fit-content;
   max-height: calc(100vh - 200px);
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--card-border) transparent;
 }
-/* HEADER (FIX NHẸ) */
+
+.panel::-webkit-scrollbar {
+  width: 5px;
+}
+
+.panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.panel::-webkit-scrollbar-thumb {
+  background: var(--card-border);
+  border-radius: 10px;
+}
+
+.panel::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+}
+
 .panelHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-
-  /* ❌ bỏ sticky */
   position: relative;
-
   padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--divider);
 }
 
 .panelHeader h3 {
   font-size: 16px;
   font-weight: 700;
-  color: #252a42;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .resetBtn {
   font-size: 13px;
-  color: #0e81cd;
+  color: var(--primary-color);
   background: none;
   border: none;
   cursor: pointer;
@@ -45,15 +58,12 @@
   padding: 0;
 }
 
-.resetBtn:hover {
-  text-decoration: underline;
-}
+.resetBtn:hover { text-decoration: underline; }
 
-/* GROUP (GIỮ NGUYÊN) */
 .group {
   margin-bottom: 24px;
   padding-bottom: 24px;
-  border-bottom: 1px solid #f1f1f1;
+  border-bottom: 1px solid var(--divider-muted);
 }
 
 .group:last-child {
@@ -65,15 +75,12 @@
 .groupTitle {
   font-weight: 600;
   font-size: 14px;
-  color: #252a42;
+  color: var(--text-primary);
   margin-bottom: 12px;
 }
 
-.group:first-of-type {
-  margin-top: 10px;  /* 🔥 FIX */
-}
+.group:first-of-type { margin-top: 10px; }
 
-/* SORT (GIỮ NGUYÊN) */
 .sortRow {
   display: flex;
   flex-direction: column;
@@ -85,11 +92,11 @@
   align-items: center;
   gap: 6px;
   padding: 8px 10px;
-  border: 1.5px solid #e0e0e0;
+  border: 1.5px solid var(--input-border);
   border-radius: 8px;
-  background: white;
+  background: var(--card-bg);
   font-size: 13px;
-  color: #444;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s;
   text-align: left;
@@ -97,38 +104,36 @@
 }
 
 .sortBtn:hover {
-  border-color: #0e81cd;
-  color: #0e81cd;
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }
 
 .sortActive {
-  border-color: #0e81cd;
-  background: #d1f0ff;
-  color: #0e81cd;
+  border-color: var(--primary-color);
+  background: var(--secondary-color);
+  color: var(--primary-color);
   font-weight: 600;
 }
 
-/* RANGE (GIỮ NGUYÊN) */
 .rangeLabels {
   display: flex;
   justify-content: space-between;
   font-size: 12px;
-  color: #888;
+  color: var(--text-secondary);
   margin-bottom: 8px;
 }
 
 .rangeValue {
-  color: #0e81cd;
+  color: var(--primary-color);
   font-weight: 600;
 }
 
 .range {
   width: 100%;
-  accent-color: #0e81cd;
+  accent-color: var(--primary-color);
   cursor: pointer;
 }
 
-/* SLOTS (GIỮ NGUYÊN) */
 .slots {
   display: flex;
   flex-direction: column;
@@ -140,11 +145,11 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border: 1.5px solid #e0e0e0;
+  border: 1.5px solid var(--input-border);
   border-radius: 8px;
-  background: white;
+  background: var(--card-bg);
   font-size: 13px;
-  color: #444;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s;
   text-align: left;
@@ -152,30 +157,29 @@
 }
 
 .slot:hover {
-  border-color: #0e81cd;
-  color: #0e81cd;
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }
 
 .slotActive {
-  border-color: #0e81cd;
-  background: #d1f0ff;
-  color: #0e81cd;
+  border-color: var(--primary-color);
+  background: var(--secondary-color);
+  color: var(--primary-color);
   font-weight: 600;
 }
 
-/* CHECKBOX (GIỮ NGUYÊN) */
 .checkLabel {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 10px;
   font-size: 14px;
-  color: #333;
+  color: var(--text-primary);
   cursor: pointer;
 }
 
 .checkLabel input[type="checkbox"] {
-  accent-color: #0e81cd;
+  accent-color: var(--primary-color);
   width: 15px;
   height: 15px;
   cursor: pointer;
@@ -183,7 +187,7 @@
 
 .empty {
   font-size: 13px;
-  color: #999;
+  color: var(--text-muted);
 }
 
 @media (max-width: 992px) {
@@ -200,9 +204,7 @@
 }
 
 @media (max-width: 600px) {
-  .panel {
-    padding: 18px 16px;
-  }
+  .panel { padding: 18px 16px; }
 
   .panelHeader,
   .rangeLabels {
@@ -210,7 +212,5 @@
     flex-wrap: wrap;
   }
 
-  .slot {
-    padding: 10px;
-  }
+  .slot { padding: 10px; }
 }

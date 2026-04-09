@@ -36,6 +36,8 @@
   outline: none;
   box-shadow: 0 8px 24px rgba(0,0,0,0.15);
   box-sizing: border-box;
+  background: var(--input-bg);
+  color: var(--input-text);
 }
 
 /* Wrapper */
@@ -43,6 +45,8 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 36px 24px 80px;
+  background: var(--bg-primary);
+  min-height: 100vh;
 }
 
 .topBar {
@@ -53,17 +57,18 @@
 }
 .resultCount {
   font-size: 14px;
-  color: #666;
+  color: var(--text-secondary);
   margin: 0;
 }
 .sortSelect {
   height: 38px;
-  border: 1.5px solid #e0e0e0;
+  border: 1.5px solid var(--input-border);
   border-radius: 10px;
   padding: 0 14px;
   font-size: 13px;
   outline: none;
-  background: #fff;
+  background: var(--input-bg);
+  color: var(--input-text);
   cursor: pointer;
 }
 
@@ -76,8 +81,8 @@
 
 /* Card */
 .card {
-  background: #fff;
-  border: 1px solid #e8e8e8;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 20px;
   overflow: hidden;
   transition: box-shadow 0.2s, transform 0.2s;
@@ -129,14 +134,14 @@
 
 .duration {
   font-size: 11px;
-  color: #888;
+  color: var(--text-muted);
   margin: 0 0 6px;
   font-weight: 600;
 }
 .tourName {
   font-size: 16px;
   font-weight: 800;
-  color: #1a1a2e;
+  color: var(--text-dark);
   margin: 0 0 12px;
   line-height: 1.4;
 }
@@ -149,7 +154,7 @@
 }
 .highlight {
   font-size: 12px;
-  color: #555;
+  color: var(--text-secondary);
 }
 
 .cardFooter {
@@ -161,7 +166,7 @@
 .pricing { display: flex; align-items: baseline; gap: 4px; flex-wrap: wrap; }
 .originalPrice {
   font-size: 12px;
-  color: #bbb;
+  color: var(--text-muted);
   text-decoration: line-through;
 }
 .price {
@@ -169,9 +174,9 @@
   font-weight: 900;
   color: #e74c3c;
 }
-.priceNote { font-size: 11px; color: #aaa; }
-.rating { font-size: 13px; color: #555; }
-.reviews { color: #aaa; font-size: 12px; }
+.priceNote { font-size: 11px; color: var(--text-muted); }
+.rating { font-size: 13px; color: var(--text-secondary); }
+.reviews { color: var(--text-muted); font-size: 12px; }
 
 .bookBtn {
   width: 100%;
@@ -191,7 +196,7 @@
 .noResult {
   text-align: center;
   padding: 60px 20px;
-  color: #888;
+  color: var(--text-muted);
 }
 .noResult p { font-size: 16px; margin-bottom: 16px; }
 .noResult button {

@@ -1,5 +1,3 @@
-/* src/pages/payment/Payment.module.css — full file */
-
 .wrapper {
   max-width: 1100px;
   margin: 0 auto;
@@ -21,7 +19,7 @@
 .pageTitle {
   font-size: 24px;
   font-weight: 800;
-  color: #1a1a2e;
+  color: var(--text-dark);
   margin: 0 0 24px;
 }
 
@@ -66,8 +64,11 @@
   gap: 12px;
   flex-wrap: wrap;
 }
+[data-theme="dark"] .expiredBanner {
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(220, 38, 38, 0.3);
+}
 
-/* FIX: button trong expired banner */
 .expiredBackBtn {
   background: #dc2626;
   color: #fff;
@@ -82,41 +83,41 @@
 
 /* ── Invoice ───────────────────────── */
 .invoiceCard {
-  background: #fff;
-  border: 1px solid #e8e8e8;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 20px;
   padding: 24px;
   margin-bottom: 16px;
 }
-.invoiceTitle { font-size: 16px; font-weight: 700; color: #1a1a2e; margin: 0 0 20px; }
+.invoiceTitle { font-size: 16px; font-weight: 700; color: var(--text-dark); margin: 0 0 20px; }
 
 .invoiceRow {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   padding: 12px 0;
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid var(--divider-muted);
   gap: 12px;
 }
 
-.invoiceFlightLabel { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #999; margin: 0; }
-.invoiceFlightName  { font-size: 14px; font-weight: 600; color: #1a1a2e; margin: 4px 0 2px; }
-.invoiceFlightRoute { font-size: 12px; color: #888; margin: 0; overflow-wrap: anywhere; }
-.invoicePrice       { font-size: 15px; font-weight: 700; color: #1a1a2e; white-space: nowrap; }
+.invoiceFlightLabel { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin: 0; }
+.invoiceFlightName  { font-size: 14px; font-weight: 600; color: var(--text-dark); margin: 4px 0 2px; }
+.invoiceFlightRoute { font-size: 12px; color: var(--text-secondary); margin: 0; overflow-wrap: anywhere; }
+.invoicePrice       { font-size: 15px; font-weight: 700; color: var(--text-dark); white-space: nowrap; }
 
-.invoiceDivider { border: none; border-top: 1px dashed #e8e8e8; margin: 12px 0; }
-.invoiceSectionLabel { font-size: 12px; font-weight: 700; color: #999; text-transform: uppercase; margin: 0 0 8px; }
+.invoiceDivider { border: none; border-top: 1px dashed var(--card-border); margin: 12px 0; }
+.invoiceSectionLabel { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin: 0 0 8px; }
 
 .invoicePaxRow {
   display: flex;
   justify-content: space-between;
   font-size: 13px;
-  color: #444;
+  color: var(--text-secondary);
   padding: 3px 0;
 }
-.invoicePaxType { color: #999; }
+.invoicePaxType { color: var(--text-muted); }
 
-.invoiceRowSmall { display: flex; justify-content: space-between; font-size: 13px; color: #666; padding: 6px 0; }
+.invoiceRowSmall { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); padding: 6px 0; }
 .discountRow     { color: #16a34a; font-weight: 600; }
 
 .invoiceTotal {
@@ -125,19 +126,18 @@
   align-items: center;
   padding-top: 16px;
 }
-.invoiceTotal span:first-child { font-size: 15px; font-weight: 600; color: #1a1a2e; }
+.invoiceTotal span:first-child { font-size: 15px; font-weight: 600; color: var(--text-dark); }
 .invoiceTotalPrice { font-size: 22px; font-weight: 800; color: #e74c3c; }
 
 /* ── Coupon ────────────────────────── */
 .couponCard {
-  background: #fff;
-  border: 1px solid #e8e8e8;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 20px;
   padding: 20px 24px;
   margin-bottom: 16px;
 }
 
-/* FIX: header row coupon có nút "My Coupons" */
 .couponCardHeader {
   display: flex;
   align-items: center;
@@ -147,12 +147,12 @@
   flex-wrap: wrap;
 }
 
-.couponTitle { font-size: 15px; font-weight: 700; color: #1a1a2e; margin: 0; }
+.couponTitle { font-size: 15px; font-weight: 700; color: var(--text-dark); margin: 0; }
 
 .showCouponsBtn {
   background: transparent;
-  border: 1.5px solid var(--primary-color, #1a6bc4);
-  color: var(--primary-color, #1a6bc4);
+  border: 1.5px solid var(--primary-color);
+  color: var(--primary-color);
   border-radius: 16px;
   padding: 5px 12px;
   font-size: 12px;
@@ -161,16 +161,15 @@
   white-space: nowrap;
   transition: all 0.15s;
 }
-
 .showCouponsBtn:hover {
-  background: var(--primary-color, #1a6bc4);
+  background: var(--primary-color);
   color: #fff;
 }
 
-/* FIX: Danh sách coupon available */
+/* Danh sách coupon available */
 .couponListBox {
-  background: #f8faff;
-  border: 1px solid #dde9ff;
+  background: var(--info-bg);
+  border: 1px solid var(--info-border);
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 14px;
@@ -181,10 +180,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 14px;
-  border-bottom: 1px solid #e8eeff;
+  border-bottom: 1px solid var(--info-border);
   gap: 10px;
 }
-
 .couponListItem:last-child { border-bottom: none; }
 
 .couponListLeft { flex: 1; display: flex; flex-direction: column; gap: 2px; }
@@ -192,15 +190,15 @@
 .couponListCode {
   font-size: 14px;
   font-weight: 800;
-  color: #1a6bc4;
+  color: var(--primary-color);
   letter-spacing: 1px;
 }
 
-.couponListDesc { font-size: 12px; color: #555; }
-.couponListMin  { font-size: 11px; color: #999; }
+.couponListDesc { font-size: 12px; color: var(--text-secondary); }
+.couponListMin  { font-size: 11px; color: var(--text-muted); }
 
 .couponListUseBtn {
-  background: #1a6bc4;
+  background: var(--primary-color);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -211,12 +209,11 @@
   white-space: nowrap;
   transition: background 0.15s;
 }
-
-.couponListUseBtn:hover { background: #155da0; }
+.couponListUseBtn:hover { opacity: 0.85; }
 
 .couponListItemDisabled {
   opacity: 0.6;
-  background: #f5f5f5;
+  background: var(--bg-subtle);
 }
 
 .couponListMinNotMet {
@@ -235,7 +232,7 @@
 .couponInput {
   flex: 1;
   height: 44px;
-  border: 1.5px solid #e0e0e0;
+  border: 1.5px solid var(--input-border);
   border-radius: 10px;
   padding: 0 14px;
   font-size: 14px;
@@ -243,15 +240,17 @@
   letter-spacing: 1px;
   outline: none;
   transition: border-color 0.2s;
+  background: var(--input-bg);
+  color: var(--input-text);
 }
 
-.couponInput:focus    { border-color: #1a6bc4; }
+.couponInput:focus    { border-color: var(--primary-color); }
 .couponInputError     { border-color: #ef4444 !important; }
 
 .couponApplyBtn {
   height: 44px;
   padding: 0 20px;
-  background: #1a6bc4;
+  background: var(--primary-color);
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -261,10 +260,10 @@
   transition: background 0.2s;
   white-space: nowrap;
 }
-.couponApplyBtn:hover:not(:disabled) { background: #155da0; }
+.couponApplyBtn:hover:not(:disabled) { opacity: 0.85; }
 .couponApplyBtn:disabled { opacity: 0.6; cursor: not-allowed; }
 .couponErrorMsg { color: #ef4444; font-size: 12px; margin: 6px 0 0; }
-.couponHint     { color: #999; font-size: 11px; margin: 8px 0 0; line-height: 1.5; }
+.couponHint     { color: var(--text-muted); font-size: 11px; margin: 8px 0 0; line-height: 1.5; }
 .couponApiError { color: #dc2626; font-size: 12px; margin: 0 0 12px; line-height: 1.5; }
 
 .couponApplied {
@@ -275,6 +274,10 @@
   border: 1px solid #86efac;
   border-radius: 10px;
   padding: 10px 14px;
+}
+[data-theme="dark"] .couponApplied {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(134, 239, 172, 0.3);
 }
 .couponAppliedInfo { display: flex; align-items: center; gap: 10px; }
 .couponTag {
@@ -290,16 +293,18 @@
 .couponRemoveBtn { background: none; border: 1px solid #fca5a5; color: #ef4444; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
 .couponRemoveBtn:hover { background: #fef2f2; }
 
+.couponsLoadingText { font-size: 12px; color: var(--text-muted); }
+
 /* ── Method ────────────────────────── */
-.methodCard { background: #fff; border: 1px solid #e8e8e8; border-radius: 20px; padding: 20px 24px; margin-bottom: 20px; }
-.methodTitle { font-size: 15px; font-weight: 700; color: #1a1a2e; margin: 0 0 14px; }
+.methodCard { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 20px 24px; margin-bottom: 20px; }
+.methodTitle { font-size: 15px; font-weight: 700; color: var(--text-dark); margin: 0 0 14px; }
 .methodGrid  { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
 
 .methodBtn {
-  border: 1.5px solid #e8e8e8;
+  border: 1.5px solid var(--card-border);
   border-radius: 12px;
   padding: 12px 8px;
-  background: #fff;
+  background: var(--card-bg);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -308,16 +313,15 @@
   transition: all 0.15s;
   position: relative;
 }
-
 .methodBtn img { width: 44px; height: 26px; object-fit: contain; }
-.methodBtn span { font-size: 11px; color: #666; }
-.methodBtn:hover:not(:disabled) { border-color: #1a6bc4; }
-.methodActive   { border-color: #1a6bc4 !important; background: #f0f4ff !important; }
+.methodBtn span { font-size: 11px; color: var(--text-secondary); }
+.methodBtn:hover:not(:disabled) { border-color: var(--primary-color); }
+.methodActive   { border-color: var(--primary-color) !important; background: var(--info-bg) !important; }
 .methodDisabled { opacity: 0.45; cursor: not-allowed !important; }
 .comingSoon {
   font-size: 9px !important;
-  background: #f0f0f0;
-  color: #888 !important;
+  background: var(--bg-subtle);
+  color: var(--text-muted) !important;
   padding: 2px 5px;
   border-radius: 4px;
   position: absolute;
@@ -335,17 +339,20 @@
   font-size: 13px;
   margin-bottom: 16px;
 }
+[data-theme="dark"] .errorBanner {
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(220, 38, 38, 0.3);
+}
 
 /* ── Action buttons ────────────────── */
 .actionRow { display: flex; gap: 12px; }
 
-/* FIX: Back button */
 .backBtn {
   flex: 0 0 auto;
   height: 54px;
   padding: 0 20px;
-  background: #f5f5f5;
-  color: #444;
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
   border: none;
   border-radius: 14px;
   font-size: 15px;
@@ -353,14 +360,14 @@
   cursor: pointer;
   transition: background 0.15s;
 }
-.backBtn:hover { background: #e5e5e5; }
+.backBtn:hover { background: var(--hover-bg); }
 
 .cancelBtn {
   flex: 0 0 auto;
   height: 54px;
   padding: 0 20px;
-  background: #f5f5f5;
-  color: #666;
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
   border: none;
   border-radius: 14px;
   font-size: 14px;
@@ -368,7 +375,7 @@
   cursor: pointer;
   transition: background 0.15s;
 }
-.cancelBtn:hover { background: #ebebeb; }
+.cancelBtn:hover { background: var(--hover-bg); }
 
 .payBtn {
   flex: 1;
@@ -392,8 +399,8 @@
 
 /* ── QR Card ───────────────────────── */
 .qrCard {
-  background: #fff;
-  border: 1px solid #e8e8e8;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 20px;
   padding: 24px 20px;
   display: flex;
@@ -404,17 +411,17 @@
 
 .qrHeader        { margin-bottom: 10px; }
 .vietqrLogo      { height: 32px; object-fit: contain; }
-.qrInstruction   { font-size: 14px; color: #444; margin: 0 0 4px; }
-.qrExpires       { font-size: 12px; color: #888; margin: 0 0 16px; }
+.qrInstruction   { font-size: 14px; color: var(--text-secondary); margin: 0 0 4px; }
+.qrExpires       { font-size: 12px; color: var(--text-muted); margin: 0 0 16px; }
 
 .qrImageWrapper {
   width: min(220px, 100%);
   aspect-ratio: 1;
   border-radius: 12px;
   overflow: hidden;
-  border: 2px solid #e8e8e8;
+  border: 2px solid var(--card-border);
   margin-bottom: 16px;
-  background: #fafafa;
+  background: var(--bg-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -423,11 +430,10 @@
 
 .qrImage { width: 100%; height: 100%; object-fit: contain; }
 
-/* FIX: QR skeleton loading */
 .qrSkeleton {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, var(--bg-muted) 25%, var(--divider) 50%, var(--bg-muted) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
   display: flex;
@@ -436,32 +442,19 @@
   border-radius: 10px;
 }
 
-.qrSkeleton span { font-size: 12px; color: #aaa; }
+.qrSkeleton span { font-size: 12px; color: var(--text-muted); }
 
 @keyframes shimmer {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
 
-.qrPlaceholder {
-  width: 220px;
-  height: 220px;
-  border-radius: 12px;
-  border: 2px dashed #e0e0e0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-  color: #bbb;
-  font-size: 13px;
-}
-
 .qrUnavailable {
   width: min(220px, 100%);
   min-height: 120px;
   border-radius: 12px;
-  border: 2px dashed #e0e0e0;
-  background: #fafafa;
+  border: 2px dashed var(--card-border);
+  background: var(--bg-muted);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -473,38 +466,26 @@
 }
 
 .qrUnavailableIcon { font-size: 32px; }
-
-.qrUnavailableText {
-  font-size: 14px;
-  font-weight: 700;
-  color: #555;
-  margin: 0;
-}
-
-.qrUnavailableSub {
-  font-size: 12px;
-  color: #999;
-  margin: 0;
-  line-height: 1.4;
-}
+.qrUnavailableText { font-size: 14px; font-weight: 700; color: var(--text-secondary); margin: 0; }
+.qrUnavailableSub  { font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.4; }
 
 /* Bank info */
 .bankInfo {
   width: 100%;
-  background: #f8faff;
-  border: 1px solid #dde9ff;
+  background: var(--info-bg);
+  border: 1px solid var(--info-border);
   border-radius: 12px;
   padding: 14px 16px;
   margin-bottom: 14px;
   text-align: left;
 }
 .bankRow { display: flex; justify-content: space-between; align-items: flex-start; padding: 5px 0; gap: 8px; }
-.bankLabel { font-size: 12px; color: #888; white-space: nowrap; flex-shrink: 0; }
-.bankValue { font-size: 13px; font-weight: 600; color: #1a1a2e; text-align: right; word-break: break-all; }
+.bankLabel { font-size: 12px; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
+.bankValue { font-size: 13px; font-weight: 600; color: var(--text-dark); text-align: right; word-break: break-all; }
 .bankAmount { color: #e74c3c; font-size: 15px; }
-.bankContent { color: #1a6bc4; font-size: 12px; letter-spacing: 0.5px; }
+.bankContent { color: var(--primary-color); font-size: 12px; letter-spacing: 0.5px; }
 
-.qrNote           { font-size: 12px; color: #888; line-height: 1.6; }
+.qrNote           { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
 .qrNoteImportant  { color: #d97706; font-weight: 600; font-size: 11px; margin: 4px 0 0; }
 
 .pollingIndicator {
@@ -531,121 +512,42 @@
 }
 
 /* QR Preview */
-.qrPreview { width: 100%; background: #f8f9fa; border-radius: 12px; padding: 28px 20px; margin: 12px 0; }
+.qrPreview { width: 100%; background: var(--bg-subtle); border-radius: 12px; padding: 28px 20px; margin: 12px 0; }
 .qrPreviewIcon { font-size: 48px; margin-bottom: 12px; }
-.qrPreview p   { font-size: 13px; color: #666; margin: 0 0 8px; line-height: 1.5; }
-.qrPreviewSub  { font-size: 11px !important; color: #aaa !important; }
+.qrPreview p   { font-size: 13px; color: var(--text-secondary); margin: 0 0 8px; line-height: 1.5; }
+.qrPreviewSub  { font-size: 11px !important; color: var(--text-muted) !important; }
 
 /* Pay code */
-.payCodeCard  { background: #f0f4ff; border: 1px dashed #93c5fd; border-radius: 14px; padding: 16px 20px; text-align: center; }
-.payCodeLabel { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px; }
-.payCodeValue { font-size: 16px; font-weight: 800; color: #1a6bc4; letter-spacing: 1px; margin: 0 0 6px; }
-.payCodeNote  { font-size: 11px; color: #888; margin: 0; }
+.payCodeCard  { background: var(--info-bg); border: 1px dashed var(--info-border); border-radius: 14px; padding: 16px 20px; text-align: center; }
+.payCodeLabel { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px; }
+.payCodeValue { font-size: 16px; font-weight: 800; color: var(--primary-color); letter-spacing: 1px; margin: 0 0 6px; }
+.payCodeNote  { font-size: 11px; color: var(--text-muted); margin: 0; }
 
 /* Contact */
-.contactCard  { background: #f9f9f9; border-radius: 12px; padding: 14px 16px; width: 100%; text-align: left; margin-top: 12px; }
-.contactTitle { font-size: 11px; color: #999; margin: 0 0 4px; }
-.contactEmail { font-size: 14px; font-weight: 600; color: #1a1a2e; margin: 0 0 2px; }
-.contactPhone { font-size: 13px; color: #666; margin: 0; }
+.contactCard  { background: var(--bg-muted); border-radius: 12px; padding: 14px 16px; width: 100%; text-align: left; margin-top: 12px; }
+.contactTitle { font-size: 11px; color: var(--text-muted); margin: 0 0 4px; }
+.contactEmail { font-size: 14px; font-weight: 600; color: var(--text-dark); margin: 0 0 2px; }
+.contactPhone { font-size: 13px; color: var(--text-secondary); margin: 0; }
 
 /* ── Success ───────────────────────── */
 .successWrapper { display: flex; align-items: center; justify-content: center; min-height: 70vh; padding: 40px 24px; }
-.successCard    { background: #fff; border: 1px solid #e8e8e8; border-radius: 24px; padding: 48px; text-align: center; max-width: 480px; width: 100%; }
+.successCard    { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 24px; padding: 48px; text-align: center; max-width: 480px; width: 100%; }
 .successIcon    { margin-bottom: 16px; }
-.successCard h2 { font-size: 28px; font-weight: 800; color: #1a1a2e; margin: 0 0 8px; }
-.successCard p  { color: #666; margin: 0 0 16px; }
-.successCode    { font-size: 28px; font-weight: 800; letter-spacing: 3px; color: #1a6bc4; background: #f0f4ff; padding: 16px 32px; border-radius: 14px; margin: 16px 0; }
-.successNote    { font-size: 14px; color: #888; margin: 0 0 32px; }
+.successCard h2 { font-size: 28px; font-weight: 800; color: var(--text-dark); margin: 0 0 8px; }
+.successCard p  { color: var(--text-secondary); margin: 0 0 16px; }
+.successCode    { font-size: 28px; font-weight: 800; letter-spacing: 3px; color: var(--primary-color); background: var(--info-bg); padding: 16px 32px; border-radius: 14px; margin: 16px 0; }
+.successNote    { font-size: 14px; color: var(--text-secondary); margin: 0 0 32px; }
 .successBtns    { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-.btnPrimary     { background: #1a6bc4; color: #fff; border: none; border-radius: 12px; padding: 14px 28px; font-size: 15px; font-weight: 700; cursor: pointer; }
-.btnSecondary   { background: #f5f5f5; color: #444; border: none; border-radius: 12px; padding: 14px 28px; font-size: 15px; font-weight: 600; cursor: pointer; }
+.btnPrimary     { background: var(--primary-color); color: #fff; border: none; border-radius: 12px; padding: 14px 28px; font-size: 15px; font-weight: 700; cursor: pointer; }
+.btnSecondary   { background: var(--bg-subtle); color: var(--text-secondary); border: none; border-radius: 12px; padding: 14px 28px; font-size: 15px; font-weight: 600; cursor: pointer; }
 
 /* ── Empty ─────────────────────────── */
-.empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; gap: 16px; }
-.empty button { background: #1a6bc4; color: #fff; border: none; border-radius: 10px; padding: 12px 24px; cursor: pointer; }
-
-
+.empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; gap: 16px; color: var(--text-primary); }
+.empty button { background: var(--primary-color); color: #fff; border: none; border-radius: 10px; padding: 12px 24px; cursor: pointer; }
 
 /* ── MoMo styles ────────────────────────────────── */
-.momoHeader {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
+.momoLogoPreview { height: 36px; object-fit: contain; }
 
-.momoLogo {
-  height: 36px;
-  object-fit: contain;
-}
-
-.momoTitle {
-  font-size: 16px;
-  font-weight: 700;
-  color: #ae2070;
-}
-
-.momoActions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-  margin: 16px 0;
-}
-
-.momoPayBtn {
-  display: block;
-  width: 100%;
-  padding: 14px;
-  background: #ae2070;
-  color: #fff;
-  border-radius: 12px;
-  text-align: center;
-  font-size: 15px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: background 0.2s;
-}
-
-.momoPayBtn:hover {
-  background: #8e1a5a;
-}
-
-.momoDeeplinkBtn {
-  display: block;
-  width: 100%;
-  padding: 12px;
-  background: #fdf0f7;
-  color: #ae2070;
-  border: 1.5px solid #ae2070;
-  border-radius: 12px;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.2s;
-}
-
-.momoDeeplinkBtn:hover {
-  background: #fce4f0;
-}
-
-.momoInfo {
-  width: 100%;
-  background: #fdf0f7;
-  border: 1px solid #f5c6e0;
-  border-radius: 12px;
-  padding: 12px 16px;
-  margin-bottom: 12px;
-  text-align: left;
-}
-
-.momoLogoPreview {
-  height: 36px;
-  object-fit: contain;
-}
-
-/* ── MoMo Redirecting Overlay ────────────────────── */
 .momoOverlay {
   position: fixed;
   inset: 0;
@@ -657,7 +559,7 @@
 }
 
 .momoOverlayCard {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: 20px;
   padding: clamp(24px, 4vw, 40px);
   text-align: center;
@@ -667,15 +569,10 @@
   gap: 16px;
   max-width: 340px;
   width: calc(100vw - 32px);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
 }
 
-.momoOverlayLogo {
-  width: 72px;
-  height: 72px;
-  object-fit: contain;
-  border-radius: 16px;
-}
+.momoOverlayLogo   { width: 72px; height: 72px; object-fit: contain; border-radius: 16px; }
 
 .momoOverlaySpinner {
   width: 36px;
@@ -686,25 +583,11 @@
   animation: spinMomo 0.8s linear infinite;
 }
 
-@keyframes spinMomo {
-  to { transform: rotate(360deg); }
-}
+@keyframes spinMomo { to { transform: rotate(360deg); } }
 
-.momoOverlayTitle {
-  font-size: 18px;
-  font-weight: 700;
-  color: #ae2070;
-  margin: 0;
-}
+.momoOverlayTitle { font-size: 18px; font-weight: 700; color: #ae2070; margin: 0; }
+.momoOverlayNote  { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin: 0; }
 
-.momoOverlayNote {
-  font-size: 13px;
-  color: #888;
-  line-height: 1.5;
-  margin: 0;
-}
-
-/* ── MoMo method note ──────────────────────────── */
 .momoMethodNote {
   display: flex;
   align-items: flex-start;
@@ -718,25 +601,13 @@
   color: #7a3558;
   line-height: 1.6;
 }
-
-.momoMethodNote span:first-child {
-  font-size: 16px;
-  flex-shrink: 0;
-  margin-top: 1px;
+[data-theme="dark"] .momoMethodNote {
+  background: rgba(174, 32, 112, 0.1);
+  border-color: rgba(174, 32, 112, 0.25);
+  color: #c97fb0;
 }
 
-/* ── Coupons loading text ─────────────────────── */
-.couponsLoadingText {
-  font-size: 12px;
-  color: #aaa;
-}
-
-/* ── MoMo logo preview ────────────────────────── */
-.momoLogoPreview {
-  height: 36px;
-  object-fit: contain;
-}
-
+.momoMethodNote span:first-child { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 
 /* ── Responsive ────────────────────── */
 @media (max-width: 900px) {
@@ -754,26 +625,10 @@
   .successCard { padding: 32px 20px; }
   .successCard h2 { font-size: 22px; }
   .couponInputRow,
-  .couponApplied {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .couponListItem {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
+  .couponApplied { flex-direction: column; align-items: stretch; }
+  .couponListItem { flex-direction: column; align-items: stretch; }
   .couponListUseBtn,
-  .couponApplyBtn {
-    width: 100%;
-  }
-
-  .bankRow {
-    flex-direction: column;
-  }
-
-  .bankValue {
-    text-align: left;
-  }
+  .couponApplyBtn { width: 100%; }
+  .bankRow { flex-direction: column; }
+  .bankValue { text-align: left; }
 }

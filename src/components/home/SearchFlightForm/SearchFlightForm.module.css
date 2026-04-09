@@ -2,7 +2,7 @@
 
 .formCard {
   width: min(1150px, 100%);
-  background: white;
+  background: var(--card-bg);
   padding: 40px 50px;
   border-radius: 25px;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
@@ -33,7 +33,7 @@
   font-weight: 600;
   font-size: 13px;
   background-color: var(--secondary-color);
-  color: #555;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -63,12 +63,12 @@
 
 .dropdownBtn {
   padding: 10px 14px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--input-border);
   border-radius: 10px;
-  background: white;
+  background: var(--card-bg);
   font-size: 14px;
   font-weight: 500;
-  color: #333;
+  color: var(--text-primary);
   cursor: pointer;
   transition: border 0.2s;
   white-space: nowrap;
@@ -86,13 +86,13 @@
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  background: white;
+  background: var(--dropdown-bg);
   border-radius: 14px;
   padding: 16px;
   width: 240px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   z-index: 999;
-  border: 1px solid #eee;
+  border: 1px solid var(--card-border);
 }
 
 .passengerRow {
@@ -100,7 +100,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 0;
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid var(--divider-muted);
 }
 
 .passengerRow:last-child {
@@ -117,12 +117,12 @@
 .passengerRow span:first-child {
   font-size: 14px;
   font-weight: 600;
-  color: #1a1a2e;
+  color: var(--text-dark);
 }
 
 .passengerSub {
   font-size: 11px;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .counter {
@@ -144,7 +144,7 @@
   align-items: center;
   justify-content: center;
   line-height: 1;
-  color: #333;
+  color: var(--text-primary);
   transition: all 0.15s;
 }
 
@@ -165,25 +165,25 @@
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  background: white;
+  background: var(--dropdown-bg);
   border-radius: 12px;
   padding: 6px 0;
   width: 160px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   z-index: 999;
-  border: 1px solid #eee;
+  border: 1px solid var(--card-border);
 }
 
 .seatItem {
   padding: 11px 16px;
   font-size: 14px;
-  color: #333;
+  color: var(--text-primary);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 
 .seatItem:hover {
-  background: #f0f8ff;
+  background: var(--info-bg);
   color: var(--primary-color);
 }
 
@@ -220,17 +220,17 @@
 .field input {
   padding: 12px 14px;
   border-radius: 10px;
-  border: 1.5px solid #ddd;
+  border: 1.5px solid var(--input-border);
   font-size: 14px;
-  color: #333;
+  color: var(--input-text);
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
-  background: #fdfdfd;
+  background: var(--input-bg);
   width: 100%;
 }
 
 .field input::placeholder {
-  color: #bbb;
+  color: var(--text-muted);
 }
 
 .field input:hover {
@@ -240,7 +240,6 @@
 .field input:focus {
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(14, 129, 205, 0.12);
-  background: #fff;
 }
 
 /* SWAP */
@@ -297,7 +296,7 @@
   transform: translateY(-1px);
 }
 
-/* FIX: Inline error - thay thế alert() */
+/* Inline error */
 .searchError {
   margin-top: 14px;
   padding: 11px 16px;
@@ -308,6 +307,12 @@
   font-size: 13px;
   font-weight: 500;
   animation: slideIn 0.2s ease;
+}
+
+[data-theme="dark"] .searchError {
+  background: rgba(253, 214, 99, 0.1);
+  border-color: rgba(253, 214, 99, 0.3);
+  color: #fdd663;
 }
 
 @keyframes slideIn {
@@ -325,9 +330,9 @@
   max-width: min(360px, calc(100vw - 32px));
   max-height: 260px;
   overflow-y: auto;
-  background: white;
+  background: var(--dropdown-bg);
   border-radius: 12px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--card-border);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
   z-index: 999;
   margin-top: 4px;
@@ -338,7 +343,7 @@
 }
 
 .airportDropdown::-webkit-scrollbar-thumb {
-  background: #d0d0d0;
+  background: var(--divider);
   border-radius: 10px;
 }
 
@@ -346,7 +351,7 @@
   padding: 11px 14px;
   cursor: pointer;
   transition: background 0.15s;
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid var(--divider-muted);
 }
 
 .airportItem:last-child {
@@ -354,18 +359,18 @@
 }
 
 .airportItem:hover {
-  background: #f0f8ff;
+  background: var(--info-bg);
 }
 
 .airportItem strong {
   font-size: 14px;
   font-weight: 600;
-  color: #1a1a2e;
+  color: var(--text-dark);
 }
 
 .airportItem p {
   font-size: 12px;
-  color: #999;
+  color: var(--text-muted);
   margin: 2px 0 0;
 }
 

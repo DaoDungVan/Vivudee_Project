@@ -1,17 +1,13 @@
-/* ================= CARD ================= */
 .card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   padding: 20px;
   margin-bottom: 15px;
-
   border-radius: 12px;
-  background: white;
-
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.06);
   cursor: pointer;
   transition: all 0.25s ease;
 }
@@ -21,7 +17,6 @@
   transform: translateY(-3px);
 }
 
-/* ================= LEFT ================= */
 .left {
   display: flex;
   align-items: center;
@@ -33,7 +28,6 @@
 .logoWrapper {
   width: 65px;
   height: 65px;
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -45,15 +39,9 @@
   object-fit: contain;
 }
 
-.info h3 {
-  margin-bottom: 5px;
-}
+.info h3 { margin-bottom: 5px; }
+.info     { min-width: 0; }
 
-.info {
-  min-width: 0;
-}
-
-/* ================= TIMELINE ================= */
 .timeline {
   display: flex;
   align-items: center;
@@ -63,20 +51,16 @@
   max-width: 100%;
 }
 
-.timeline span {
-  min-width: 45px;
-}
+.timeline span { min-width: 45px; }
 
-/* line */
 .line {
   flex: 1;
   height: 2px;
-  background: #ddd;
+  background: var(--divider);
   position: relative;
   min-width: 60px;
 }
 
-/* dot */
 .line::before,
 .line::after {
   content: "";
@@ -84,21 +68,14 @@
   height: 8px;
   background: var(--primary-color);
   border-radius: 50%;
-
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
 }
 
-.line::before {
-  left: 0;
-}
+.line::before { left: 0; }
+.line::after  { right: 0; }
 
-.line::after {
-  right: 0;
-}
-
-/* ================= TEXT ================= */
 .duration {
   font-size: 13px;
   color: var(--text-primary);
@@ -106,7 +83,6 @@
   overflow-wrap: anywhere;
 }
 
-/* ================= RIGHT ================= */
 .right {
   text-align: right;
   flex-shrink: 0;
@@ -118,22 +94,16 @@
   margin-bottom: 8px;
 }
 
-.amount {
-  color: #f47703;
-}
+.amount { color: #f47703; }
 
-/* ================= BUTTON ================= */
 .btn {
   padding: 8px 18px;
   border-radius: 20px;
   border: none;
-
   background: var(--primary-color);
   color: white;
-
   font-weight: 500;
   cursor: pointer;
-
   transition: all 0.2s ease;
 }
 
@@ -142,37 +112,30 @@
   box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* ================= SELECTED ================= */
 .active {
   border: 2px solid var(--primary-color);
-  background: #f0f7ff;
-  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
+  background: var(--info-bg);
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.12);
 }
 
-.active:hover {
-  transform: none;
-}
+.active:hover { transform: none; }
 
-/* ================= DETAIL ================= */
 .detail {
-  background: #f8fafc;
+  background: var(--bg-muted);
   padding: 18px 22px;
   margin-top: -10px;
   margin-bottom: 15px;
-  border: 1px solid #dedede ;
+  border: 1px solid var(--card-border);
   border-radius: 0 0 12px 12px;
-  border-top: 1px dashed #e5e7eb;
-
+  border-top: 1px dashed var(--divider);
   animation: fadeIn 0.25s ease;
 }
 
-/* layout */
 .detailContainer {
   display: flex;
   gap: 25px;
 }
 
-/* ================= TIMELINE LEFT ================= */
 .timelineCol {
   display: flex;
   flex-direction: column;
@@ -185,23 +148,22 @@
   margin: 0;
   font-size: 15px;
   font-weight: 600;
+  color: var(--text-dark);
 }
 
 .timeBlock span {
   font-size: 12px;
-  color: #888;
+  color: var(--text-muted);
 }
 
-/* vertical line */
 .verticalLine {
   width: 2px;
   height: 50px;
-  background: #d1d5db;
+  background: var(--divider);
   margin: 6px 0;
   position: relative;
 }
 
-/* dot */
 .verticalLine::before,
 .verticalLine::after {
   content: "";
@@ -209,69 +171,50 @@
   height: 8px;
   background: var(--primary-color);
   border-radius: 50%;
-
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
 }
 
-.verticalLine::before {
-  top: 0;
-}
+.verticalLine::before { top: 0; }
+.verticalLine::after  { bottom: 0; }
 
-.verticalLine::after {
-  bottom: 0;
-}
+.detailContent { flex: 1; }
 
-/* ================= RIGHT CONTENT ================= */
-.detailContent {
-  flex: 1;
-}
-
-/* airport */
-.airportBlock {
-  margin-bottom: 12px;
-}
+.airportBlock { margin-bottom: 12px; }
 
 .airportBlock h3 {
   margin: 0;
   font-size: 15px;
   font-weight: 600;
+  color: var(--text-dark);
 }
 
 .airportBlock p {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
-/* airline */
 .airline {
   margin: 10px 0;
   font-size: 14px;
   display: flex;
   gap: 20px;
+  color: var(--text-primary);
 }
 
-/* baggage */
 .baggage {
   margin: 10px 0;
   font-size: 14px;
   line-height: 1.6;
+  color: var(--text-primary);
 }
 
-/* ================= ANIMATION ================= */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ================= RESPONSIVE ================= */
 @media (max-width: 640px) {
   .card {
     flex-direction: column;
@@ -279,13 +222,8 @@
     gap: 12px;
   }
 
-  .left {
-    width: 100%;
-  }
-
-  .timeline {
-    width: 100%;
-  }
+  .left     { width: 100%; }
+  .timeline { width: 100%; }
 
   .right {
     width: 100%;
@@ -295,13 +233,6 @@
     text-align: left;
   }
 
-  .detailContainer {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .airline {
-    flex-direction: column;
-    gap: 6px;
-  }
+  .detailContainer { flex-direction: column; gap: 16px; }
+  .airline         { flex-direction: column; gap: 6px; }
 }

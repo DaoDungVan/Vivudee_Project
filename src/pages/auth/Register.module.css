@@ -1,47 +1,42 @@
 .wrapper {
   background: var(--bg-secondary);
   min-height: 100vh;
-
   display: flex;
   flex-direction: column;
   align-items: center;
-
   padding-top: 100px;
   padding-inline: 16px;
 }
 
-/* NOTE: flex + align-items giúp căn giữa ngang */
-
 .title {
   font-size: 28px;
   font-weight: 600;
+  color: var(--text-dark);
 }
 
 .card {
   width: min(420px, 100%);
-  background: white;
-
+  background: var(--card-bg);
   padding: 30px;
   margin-top: 20px;
-
   border-radius: 20px;
-
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--card-border);
 }
 
 .cardTitle {
   margin-bottom: 5px;
   font-size: 20px;
   font-weight: 600;
+  color: var(--text-dark);
 }
 
 .cardDesc {
   font-size: 14px;
-  color: #777;
+  color: var(--text-secondary);
   margin-bottom: 20px;
 }
 
-/* Social container */
 .social {
   display: flex;
   gap: 10px;
@@ -49,75 +44,53 @@
   flex-wrap: wrap;
 }
 
-/* Button */
 .socialBtn {
   flex: 1;
   padding: 10px;
-
   border-radius: 30px;
-  border: 1px solid #ddd;
-  background: white;
-
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
   cursor: pointer;
   font-size: 14px;
-
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-
   transition: all 0.2s ease;
-  /* NOTE: giúp animation mượt */
+  color: var(--text-primary);
 }
 
 .socialBtn:hover {
-  background: #f5f7fb;
+  background: var(--hover-bg);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
 }
 
-.socialBtn:active {
-  transform: scale(0.97);
-}
-
-.socialBtn span {
-  padding-top: 2px;
-}
-
-.fbIcon {
-  color: #1877f2;
-  /* NOTE: màu Facebook chuẩn */
-}
-
-.socialBtn svg {
-  font-size: 18px;
-}
-
-/* NOTE:
-flex + gap giúp icon + text nằm đẹp */
+.socialBtn:active   { transform: scale(0.97); }
+.socialBtn span     { padding-top: 2px; }
+.fbIcon             { color: #1877f2; }
+.socialBtn svg      { font-size: 18px; }
+.socialBtn:disabled { opacity: 0.7; cursor: not-allowed; }
 
 .divider {
   display: flex;
   align-items: center;
   text-align: center;
-
   margin: 20px 0;
 }
 
-/* tạo line 2 bên */
 .divider::before,
 .divider::after {
   content: "";
   flex: 1;
   height: 1px;
-  background: #ddd;
+  background: var(--divider);
 }
 
-/* khoảng cách giữa line và text */
 .divider span {
   padding: 0 10px;
   font-size: 13px;
-  color: #777;
+  color: var(--text-secondary);
 }
 
 .form {
@@ -125,30 +98,29 @@ flex + gap giúp icon + text nằm đẹp */
   flex-direction: column;
 }
 
-/* input chung */
 .input {
   width: 100%;
   padding: 12px;
-
   border-radius: 30px;
-  border: 1px solid #ddd;
-
+  border: 1px solid var(--input-border);
   margin-bottom: 15px;
   font-size: 14px;
+  background: var(--input-bg);
+  color: var(--input-text);
+  outline: none;
+  transition: border-color 0.2s, background 0.25s;
 }
 
-/* password wrapper */
-.password {
-  position: relative;
-}
+.input:focus { border-color: var(--primary-color); }
 
-/* icon mắt */
+.password { position: relative; }
+
 .eye {
   position: absolute;
   right: 15px;
   top: 15px;
-
   cursor: pointer;
+  color: var(--text-secondary);
 }
 
 .label {
@@ -158,56 +130,28 @@ flex + gap giúp icon + text nằm đẹp */
   color: var(--text-primary);
 }
 
-/* NOTE:
-label đứng trên input để rõ nghĩa field,
-giống form thực tế hơn placeholder-only */
-
-.forgot {
-  text-align: right;
-  font-size: 13px;
-  color: var(--primary-color);
-
-  margin-bottom: 15px;
-  cursor: pointer;
-}
-
-/* hover nhẹ */
-.forgot:hover {
-  text-decoration: underline;
-}
-
 .loginBtn {
   width: 100%;
   padding: 12px;
-
   border-radius: 30px;
   border: none;
-
   background: var(--primary-color);
   color: white;
-
   font-size: 15px;
   font-weight: 500;
-
   cursor: pointer;
-
   transition: all 0.2s ease;
 }
 
-.loginBtn:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.loginBtn:active {
-  transform: scale(0.98);
-}
+.loginBtn:hover    { opacity: 0.9; transform: translateY(-1px); }
+.loginBtn:active   { transform: scale(0.98); }
+.loginBtn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .registerText {
   text-align: center;
   font-size: 14px;
   margin-top: 15px;
-  color: #555;
+  color: var(--text-secondary);
 }
 
 .registerLink {
@@ -216,36 +160,7 @@ giống form thực tế hơn placeholder-only */
   font-weight: 500;
 }
 
-/* hover */
-.registerLink:hover {
-  text-decoration: underline;
-}
-
-.otpOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-
-  background: rgba(0, 0, 0, 0.6);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  z-index: 9999; /* 🔥 FIX Ở ĐÂY */
-}
-
-.otpBox {
-  background: white;
-  padding: 24px;
-  border-radius: 12px;
-  width: min(320px, calc(100vw - 32px));
-  text-align: center;
-
-  z-index: 10000;
-}
+.registerLink:hover { text-decoration: underline; }
 
 .error {
   color: #e53935;
@@ -272,6 +187,31 @@ giống form thực tế hơn placeholder-only */
   margin-bottom: 12px;
 }
 
+/* ── OTP Modal ── */
+.otpOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.otpBox {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  padding: 24px;
+  border-radius: 12px;
+  width: min(320px, calc(100vw - 32px));
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  color: var(--text-primary);
+}
+
+.otpBox h3 { color: var(--text-dark); }
+.otpBox p  { color: var(--text-secondary); font-size: 14px; margin: 4px 0 12px; }
+
 .resend {
   margin-top: 10px;
   font-size: 15px;
@@ -288,24 +228,16 @@ giống form thực tế hơn placeholder-only */
   margin-top: 12px;
   width: 100%;
   padding: 10px;
-
   border-radius: 30px;
-  border: 1px solid #ddd;
-
-  background: white;
-  color: #555;
-
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.cancelBtn:hover {
-  background: #f5f7fb;
-}
-
-.cancelBtn:active {
-  transform: scale(0.97);
-}
+.cancelBtn:hover  { background: var(--hover-bg); }
+.cancelBtn:active { transform: scale(0.97); }
 
 .otpInputs {
   display: flex;
@@ -318,40 +250,32 @@ giống form thực tế hơn placeholder-only */
   flex: 1;
   max-width: 40px;
   height: 45px;
-
   text-align: center;
   font-size: 18px;
   font-weight: bold;
-
   border-radius: 8px;
-  border: 1px solid #ddd;
-
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--input-text);
   outline: none;
 }
 
 .otpInput:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0 0 2px rgba(14, 129, 205, 0.12);
 }
 
 .socialSpinner {
   display: inline-block;
   width: 16px;
   height: 16px;
-  border: 2px solid #ddd;
-  border-top-color: #0e81cd;
+  border: 2px solid var(--card-border);
+  border-top-color: var(--primary-color);
   border-radius: 50%;
   animation: spinSocial 0.7s linear infinite;
 }
 
-@keyframes spinSocial {
-  to { transform: rotate(360deg); }
-}
-
-.socialBtn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
+@keyframes spinSocial { to { transform: rotate(360deg); } }
 
 @media (max-width: 480px) {
   .wrapper {
@@ -369,15 +293,7 @@ giống form thực tế hơn placeholder-only */
 }
 
 @media (max-width: 360px) {
-  .social {
-    flex-direction: column;
-  }
-
-  .otpInputs {
-    gap: 4px;
-  }
-
-  .otpInput {
-    max-width: 36px;
-  }
+  .social   { flex-direction: column; }
+  .otpInputs { gap: 4px; }
+  .otpInput  { max-width: 36px; }
 }

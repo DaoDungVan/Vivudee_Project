@@ -1,16 +1,5 @@
-:root {
-  --primary-color: #0e81cd;
-  --secondary-color: #d1f0ff;
-  --text-primary: #252a42;
-  --text-white: #ffffff;
-  --navbar-color: #ffffff;
-  --bg-primary: #fbfbfb;
-  --bg-secondary: rgba(209, 240, 255, 0.3);
-  --footer-color: #05285d;
-}
-
 .footer {
-  background: var(--footer-color);
+  background: var(--footer-color, #05285d);
   padding: 60px 0;
 }
 
@@ -34,7 +23,7 @@
 
 .menufooter h3,
 .brand h3 {
-  color: var(--text-white);
+  color: #fff;
 }
 
 .brand h3 {
@@ -84,6 +73,11 @@
   opacity: 0.45;
   line-height: 1.6;
 }
+
+[data-theme="dark"] .bottom p  { opacity: 0.7; }
+[data-theme="dark"] .bottom span { opacity: 0.6; }
+[data-theme="dark"] .menufooter li,
+[data-theme="dark"] .brand li  { opacity: 0.9; }
 
 .payPartner {
   display: grid;

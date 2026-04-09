@@ -1,18 +1,112 @@
+/* ═══════════════════════════════════════════════════
+   LIGHT THEME (mặc định)
+═══════════════════════════════════════════════════ */
 :root {
+  /* Brand */
   --primary-color: #0e81cd;
   --secondary-color: #d1f0ff;
 
+  /* Text */
   --text-primary: #252a42;
+  --text-dark: #1a1a2e;
+  --text-secondary: #666666;
+  --text-muted: #999999;
   --text-white: #ffffff;
 
-  --navbar-color: #ffffff;
-
+  /* Page backgrounds */
   --bg-primary: #fbfbfb;
   --bg-secondary: rgba(209, 240, 255, 0.3);
+  --bg-muted: #fafafa;
+  --bg-subtle: #f5f7fb;
 
+  /* Cards */
+  --card-bg: #ffffff;
+  --card-border: #e8e8e8;
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+  /* Inputs */
+  --input-bg: #ffffff;
+  --input-border: #dddddd;
+  --input-text: #1a1a2e;
+
+  /* Info blocks (e.g. bank info, coupon list) */
+  --info-bg: #f8faff;
+  --info-border: #dde9ff;
+
+  /* Dividers */
+  --divider: #eeeeee;
+  --divider-muted: #f0f0f0;
+
+  /* Hover */
+  --hover-bg: #f5f7fb;
+
+  /* Dropdown / overlays */
+  --dropdown-bg: #ffffff;
+
+  /* Navbar */
+  --navbar-color: #ffffff;
+  --navbar-border: #eeeeee;
+
+  /* Footer */
   --footer-color: #05285d;
 }
 
+/* ═══════════════════════════════════════════════════
+   DARK THEME  — kích hoạt khi <html data-theme="dark">
+═══════════════════════════════════════════════════ */
+[data-theme="dark"] {
+  /* Brand */
+  --primary-color: #4aaee8;
+  --secondary-color: rgba(74, 174, 232, 0.2);
+
+  /* Text */
+  --text-primary: #ccd4ec;
+  --text-dark: #dde4f8;
+  --text-secondary: #9aa5c4;
+  --text-muted: #7b8aaa;      /* tăng từ #555f7a — quá tối, không đọc được */
+  --text-white: #ffffff;
+
+  /* Page backgrounds */
+  --bg-primary: #0d1117;
+  --bg-secondary: rgba(74, 174, 232, 0.07);
+  --bg-muted: #171d2d;        /* nhẹ hơn để phân biệt với card */
+  --bg-subtle: #1a1f2e;
+
+  /* Cards */
+  --card-bg: #1d2235;         /* sáng hơn chút so với bg */
+  --card-border: #2e3a5c;     /* tăng từ #252d48 — border cần nhìn thấy */
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+
+  /* Inputs */
+  --input-bg: #151b2d;        /* tăng từ #101522 — không tối như hố đen */
+  --input-border: #2e3a5c;
+  --input-text: #ccd4ec;
+
+  /* Info blocks */
+  --info-bg: #162040;
+  --info-border: #243870;
+
+  /* Dividers */
+  --divider: #2e3a5c;         /* tăng từ #252d48 — cần thấy đường kẻ */
+  --divider-muted: #232d48;   /* tăng từ #1e2438 */
+
+  /* Hover */
+  --hover-bg: #212942;
+
+  /* Dropdown */
+  --dropdown-bg: #1d2235;
+
+  /* Navbar */
+  --navbar-color: #121827;
+  --navbar-border: #1e2848;
+
+  /* Footer */
+  --footer-color: #0c1a38;
+}
+
+/* ═══════════════════════════════════════════════════
+   BASE STYLES
+═══════════════════════════════════════════════════ */
 html {
   scroll-behavior: smooth;
 }
@@ -23,34 +117,35 @@ html {
   box-sizing: border-box;
 }
 
-body{
+body {
   font-family: 'Roboto', sans-serif;
   background: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.5;
   min-width: 320px;
   overflow-x: hidden;
+  transition: background 0.25s ease, color 0.25s ease;
 }
 
-h3{
-  color:var(--text-primary);
+h3 {
+  color: var(--text-primary);
 }
 
 #root {
   min-height: 100vh;
 }
 
-.container{
-  width:min(1200px, calc(100% - 32px));
-  max-width:1200px;
-  margin:0 auto;
-  padding:0;
+.container {
+  width: min(1200px, calc(100% - 32px));
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
 }
 
-img{
-  display:block;
-  max-width:100%;
-  height:auto;
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
 }
 
 input,
@@ -58,4 +153,14 @@ button,
 select,
 textarea {
   font: inherit;
+}
+
+/* ── Dark mode: fix select/option bị tối ── */
+[data-theme="dark"] select {
+  color-scheme: dark;
+}
+
+[data-theme="dark"] select option {
+  background: #1d2235;
+  color: #ccd4ec;
 }

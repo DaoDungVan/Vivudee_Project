@@ -23,7 +23,6 @@
   margin: 0;
 }
 
-/* FIX: nút Show All / Show Less */
 .toggleBtn {
   padding: 8px 20px;
   border: 1.5px solid var(--primary-color);
@@ -49,7 +48,8 @@
 }
 
 .card {
-  background: white;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 12px;
   padding: 20px 12px;
   display: flex;
@@ -74,7 +74,7 @@
 .fallbackName {
   font-size: 12px;
   font-weight: 600;
-  color: #555;
+  color: var(--text-secondary);
   text-align: center;
   display: none;
   align-items: center;

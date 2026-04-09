@@ -13,7 +13,7 @@
   width: min(480px, 100vw);
   max-width: 100vw;
   height: 100%;
-  background: #fff;
+  background: var(--card-bg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -32,7 +32,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--divider-muted);
   flex-shrink: 0;
 }
 
@@ -40,18 +40,18 @@
   font-size: 18px;
   font-weight: 700;
   margin: 0;
-  color: #1a1a2e;
+  color: var(--text-dark);
 }
 
 .closeBtn {
-  background: #f5f5f5;
+  background: var(--bg-muted);
   border: none;
   border-radius: 50%;
   width: 32px;
   height: 32px;
   cursor: pointer;
   font-size: 14px;
-  color: #666;
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -59,7 +59,7 @@
 }
 
 .closeBtn:hover {
-  background: #ebebeb;
+  background: var(--hover-bg);
 }
 
 /* BODY */
@@ -77,11 +77,10 @@
 }
 
 .body::-webkit-scrollbar-thumb {
-  background: #ddd;
+  background: var(--divider);
   border-radius: 10px;
 }
 
-/* FIX: passenger badge hiển thị đúng adult/child */
 .paxBadge {
   display: inline-flex;
   align-items: center;
@@ -97,20 +96,20 @@
 
 /* FLIGHT BOX */
 .flightBox {
-  border: 1px solid #e8e8e8;
+  border: 1px solid var(--card-border);
   border-radius: 16px;
   padding: 18px;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  background: #fafafa;
+  background: var(--bg-muted);
 }
 
 .boxLabel {
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
-  color: #999;
+  color: var(--text-muted);
   letter-spacing: 0.5px;
   margin: 0;
 }
@@ -134,19 +133,19 @@
   height: 36px;
   object-fit: contain;
   border-radius: 8px;
-  border: 1px solid #eee;
+  border: 1px solid var(--card-border);
 }
 
 .airlineName {
   font-size: 13px;
   font-weight: 600;
-  color: #1a1a2e;
+  color: var(--text-dark);
   margin: 0;
 }
 
 .flightCode {
   font-size: 12px;
-  color: #999;
+  color: var(--text-muted);
   margin: 2px 0 0;
 }
 
@@ -169,12 +168,12 @@
 .time {
   font-size: 16px;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--text-dark);
 }
 
 .code {
   font-size: 12px;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .timelineLine {
@@ -187,13 +186,13 @@
 
 .duration {
   font-size: 11px;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .line {
   width: 100%;
   height: 1px;
-  background: #ddd;
+  background: var(--divider);
 }
 
 .direct {
@@ -219,14 +218,14 @@
 
 .perPax {
   font-size: 11px;
-  color: #999;
+  color: var(--text-muted);
 }
 
 /* Included baggage */
 .includedBaggage {
   font-size: 12px;
-  color: #666;
-  background: #f0f4ff;
+  color: var(--text-secondary);
+  background: var(--info-bg);
   padding: 8px 12px;
   border-radius: 8px;
 }
@@ -241,7 +240,7 @@
 .baggageTitle {
   font-size: 12px;
   font-weight: 600;
-  color: #555;
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -254,10 +253,10 @@
 .baggageCard {
   flex: 1;
   min-width: 76px;
-  border: 1.5px solid #e8e8e8;
+  border: 1.5px solid var(--card-border);
   border-radius: 12px;
   padding: 10px 8px;
-  background: #fff;
+  background: var(--card-bg);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -268,18 +267,18 @@
 
 .baggageCard:hover {
   border-color: var(--primary-color, #0e81cd);
-  background: #f0f4ff;
+  background: var(--info-bg);
 }
 
 .baggageActive {
   border-color: var(--primary-color, #0e81cd) !important;
-  background: #f0f4ff !important;
+  background: var(--info-bg) !important;
 }
 
 .baggageKg {
   font-size: 13px;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--text-dark);
 }
 
 .baggagePrice {
@@ -288,17 +287,16 @@
   font-weight: 600;
 }
 
-/* FIX: hiển thị tổng tiền baggage cho tất cả hành khách */
 .baggageTotal {
   font-size: 10px;
-  color: #888;
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
 /* FOOTER */
 .footer {
   padding: 18px 24px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--divider-muted);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -314,7 +312,7 @@
 
 .totalLabel {
   font-size: 11px;
-  color: #999;
+  color: var(--text-muted);
   margin-bottom: 2px;
 }
 
