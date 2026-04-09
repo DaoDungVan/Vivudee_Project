@@ -6,6 +6,7 @@ import Footer from "../../components/common/Footer/Footer";
 import {
   getAiConversation,
   getSupportConversation,
+  normalizeChatPayload,
   sendAiMessage,
   sendSupportMessage,
 } from "../../services/chatService";
@@ -25,13 +26,56 @@ const SUPPORT_STATUS_LABELS = {
   resolved: "Đã xử lý xong",
 };
 
+const createLocalMessage = (content, senderRole) => ({
+  id: `local-${senderRole}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  content,
+  sender_role: senderRole,
+  sender_name: senderRole === "user" ? "Bạn" : senderRole === "assistant" ? "Vivudee AI" : "Admin",
+  created_at: new Date().toISOString(),
+  pending: true,
+});
+
+const mergeMessages = (currentMessages, nextMessages) => {
+  const incoming = Array.isArray(nextMessages) ? nextMessages.filter(Boolean) : [];
+
+  if (incoming.length === 0) {
+    return currentMessages;
+  }
+
+  const merged = [...currentMessages];
+
+  incoming.forEach((message) => {
+    const exists = merged.some((item) =>
+      item.id === message.id ||
+      (
+        item.content === message.content &&
+        item.sender_role === message.sender_role &&
+        item.created_at === message.created_at
+      )
+    );
+
+    if (!exists) {
+      merged.push(message);
+    }
+  });
+
+  return merged;
+};
+
 function Chat() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") === "support" ? "support" : "ai";
 
-  const [aiState, setAiState] = useState({ conversation: null, messages: [], quickReplies: DEFAULT_AI_PROMPTS });
-  const [supportState, setSupportState] = useState({ conversation: null, messages: [] });
+  const [aiState, setAiState] = useState({
+    conversation: null,
+    messages: [],
+    quickReplies: DEFAULT_AI_PROMPTS,
+  });
+  const [supportState, setSupportState] = useState({
+    conversation: null,
+    messages: [],
+  });
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState({ ai: true, support: false });
   const [sending, setSending] = useState(false);
@@ -52,17 +96,25 @@ function Chat() {
 
     try {
       const res = await getAiConversation();
+      const data = normalizeChatPayload(res.data);
+
       setAiState((prev) => ({
-        conversation: res.data?.data?.conversation || null,
-        messages: res.data?.data?.messages || [],
-        quickReplies: prev.quickReplies,
+        conversation: data.conversation || prev.conversation,
+        messages: data.messages,
+        quickReplies: data.quickReplies?.length ? data.quickReplies : prev.quickReplies,
       }));
+
       if (!silent) {
         setError("");
       }
     } catch (err) {
       if (!silent) {
-        setError(err?.response?.data?.error || "Không tải được hội thoại AI");
+        setError(
+          err?.response?.data?.message ||
+          err?.response?.data?.error ||
+          err?.message ||
+          "Không tải được hội thoại AI"
+        );
       }
     } finally {
       if (!silent) {
@@ -78,16 +130,24 @@ function Chat() {
 
     try {
       const res = await getSupportConversation();
+      const data = normalizeChatPayload(res.data);
+
       setSupportState({
-        conversation: res.data?.data?.conversation || null,
-        messages: res.data?.data?.messages || [],
+        conversation: data.conversation,
+        messages: data.messages,
       });
+
       if (!silent) {
         setError("");
       }
     } catch (err) {
       if (!silent) {
-        setError(err?.response?.data?.error || "Không tải được hội thoại với admin");
+        setError(
+          err?.response?.data?.message ||
+          err?.response?.data?.error ||
+          err?.message ||
+          "Không tải được hội thoại với admin"
+        );
       }
     } finally {
       if (!silent) {
@@ -107,12 +167,6 @@ function Chat() {
       loadSupport();
     }
   }, [navigate, activeTab]);
-
-  useEffect(() => {
-    if (activeTab === "support") {
-      loadSupport();
-    }
-  }, [activeTab]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -164,29 +218,70 @@ function Chat() {
 
     try {
       if (activeTab === "support") {
-        const res = await sendSupportMessage({ message });
-        setSupportState({
-          conversation: res.data?.data?.conversation || null,
-          messages: res.data?.data?.messages || [],
-        });
-      } else {
-        const res = await sendAiMessage({ message });
-        const data = res.data?.data || {};
+        const optimisticMessage = createLocalMessage(message, "user");
 
-        setAiState((prev) => ({
-          conversation: data.conversation || prev.conversation,
-          messages: data.messages || [],
-          quickReplies: data.quick_replies?.length ? data.quick_replies : prev.quickReplies,
+        setSupportState((prev) => ({
+          ...prev,
+          messages: [...prev.messages, optimisticMessage],
         }));
 
-        if (data.should_contact_admin) {
+        const res = await sendSupportMessage({ message });
+        const data = normalizeChatPayload(res.data);
+
+        if (data.messages.length > 0) {
+          setSupportState((prev) => ({
+            conversation: data.conversation || prev.conversation,
+            messages: mergeMessages(
+              prev.messages.filter((item) => item.id !== optimisticMessage.id),
+              data.messages
+            ),
+          }));
+        } else {
+          await loadSupport({ silent: true });
+        }
+      } else {
+        const optimisticMessage = createLocalMessage(message, "user");
+
+        setAiState((prev) => ({
+          ...prev,
+          messages: [...prev.messages, optimisticMessage],
+        }));
+
+        const res = await sendAiMessage({ message });
+        const data = normalizeChatPayload(res.data);
+
+        if (data.messages.length > 0) {
+          setAiState((prev) => ({
+            conversation: data.conversation || prev.conversation,
+            messages: mergeMessages(
+              prev.messages.filter((item) => item.id !== optimisticMessage.id),
+              data.messages
+            ),
+            quickReplies: data.quickReplies?.length ? data.quickReplies : prev.quickReplies,
+          }));
+        } else {
+          await loadAi({ silent: true });
+        }
+
+        if (data.shouldContactAdmin) {
           await loadSupport({ silent: true });
         }
       }
 
       setDraft("");
     } catch (err) {
-      setError(err?.response?.data?.error || "Không gửi được tin nhắn");
+      if (activeTab === "support") {
+        await loadSupport({ silent: true });
+      } else {
+        await loadAi({ silent: true });
+      }
+
+      setError(
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
+        "Không gửi được tin nhắn"
+      );
     } finally {
       setSending(false);
     }
