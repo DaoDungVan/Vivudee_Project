@@ -148,10 +148,10 @@ const Contact = () => {
               {FAQS.map((faq, i) => (
                 <div key={i} className={`${styles.faqItem} ${openFaq === i ? styles.faqOpen : ""}`}>
                   <button className={styles.faqQuestion} onClick={() => setOpenFaq(openFaq === i ? null : i)}>
-                    <span>{faq.q}</span>
+                    <span>{t(`contact.${faq.qKey}`)}</span>
                     <span className={styles.faqArrow}>{openFaq === i ? "▲" : "▼"}</span>
                   </button>
-                  {openFaq === i && <div className={styles.faqAnswer}>{faq.a}</div>}
+                  {openFaq === i && <div className={styles.faqAnswer}>{t(`contact.${faq.aKey}`)}</div>}
                 </div>
               ))}
             </div>
