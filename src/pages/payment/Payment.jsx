@@ -41,11 +41,11 @@ const Payment = () => {
   const { t }     = useTranslation();
 
   const PAYMENT_METHODS = [
-    { id: "BANK_QR", label: "VietQR / Bank Transfer", img: vietqrImg },
-    { id: "MOMO",    label: "MoMo",                   img: momoImg,   disabled: true },
+    { id: "BANK_QR", label: "PayOS / Bank Transfer",  img: vietqrImg },
+    { id: "MOMO",    label: "MoMo",                   img: momoImg },
     { id: "VISA",    label: "Visa / Credit Card",      img: visaImg,   disabled: true },
     { id: "MASTER",  label: "Mastercard",              img: masterImg, disabled: true },
-    { id: "PAYPAL",  label: "PayPal",                  img: paypalImg, disabled: true },
+    { id: "PAYPAL",  label: "PayPal",                  img: paypalImg },
   ];
 
   // ── State ────────────────────────────────────────────────
@@ -58,22 +58,16 @@ const Payment = () => {
   const [paymentData, setPaymentData]       = useState(null);
   const [initLoading, setInitLoading]       = useState(false);
   const [initError, setInitError]           = useState("");
+  const [momoRedirecting, setMomoRedirecting] = useState(false);
+  const [payosRedirecting, setPayosRedirecting] = useState(false);
+  const [paypalRedirecting, setPaypalRedirecting] = useState(false);
 
   const [countdown, setCountdown]           = useState(null);
   const [expired, setExpired]               = useState(false);
   const [paid, setPaid]                     = useState(false);
 
   // ── Guard ────────────────────────────────────────────────
-  if (!state?.bookingData) {
-    return (
-      <div className={styles.empty}>
-        <p>{t("payment.notFound")}</p>
-        <button onClick={() => navigate("/")}>{t("payment.backHome")}</button>
-      </div>
-    );
-  }
-
-  const { bookingData, selectedFlights, passengers, contact, totalPrice } = state;
+  const { bookingData, selectedFlights, passengers, contact, totalPrice } = state || {};
   const bookingId   = bookingData?.booking_id || bookingData?.id;
   const bookingCode = bookingData?.booking_code;
   const heldUntil   = bookingData?.held_until;
@@ -102,11 +96,22 @@ const Payment = () => {
         if (["PAID","SUCCESS","COMPLETED","CONFIRMED"].includes(status)) {
           if (active) setPaid(true);
         }
-      } catch (_) {}
+      } catch {
+        // Keep polling quiet; transient payment API errors should not break checkout.
+      }
     };
     const iv = setInterval(poll, 5000);
     return () => { active = false; clearInterval(iv); };
   }, [paymentData, paid]);
+
+  if (!bookingData) {
+    return (
+      <div className={styles.empty}>
+        <p>{t("payment.notFound")}</p>
+        <button onClick={() => navigate("/")}>{t("payment.backHome")}</button>
+      </div>
+    );
+  }
 
   // ── Apply coupon ─────────────────────────────────────────
   const handleApplyCoupon = async () => {
@@ -136,6 +141,17 @@ const Payment = () => {
     }
     setInitLoading(true);
     setInitError("");
+
+    if (selectedMethod === "MOMO") {
+      setMomoRedirecting(true);
+    }
+    if (selectedMethod === "BANK_QR") {
+      setPayosRedirecting(true);
+    }
+    if (selectedMethod === "PAYPAL") {
+      setPaypalRedirecting(true);
+    }
+
     try {
       const payload = {
         booking_id:     bookingId,
@@ -146,8 +162,57 @@ const Payment = () => {
         voucher_code:   couponApplied?.voucher_code || null,
       };
       const res = await initPayment(payload);
+
+      if (selectedMethod === "MOMO") {
+        const payUrl =
+          res?.payment?.instruction?.pay_url ||
+          res?.payment?.instruction?.redirect_url;
+
+        if (payUrl) {
+          window.location.href = payUrl;
+          return;
+        }
+
+        setMomoRedirecting(false);
+        setInitError("Could not create MoMo payment link. Please try again.");
+        return;
+      }
+
+      if (selectedMethod === "BANK_QR") {
+        const checkoutUrl =
+          res?.payment?.instruction?.checkout_url ||
+          res?.payment?.instruction?.redirect_url;
+
+        if (res?.payment?.instruction?.type === "PAYOS_CHECKOUT" && checkoutUrl) {
+          window.location.href = checkoutUrl;
+          return;
+        }
+
+        setPayosRedirecting(false);
+        setPaymentData(res);
+        return;
+      }
+
+      if (selectedMethod === "PAYPAL") {
+        const approveUrl =
+          res?.payment?.instruction?.approve_url ||
+          res?.payment?.instruction?.redirect_url;
+
+        if (approveUrl) {
+          window.location.href = approveUrl;
+          return;
+        }
+
+        setPaypalRedirecting(false);
+        setInitError("Could not create PayPal checkout link. Please try again.");
+        return;
+      }
+
       setPaymentData(res);
     } catch (err) {
+      setMomoRedirecting(false);
+      setPayosRedirecting(false);
+      setPaypalRedirecting(false);
       const msg = err?.response?.data?.message || err?.response?.data?.error || err?.message || t("payment.initFailed");
       setInitError(msg);
     } finally {
@@ -158,7 +223,11 @@ const Payment = () => {
   // ── Cancel ───────────────────────────────────────────────
   const handleCancel = async () => {
     if (paymentData?.payment?.payment_code) {
-      try { await cancelPayment(paymentData.payment.payment_code); } catch (_) {}
+      try {
+        await cancelPayment(paymentData.payment.payment_code);
+      } catch {
+        // User is leaving the checkout either way.
+      }
     }
     navigate("/");
   };
@@ -226,6 +295,40 @@ const Payment = () => {
   return (
     <>
       <NavBar />
+
+      {momoRedirecting && (
+        <div className={styles.momoOverlay}>
+          <div className={styles.momoOverlayCard}>
+            <img src={momoImg} alt="MoMo" className={styles.momoOverlayLogo} />
+            <div className={styles.momoOverlaySpinner} />
+            <p className={styles.momoOverlayTitle}>{t("payment.connectingMomo")}</p>
+            <p className={styles.momoOverlayNote}>{t("payment.waitMomo")}</p>
+          </div>
+        </div>
+      )}
+
+      {payosRedirecting && (
+        <div className={styles.momoOverlay}>
+          <div className={styles.momoOverlayCard}>
+            <img src={vietqrImg} alt="PayOS" className={styles.momoOverlayLogo} />
+            <div className={styles.momoOverlaySpinner} />
+            <p className={styles.momoOverlayTitle}>{t("payment.connectingPayos")}</p>
+            <p className={styles.momoOverlayNote}>{t("payment.waitPayos")}</p>
+          </div>
+        </div>
+      )}
+
+      {paypalRedirecting && (
+        <div className={styles.momoOverlay}>
+          <div className={styles.momoOverlayCard}>
+            <img src={paypalImg} alt="PayPal" className={styles.momoOverlayLogo} />
+            <div className={styles.momoOverlaySpinner} />
+            <p className={styles.momoOverlayTitle}>{t("payment.connectingPaypal")}</p>
+            <p className={styles.momoOverlayNote}>{t("payment.waitPaypal")}</p>
+          </div>
+        </div>
+      )}
+
       <div className={styles.wrapper}>
         <div className={styles.layout}>
 
@@ -384,6 +487,24 @@ const Payment = () => {
                     </button>
                   ))}
                 </div>
+
+                {selectedMethod === "MOMO" && (
+                  <div className={styles.momoMethodNote}>
+                    <span>📱</span>
+                    <span>
+                      You will be redirected to MoMo. On desktop, scan the QR or choose MoMo Wallet on the MoMo page.
+                    </span>
+                  </div>
+                )}
+
+                {selectedMethod === "PAYPAL" && (
+                  <div className={styles.momoMethodNote}>
+                    <span>💳</span>
+                    <span>
+                      You will be redirected to PayPal. After payment, PayPal will redirect you back to Vivudee.
+                    </span>
+                  </div>
+                )}
               </div>
             )}
 
@@ -504,12 +625,34 @@ const Payment = () => {
               /* Before init — show preview */
               <div className={styles.qrCard}>
                 <div className={styles.qrHeader}>
-                  <img src={vietqrImg} alt="VietQR" className={styles.vietqrLogo} />
+                  {selectedMethod === "MOMO" && (
+                    <img src={momoImg} alt="MoMo" className={styles.momoLogoPreview} />
+                  )}
+                  {selectedMethod === "PAYPAL" && (
+                    <img src={paypalImg} alt="PayPal" className={styles.momoLogoPreview} />
+                  )}
+                  {selectedMethod === "BANK_QR" && (
+                    <img src={vietqrImg} alt="PayOS" className={styles.vietqrLogo} />
+                  )}
                 </div>
                 <div className={styles.qrPreview}>
-                  <div className={styles.qrPreviewIcon}>📱</div>
-                  <p>{t("payment.qrPreviewText")}</p>
-                  <p className={styles.qrPreviewSub}>{t("payment.qrPreviewSub")}</p>
+                  <div className={styles.qrPreviewIcon}>
+                    {selectedMethod === "MOMO" ? "📲" : selectedMethod === "PAYPAL" ? "💳" : "📱"}
+                  </div>
+                  <p>
+                    {selectedMethod === "MOMO"
+                      ? "You will be redirected to MoMo to complete payment"
+                      : selectedMethod === "PAYPAL"
+                        ? "You will be redirected to PayPal to complete payment"
+                        : t("payment.qrPreviewText")}
+                  </p>
+                  <p className={styles.qrPreviewSub}>
+                    {selectedMethod === "MOMO"
+                      ? "After payment, MoMo will redirect you back to Vivudee."
+                      : selectedMethod === "PAYPAL"
+                        ? "After payment, PayPal will redirect you back to Vivudee."
+                        : t("payment.qrPreviewSub")}
+                  </p>
                 </div>
 
                 <div className={styles.contactCard}>

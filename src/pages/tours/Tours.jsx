@@ -1,6 +1,5 @@
 // src/pages/tours/Tours.jsx
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
@@ -90,7 +89,6 @@ const SAMPLE_TOURS = [
 const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n);
 
 const Tours = () => {
-  const navigate  = useNavigate();
   const { t }     = useTranslation();
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("popular");
