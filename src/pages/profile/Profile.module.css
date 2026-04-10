@@ -155,6 +155,97 @@
 .formGroup select:focus { border-color: #1a6bc4; }
 .disabled { background: var(--bg-muted) !important; color: var(--text-muted); cursor: not-allowed; }
 
+.profileLoading {
+  padding: 36px 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.avatarEditor {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  background: var(--bg-subtle);
+  margin-bottom: 20px;
+}
+
+.avatarPreview {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(26, 107, 196, 0.25);
+  background: var(--card-bg);
+  flex-shrink: 0;
+}
+
+.avatarActions {
+  flex: 1;
+  min-width: 0;
+}
+
+.avatarTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin: 0 0 4px;
+}
+
+.avatarHint {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+
+.avatarButtonRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.avatarUploadBtn,
+.avatarRemoveBtn {
+  height: 36px;
+  border-radius: 9px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.avatarUploadBtn {
+  display: inline-flex;
+  align-items: center;
+  background: #1a6bc4;
+  color: #fff;
+  border: none;
+  overflow: hidden;
+  position: relative;
+}
+
+.avatarUploadBtn input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.avatarRemoveBtn {
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid #fca5a5;
+}
+
+.avatarUrlGroup {
+  margin-bottom: 16px;
+}
+
 .saveBtn {
   height: 48px;
   padding: 0 32px;
@@ -422,6 +513,8 @@
 @media (max-width: 480px) {
   .wrapper { padding: 20px 14px 60px; }
   .card { padding: 20px 16px; }
+  .avatarEditor { flex-direction: column; text-align: center; }
+  .avatarButtonRow { justify-content: center; }
   .securityItem { flex-direction: column; align-items: flex-start; gap: 10px; }
   .modalBox { padding: 22px 18px; }
   .otpInputs { gap: 4px; }

@@ -8,6 +8,14 @@ import API from "../../services/axiosInstance";
 import { forgotPassword, resetPassword } from "../../services/authService";
 import styles from "./Profile.module.css";
 
+const getAvatarFallbackUrl = (name) =>
+  `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "User")}&background=1a6bc4&color=fff&size=128`;
+
+const normalizeDateInput = (value) => {
+  if (!value) return "";
+  return String(value).slice(0, 10);
+};
+
 const Profile = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(() => {
@@ -19,8 +27,10 @@ const Profile = () => {
     date_of_birth: user?.date_of_birth || "",
     gender:        user?.gender || "",
     address:       user?.address || "",
+    avatar_url:    user?.avatar_url || "",
   });
   const [loading, setLoading]   = useState(false);
+  const [profileLoading, setProfileLoading] = useState(true);
   const [success, setSuccess]   = useState("");
   const [error, setError]       = useState("");
   const [activeTab, setActiveTab] = useState("info");
@@ -44,6 +54,51 @@ const Profile = () => {
   }, [navigate]);
 
   useEffect(() => {
+    if (!localStorage.getItem("token")) return;
+
+    let active = true;
+
+    const loadProfile = async () => {
+      setProfileLoading(true);
+      try {
+        const res = await API.get("/auth/me");
+        const freshUser = res.data?.user || res.data?.data || res.data;
+
+        if (!active || !freshUser) return;
+
+        const normalizedUser = {
+          ...freshUser,
+          date_of_birth: normalizeDateInput(freshUser.date_of_birth),
+        };
+
+        setUser(normalizedUser);
+        setForm({
+          full_name: normalizedUser.full_name || "",
+          phone: normalizedUser.phone || "",
+          date_of_birth: normalizedUser.date_of_birth || "",
+          gender: normalizedUser.gender || "",
+          address: normalizedUser.address || "",
+          avatar_url: normalizedUser.avatar_url || "",
+        });
+        localStorage.setItem("user", JSON.stringify(normalizedUser));
+        window.dispatchEvent(new Event("storage"));
+      } catch (err) {
+        if (active) {
+          setError(err?.response?.data?.message || err?.response?.data?.error || "Unable to load profile");
+        }
+      } finally {
+        if (active) setProfileLoading(false);
+      }
+    };
+
+    loadProfile();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!showChangePw || cpStep !== 2 || cpCountdown <= 0) return;
     const timer = setInterval(() => setCpCountdown((prev) => prev - 1), 1000);
     return () => clearInterval(timer);
@@ -55,10 +110,39 @@ const Profile = () => {
     return `${m}:${s}`;
   };
 
-  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.full_name || user?.email || "User")}&background=1a6bc4&color=fff&size=128`;
+  const avatarUrl = form.avatar_url || user?.avatar_url || getAvatarFallbackUrl(form.full_name || user?.email || "User");
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleAvatarFileChange = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setError("");
+    setSuccess("");
+
+    if (!file.type.startsWith("image/")) {
+      setError("Please choose an image file.");
+      return;
+    }
+
+    if (file.size > 700 * 1024) {
+      setError("Avatar image must be smaller than 700KB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm((prev) => ({ ...prev, avatar_url: String(reader.result || "") }));
+    };
+    reader.onerror = () => setError("Unable to read avatar image.");
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveAvatar = () => {
+    setForm((prev) => ({ ...prev, avatar_url: "" }));
   };
 
   const handleSave = async () => {
@@ -66,14 +150,35 @@ const Profile = () => {
     setError("");
     setSuccess("");
     try {
-      await API.put("/auth/profile", form);
-      const updated = { ...user, ...form };
+      const payload = {
+        ...form,
+        full_name: form.full_name.trim(),
+        phone: form.phone.trim(),
+        address: form.address.trim(),
+        avatar_url: form.avatar_url.trim(),
+      };
+
+      const res = await API.put("/auth/profile", payload);
+      const updated = {
+        ...user,
+        ...(res.data?.user || payload),
+        date_of_birth: normalizeDateInput(res.data?.user?.date_of_birth || payload.date_of_birth),
+      };
+
       localStorage.setItem("user", JSON.stringify(updated));
       setUser(updated);
+      setForm({
+        full_name: updated.full_name || "",
+        phone: updated.phone || "",
+        date_of_birth: updated.date_of_birth || "",
+        gender: updated.gender || "",
+        address: updated.address || "",
+        avatar_url: updated.avatar_url || "",
+      });
       window.dispatchEvent(new Event("storage"));
       setSuccess("Profile updated successfully!");
     } catch (err) {
-      setError(err?.response?.data?.message || "Update failed");
+      setError(err?.response?.data?.message || err?.response?.data?.error || "Update failed");
     } finally {
       setLoading(false);
     }
@@ -233,6 +338,37 @@ const Profile = () => {
                 {success && <div className={styles.successMsg}>{success}</div>}
                 {error   && <div className={styles.errorMsg}>{error}</div>}
 
+                {profileLoading ? (
+                  <div className={styles.profileLoading}>Loading profile...</div>
+                ) : (
+                  <>
+                <div className={styles.avatarEditor}>
+                  <img src={avatarUrl} alt="avatar preview" className={styles.avatarPreview} />
+                  <div className={styles.avatarActions}>
+                    <p className={styles.avatarTitle}>Profile photo</p>
+                    <p className={styles.avatarHint}>Upload a small JPG/PNG/WebP image or paste an image URL.</p>
+                    <div className={styles.avatarButtonRow}>
+                      <label className={styles.avatarUploadBtn}>
+                        Upload Image
+                        <input type="file" accept="image/*" onChange={handleAvatarFileChange} />
+                      </label>
+                      <button type="button" className={styles.avatarRemoveBtn} onClick={handleRemoveAvatar}>
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={`${styles.formGroup} ${styles.fullWidth} ${styles.avatarUrlGroup}`}>
+                  <label>Avatar URL</label>
+                  <input
+                    name="avatar_url"
+                    value={form.avatar_url}
+                    onChange={handleChange}
+                    placeholder="https://example.com/avatar.jpg"
+                  />
+                </div>
+
                 <div className={styles.formGrid}>
                   <div className={styles.formGroup}>
                     <label>Full Name</label>
@@ -268,6 +404,8 @@ const Profile = () => {
                 <button className={styles.saveBtn} onClick={handleSave} disabled={loading}>
                   {loading ? "Saving..." : "Save Changes"}
                 </button>
+                  </>
+                )}
               </div>
             )}
 

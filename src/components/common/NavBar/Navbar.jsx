@@ -42,9 +42,10 @@ function NavBar() {
   });
   const [token, setToken] = useState(() => localStorage.getItem("token"));
 
-  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+  const fallbackAvatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
     user?.full_name || user?.email || "User",
   )}&background=0e81cd&color=fff`;
+  const avatarUrl = user?.avatar_url || fallbackAvatarUrl;
 
   const menuRef = useRef(null);
 
