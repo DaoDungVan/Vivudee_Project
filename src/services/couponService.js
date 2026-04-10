@@ -21,9 +21,29 @@ const featuredCouponsFallback = [
   },
 ];
 
+const toFiniteNumber = (value) => {
+  if (value === undefined || value === null || value === "") {
+    return null;
+  }
+
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+};
+
+const firstFiniteNumber = (...values) => {
+  for (const value of values) {
+    const number = toFiniteNumber(value);
+    if (number !== null) {
+      return number;
+    }
+  }
+
+  return null;
+};
+
 // Format số tiền theo định dạng Việt Nam. Ví dụ: 50000 → "50.000"
 const formatMoney = (value) =>
-  new Intl.NumberFormat("vi-VN").format(Number(value || 0));
+  new Intl.NumberFormat("vi-VN").format(toFiniteNumber(value) ?? 0);
 
 // Backend có thể trả về coupon trong nhiều cấu trúc khác nhau:
 // [array], { coupons: [] }, { data: [] }, { items: [] }
@@ -40,20 +60,25 @@ const extractCouponList = (payload) => {
 // Tại sao cần? Vì backend có thể gửi "discount_percent" hoặc "discount_value" tuỳ endpoint.
 // Hàm này đảm bảo component luôn nhận được cùng một cấu trúc.
 export const normalizeCoupon = (coupon = {}) => {
+  const type = String(coupon.discount_type || coupon.type || "").toLowerCase();
+  const value = toFiniteNumber(coupon.discount_value ?? coupon.value);
+
   // Lấy % giảm giá: ưu tiên discount_percent, nếu không có thì kiểm tra discount_type
-  const percent =
-    coupon.discount_percent ??
-    (coupon.discount_type === "percent" ? coupon.discount_value : null);
+  const percent = firstFiniteNumber(
+    coupon.discount_percent,
+    type === "percent" ? value : null
+  );
 
   // Lấy số tiền giảm cố định
-  const amount =
-    coupon.discount_amount ??
-    (coupon.discount_type === "amount" ? coupon.discount_value : null);
+  const amount = firstFiniteNumber(
+    coupon.discount_amount,
+    type === "amount" || type === "fixed" ? value : null
+  );
 
   // Tạo nhãn hiển thị: "30% OFF" hoặc "50.000 VND OFF"
-  const discountLabel = percent
+  const discountLabel = percent !== null
     ? `${percent}% OFF`
-    : amount
+    : amount !== null
       ? `${formatMoney(amount)} VND OFF`
       : coupon.discount || "Special offer";
 
@@ -62,8 +87,12 @@ export const normalizeCoupon = (coupon = {}) => {
     id: coupon.id || coupon.code || coupon.voucher_code,
     code: coupon.code || coupon.voucher_code || "",
     description: coupon.description || coupon.name || "Flight booking promotion",
+    discount_type: type || coupon.discount_type || coupon.type || "",
     discount_percent: percent ?? null,
     discount_amount: amount ?? null,
+    discount_value: value ?? null,
+    min_order_amount: firstFiniteNumber(coupon.min_order_amount, coupon.min_order),
+    expires_at: coupon.expires_at || coupon.expiry_at || null,
     discount: discountLabel,
   };
 };

@@ -11,7 +11,16 @@ import {
 } from "../../services/couponService";
 import styles from "./Coupons.module.css";
 
-const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n);
+const toFiniteNumber = (value) => {
+  if (value === undefined || value === null || value === "") {
+    return null;
+  }
+
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+};
+
+const fmt = (n) => new Intl.NumberFormat("vi-VN").format(toFiniteNumber(n) ?? 0);
 
 const Coupons = () => {
   const navigate = useNavigate();
@@ -59,8 +68,15 @@ const Coupons = () => {
   const copyCode = (code) => { navigator.clipboard.writeText(code).catch(() => {}); };
 
   const discountDisplay = (c) => {
-    if (c.discount_type === "percent" || c.discount_percent) return `-${c.discount_percent || c.discount_value}%`;
-    return `-${fmt(c.discount_amount || c.discount_value)} VND`;
+    const percent = toFiniteNumber(c.discount_percent);
+    const amount = toFiniteNumber(c.discount_amount);
+    const discountText = String(c.discount || "");
+
+    if (percent !== null) return `-${percent}%`;
+    if (amount !== null) return `-${fmt(amount)} VND`;
+    if (discountText && !/nan/i.test(discountText)) return discountText;
+
+    return "Special offer";
   };
 
   return (
