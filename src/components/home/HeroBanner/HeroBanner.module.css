@@ -71,6 +71,7 @@
 }
 
 .dots {
+  z-index: 0;
   display: flex;
   gap: 8px;
   margin-top: 24px;
