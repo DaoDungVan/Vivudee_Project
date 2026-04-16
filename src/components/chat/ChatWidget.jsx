@@ -194,7 +194,7 @@ function ChatWidget() {
       osc.type = "sine";
       osc.frequency.setValueAtTime(freq, startTime);
       gain.gain.setValueAtTime(0.001, startTime);
-      gain.gain.exponentialRampToValueAtTime(0.45, startTime + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.9, startTime + 0.008);
       gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
       osc.connect(gain);
       gain.connect(audioContext.destination);
