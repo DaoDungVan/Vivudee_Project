@@ -188,19 +188,23 @@ function ChatWidget() {
       await audioContext.resume();
     }
 
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+    const playNote = (freq, startTime, duration) => {
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, startTime);
+      gain.gain.setValueAtTime(0.001, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.45, startTime + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      osc.start(startTime);
+      osc.stop(startTime + duration);
+    };
 
-    oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
-    gainNode.gain.setValueAtTime(0.0001, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.08, audioContext.currentTime + 0.01);
-    gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.22);
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.24);
+    const t0 = audioContext.currentTime;
+    playNote(880, t0, 0.14);
+    playNote(1320, t0 + 0.15, 0.18);
   }, []);
 
   const defaultPrompts = [t("chat.prompt1"), t("chat.prompt2"), t("chat.prompt3")];
