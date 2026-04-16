@@ -146,13 +146,21 @@ function ChatWidget() {
     return () => window.removeEventListener("open-chat-widget", openWidget);
   }, []);
 
+  // Khi mở chat hoặc đổi tab → luôn scroll xuống bottom
   useEffect(() => {
-    if (!messagesRef.current) {
-      return;
-    }
-
+    if (!messagesRef.current) return;
     messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
-  }, [isOpen, mode, aiState.messages, supportState.messages]);
+  }, [isOpen, mode]);
+
+  // Khi có tin nhắn mới → chỉ auto-scroll nếu user đang ở gần bottom
+  useEffect(() => {
+    const el = messagesRef.current;
+    if (!el) return;
+    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    if (isNearBottom) {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, [aiState.messages, supportState.messages]);
 
   useEffect(() => {
     setMode("ai");
