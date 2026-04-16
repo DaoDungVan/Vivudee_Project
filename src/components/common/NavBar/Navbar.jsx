@@ -83,6 +83,11 @@ function NavBar() {
   };
 
   const closeMobile = () => setMobileOpen(false);
+  const openChatWidget = () => {
+    window.dispatchEvent(new Event("open-chat-widget"));
+    setShowMenu(false);
+    closeMobile();
+  };
 
   return (
     <nav className={styles.navbar}>
@@ -141,7 +146,7 @@ function NavBar() {
                     <p className={styles.icons} onClick={() => { navigate("/coupons"); setShowMenu(false); }}>
                       <FaTicketAlt /> {t("nav.coupons")}
                     </p>
-                    <p className={styles.icons} onClick={() => { navigate("/chat"); setShowMenu(false); }}>
+                    <p className={styles.icons} onClick={openChatWidget}>
                       <FaComments /> Chat
                     </p>
                     <hr className={styles.dividerLine} />
@@ -190,7 +195,7 @@ function NavBar() {
               <span onClick={() => { navigate("/my-booking"); closeMobile(); }}><FaPlane /> {t("nav.myBooking")}</span>
               <span onClick={() => { navigate("/transactions"); closeMobile(); }}><FaCreditCard /> {t("nav.transactions")}</span>
               <span onClick={() => { navigate("/coupons"); closeMobile(); }}><FaTicketAlt /> {t("nav.coupons")}</span>
-              <span onClick={() => { navigate("/chat"); closeMobile(); }}><FaComments /> Chat</span>
+              <span onClick={openChatWidget}><FaComments /> Chat</span>
               <span className={styles.mobileLogout} onClick={() => { handleLogout(); closeMobile(); }}><FaSignOutAlt /> {t("nav.logout")}</span>
             </>
           ) : (

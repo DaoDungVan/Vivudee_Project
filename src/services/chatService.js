@@ -1,4 +1,5 @@
 import API from "./axiosInstance";
+import { getChatAuthConfig } from "./chatSession";
 
 const asArray = (value) => (Array.isArray(value) ? value : []);
 
@@ -10,12 +11,7 @@ const unwrapPayload = (payload) => {
     return {};
   }
 
-  const candidates = [
-    payload,
-    payload.data,
-    payload.result,
-    payload.payload,
-  ].filter(isObject);
+  const candidates = [payload, payload.data, payload.result, payload.payload].filter(isObject);
 
   const matched =
     candidates.find((item) =>
@@ -39,7 +35,7 @@ const normalizeMessage = (message, fallbackRole = "assistant") => {
       id: createFallbackId("text"),
       content: message,
       sender_role: fallbackRole,
-      sender_name: fallbackRole === "user" ? "Bạn" : "Vivudee AI",
+      sender_name: fallbackRole === "user" ? "Ban" : "Vivudee AI",
       created_at: new Date().toISOString(),
     };
   }
@@ -69,18 +65,14 @@ const normalizeMessage = (message, fallbackRole = "assistant") => {
 
   return {
     ...message,
-    id:
-      message.id ||
-      message._id ||
-      message.message_id ||
-      createFallbackId(role),
+    id: message.id || message._id || message.message_id || createFallbackId(role),
     content,
     sender_role: role,
     sender_name:
       message.sender_name ||
       message.senderName ||
       message.name ||
-      (role === "user" ? "Bạn" : role === "assistant" ? "Vivudee AI" : "Admin"),
+      (role === "user" ? "Ban" : role === "assistant" ? "Vivudee AI" : "Admin"),
     created_at:
       message.created_at ||
       message.createdAt ||
@@ -101,9 +93,7 @@ export const normalizeChatPayload = (payload) => {
           ? data.items
           : [];
 
-  const normalizedMessages = messagesSource
-    .map((item) => normalizeMessage(item))
-    .filter(Boolean);
+  const normalizedMessages = messagesSource.map((item) => normalizeMessage(item)).filter(Boolean);
 
   const fallbackAssistant =
     normalizeMessage(data.assistant_message, "assistant") ||
@@ -112,27 +102,21 @@ export const normalizeChatPayload = (payload) => {
 
   return {
     conversation: isObject(data.conversation) ? data.conversation : null,
-    messages:
-      normalizedMessages.length > 0
-        ? normalizedMessages
-        : fallbackAssistant
-          ? [fallbackAssistant]
-          : [],
+    messages: normalizedMessages.length > 0 ? normalizedMessages : fallbackAssistant ? [fallbackAssistant] : [],
     quickReplies:
-      asArray(data.quick_replies).length > 0
-        ? data.quick_replies
-        : asArray(data.quickReplies),
+      asArray(data.quick_replies).length > 0 ? data.quick_replies : asArray(data.quickReplies),
     shouldContactAdmin: Boolean(
       data.should_contact_admin ??
-      data.shouldContactAdmin ??
-      data.escalate_to_admin ??
-      data.escalateToAdmin
+        data.shouldContactAdmin ??
+        data.escalate_to_admin ??
+        data.escalateToAdmin
     ),
   };
 };
 
-export const getAiConversation = () => API.get("/chat/ai");
-export const sendAiMessage = (data) => API.post("/chat/ai/message", data);
+export const getAiConversation = () => API.get("/chat/ai", getChatAuthConfig());
+export const sendAiMessage = (data) => API.post("/chat/ai/message", data, getChatAuthConfig());
 
-export const getSupportConversation = () => API.get("/chat/support");
-export const sendSupportMessage = (data) => API.post("/chat/support/message", data);
+export const getSupportConversation = () => API.get("/chat/support", getChatAuthConfig());
+export const sendSupportMessage = (data) =>
+  API.post("/chat/support/message", data, getChatAuthConfig());
