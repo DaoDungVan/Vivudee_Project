@@ -296,6 +296,25 @@
   transform: translateY(-1px);
 }
 
+/* Date wrapper */
+.dateWrapper {
+  position: relative;
+}
+
+.dateDisplay {
+  cursor: pointer;
+}
+
+.dateHidden {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+  top: 0;
+  left: 0;
+}
+
 /* Inline error */
 .searchError {
   margin-top: 14px;

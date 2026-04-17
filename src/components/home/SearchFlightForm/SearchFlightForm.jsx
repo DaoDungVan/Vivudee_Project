@@ -21,8 +21,11 @@ export default function SearchFlightForm({ initialData }) {
   const [activeInput, setActiveInput] = useState(null);
   const airportRef = useRef(null);
 
-  const [departureDate, setDepartureDate] = useState(initialData?.departureDate || "");
-  const [returnDate, setReturnDate] = useState(initialData?.returnDate || "");
+  const todayStr = new Date().toISOString().split("T")[0];
+  const nextWeekStr = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+
+  const [departureDate, setDepartureDate] = useState(initialData?.departureDate || todayStr);
+  const [returnDate, setReturnDate] = useState(initialData?.returnDate || nextWeekStr);
 
   const [passengers, setPassengers] = useState({
     adult: Number(initialData?.adults) || 1,
@@ -31,6 +34,14 @@ export default function SearchFlightForm({ initialData }) {
 
   const [showPassenger, setShowPassenger] = useState(false);
   const passengerRef = useRef(null);
+  const departureDateRef = useRef(null);
+  const returnDateRef = useRef(null);
+
+  const toDisplayDate = (isoDate) => {
+    if (!isoDate) return "";
+    const [y, m, d] = isoDate.split("-");
+    return `${d}/${m}/${y}`;
+  };
 
   const [seatClass, setSeatClass] = useState(initialData?.seatClass || "Economy");
   const [showSeatClass, setShowSeatClass] = useState(false);
@@ -51,6 +62,11 @@ export default function SearchFlightForm({ initialData }) {
         if (initialData) {
           setFrom(getAirportLabel(data, initialData.from));
           setTo(getAirportLabel(data, initialData.to));
+        } else {
+          const defaultFrom = data.find((a) => a.code === "SGN");
+          const defaultTo = data.find((a) => a.code === "BKK");
+          if (defaultFrom) setFrom(`${defaultFrom.city} (${defaultFrom.code})`);
+          if (defaultTo) setTo(`${defaultTo.city} (${defaultTo.code})`);
         }
       } catch (err) {
         console.log("ERROR airports:", err);
@@ -221,7 +237,7 @@ export default function SearchFlightForm({ initialData }) {
           <label>{t("search.departureCity")}</label>
           <input
             value={from}
-            placeholder={t("search.cityOrAirport")}
+            // placeholder={t("search.cityOrAirport")}
             onClick={() => openAirportList("from")}
             onChange={(e) => searchAirport(e.target.value, "from")}
           />
@@ -245,7 +261,7 @@ export default function SearchFlightForm({ initialData }) {
           <label>{t("search.destinationCity")}</label>
           <input
             value={to}
-            placeholder={t("search.cityOrAirport")}
+            // placeholder={t("search.cityOrAirport")}
             onClick={() => openAirportList("to")}
             onChange={(e) => searchAirport(e.target.value, "to")}
           />
@@ -263,13 +279,45 @@ export default function SearchFlightForm({ initialData }) {
 
         <div className={styles.field}>
           <label>{t("search.departureDate")}</label>
-          <input type="date" value={departureDate} min={today} onChange={(e) => { setDepartureDate(e.target.value); setSearchError(""); }} />
+          <div className={styles.dateWrapper}>
+            <input
+              type="text"
+              value={toDisplayDate(departureDate)}
+              readOnly
+              onClick={() => departureDateRef.current?.showPicker?.()}
+              className={styles.dateDisplay}
+            />
+            <input
+              ref={departureDateRef}
+              type="date"
+              value={departureDate}
+              min={today}
+              onChange={(e) => { setDepartureDate(e.target.value); setSearchError(""); }}
+              className={styles.dateHidden}
+            />
+          </div>
         </div>
 
         {tripType === "roundtrip" && (
           <div className={styles.field}>
             <label>{t("search.returnDate")}</label>
-            <input type="date" value={returnDate} min={departureDate || today} onChange={(e) => { setReturnDate(e.target.value); setSearchError(""); }} />
+            <div className={styles.dateWrapper}>
+              <input
+                type="text"
+                value={toDisplayDate(returnDate)}
+                readOnly
+                onClick={() => returnDateRef.current?.showPicker?.()}
+                className={styles.dateDisplay}
+              />
+              <input
+                ref={returnDateRef}
+                type="date"
+                value={returnDate}
+                min={departureDate || today}
+                onChange={(e) => { setReturnDate(e.target.value); setSearchError(""); }}
+                className={styles.dateHidden}
+              />
+            </div>
           </div>
         )}
 
