@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import { initPayment, getPaymentByCode, cancelPayment, buildVietQRUrl } from "../../services/paymentService";
+import { getAvailableCoupons, getCouponErrorMessage, validateCoupon } from "../../services/couponService";
 import styles from "./Payment.module.css";
 
 import visaImg   from "../../assets/images/payments/visa.png";
@@ -35,6 +36,27 @@ const formatCountdown = (expiresAt) => {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 };
 
+const estimateCouponDiscount = (coupon, totalAmount) => {
+  const total = Number(totalAmount) || 0;
+  const percent = Number(coupon?.discount_percent);
+  const amount = Number(coupon?.discount_amount);
+  const maxDiscount = Number(coupon?.max_discount);
+
+  if (Number.isFinite(percent) && percent > 0) {
+    const estimated = Math.round((total * percent) / 100);
+    if (Number.isFinite(maxDiscount) && maxDiscount > 0) {
+      return Math.min(estimated, maxDiscount);
+    }
+    return estimated;
+  }
+
+  if (Number.isFinite(amount) && amount > 0) {
+    return Math.min(amount, total);
+  }
+
+  return 0;
+};
+
 const Payment = () => {
   const navigate  = useNavigate();
   const { state } = useLocation();
@@ -54,6 +76,10 @@ const Payment = () => {
   const [couponError, setCouponError]       = useState("");
   const [couponApplied, setCouponApplied]   = useState(null);
   const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const [availableCoupons, setAvailableCoupons] = useState([]);
+  const [couponsLoading, setCouponsLoading] = useState(false);
+  const [couponApiError, setCouponApiError] = useState("");
+  const [showCouponList, setShowCouponList] = useState(true);
 
   const [paymentData, setPaymentData]       = useState(null);
   const [initLoading, setInitLoading]       = useState(false);
@@ -72,7 +98,13 @@ const Payment = () => {
   const bookingCode = bookingData?.booking_code;
   const heldUntil   = bookingData?.held_until;
 
-  const finalAmount = couponApplied?.final_amount ?? totalPrice;
+  const estimatedDiscountAmount =
+    paymentData?.payment?.discount_amount ??
+    couponApplied?.estimated_discount_amount ??
+    0;
+  const finalAmount =
+    paymentData?.payment?.final_amount ??
+    Math.max((totalPrice || 0) - estimatedDiscountAmount, 0);
 
   // ── Held seat countdown ──────────────────────────────────
   useEffect(() => {
@@ -84,6 +116,34 @@ const Payment = () => {
     }, 1000);
     return () => clearInterval(iv);
   }, [heldUntil]);
+
+  useEffect(() => {
+    if (paymentData) return;
+
+    let active = true;
+
+    const loadCoupons = async () => {
+      setCouponsLoading(true);
+      try {
+        const coupons = await getAvailableCoupons();
+        if (!active) return;
+        setAvailableCoupons(coupons);
+        setCouponApiError("");
+      } catch (err) {
+        if (!active) return;
+        setAvailableCoupons([]);
+        setCouponApiError(getCouponErrorMessage(err, "Unable to load available coupons."));
+      } finally {
+        if (active) setCouponsLoading(false);
+      }
+    };
+
+    loadCoupons();
+
+    return () => {
+      active = false;
+    };
+  }, [paymentData]);
 
   // ── Poll payment status ──────────────────────────────────
   useEffect(() => {
@@ -114,17 +174,45 @@ const Payment = () => {
   }
 
   // ── Apply coupon ─────────────────────────────────────────
+  const applyCouponSelection = (coupon) => {
+    const minOrderAmount = Number(coupon?.min_order_amount) || 0;
+
+    if (minOrderAmount > 0 && Number(totalPrice || 0) < minOrderAmount) {
+      setCouponError(`${t("payment.minOrderError")} (${fmt(minOrderAmount)})`);
+      return false;
+    }
+
+    const estimated = estimateCouponDiscount(coupon, totalPrice);
+
+    setCouponApplied({
+      ...coupon,
+      code: coupon.code,
+      voucher_code: coupon.code,
+      estimated_discount_amount: estimated,
+      final_amount: Math.max((totalPrice || 0) - estimated, 0),
+    });
+    setCouponCode(coupon.code || "");
+    setCouponError("");
+    return true;
+  };
+
   const handleApplyCoupon = async () => {
-    if (!couponCode.trim()) {
+    const normalizedCode = couponCode.trim().toUpperCase();
+
+    if (!normalizedCode) {
       setCouponError(t("payment.enterCouponError"));
       return;
     }
     setApplyingCoupon(true);
     setCouponError("");
-    setTimeout(() => {
-      setCouponApplied({ code: couponCode.trim(), voucher_code: couponCode.trim() });
+    try {
+      const coupon = await validateCoupon(normalizedCode);
+      applyCouponSelection(coupon);
+    } catch (err) {
+      setCouponError(getCouponErrorMessage(err, "Invalid or expired coupon code"));
+    } finally {
       setApplyingCoupon(false);
-    }, 600);
+    }
   };
 
   const handleRemoveCoupon = () => {
@@ -415,10 +503,10 @@ const Payment = () => {
                 </div>
               )}
 
-              {couponApplied && paymentData?.payment?.discount_amount > 0 && (
+              {couponApplied && estimatedDiscountAmount > 0 && (
                 <div className={`${styles.invoiceRowSmall} ${styles.discountRow}`}>
                   <span>{t("payment.discountCode", { code: couponApplied.code })}</span>
-                  <span>- {fmt(paymentData.payment.discount_amount)}</span>
+                  <span>- {fmt(estimatedDiscountAmount)}</span>
                 </div>
               )}
 
@@ -431,12 +519,28 @@ const Payment = () => {
             {/* Coupon */}
             {!paymentData && (
               <div className={styles.couponCard}>
-                <h3 className={styles.couponTitle}>{t("payment.promoCode")}</h3>
+                <div className={styles.couponCardHeader}>
+                  <h3 className={styles.couponTitle}>{t("payment.promoCode")}</h3>
+                  {availableCoupons.length > 0 && (
+                    <button
+                      type="button"
+                      className={styles.showCouponsBtn}
+                      onClick={() => setShowCouponList((prev) => !prev)}
+                    >
+                      {showCouponList ? "Hide offers" : "Show offers"}
+                    </button>
+                  )}
+                </div>
                 {couponApplied ? (
                   <div className={styles.couponApplied}>
                     <div className={styles.couponAppliedInfo}>
                       <span className={styles.couponTag}>✓ {couponApplied.code}</span>
-                      <span className={styles.couponDiscount}>{t("payment.applied")}</span>
+                      <span className={styles.couponDiscount}>
+                        {t("payment.applied")}
+                        {couponApplied.estimated_discount_amount > 0
+                          ? ` - ${fmt(couponApplied.estimated_discount_amount)}`
+                          : ""}
+                      </span>
                     </div>
                     <button className={styles.couponRemoveBtn} onClick={handleRemoveCoupon}>
                       {t("payment.remove")}
@@ -444,6 +548,50 @@ const Payment = () => {
                   </div>
                 ) : (
                   <>
+                    {couponApiError && <p className={styles.couponApiError}>{couponApiError}</p>}
+                    {couponsLoading ? (
+                      <p className={styles.couponsLoadingText}>{t("payment.loading")}</p>
+                    ) : (
+                      showCouponList &&
+                      availableCoupons.length > 0 && (
+                        <div className={styles.couponListBox}>
+                          {availableCoupons.map((coupon) => {
+                            const minOrderAmount = Number(coupon.min_order_amount) || 0;
+                            const minOrderMet =
+                              minOrderAmount <= 0 || Number(totalPrice || 0) >= minOrderAmount;
+
+                            return (
+                              <div
+                                key={coupon.id || coupon.code}
+                                className={`${styles.couponListItem} ${!minOrderMet ? styles.couponListItemDisabled : ""}`}
+                              >
+                                <div className={styles.couponListLeft}>
+                                  <span className={styles.couponListCode}>{coupon.code}</span>
+                                  <span className={styles.couponListDesc}>
+                                    {coupon.discount || coupon.description}
+                                  </span>
+                                  {minOrderAmount > 0 && (
+                                    <span
+                                      className={`${styles.couponListMin} ${!minOrderMet ? styles.couponListMinNotMet : ""}`}
+                                    >
+                                      Min order: {fmt(minOrderAmount)}
+                                    </span>
+                                  )}
+                                </div>
+                                <button
+                                  type="button"
+                                  className={`${styles.couponListUseBtn} ${!minOrderMet ? styles.couponListUseBtnDisabled : ""}`}
+                                  onClick={() => applyCouponSelection(coupon)}
+                                  disabled={!minOrderMet}
+                                >
+                                  Use now
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )
+                    )}
                     <div className={styles.couponInputRow}>
                       <input
                         type="text"
