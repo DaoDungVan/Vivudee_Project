@@ -52,7 +52,7 @@ const Register = () => {
       newErrors.phone = "Invalid phone number (e.g. 0901234567)";
     if (!password) newErrors.password = "Password is required";
     else if (password.length < 8) newErrors.password = "Password must be at least 8 characters";
-    else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) newErrors.password = "Password must include uppercase, lowercase and a number";
+    else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?])/.test(password)) newErrors.password = "Password must include uppercase, lowercase, a number and a special character (!@#$%^&*...)";
     if (!confirmPassword) newErrors.confirmPassword = "Please confirm your password";
     else if (confirmPassword !== password) newErrors.confirmPassword = "Passwords do not match";
     return newErrors;
