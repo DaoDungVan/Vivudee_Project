@@ -8,12 +8,67 @@ import API from "../../services/axiosInstance";
 import { forgotPassword, resetPassword } from "../../services/authService";
 import styles from "./Profile.module.css";
 
+const MAX_AVATAR_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_AVATAR_DIMENSION = 512;
+const MAX_AVATAR_DATA_URL_LENGTH = 700000;
+
 const getAvatarFallbackUrl = (name) =>
   `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "User")}&background=1a6bc4&color=fff&size=128`;
 
 const normalizeDateInput = (value) => {
   if (!value) return "";
   return String(value).slice(0, 10);
+};
+
+const loadImageFromFile = (file) =>
+  new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new Image();
+
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(image);
+    };
+
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Unable to read avatar image."));
+    };
+
+    image.src = objectUrl;
+  });
+
+const resizeAvatarFile = async (file) => {
+  const image = await loadImageFromFile(file);
+  const longestSide = Math.max(image.width, image.height) || 1;
+  const scale = Math.min(1, MAX_AVATAR_DIMENSION / longestSide);
+  const width = Math.max(1, Math.round(image.width * scale));
+  const height = Math.max(1, Math.round(image.height * scale));
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+
+  const context = canvas.getContext("2d");
+  if (!context) {
+    throw new Error("Your browser does not support image upload.");
+  }
+
+  context.drawImage(image, 0, 0, width, height);
+
+  let quality = 0.88;
+  let output = canvas.toDataURL("image/jpeg", quality);
+
+  while (output.length > MAX_AVATAR_DATA_URL_LENGTH && quality > 0.5) {
+    quality -= 0.08;
+    output = canvas.toDataURL("image/jpeg", quality);
+  }
+
+  if (output.length > MAX_AVATAR_DATA_URL_LENGTH) {
+    throw new Error("Avatar image is still too large after optimization. Please choose a smaller image.");
+  }
+
+  return output;
 };
 
 const Profile = () => {
@@ -31,6 +86,7 @@ const Profile = () => {
   });
   const [loading, setLoading]   = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const [success, setSuccess]   = useState("");
   const [error, setError]       = useState("");
   const [activeTab, setActiveTab] = useState("info");
@@ -116,7 +172,7 @@ const Profile = () => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleAvatarFileChange = (event) => {
+  const handleAvatarFileChange = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -125,20 +181,28 @@ const Profile = () => {
 
     if (!file.type.startsWith("image/")) {
       setError("Please choose an image file.");
+      event.target.value = "";
       return;
     }
 
-    if (file.size > 700 * 1024) {
-      setError("Avatar image must be smaller than 700KB.");
+    if (file.size > MAX_AVATAR_FILE_SIZE) {
+      setError("Avatar image must be smaller than 5MB.");
+      event.target.value = "";
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setForm((prev) => ({ ...prev, avatar_url: String(reader.result || "") }));
-    };
-    reader.onerror = () => setError("Unable to read avatar image.");
-    reader.readAsDataURL(file);
+    setAvatarUploading(true);
+
+    try {
+      const optimizedAvatar = await resizeAvatarFile(file);
+      setForm((prev) => ({ ...prev, avatar_url: optimizedAvatar }));
+      setSuccess("Avatar image is ready. Click Save Changes to update your profile.");
+    } catch (uploadError) {
+      setError(uploadError?.message || "Unable to read avatar image.");
+    } finally {
+      setAvatarUploading(false);
+      event.target.value = "";
+    }
   };
 
   const handleRemoveAvatar = () => {
@@ -346,10 +410,12 @@ const Profile = () => {
                   <img src={avatarUrl} alt="avatar preview" className={styles.avatarPreview} />
                   <div className={styles.avatarActions}>
                     <p className={styles.avatarTitle}>Profile photo</p>
-                    <p className={styles.avatarHint}>Upload a small JPG/PNG/WebP image or paste an image URL.</p>
+                    <p className={styles.avatarHint}>
+                      Upload JPG/PNG/WebP from your device. The image will be optimized automatically before saving.
+                    </p>
                     <div className={styles.avatarButtonRow}>
-                      <label className={styles.avatarUploadBtn}>
-                        Upload Image
+                      <label className={`${styles.avatarUploadBtn} ${avatarUploading ? styles.avatarUploadBtnDisabled : ""}`}>
+                        {avatarUploading ? "Processing..." : "Upload Image"}
                         <input type="file" accept="image/*" onChange={handleAvatarFileChange} />
                       </label>
                       <button type="button" className={styles.avatarRemoveBtn} onClick={handleRemoveAvatar}>
