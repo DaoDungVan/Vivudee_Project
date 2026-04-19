@@ -425,16 +425,6 @@ const Profile = () => {
                   </div>
                 </div>
 
-                <div className={`${styles.formGroup} ${styles.fullWidth} ${styles.avatarUrlGroup}`}>
-                  <label>Avatar URL</label>
-                  <input
-                    name="avatar_url"
-                    value={form.avatar_url}
-                    onChange={handleChange}
-                    placeholder="https://example.com/avatar.jpg"
-                  />
-                </div>
-
                 <div className={styles.formGrid}>
                   <div className={styles.formGroup}>
                     <label>Full Name</label>
