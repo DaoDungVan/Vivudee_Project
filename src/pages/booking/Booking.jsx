@@ -26,6 +26,17 @@ const calcAge = (dob) => {
 
 const emptyPassenger = () => ({ fullName: "", dob: "", gender: "", idNumber: "" });
 
+// Dữ liệu mẫu để demo — đặt ngoài component tránh tạo lại mỗi render
+const SAMPLE_ADULTS = [
+  { fullName: "NGUYEN VAN AN",   dob: "1990-05-15", gender: "Male",   idNumber: "079090012345" },
+  { fullName: "TRAN THI BICH",   dob: "1995-08-20", gender: "Female", idNumber: "079095067890" },
+  { fullName: "LE MINH TUAN",    dob: "1988-12-03", gender: "Male",   idNumber: "079088034567" },
+];
+const SAMPLE_CHILDREN = [
+  { fullName: "NGUYEN MINH KHOA",   dob: "2016-03-10", gender: "Male",   idNumber: "079116001234" },
+  { fullName: "TRAN THI NGOC ANH",  dob: "2018-07-22", gender: "Female", idNumber: "079118002345" },
+];
+
 const Booking = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -65,6 +76,17 @@ const Booking = () => {
     setPaxList((prev) => {
       const next = [...prev];
       next[idx] = { ...next[idx], [field]: value };
+      return next;
+    });
+  };
+
+  // Điền toàn bộ dữ liệu mẫu vào một hành khách
+  const fillSample = (idx, isChild) => {
+    const samples = isChild ? SAMPLE_CHILDREN : SAMPLE_ADULTS;
+    const sampleIdx = isChild ? (idx - adultCount) % samples.length : idx % samples.length;
+    setPaxList((prev) => {
+      const next = [...prev];
+      next[idx] = { ...samples[sampleIdx] };
       return next;
     });
   };
@@ -238,9 +260,18 @@ const Booking = () => {
                 <div key={idx} className={styles.card}>
                   <div className={styles.cardHeader}>
                     <h3 className={styles.cardTitle}>{paxLabel}</h3>
-                    <span className={`${styles.paxBadge} ${isChild ? styles.childBadge : styles.adultBadge}`}>
-                      {isChild ? t("booking.child") : t("booking.adult")}
-                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <button
+                        type="button"
+                        className={styles.fillSampleBtn}
+                        onClick={() => fillSample(idx, isChild)}
+                      >
+                        Điền mẫu
+                      </button>
+                      <span className={`${styles.paxBadge} ${isChild ? styles.childBadge : styles.adultBadge}`}>
+                        {isChild ? t("booking.child") : t("booking.adult")}
+                      </span>
+                    </div>
                   </div>
 
                   <div className={styles.field}>
@@ -258,7 +289,10 @@ const Booking = () => {
 
                   <div className={styles.row2}>
                     <div className={styles.field}>
-                      <label className={styles.label}>{t("booking.dob")} <span className={styles.required}>*</span></label>
+                      <label className={styles.label}>
+                        {t("booking.dob")} <span className={styles.required}>*</span>
+                        <span className={styles.formatHint}> (dd/mm/yyyy)</span>
+                      </label>
                       <input
                         id={`${idx}_dob`}
                         type="date"

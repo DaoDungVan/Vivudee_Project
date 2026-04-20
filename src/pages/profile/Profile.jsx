@@ -20,6 +20,15 @@ const normalizeDateInput = (value) => {
   return String(value).slice(0, 10);
 };
 
+// Dữ liệu mẫu để demo — không cần nhập tay khi test
+const SAMPLE_PROFILE = {
+  full_name:     "Nguyen Van An",
+  phone:         "0901234567",
+  date_of_birth: "1990-05-15",
+  gender:        "male",
+  address:       "123 Nguyen Hue, Quan 1, TP. Ho Chi Minh",
+};
+
 const loadImageFromFile = (file) =>
   new Promise((resolve, reject) => {
     const objectUrl = URL.createObjectURL(file);
@@ -425,6 +434,22 @@ const Profile = () => {
                   </div>
                 </div>
 
+                <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "4px" }}>
+                  <button
+                    type="button"
+                    onClick={() => setForm((prev) => ({ ...prev, ...SAMPLE_PROFILE }))}
+                    style={{
+                      fontSize: "12px", fontWeight: 600,
+                      padding: "4px 14px", borderRadius: "20px",
+                      border: "1.5px dashed var(--primary-color)",
+                      background: "transparent", color: "var(--primary-color)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Điền dữ liệu mẫu
+                  </button>
+                </div>
+
                 <div className={styles.formGrid}>
                   <div className={styles.formGroup}>
                     <label>Full Name</label>
@@ -439,7 +464,7 @@ const Profile = () => {
                     <input name="phone" value={form.phone} onChange={handleChange} placeholder="0901234567" />
                   </div>
                   <div className={styles.formGroup}>
-                    <label>Date of Birth</label>
+                    <label>Date of Birth <span style={{ fontSize: "11px", fontWeight: 400, color: "var(--text-muted)" }}>(dd/mm/yyyy)</span></label>
                     <input name="date_of_birth" type="date" value={form.date_of_birth} onChange={handleChange} />
                   </div>
                   <div className={styles.formGroup}>
