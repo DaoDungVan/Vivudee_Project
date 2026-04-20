@@ -14,10 +14,34 @@ const formatTime = (iso) => {
   return match ? `${match[1]}:${match[2]}` : "--:--";
 };
 
+// yyyy-mm-dd → dd/mm/yyyy để hiển thị
+const toDisplayDob = (iso) => {
+  if (!iso) return "";
+  const [y, m, d] = iso.split("-");
+  if (!y || !m || !d) return iso;
+  return `${d}/${m}/${y}`;
+};
+
+// dd/mm/yyyy → yyyy-mm-dd để gửi backend
+const toISODate = (dob) => {
+  if (!dob) return null;
+  const match = dob.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (match) return `${match[3]}-${match[2]}-${match[1]}`;
+  return dob;
+};
+
 const calcAge = (dob) => {
   if (!dob) return null;
+  let birth;
+  // Hỗ trợ cả dd/mm/yyyy (input người dùng) và yyyy-mm-dd (từ backend)
+  const ddmmyyyy = dob.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (ddmmyyyy) {
+    birth = new Date(`${ddmmyyyy[3]}-${ddmmyyyy[2]}-${ddmmyyyy[1]}`);
+  } else {
+    birth = new Date(dob);
+  }
+  if (isNaN(birth)) return null;
   const today = new Date();
-  const birth = new Date(dob);
   let age = today.getFullYear() - birth.getFullYear();
   const m = today.getMonth() - birth.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
@@ -26,16 +50,42 @@ const calcAge = (dob) => {
 
 const emptyPassenger = () => ({ fullName: "", dob: "", gender: "", idNumber: "" });
 
-// Dữ liệu mẫu để demo — đặt ngoài component tránh tạo lại mỗi render
+// Dữ liệu mẫu để gợi ý khi demo — đặt ngoài component tránh tạo lại mỗi render
 const SAMPLE_ADULTS = [
-  { fullName: "NGUYEN VAN AN",   dob: "1990-05-15", gender: "Male",   idNumber: "079090012345" },
-  { fullName: "TRAN THI BICH",   dob: "1995-08-20", gender: "Female", idNumber: "079095067890" },
-  { fullName: "LE MINH TUAN",    dob: "1988-12-03", gender: "Male",   idNumber: "079088034567" },
+  { fullName: "NGUYEN VAN AN",  dob: "1990-05-15", gender: "Male",   idNumber: "079090012345" },
+  { fullName: "TRAN THI BICH",  dob: "1995-08-20", gender: "Female", idNumber: "079095067890" },
+  { fullName: "LE MINH TUAN",   dob: "1988-12-03", gender: "Male",   idNumber: "079088034567" },
 ];
 const SAMPLE_CHILDREN = [
-  { fullName: "NGUYEN MINH KHOA",   dob: "2016-03-10", gender: "Male",   idNumber: "079116001234" },
-  { fullName: "TRAN THI NGOC ANH",  dob: "2018-07-22", gender: "Female", idNumber: "079118002345" },
+  { fullName: "NGUYEN MINH KHOA",  dob: "2016-03-10", gender: "Male",   idNumber: "079116001234" },
+  { fullName: "TRAN THI NGOC ANH", dob: "2018-07-22", gender: "Female", idNumber: "079118002345" },
 ];
+
+// Ô input có gợi ý kiểu Google autofill:
+// — Khi click vào ô rỗng → hiện box nhỏ bên dưới với giá trị mẫu
+// — Click vào box → điền vào ô luôn
+// — onMouseDown + preventDefault để tránh blur trước khi click kịp xử lý
+const SuggestionInput = ({ suggestion, onFill, className, ...rest }) => {
+  const [show, setShow] = useState(false);
+  return (
+    <div style={{ position: "relative" }}>
+      <input
+        {...rest}
+        className={className}
+        onFocus={() => { if (suggestion && !rest.value) setShow(true); }}
+        onBlur={() => setTimeout(() => setShow(false), 150)}
+      />
+      {show && suggestion && (
+        <div
+          className={styles.suggestionBox}
+          onMouseDown={(e) => { e.preventDefault(); onFill(suggestion); setShow(false); }}
+        >
+          {suggestion}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Booking = () => {
   const navigate = useNavigate();
@@ -80,15 +130,16 @@ const Booking = () => {
     });
   };
 
-  // Điền toàn bộ dữ liệu mẫu vào một hành khách
-  const fillSample = (idx, isChild) => {
-    const samples = isChild ? SAMPLE_CHILDREN : SAMPLE_ADULTS;
-    const sampleIdx = isChild ? (idx - adultCount) % samples.length : idx % samples.length;
-    setPaxList((prev) => {
-      const next = [...prev];
-      next[idx] = { ...samples[sampleIdx] };
-      return next;
-    });
+  // Tự động thêm "/" khi nhập ngày sinh dạng dd/mm/yyyy
+  const handleDobChange = (idx, val) => {
+    const prev = paxList[idx].dob;
+    // Khi xóa thì không tự thêm "/"
+    if (val.length < prev.length) { updatePax(idx, "dob", val); return; }
+    let digits = val.replace(/[^\d]/g, "");
+    let formatted = digits;
+    if (digits.length >= 3) formatted = digits.slice(0, 2) + "/" + digits.slice(2);
+    if (digits.length >= 5) formatted = digits.slice(0, 2) + "/" + digits.slice(2, 4) + "/" + digits.slice(4, 8);
+    updatePax(idx, "dob", formatted.slice(0, 10));
   };
 
   const validate = () => {
@@ -98,6 +149,8 @@ const Booking = () => {
       if (!p.fullName.trim()) errs[`${i}_fullName`] = t("booking.required");
       if (!p.dob) {
         errs[`${i}_dob`] = t("booking.required");
+      } else if (!/^\d{2}\/\d{2}\/\d{4}$/.test(p.dob)) {
+        errs[`${i}_dob`] = "Định dạng không hợp lệ (dd/mm/yyyy)";
       } else {
         const age = calcAge(p.dob);
         if (!isChild && age < 14) errs[`${i}_dob`] = t("booking.adultAgeErr");
@@ -140,7 +193,7 @@ const Booking = () => {
         const base = {
           passenger_type: type,
           full_name: p.fullName,
-          date_of_birth: p.dob || null,
+          date_of_birth: toISODate(p.dob) || null,
           gender: p.gender?.toLowerCase() || null,
           passport_number: p.idNumber || null,
           extra_baggage_kg: baggage?.outbound || 0,
@@ -255,34 +308,31 @@ const Booking = () => {
               const paxLabel = isChild
                 ? t("booking.childN", { n: idx - adultCount + 1 })
                 : t("booking.adultN", { n: idx + 1 });
+              const sampleIdx = isChild
+                ? (idx - adultCount) % SAMPLE_CHILDREN.length
+                : idx % SAMPLE_ADULTS.length;
+              const sample = isChild ? SAMPLE_CHILDREN[sampleIdx] : SAMPLE_ADULTS[sampleIdx];
 
               return (
                 <div key={idx} className={styles.card}>
                   <div className={styles.cardHeader}>
                     <h3 className={styles.cardTitle}>{paxLabel}</h3>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <button
-                        type="button"
-                        className={styles.fillSampleBtn}
-                        onClick={() => fillSample(idx, isChild)}
-                      >
-                        Điền mẫu
-                      </button>
-                      <span className={`${styles.paxBadge} ${isChild ? styles.childBadge : styles.adultBadge}`}>
-                        {isChild ? t("booking.child") : t("booking.adult")}
-                      </span>
-                    </div>
+                    <span className={`${styles.paxBadge} ${isChild ? styles.childBadge : styles.adultBadge}`}>
+                      {isChild ? t("booking.child") : t("booking.adult")}
+                    </span>
                   </div>
 
                   <div className={styles.field}>
                     <label className={styles.label}>{t("booking.fullName")} <span className={styles.required}>*</span></label>
-                    <input
+                    <SuggestionInput
                       id={`${idx}_fullName`}
                       type="text"
                       placeholder={t("booking.fullNamePlaceholder")}
                       className={`${styles.input} ${errors[`${idx}_fullName`] ? styles.inputError : ""}`}
                       value={pax.fullName}
                       onChange={(e) => updatePax(idx, "fullName", e.target.value)}
+                      suggestion={sample.fullName}
+                      onFill={(val) => updatePax(idx, "fullName", val)}
                     />
                     {errors[`${idx}_fullName`] && <span className={styles.errMsg}>{errors[`${idx}_fullName`]}</span>}
                   </div>
@@ -293,12 +343,15 @@ const Booking = () => {
                         {t("booking.dob")} <span className={styles.required}>*</span>
                         <span className={styles.formatHint}> (dd/mm/yyyy)</span>
                       </label>
-                      <input
+                      <SuggestionInput
                         id={`${idx}_dob`}
-                        type="date"
+                        type="text"
+                        placeholder="dd/mm/yyyy"
                         className={`${styles.input} ${errors[`${idx}_dob`] ? styles.inputError : ""}`}
                         value={pax.dob}
-                        onChange={(e) => updatePax(idx, "dob", e.target.value)}
+                        onChange={(e) => handleDobChange(idx, e.target.value)}
+                        suggestion={toDisplayDob(sample.dob)}
+                        onFill={(val) => updatePax(idx, "dob", val)}
                       />
                       {errors[`${idx}_dob`] && <span className={styles.errMsg}>{errors[`${idx}_dob`]}</span>}
                     </div>
@@ -306,9 +359,9 @@ const Booking = () => {
                       <label className={styles.label}>{t("booking.gender")} <span className={styles.required}>*</span></label>
                       <div id={`${idx}_gender`} className={styles.genderGroup}>
                         {[
-                          { key: "Male", label: t("booking.male") },
+                          { key: "Male",   label: t("booking.male")   },
                           { key: "Female", label: t("booking.female") },
-                          { key: "Other", label: t("booking.other") },
+                          { key: "Other",  label: t("booking.other")  },
                         ].map((g) => (
                           <button
                             key={g.key}
@@ -326,13 +379,15 @@ const Booking = () => {
 
                   <div className={styles.field}>
                     <label className={styles.label}>{t("booking.idPassport")} <span className={styles.required}>*</span></label>
-                    <input
+                    <SuggestionInput
                       id={`${idx}_idNumber`}
                       type="text"
                       placeholder={t("booking.idPassportPlaceholder")}
                       className={`${styles.input} ${errors[`${idx}_idNumber`] ? styles.inputError : ""}`}
                       value={pax.idNumber}
                       onChange={(e) => updatePax(idx, "idNumber", e.target.value)}
+                      suggestion={sample.idNumber}
+                      onFill={(val) => updatePax(idx, "idNumber", val)}
                     />
                     {errors[`${idx}_idNumber`] && <span className={styles.errMsg}>{errors[`${idx}_idNumber`]}</span>}
                   </div>

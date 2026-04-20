@@ -94,19 +94,25 @@
   color: var(--text-muted);
 }
 
-.fillSampleBtn {
-  font-size: 12px;
-  font-weight: 600;
-  padding: 4px 12px;
-  border-radius: 20px;
-  border: 1.5px dashed var(--primary-color);
-  background: transparent;
-  color: var(--primary-color);
+.suggestionBox {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: var(--dropdown-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--text-primary);
   cursor: pointer;
-  transition: all 0.15s;
+  z-index: 100;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+  min-width: 100%;
+  transition: background 0.1s;
 }
-.fillSampleBtn:hover {
-  background: var(--secondary-color);
+.suggestionBox:hover {
+  background: var(--hover-bg);
 }
 
 .input {

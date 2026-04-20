@@ -20,14 +20,6 @@ const normalizeDateInput = (value) => {
   return String(value).slice(0, 10);
 };
 
-// Dữ liệu mẫu để demo — không cần nhập tay khi test
-const SAMPLE_PROFILE = {
-  full_name:     "Nguyen Van An",
-  phone:         "0901234567",
-  date_of_birth: "1990-05-15",
-  gender:        "male",
-  address:       "123 Nguyen Hue, Quan 1, TP. Ho Chi Minh",
-};
 
 const loadImageFromFile = (file) =>
   new Promise((resolve, reject) => {
@@ -432,22 +424,6 @@ const Profile = () => {
                       </button>
                     </div>
                   </div>
-                </div>
-
-                <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "4px" }}>
-                  <button
-                    type="button"
-                    onClick={() => setForm((prev) => ({ ...prev, ...SAMPLE_PROFILE }))}
-                    style={{
-                      fontSize: "12px", fontWeight: 600,
-                      padding: "4px 14px", borderRadius: "20px",
-                      border: "1.5px dashed var(--primary-color)",
-                      background: "transparent", color: "var(--primary-color)",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Điền dữ liệu mẫu
-                  </button>
                 </div>
 
                 <div className={styles.formGrid}>
