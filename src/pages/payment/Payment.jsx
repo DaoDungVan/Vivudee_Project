@@ -57,6 +57,9 @@ const estimateCouponDiscount = (coupon, totalAmount) => {
   return 0;
 };
 
+const isCompletedPaymentStatus = (status) =>
+  ["PAID", "SUCCESS", "COMPLETED", "CONFIRMED"].includes(String(status || "").toUpperCase());
+
 const Payment = () => {
   const navigate  = useNavigate();
   const { state } = useLocation();
@@ -152,8 +155,8 @@ const Payment = () => {
     const poll = async () => {
       try {
         const res = await getPaymentByCode(paymentData.payment.payment_code);
-        const status = res?.payment?.status?.toUpperCase();
-        if (["PAID","SUCCESS","COMPLETED","CONFIRMED"].includes(status)) {
+        const status = res?.payment?.status;
+        if (isCompletedPaymentStatus(status)) {
           if (active) setPaid(true);
         }
       } catch {
@@ -250,6 +253,16 @@ const Payment = () => {
         voucher_code:   couponApplied?.voucher_code || null,
       };
       const res = await initPayment(payload);
+      const paymentStatus = res?.payment?.status;
+
+      if (isCompletedPaymentStatus(paymentStatus)) {
+        setMomoRedirecting(false);
+        setPayosRedirecting(false);
+        setPaypalRedirecting(false);
+        setPaymentData(res);
+        setPaid(true);
+        return;
+      }
 
       if (selectedMethod === "MOMO") {
         const payUrl =
@@ -374,7 +387,7 @@ const Payment = () => {
           bankCode:        instruction.bank_code || "ICB",
           accountNumber:   bankAccount,
           accountName:     accountName,
-          amount:          paymentData?.payment?.final_amount || finalAmount,
+          amount:          paymentData?.payment?.final_amount ?? finalAmount,
           transferContent: transferContent,
         })
       : null);
@@ -741,7 +754,7 @@ const Payment = () => {
                     </div>
                     <div className={styles.bankRow}>
                       <span className={styles.bankLabel}>{t("payment.amountLabel")}</span>
-                      <span className={`${styles.bankValue} ${styles.bankAmount}`}>{fmt(paymentData.payment?.final_amount || finalAmount)}</span>
+                      <span className={`${styles.bankValue} ${styles.bankAmount}`}>{fmt(paymentData.payment?.final_amount ?? finalAmount)}</span>
                     </div>
                     <div className={styles.bankRow}>
                       <span className={styles.bankLabel}>{t("payment.referenceLabel")}</span>
