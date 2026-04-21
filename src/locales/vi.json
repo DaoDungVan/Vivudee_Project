@@ -59,7 +59,7 @@
     "select": "Chọn",
     "checkedBaggage": "🧳 {{kg}} kg hành lý ký gửi",
     "cabinBaggage": "🎒 {{kg}} kg hành lý xách tay",
-    "extraBaggage": "➕ Hành lý thêm: {{price}} VND",
+    "extraBaggage": "➕ Hành lý thêm: {{price}} VND/kg",
     "unknownAirline": "Hãng bay chưa rõ"
   },
   "flightSearch": {

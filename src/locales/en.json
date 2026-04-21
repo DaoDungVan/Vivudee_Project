@@ -59,7 +59,7 @@
     "select": "Select",
     "checkedBaggage": "🧳 {{kg}} kg checked baggage",
     "cabinBaggage": "🎒 {{kg}} kg cabin baggage",
-    "extraBaggage": "➕ Extra baggage: {{price}} VND",
+    "extraBaggage": "➕ Extra baggage: {{price}} VND/kg",
     "unknownAirline": "Unknown Airline"
   },
   "flightSearch": {

@@ -4,7 +4,19 @@ import { useTranslation } from "react-i18next";
 import styles from "./PassengerForm.module.css";
 
 const buildBaggageOptions = (flight, t) => {
-  const pricePerKg = flight?.seat?.extra_baggage_price || 250000;
+  const providedOptions = Array.isArray(flight?.seat?.extra_baggage_options)
+    ? flight.seat.extra_baggage_options
+    : [];
+
+  if (providedOptions.length > 0) {
+    return providedOptions.map((option) => ({
+      kg: Number(option?.kg || 0),
+      label: Number(option?.kg || 0) > 0 ? `+${option.kg} kg` : t("passengerForm.noExtra"),
+      price: Number(option?.price_per_person || 0),
+    }));
+  }
+
+  const pricePerKg = Number(flight?.seat?.extra_baggage_price ?? 0);
   return [
     { kg: 0, label: t("passengerForm.noExtra"), price: 0 },
     { kg: 5, label: "+5 kg", price: 5 * pricePerKg },
