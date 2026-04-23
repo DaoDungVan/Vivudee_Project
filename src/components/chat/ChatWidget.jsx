@@ -2,8 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FaCommentDots,
+  FaPaperclip,
   FaPaperPlane,
   FaRobot,
+  FaSmile,
   FaTimes,
   FaUserTie,
 } from "react-icons/fa";
@@ -15,19 +17,34 @@ import {
   sendSupportMessage,
 } from "../../services/chatService";
 import { createSocketConnection } from "../../services/socketService";
+import {
+  CHAT_ATTACHMENT_ACCEPT,
+  STICKER_PRESETS,
+  canAddSticker,
+  createAttachmentsFromFiles,
+  createStickerAttachment,
+  formatAttachmentSize,
+  getMessageAttachmentSignature,
+  getMessageAttachments,
+} from "../../utils/chatAttachments";
 import styles from "./ChatWidget.module.css";
 
-const createLocalMessage = (content, senderRole) => ({
+const createLocalMessage = (content, senderRole, attachments = []) => ({
   id: `local-${senderRole}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
   content,
   sender_role: senderRole,
   created_at: new Date().toISOString(),
   pending: true,
+  meta: {
+    attachments,
+  },
 });
 
 const messagesMatch = (left, right) =>
   left?.id === right?.id ||
-  (left?.content === right?.content && left?.sender_role === right?.sender_role);
+  (left?.content === right?.content &&
+    left?.sender_role === right?.sender_role &&
+    getMessageAttachmentSignature(left) === getMessageAttachmentSignature(right));
 
 const compareMessages = (left, right) => {
   const leftTime = new Date(left.created_at).getTime();
@@ -93,6 +110,10 @@ function ExpandableMessageText({ content, t }) {
   const text = String(content || "");
   const canCollapse = shouldCollapseMessage(text);
 
+  if (!text.trim()) {
+    return null;
+  }
+
   return (
     <>
       <p className={`${styles.messageText} ${canCollapse && !expanded ? styles.messageTextCollapsed : ""}`}>
@@ -111,11 +132,118 @@ function ExpandableMessageText({ content, t }) {
   );
 }
 
+function MessageAttachments({ message, t, onMediaLoad }) {
+  const attachments = getMessageAttachments(message);
+
+  if (attachments.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className={styles.attachmentList}>
+      {attachments.map((attachment, index) => {
+        const key = attachment.id || `${attachment.type}-${index}`;
+
+        if (attachment.type === "image" || attachment.type === "sticker") {
+          return (
+            <a
+              key={key}
+              className={`${styles.imageAttachment} ${
+                attachment.type === "sticker" ? styles.stickerAttachment : ""
+              }`}
+              href={attachment.data_url}
+              download={attachment.name || undefined}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <img
+                src={attachment.data_url}
+                alt={
+                  attachment.label ||
+                  attachment.name ||
+                  t("chat.attachmentImage", { defaultValue: "Anh dinh kem" })
+                }
+                onLoad={onMediaLoad}
+              />
+            </a>
+          );
+        }
+
+        return (
+          <a
+            key={key}
+            className={styles.fileAttachment}
+            href={attachment.data_url}
+            download={attachment.name || undefined}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <div className={styles.fileAttachmentTitle}>
+              {attachment.name || t("chat.attachmentFile", { defaultValue: "File dinh kem" })}
+            </div>
+            <div className={styles.fileAttachmentMeta}>
+              <span>{attachment.mime_type || t("chat.attachmentFile", { defaultValue: "File dinh kem" })}</span>
+              <span>{formatAttachmentSize(attachment.size)}</span>
+            </div>
+            <span className={styles.fileAttachmentLink}>
+              {t("chat.downloadFile", { defaultValue: "Tai file" })}
+            </span>
+          </a>
+        );
+      })}
+    </div>
+  );
+}
+
+function AttachmentPreviewList({ attachments, onRemove, t }) {
+  if (!attachments.length) {
+    return null;
+  }
+
+  return (
+    <div className={styles.composerPreviewList}>
+      {attachments.map((attachment) => (
+        <div key={attachment.id} className={styles.composerPreviewItem}>
+          {attachment.type === "image" || attachment.type === "sticker" ? (
+            <img
+              className={`${styles.composerPreviewThumb} ${
+                attachment.type === "sticker" ? styles.composerPreviewSticker : ""
+              }`}
+              src={attachment.data_url}
+              alt={
+                attachment.label ||
+                attachment.name ||
+                t("chat.attachmentImage", { defaultValue: "Anh dinh kem" })
+              }
+            />
+          ) : (
+            <div className={styles.composerPreviewFile}>{attachment.name?.slice(0, 2).toUpperCase() || "FI"}</div>
+          )}
+          <div className={styles.composerPreviewMeta}>
+            <strong>{attachment.label || attachment.name}</strong>
+            <span>{attachment.type === "file" ? formatAttachmentSize(attachment.size) : attachment.type}</span>
+          </div>
+          <button
+            type="button"
+            className={styles.composerPreviewRemove}
+            onClick={() => onRemove(attachment.id)}
+            aria-label={t("chat.removeAttachment", { defaultValue: "Xoa dinh kem" })}
+          >
+            <FaTimes />
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function ChatWidget() {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState("ai");
   const [draft, setDraft] = useState("");
+  const [attachments, setAttachments] = useState([]);
+  const [isStickerPickerOpen, setIsStickerPickerOpen] = useState(false);
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
   const [authToken, setAuthToken] = useState(() => localStorage.getItem("token"));
@@ -133,6 +261,7 @@ function ChatWidget() {
   });
 
   const messagesRef = useRef(null);
+  const fileInputRef = useRef(null);
   const suppressSocketRefreshRef = useRef({ ai: 0, support: 0 });
   const audioContextRef = useRef(null);
   const audioUnlockedRef = useRef(false);
@@ -177,24 +306,31 @@ function ChatWidget() {
     return () => window.removeEventListener("open-chat-widget", openWidget);
   }, []);
 
-  // Khi mở chat hoặc đổi tab → luôn scroll xuống bottom
   useEffect(() => {
-    if (!messagesRef.current) return;
+    if (!messagesRef.current) {
+      return;
+    }
+
     messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
   }, [isOpen, mode]);
 
-  // Khi có tin nhắn mới → chỉ auto-scroll nếu user đang ở gần bottom
   useEffect(() => {
-    const el = messagesRef.current;
-    if (!el) return;
-    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    const element = messagesRef.current;
+    if (!element) {
+      return;
+    }
+
+    const isNearBottom = element.scrollHeight - element.scrollTop - element.clientHeight < 80;
     if (isNearBottom) {
-      el.scrollTop = el.scrollHeight;
+      element.scrollTop = element.scrollHeight;
     }
   }, [aiState.messages, supportState.messages]);
 
   useEffect(() => {
     setMode("ai");
+    setDraft("");
+    setAttachments([]);
+    setIsStickerPickerOpen(false);
     setAiState({
       conversation: null,
       messages: [],
@@ -207,6 +343,15 @@ function ChatWidget() {
     setUnread({ ai: 0, support: 0 });
     setError("");
   }, [authToken]);
+
+  useEffect(() => {
+    if (mode !== "support" && attachments.length > 0) {
+      setAttachments([]);
+    }
+    if (mode !== "support") {
+      setIsStickerPickerOpen(false);
+    }
+  }, [attachments.length, mode]);
 
   const playNotificationSound = useCallback(async () => {
     if (!audioUnlockedRef.current) {
@@ -265,6 +410,7 @@ function ChatWidget() {
   const supportStatus = supportState.conversation?.status || "open";
   const supportUnread = unread.support;
   const totalUnread = unread.ai + unread.support;
+  const sendDisabled = (!draft.trim() && attachments.length === 0) || sending;
 
   const supportStatusLabel =
     t(`chat.subSupport_${supportStatus}`, "") || t("chat.subSupport_open");
@@ -337,8 +483,7 @@ function ChatWidget() {
     } catch (requestError) {
       if (!silent) {
         setError(
-          requestError?.response?.data?.message ||
-            requestError?.response?.data?.error ||
+          requestError?.response?.data?.error ||
             requestError?.message ||
             t("chat.errLoad")
         );
@@ -348,7 +493,7 @@ function ChatWidget() {
         setLoading((previous) => ({ ...previous, [tab]: false }));
       }
     }
-  }, [applyConversationData]);
+  }, [applyConversationData, t]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -404,6 +549,7 @@ function ChatWidget() {
   const openAdminChat = useCallback(() => {
     setMode("support");
     setUnread((previous) => ({ ...previous, support: 0 }));
+    setIsStickerPickerOpen(false);
     setError("");
 
     const hasLoadedSupport =
@@ -413,14 +559,58 @@ function ChatWidget() {
     }
   }, [loadConversation]);
 
+  const handleAttachmentFileChange = async (event) => {
+    const files = event.target.files;
+    if (!files?.length) {
+      return;
+    }
+
+    try {
+      const nextAttachments = await createAttachmentsFromFiles(files, attachments.length);
+      setAttachments((previous) => [...previous, ...nextAttachments]);
+      setError("");
+    } catch (attachmentError) {
+      setError(attachmentError?.message || t("chat.errSend"));
+    } finally {
+      event.target.value = "";
+    }
+  };
+
+  const handleAddSticker = (sticker) => {
+    try {
+      canAddSticker(attachments.length);
+      const stickerAttachment = createStickerAttachment(sticker);
+      setAttachments((previous) => [...previous, stickerAttachment]);
+      setIsStickerPickerOpen(false);
+      setError("");
+    } catch (attachmentError) {
+      setError(attachmentError?.message || t("chat.errSend"));
+    }
+  };
+
+  const handleRemoveAttachment = (attachmentId) => {
+    setAttachments((previous) => previous.filter((attachment) => attachment.id !== attachmentId));
+  };
+
   const handleSend = async () => {
     const message = draft.trim();
-    if (!message || sending) {
+    const outgoingAttachments = attachments;
+
+    if ((!message && outgoingAttachments.length === 0) || sending) {
       return;
     }
 
     const channel = mode;
-    const optimisticMessage = createLocalMessage(message, "user");
+    if (channel !== "support" && outgoingAttachments.length > 0) {
+      setError(
+        t("chat.attachmentsOnlySupport", {
+          defaultValue: "Sticker, anh va file hien chi ho tro o khung chat voi admin.",
+        })
+      );
+      return;
+    }
+
+    const optimisticMessage = createLocalMessage(message, "user", outgoingAttachments);
     suppressSocketRefreshRef.current[channel] += 1;
 
     updateConversationState(channel, (previousState) => ({
@@ -429,13 +619,15 @@ function ChatWidget() {
     }));
 
     setDraft("");
+    setAttachments([]);
+    setIsStickerPickerOpen(false);
     setSending(true);
     setError("");
 
     try {
       const response =
         channel === "support"
-          ? await sendSupportMessage({ message })
+          ? await sendSupportMessage({ message, attachments: outgoingAttachments })
           : await sendAiMessage({ message });
       const data = normalizeChatPayload(response.data);
 
@@ -455,7 +647,6 @@ function ChatWidget() {
       if (channel === "ai" && data.shouldContactAdmin) {
         openAdminChat();
       }
-
     } catch (requestError) {
       suppressSocketRefreshRef.current[channel] = Math.max(
         0,
@@ -466,6 +657,7 @@ function ChatWidget() {
         preservePending: false,
       });
       setDraft(message);
+      setAttachments(outgoingAttachments);
       setError(
         requestError?.response?.data?.message ||
           requestError?.response?.data?.error ||
@@ -483,6 +675,18 @@ function ChatWidget() {
       handleSend();
     }
   };
+
+  const handleMediaLoad = useCallback(() => {
+    const element = messagesRef.current;
+    if (!element) {
+      return;
+    }
+
+    const isNearBottom = element.scrollHeight - element.scrollTop - element.clientHeight < 120;
+    if (isNearBottom) {
+      element.scrollTop = element.scrollHeight;
+    }
+  }, []);
 
   return (
     <div className={styles.root}>
@@ -524,21 +728,20 @@ function ChatWidget() {
                 {supportUnread > 0 && <em>{supportUnread}</em>}
               </button>
             ) : (
-              <>
-                <button
-                  type="button"
-                  className={styles.backToAiBtn}
-                  onClick={() => {
-                    setMode("ai");
-                    setUnread((previous) => ({ ...previous, ai: 0 }));
-                    setError("");
-                  }}
-                >
-                  <FaRobot />
-                  <span>{t("chat.switchToAi")}</span>
-                  {unread.ai > 0 && <em>{unread.ai}</em>}
-                </button>
-              </>
+              <button
+                type="button"
+                className={styles.backToAiBtn}
+                onClick={() => {
+                  setMode("ai");
+                  setUnread((previous) => ({ ...previous, ai: 0 }));
+                  setIsStickerPickerOpen(false);
+                  setError("");
+                }}
+              >
+                <FaRobot />
+                <span>{t("chat.switchToAi")}</span>
+                {unread.ai > 0 && <em>{unread.ai}</em>}
+              </button>
             )}
           </div>
 
@@ -594,6 +797,7 @@ function ChatWidget() {
                         <span>{senderName}</span>
                         <span>{formatMessageTime(message.created_at)}</span>
                       </div>
+                      <MessageAttachments message={message} t={t} onMediaLoad={handleMediaLoad} />
                       <ExpandableMessageText content={message.content} t={t} />
                     </div>
                   </div>
@@ -603,18 +807,76 @@ function ChatWidget() {
           </div>
 
           <div className={styles.composer}>
-            <textarea
-              value={draft}
-              rows={1}
-              onChange={(event) => setDraft(event.target.value)}
-              onKeyDown={handleComposerKeyDown}
-              placeholder={currentPlaceholder}
-            />
+            <div className={styles.composerMain}>
+              {mode === "support" && (
+                <>
+                  <AttachmentPreviewList
+                    attachments={attachments}
+                    onRemove={handleRemoveAttachment}
+                    t={t}
+                  />
+
+                  <div className={styles.composerTools}>
+                    <button
+                      type="button"
+                      className={styles.toolButton}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <FaPaperclip />
+                      <span>{t("chat.attachFiles", { defaultValue: "Anh / file" })}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`${styles.toolButton} ${isStickerPickerOpen ? styles.toolButtonActive : ""}`}
+                      onClick={() => setIsStickerPickerOpen((previous) => !previous)}
+                    >
+                      <FaSmile />
+                      <span>{t("chat.stickers", { defaultValue: "Sticker" })}</span>
+                    </button>
+                  </div>
+
+                  {isStickerPickerOpen && (
+                    <div className={styles.stickerPicker}>
+                      {STICKER_PRESETS.map((sticker) => (
+                        <button
+                          key={sticker.id}
+                          type="button"
+                          className={styles.stickerButton}
+                          onClick={() => handleAddSticker(sticker)}
+                          title={sticker.label}
+                        >
+                          <img src={sticker.dataUrl} alt={sticker.label} />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+
+              <textarea
+                value={draft}
+                rows={1}
+                onChange={(event) => setDraft(event.target.value)}
+                onKeyDown={handleComposerKeyDown}
+                placeholder={currentPlaceholder}
+              />
+
+              <input
+                ref={fileInputRef}
+                className={styles.hiddenInput}
+                type="file"
+                accept={CHAT_ATTACHMENT_ACCEPT}
+                multiple
+                onChange={handleAttachmentFileChange}
+              />
+            </div>
+
             <button
               type="button"
               className={styles.sendButton}
               onClick={handleSend}
-              disabled={!draft.trim() || sending}
+              disabled={sendDisabled}
             >
               <FaPaperPlane />
             </button>
