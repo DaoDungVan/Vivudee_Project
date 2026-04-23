@@ -7,6 +7,20 @@ const FlightCard = ({ flight, onSelect, isSelected }) => {
   const { t } = useTranslation();
 
   const formatPrice = (price) => new Intl.NumberFormat("vi-VN").format(price) + " VND";
+  const formatExtraBaggagePackages = (options = []) => {
+    const validOptions = Array.isArray(options)
+      ? options.filter((option) => Number(option?.kg || 0) > 0)
+      : [];
+
+    if (validOptions.length === 0) {
+      return formatPrice(0);
+    }
+
+    return validOptions
+      .sort((left, right) => Number(left?.kg || 0) - Number(right?.kg || 0))
+      .map((option) => `${option.kg}kg ${formatPrice(Number(option?.price_per_person || 0))}`)
+      .join(" · ");
+  };
 
   const formatTime = (iso) => {
     if (!iso) return "--:--";
@@ -82,7 +96,7 @@ const FlightCard = ({ flight, onSelect, isSelected }) => {
               <div className={styles.baggage}>
                 <p>{t("flightCard.checkedBaggage", { kg: flight?.seat?.baggage_included_kg || 0 })}</p>
                 <p>{t("flightCard.cabinBaggage", { kg: flight?.seat?.carry_on_kg || 0 })}</p>
-                <p>{t("flightCard.extraBaggage", { price: new Intl.NumberFormat("vi-VN").format(flight?.seat?.extra_baggage_price || 0) })}</p>
+                <p>{t("flightCard.extraBaggage", { options: formatExtraBaggagePackages(flight?.seat?.extra_baggage_options) })}</p>
               </div>
               <div className={styles.airportBlock}>
                 <h3>{flight?.arrival?.city} ({flight?.arrival?.code})</h3>
