@@ -57,13 +57,18 @@
 
 /* ─── Panel ─────────────────────────────────────────────────────────────── */
 .panel {
+  position: relative;
   width: min(380px, calc(100vw - 24px));
   max-width: calc(100vw - 24px);
   height: min(620px, calc(100vh - 190px));
+  min-width: min(320px, calc(100vw - 24px));
+  min-height: 420px;
+  max-height: calc(100vh - 110px);
   margin: 0 0 14px auto;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  resize: both;
   border-radius: 24px;
   border: 1px solid rgba(130, 147, 177, 0.18);
   background:
@@ -74,6 +79,19 @@
     0 24px 64px rgba(15, 23, 42, 0.18);
   backdrop-filter: blur(16px);
   animation: panelSlideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.panel::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 14px;
+  height: 14px;
+  opacity: 0.38;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, transparent 0 38%, rgba(14, 129, 205, 0.78) 38% 48%, transparent 48% 58%, rgba(14, 129, 205, 0.78) 58% 68%, transparent 68%);
 }
 
 /* ─── Header ────────────────────────────────────────────────────────────── */
@@ -430,12 +448,34 @@
   color: rgba(255, 255, 255, 0.72);
 }
 
-.messageBubble p {
+.messageText {
   margin: 0;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   line-height: 1.55;
   font-size: 13.5px;
+}
+
+.messageTextCollapsed {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+}
+
+.messageToggle {
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #0e81cd;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bubbleMine .messageToggle {
+  color: rgba(255, 255, 255, 0.92);
 }
 
 /* ─── Composer ──────────────────────────────────────────────────────────── */
@@ -542,6 +582,9 @@
   .panel {
     width: calc(100vw - 20px);
     height: min(72vh, 580px);
+    min-width: calc(100vw - 20px);
+    min-height: min(72vh, 580px);
+    resize: none;
     margin-bottom: 10px;
     border-radius: 20px;
   }

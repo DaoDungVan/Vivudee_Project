@@ -80,6 +80,37 @@ const getStoredUser = () => {
   }
 };
 
+const MESSAGE_COLLAPSE_CHAR_LIMIT = 280;
+const MESSAGE_COLLAPSE_LINE_LIMIT = 4;
+
+const shouldCollapseMessage = (content) => {
+  const text = String(content || "");
+  return text.length > MESSAGE_COLLAPSE_CHAR_LIMIT || text.split(/\r?\n/).length > MESSAGE_COLLAPSE_LINE_LIMIT;
+};
+
+function ExpandableMessageText({ content, t }) {
+  const [expanded, setExpanded] = useState(false);
+  const text = String(content || "");
+  const canCollapse = shouldCollapseMessage(text);
+
+  return (
+    <>
+      <p className={`${styles.messageText} ${canCollapse && !expanded ? styles.messageTextCollapsed : ""}`}>
+        {text}
+      </p>
+      {canCollapse && (
+        <button
+          type="button"
+          className={styles.messageToggle}
+          onClick={() => setExpanded((previous) => !previous)}
+        >
+          {expanded ? t("chat.showLess") : t("chat.showMore")}
+        </button>
+      )}
+    </>
+  );
+}
+
 function ChatWidget() {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
@@ -563,7 +594,7 @@ function ChatWidget() {
                         <span>{senderName}</span>
                         <span>{formatMessageTime(message.created_at)}</span>
                       </div>
-                      <p>{message.content}</p>
+                      <ExpandableMessageText content={message.content} t={t} />
                     </div>
                   </div>
                 );

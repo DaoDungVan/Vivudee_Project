@@ -625,6 +625,8 @@
     "guest": "Guest",
     "errLoad": "Failed to load conversation",
     "errSend": "Failed to send message",
+    "showMore": "Show more",
+    "showLess": "Show less",
     "prompt1": "I want to ask about refunds",
     "prompt2": "How to change my flight date?",
     "prompt3": "Check my carry-on baggage limit"
