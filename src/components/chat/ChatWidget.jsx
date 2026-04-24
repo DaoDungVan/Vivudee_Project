@@ -978,7 +978,7 @@ function ChatWidget() {
                   scrollMessagesToBottom();
                 }}
               >
-                {t("chat.jumpToLatest", { defaultValue: <i class="fa-solid fa-angles-down"></i> })}
+                {t("chat.jumpToLatest", { defaultValue: "Go back" })}
               </button>
             )}
           </div>
