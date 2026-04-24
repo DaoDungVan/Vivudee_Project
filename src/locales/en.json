@@ -629,6 +629,20 @@
     "showLess": "Show less",
     "prompt1": "I want to ask about refunds",
     "prompt2": "How to change my flight date?",
-    "prompt3": "Check my carry-on baggage limit"
+    "prompt3": "Check my carry-on baggage limit",
+    "attachFiles": "Photo / File",
+    "stickers": "Sticker",
+    "resizeHandle": "Drag to resize chat",
+    "filesOnlySupport": "Files and images can only be sent in admin chat.",
+    "attachmentImage": "Image attachment",
+    "attachmentFile": "File attachment",
+    "downloadFile": "Download",
+    "removeAttachment": "Remove",
+    "stickerCatAll": "All",
+    "stickerCatEmotions": "Emotions",
+    "stickerCatGestures": "Gestures",
+    "stickerCatTravel": "Travel",
+    "stickerCatFun": "Fun",
+    "jumpToLatest": "Jump to latest"
   }
 }

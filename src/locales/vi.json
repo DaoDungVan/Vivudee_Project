@@ -629,6 +629,20 @@
     "showLess": "Thu gọn",
     "prompt1": "Tôi muốn hỏi về hoàn vé",
     "prompt2": "Cách đổi ngày bay như thế nào?",
-    "prompt3": "Kiểm tra hành lý xách tay giúp tôi"
+    "prompt3": "Kiểm tra hành lý xách tay giúp tôi",
+    "attachFiles": "Ảnh / File",
+    "stickers": "Sticker",
+    "resizeHandle": "Kéo để thay đổi kích thước",
+    "filesOnlySupport": "File và ảnh chỉ hỗ trợ ở chat với admin.",
+    "attachmentImage": "Ảnh đính kèm",
+    "attachmentFile": "File đính kèm",
+    "downloadFile": "Tải file",
+    "removeAttachment": "Xóa đính kèm",
+    "stickerCatAll": "Tất cả",
+    "stickerCatEmotions": "Cảm xúc",
+    "stickerCatGestures": "Cử chỉ",
+    "stickerCatTravel": "Du lịch",
+    "stickerCatFun": "Vui vẻ",
+    "jumpToLatest": "Xuống cuối"
   }
 }

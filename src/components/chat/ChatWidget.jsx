@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  FaChevronDown,
   FaCommentDots,
   FaPaperclip,
   FaPaperPlane,
@@ -19,8 +20,8 @@ import {
 import { createSocketConnection } from "../../services/socketService";
 import {
   CHAT_ATTACHMENT_ACCEPT,
+  STICKER_CATEGORIES,
   STICKER_PRESETS,
-  canAddSticker,
   createAttachmentsFromFiles,
   createStickerAttachment,
   formatAttachmentSize,
@@ -165,11 +166,7 @@ function MessageAttachments({ message, t, onMediaLoad }) {
             >
               <img
                 src={attachment.data_url}
-                alt={
-                  attachment.label ||
-                  attachment.name ||
-                  t("chat.attachmentImage", { defaultValue: "Anh dinh kem" })
-                }
+                alt={attachment.label || attachment.name || t("chat.attachmentImage")}
                 onLoad={onMediaLoad}
               />
             </a>
@@ -186,14 +183,14 @@ function MessageAttachments({ message, t, onMediaLoad }) {
             rel="noreferrer"
           >
             <div className={styles.fileAttachmentTitle}>
-              {attachment.name || t("chat.attachmentFile", { defaultValue: "File dinh kem" })}
+              {attachment.name || t("chat.attachmentFile")}
             </div>
             <div className={styles.fileAttachmentMeta}>
-              <span>{attachment.mime_type || t("chat.attachmentFile", { defaultValue: "File dinh kem" })}</span>
+              <span>{attachment.mime_type || t("chat.attachmentFile")}</span>
               <span>{formatAttachmentSize(attachment.size)}</span>
             </div>
             <span className={styles.fileAttachmentLink}>
-              {t("chat.downloadFile", { defaultValue: "Tai file" })}
+              {t("chat.downloadFile")}
             </span>
           </a>
         );
@@ -217,11 +214,7 @@ function AttachmentPreviewList({ attachments, onRemove, t }) {
                 attachment.type === "sticker" ? styles.composerPreviewSticker : ""
               }`}
               src={attachment.data_url}
-              alt={
-                attachment.label ||
-                attachment.name ||
-                t("chat.attachmentImage", { defaultValue: "Anh dinh kem" })
-              }
+              alt={attachment.label || attachment.name || t("chat.attachmentImage")}
             />
           ) : (
             <div className={styles.composerPreviewFile}>{attachment.name?.slice(0, 2).toUpperCase() || "FI"}</div>
@@ -234,7 +227,7 @@ function AttachmentPreviewList({ attachments, onRemove, t }) {
             type="button"
             className={styles.composerPreviewRemove}
             onClick={() => onRemove(attachment.id)}
-            aria-label={t("chat.removeAttachment", { defaultValue: "Xoa dinh kem" })}
+            aria-label={t("chat.removeAttachment")}
           >
             <FaTimes />
           </button>
@@ -251,6 +244,7 @@ function ChatWidget() {
   const [draft, setDraft] = useState("");
   const [attachments, setAttachments] = useState([]);
   const [isStickerPickerOpen, setIsStickerPickerOpen] = useState(false);
+  const [stickerCategory, setStickerCategory] = useState("all");
   const [showJumpToLatest, setShowJumpToLatest] = useState(false);
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
@@ -709,17 +703,72 @@ function ChatWidget() {
     }
   };
 
-  const handleAddSticker = (sticker) => {
+  const handleSendStickerDirectly = useCallback(async (sticker) => {
+    if (sending) return;
+
+    let stickerAttachment;
     try {
-      canAddSticker(attachments.length);
-      const stickerAttachment = createStickerAttachment(sticker);
-      setAttachments((previous) => [...previous, stickerAttachment]);
-      setIsStickerPickerOpen(false);
-      setError("");
-    } catch (attachmentError) {
-      setError(attachmentError?.message || t("chat.errSend"));
+      stickerAttachment = createStickerAttachment(sticker);
+    } catch (err) {
+      setError(err?.message || t("chat.errSend"));
+      return;
     }
-  };
+
+    const channel = mode;
+    setIsStickerPickerOpen(false);
+    setError("");
+
+    const optimisticMessage = createLocalMessage(
+      channel === "ai" ? sticker.emoji : "",
+      "user",
+      channel === "support" ? [stickerAttachment] : [],
+    );
+
+    suppressSocketRefreshRef.current[channel] += 1;
+    pendingScrollToLatestRef.current = true;
+    shouldStickToBottomRef.current = true;
+    setShowJumpToLatest(false);
+    updateConversationState(channel, (prev) => ({
+      ...prev,
+      messages: [...prev.messages, optimisticMessage],
+    }));
+    setSending(true);
+
+    try {
+      const response =
+        channel === "support"
+          ? await sendSupportMessage({ message: "", attachments: [stickerAttachment] })
+          : await sendAiMessage({ message: sticker.emoji });
+      const data = normalizeChatPayload(response.data);
+
+      updateConversationState(channel, (prev) => ({
+        conversation: data.conversation || prev.conversation,
+        messages: reconcileMessages(
+          prev.messages.filter((m) => m.id !== optimisticMessage.id),
+          data.messages,
+        ),
+        ...(channel === "ai"
+          ? { quickReplies: data.quickReplies?.length ? data.quickReplies : prev.quickReplies }
+          : {}),
+      }));
+
+      if (channel === "ai" && data.shouldContactAdmin) openAdminChat();
+    } catch (err) {
+      suppressSocketRefreshRef.current[channel] = Math.max(
+        0,
+        suppressSocketRefreshRef.current[channel] - 1,
+      );
+      await loadConversation(channel, { silent: true, preservePending: false });
+      setError(
+        err?.response?.data?.message ||
+          err?.response?.data?.error ||
+          err?.message ||
+          t("chat.errSend"),
+      );
+    } finally {
+      setSending(false);
+    }
+  }, [mode, sending, t, updateConversationState, loadConversation, openAdminChat]);
 
   const handleRemoveAttachment = (attachmentId) => {
     setAttachments((previous) => previous.filter((attachment) => attachment.id !== attachmentId));
@@ -734,12 +783,9 @@ function ChatWidget() {
     }
 
     const channel = mode;
-    if (channel !== "support" && outgoingAttachments.length > 0) {
-      setError(
-        t("chat.attachmentsOnlySupport", {
-          defaultValue: "Sticker, anh va file hien chi ho tro o khung chat voi admin.",
-        })
-      );
+    const hasFileAttachments = outgoingAttachments.some((a) => a.type === "file");
+    if (channel !== "support" && hasFileAttachments) {
+      setError(t("chat.filesOnlySupport"));
       return;
     }
 
@@ -845,7 +891,7 @@ function ChatWidget() {
               type="button"
               className={styles.resizeHandle}
               onPointerDown={handleResizePointerDown}
-              aria-label={t("chat.resizeFromTopLeft", { defaultValue: "Keo de thay doi kich thuoc chat" })}
+              aria-label={t("chat.resizeHandle")}
             >
               <span />
               <span />
@@ -977,8 +1023,9 @@ function ChatWidget() {
                   setShowJumpToLatest(false);
                   scrollMessagesToBottom();
                 }}
+                aria-label={t("chat.jumpToLatest", { defaultValue: "Xuống cuối" })}
               >
-                {t("chat.jumpToLatest", { defaultValue: "Go back" })}
+                <FaChevronDown />
               </button>
             )}
           </div>
@@ -986,49 +1033,66 @@ function ChatWidget() {
           <div className={styles.composer}>
             <div className={styles.composerMain}>
               {mode === "support" && (
-                <>
-                  <AttachmentPreviewList
-                    attachments={attachments}
-                    onRemove={handleRemoveAttachment}
-                    t={t}
-                  />
+                <AttachmentPreviewList
+                  attachments={attachments}
+                  onRemove={handleRemoveAttachment}
+                  t={t}
+                />
+              )}
 
-                  <div className={styles.composerTools}>
-                    <button
-                      type="button"
-                      className={styles.toolButton}
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      <FaPaperclip />
-                      <span>{t("chat.attachFiles", { defaultValue: "Anh / file" })}</span>
-                    </button>
+              <div className={styles.composerTools}>
+                {mode === "support" && (
+                  <button
+                    type="button"
+                    className={styles.toolButton}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <FaPaperclip />
+                    <span>{t("chat.attachFiles")}</span>
+                  </button>
+                )}
 
-                    <button
-                      type="button"
-                      className={`${styles.toolButton} ${isStickerPickerOpen ? styles.toolButtonActive : ""}`}
-                      onClick={() => setIsStickerPickerOpen((previous) => !previous)}
-                    >
-                      <FaSmile />
-                      <span>{t("chat.stickers", { defaultValue: "Sticker" })}</span>
-                    </button>
+                <button
+                  type="button"
+                  className={`${styles.toolButton} ${isStickerPickerOpen ? styles.toolButtonActive : ""}`}
+                  onClick={() => setIsStickerPickerOpen((previous) => !previous)}
+                >
+                  <FaSmile />
+                  <span>{t("chat.stickers")}</span>
+                </button>
+              </div>
+
+              {isStickerPickerOpen && (
+                <div className={styles.stickerPicker}>
+                  <div className={styles.stickerCategories}>
+                    {STICKER_CATEGORIES.map((cat) => (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        className={`${styles.stickerCategoryBtn} ${stickerCategory === cat.id ? styles.stickerCategoryBtnActive : ""}`}
+                        onClick={() => setStickerCategory(cat.id)}
+                        title={cat.labelVi}
+                      >
+                        {cat.icon}
+                      </button>
+                    ))}
                   </div>
-
-                  {isStickerPickerOpen && (
-                    <div className={styles.stickerPicker}>
-                      {STICKER_PRESETS.map((sticker) => (
+                  <div className={styles.stickerGrid}>
+                    {STICKER_PRESETS
+                      .filter((s) => stickerCategory === "all" || s.category === stickerCategory)
+                      .map((sticker) => (
                         <button
                           key={sticker.id}
                           type="button"
                           className={styles.stickerButton}
-                          onClick={() => handleAddSticker(sticker)}
+                          onClick={() => handleSendStickerDirectly(sticker)}
                           title={sticker.label}
                         >
                           <img src={sticker.dataUrl} alt={sticker.label} />
                         </button>
                       ))}
-                    </div>
-                  )}
-                </>
+                  </div>
+                </div>
               )}
 
               <textarea

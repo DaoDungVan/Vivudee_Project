@@ -581,17 +581,25 @@
   right: 16px;
   bottom: 16px;
   z-index: 2;
+  width: 34px;
+  height: 34px;
   border: 1px solid rgba(130, 147, 177, 0.22);
-  border-radius: 999px;
-  padding: 10px 14px;
+  border-radius: 50%;
   background: rgba(255, 255, 255, 0.94);
-  color: #0f172a;
-  font-size: 12px;
-  font-weight: 800;
-  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.18);
+  color: #0e81cd;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
   cursor: pointer;
   backdrop-filter: blur(10px);
-  max-width: calc(100% - 32px);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.jumpToLatestButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.22);
 }
 
 /* ─── Composer ──────────────────────────────────────────────────────────── */
@@ -744,27 +752,73 @@
 }
 
 .stickerPicker {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
   border-radius: 16px;
   border: 1px solid rgba(130, 147, 177, 0.16);
   background: rgba(15, 23, 42, 0.03);
-  max-height: 236px;
+  overflow: hidden;
+  max-height: 260px;
+}
+
+.stickerCategories {
+  display: flex;
+  gap: 4px;
+  padding: 8px 10px 6px;
+  border-bottom: 1px solid rgba(130, 147, 177, 0.12);
+  background: rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+}
+
+.stickerCategoryBtn {
+  flex: 1;
+  height: 30px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.stickerCategoryBtn:hover {
+  background: rgba(14, 129, 205, 0.08);
+}
+
+.stickerCategoryBtnActive {
+  background: rgba(14, 129, 205, 0.12);
+  border-color: rgba(14, 129, 205, 0.28);
+}
+
+.stickerGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  padding: 8px 10px;
   overflow-y: auto;
 }
 
 .stickerButton {
   border: 0;
   background: transparent;
-  padding: 0;
+  padding: 2px;
   cursor: pointer;
+  border-radius: 10px;
+  transition: background 0.12s, transform 0.12s;
+}
+
+.stickerButton:hover {
+  background: rgba(14, 129, 205, 0.08);
+  transform: scale(1.12);
 }
 
 .stickerButton img {
   width: 100%;
-  max-width: 64px;
+  max-width: 52px;
   display: block;
   margin: 0 auto;
 }
@@ -883,7 +937,7 @@
     padding-left: 34px;
   }
 
-  .stickerPicker {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .stickerGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
