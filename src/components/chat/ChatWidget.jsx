@@ -20,13 +20,13 @@ import {
 import { createSocketConnection } from "../../services/socketService";
 import {
   CHAT_ATTACHMENT_ACCEPT,
-  STICKER_CATEGORIES,
-  STICKER_PRESETS,
+  CHAT_ICON_CATEGORIES,
+  CHAT_ICON_PRESETS,
   createAttachmentsFromFiles,
-  createStickerAttachment,
   formatAttachmentSize,
   getMessageAttachmentSignature,
   getMessageAttachments,
+  isVisualAttachment,
 } from "../../utils/chatAttachments";
 import styles from "./ChatWidget.module.css";
 
@@ -152,12 +152,14 @@ function MessageAttachments({ message, t, onMediaLoad }) {
       {attachments.map((attachment, index) => {
         const key = attachment.id || `${attachment.type}-${index}`;
 
-        if (attachment.type === "image" || attachment.type === "sticker") {
+        if (isVisualAttachment(attachment)) {
           return (
             <a
               key={key}
               className={`${styles.imageAttachment} ${
-                attachment.type === "sticker" ? styles.stickerAttachment : ""
+                attachment.type === "sticker" || attachment.type === "icon"
+                  ? styles.stickerAttachment
+                  : ""
               }`}
               href={attachment.data_url}
               download={attachment.name || undefined}
@@ -208,10 +210,12 @@ function AttachmentPreviewList({ attachments, onRemove, t }) {
     <div className={styles.composerPreviewList}>
       {attachments.map((attachment) => (
         <div key={attachment.id} className={styles.composerPreviewItem}>
-          {attachment.type === "image" || attachment.type === "sticker" ? (
+          {isVisualAttachment(attachment) ? (
             <img
               className={`${styles.composerPreviewThumb} ${
-                attachment.type === "sticker" ? styles.composerPreviewSticker : ""
+                attachment.type === "sticker" || attachment.type === "icon"
+                  ? styles.composerPreviewSticker
+                  : ""
               }`}
               src={attachment.data_url}
               alt={attachment.label || attachment.name || t("chat.attachmentImage")}
@@ -360,15 +364,6 @@ function ChatWidget() {
     setUnread({ ai: 0, support: 0 });
     setError("");
   }, [authToken]);
-
-  useEffect(() => {
-    if (mode !== "support" && attachments.length > 0) {
-      setAttachments([]);
-    }
-    if (mode !== "support") {
-      setIsStickerPickerOpen(false);
-    }
-  }, [attachments.length, mode]);
 
   const playNotificationSound = useCallback(async () => {
     if (!audioUnlockedRef.current) {
@@ -693,6 +688,9 @@ function ChatWidget() {
     }
 
     try {
+      if (mode !== "support") {
+        openAdminChat();
+      }
       const nextAttachments = await createAttachmentsFromFiles(files, attachments.length);
       setAttachments((previous) => [...previous, ...nextAttachments]);
       setError("");
@@ -706,23 +704,11 @@ function ChatWidget() {
   const handleSendStickerDirectly = useCallback(async (sticker) => {
     if (sending) return;
 
-    let stickerAttachment;
-    try {
-      stickerAttachment = createStickerAttachment(sticker);
-    } catch (err) {
-      setError(err?.message || t("chat.errSend"));
-      return;
-    }
-
     const channel = mode;
     setIsStickerPickerOpen(false);
     setError("");
 
-    const optimisticMessage = createLocalMessage(
-      channel === "ai" ? sticker.emoji : "",
-      "user",
-      channel === "support" ? [stickerAttachment] : [],
-    );
+    const optimisticMessage = createLocalMessage(sticker.emoji, "user");
 
     suppressSocketRefreshRef.current[channel] += 1;
     pendingScrollToLatestRef.current = true;
@@ -737,7 +723,7 @@ function ChatWidget() {
     try {
       const response =
         channel === "support"
-          ? await sendSupportMessage({ message: "", attachments: [stickerAttachment] })
+          ? await sendSupportMessage({ message: sticker.emoji })
           : await sendAiMessage({ message: sticker.emoji });
       const data = normalizeChatPayload(response.data);
 
@@ -782,11 +768,11 @@ function ChatWidget() {
       return;
     }
 
-    const channel = mode;
-    const hasFileAttachments = outgoingAttachments.some((a) => a.type === "file");
-    if (channel !== "support" && hasFileAttachments) {
-      setError(t("chat.filesOnlySupport"));
-      return;
+    const shouldRouteToSupport = outgoingAttachments.length > 0 && mode !== "support";
+    const channel = shouldRouteToSupport ? "support" : mode;
+
+    if (shouldRouteToSupport) {
+      openAdminChat();
     }
 
     const optimisticMessage = createLocalMessage(message, "user", outgoingAttachments);
@@ -1039,18 +1025,23 @@ function ChatWidget() {
                   t={t}
                 />
               )}
+              {mode !== "support" && attachments.length > 0 && (
+                <AttachmentPreviewList
+                  attachments={attachments}
+                  onRemove={handleRemoveAttachment}
+                  t={t}
+                />
+              )}
 
               <div className={styles.composerTools}>
-                {mode === "support" && (
-                  <button
-                    type="button"
-                    className={styles.toolButton}
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <FaPaperclip />
-                    <span>{t("chat.attachFiles")}</span>
-                  </button>
-                )}
+                <button
+                  type="button"
+                  className={styles.toolButton}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <FaPaperclip />
+                  <span>{t("chat.attachFiles")}</span>
+                </button>
 
                 <button
                   type="button"
@@ -1058,14 +1049,14 @@ function ChatWidget() {
                   onClick={() => setIsStickerPickerOpen((previous) => !previous)}
                 >
                   <FaSmile />
-                  <span>{t("chat.stickers")}</span>
+                  <span>{t("chat.icons")}</span>
                 </button>
               </div>
 
               {isStickerPickerOpen && (
                 <div className={styles.stickerPicker}>
                   <div className={styles.stickerCategories}>
-                    {STICKER_CATEGORIES.map((cat) => (
+                    {CHAT_ICON_CATEGORIES.map((cat) => (
                       <button
                         key={cat.id}
                         type="button"
@@ -1078,7 +1069,7 @@ function ChatWidget() {
                     ))}
                   </div>
                   <div className={styles.stickerGrid}>
-                    {STICKER_PRESETS
+                    {CHAT_ICON_PRESETS
                       .filter((s) => stickerCategory === "all" || s.category === stickerCategory)
                       .map((sticker) => (
                         <button
