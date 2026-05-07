@@ -239,69 +239,71 @@ const Bookings = () => {
   ];
 
   return (
-    <>
+    <div className={styles.page}>
       <NavBar />
-      <div className={styles.wrapper}>
-        <h2 className={styles.pageTitle}>{t("bookings.title")}</h2>
+      <main className={styles.main}>
+        <div className={styles.wrapper}>
+          <h2 className={styles.pageTitle}>{t("bookings.title")}</h2>
 
-        <div className={styles.tabs}>
-          <button className={`${styles.tab} ${tab === "lookup" ? styles.tabActive : ""}`} onClick={() => setTab("lookup")}>
-            {t("bookings.lookupByCode")}
-          </button>
-          {isLoggedIn && (
-            <button className={`${styles.tab} ${tab === "my" ? styles.tabActive : ""}`} onClick={() => setTab("my")}>
-              {t("bookings.myBookings")}
+          <div className={styles.tabs}>
+            <button className={`${styles.tab} ${tab === "lookup" ? styles.tabActive : ""}`} onClick={() => setTab("lookup")}>
+              {t("bookings.lookupByCode")}
             </button>
-          )}
-        </div>
-
-        {tab === "lookup" && (
-          <div className={styles.lookupSection}>
-            <div className={styles.lookupBox}>
-              <input
-                type="text"
-                placeholder={t("bookings.enterCode")}
-                className={styles.lookupInput}
-                value={lookupCode}
-                onChange={(e) => setLookupCode(e.target.value.toUpperCase())}
-                onKeyDown={(e) => e.key === "Enter" && handleLookup()}
-              />
-              <button className={styles.lookupBtn} onClick={() => handleLookup()} disabled={lookupLoading}>
-                {lookupLoading ? t("bookings.searching") : t("bookings.search")}
+            {isLoggedIn && (
+              <button className={`${styles.tab} ${tab === "my" ? styles.tabActive : ""}`} onClick={() => setTab("my")}>
+                {t("bookings.myBookings")}
               </button>
-            </div>
-            {lookupError  && <p className={styles.lookupError}>{lookupError}</p>}
-            {lookupResult && <LookupDetail data={lookupResult} />}
-          </div>
-        )}
-
-        {tab === "my" && isLoggedIn && (
-          <div className={styles.mySection}>
-            {cancelError && <div className={styles.cancelErrorBanner}>{cancelError}</div>}
-            <div className={styles.filterRow}>
-              {filterOptions.map((f) => (
-                <button key={f.id} className={`${styles.filterBtn} ${myFilter === f.id ? styles.filterActive : ""}`} onClick={() => setMyFilter(f.id)}>
-                  {f.label}
-                </button>
-              ))}
-            </div>
-            {myLoading ? (
-              <p className={styles.loading}>{t("bookings.loading")}</p>
-            ) : myBookings.length === 0 ? (
-              <div className={styles.emptyState}>
-                <p>{t("bookings.noBookingsFound")}</p>
-                <button onClick={() => navigate("/flights")}>{t("bookings.searchFlights")}</button>
-              </div>
-            ) : (
-              <div className={styles.bookingGrid}>
-                {myBookings.map((b) => <BookingCard key={b.booking_id} b={b} showCancel />)}
-              </div>
             )}
           </div>
-        )}
-      </div>
+
+          {tab === "lookup" && (
+            <div className={styles.lookupSection}>
+              <div className={styles.lookupBox}>
+                <input
+                  type="text"
+                  placeholder={t("bookings.enterCode")}
+                  className={styles.lookupInput}
+                  value={lookupCode}
+                  onChange={(e) => setLookupCode(e.target.value.toUpperCase())}
+                  onKeyDown={(e) => e.key === "Enter" && handleLookup()}
+                />
+                <button className={styles.lookupBtn} onClick={() => handleLookup()} disabled={lookupLoading}>
+                  {lookupLoading ? t("bookings.searching") : t("bookings.search")}
+                </button>
+              </div>
+              {lookupError  && <p className={styles.lookupError}>{lookupError}</p>}
+              {lookupResult && <LookupDetail data={lookupResult} />}
+            </div>
+          )}
+
+          {tab === "my" && isLoggedIn && (
+            <div className={styles.mySection}>
+              {cancelError && <div className={styles.cancelErrorBanner}>{cancelError}</div>}
+              <div className={styles.filterRow}>
+                {filterOptions.map((f) => (
+                  <button key={f.id} className={`${styles.filterBtn} ${myFilter === f.id ? styles.filterActive : ""}`} onClick={() => setMyFilter(f.id)}>
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+              {myLoading ? (
+                <p className={styles.loading}>{t("bookings.loading")}</p>
+              ) : myBookings.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>{t("bookings.noBookingsFound")}</p>
+                  <button onClick={() => navigate("/flights")}>{t("bookings.searchFlights")}</button>
+                </div>
+              ) : (
+                <div className={styles.bookingGrid}>
+                  {myBookings.map((b) => <BookingCard key={b.booking_id} b={b} showCancel />)}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </main>
       <Footer />
-    </>
+    </div>
   );
 };
 

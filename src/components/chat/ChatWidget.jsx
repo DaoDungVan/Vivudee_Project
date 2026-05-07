@@ -273,6 +273,8 @@ function ChatWidget() {
   const messagesRef = useRef(null);
   const panelRef = useRef(null);
   const fileInputRef = useRef(null);
+  const stickerPickerRef = useRef(null);
+  const stickerToggleButtonRef = useRef(null);
   const suppressSocketRefreshRef = useRef({ ai: 0, support: 0 });
   const audioContextRef = useRef(null);
   const audioUnlockedRef = useRef(false);
@@ -345,6 +347,38 @@ function ChatWidget() {
     window.addEventListener("open-chat-widget", openWidget);
     return () => window.removeEventListener("open-chat-widget", openWidget);
   }, []);
+
+  useEffect(() => {
+    if (!isStickerPickerOpen) {
+      return undefined;
+    }
+
+    const handlePointerDownOutside = (event) => {
+      const target = event.target;
+      if (
+        stickerPickerRef.current?.contains(target) ||
+        stickerToggleButtonRef.current?.contains(target)
+      ) {
+        return;
+      }
+
+      setIsStickerPickerOpen(false);
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setIsStickerPickerOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDownOutside);
+    window.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDownOutside);
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [isStickerPickerOpen]);
 
   useEffect(() => {
     setMode("ai");
@@ -999,7 +1033,7 @@ function ChatWidget() {
               )}
             </div>
 
-            {showJumpToLatest && (
+            {showJumpToLatest && !isStickerPickerOpen && (
               <button
                 type="button"
                 className={styles.jumpToLatestButton}
@@ -1044,6 +1078,7 @@ function ChatWidget() {
                 </button>
 
                 <button
+                  ref={stickerToggleButtonRef}
                   type="button"
                   className={`${styles.toolButton} ${isStickerPickerOpen ? styles.toolButtonActive : ""}`}
                   onClick={() => setIsStickerPickerOpen((previous) => !previous)}
@@ -1054,7 +1089,18 @@ function ChatWidget() {
               </div>
 
               {isStickerPickerOpen && (
-                <div className={styles.stickerPicker}>
+                <div ref={stickerPickerRef} className={styles.stickerPicker}>
+                  <div className={styles.stickerPickerHeader}>
+                    <strong>{t("chat.icons")}</strong>
+                    <button
+                      type="button"
+                      className={styles.stickerPickerClose}
+                      onClick={() => setIsStickerPickerOpen(false)}
+                      aria-label={t("chat.closeIcons")}
+                    >
+                      <FaTimes />
+                    </button>
+                  </div>
                   <div className={styles.stickerCategories}>
                     {CHAT_ICON_CATEGORIES.map((cat) => (
                       <button

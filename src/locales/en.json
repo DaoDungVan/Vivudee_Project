@@ -637,6 +637,7 @@
     "attachmentFile": "File attachment",
     "downloadFile": "Download",
     "removeAttachment": "Remove",
+    "closeIcons": "Close icons panel",
     "iconCatAll": "All",
     "iconCatEmotions": "Emotions",
     "iconCatGestures": "Gestures",
