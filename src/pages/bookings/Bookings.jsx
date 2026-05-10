@@ -86,6 +86,7 @@ const Bookings = () => {
     setLookupLoading(true); setLookupError(""); setLookupResult(null);
     try {
       const res = await getBookingByCode(c);
+      console.log("[Booking lookup] outbound_flight:", res.data?.data?.outbound_flight);
       setLookupResult(res.data?.data);
     } catch (err) {
       setLookupError(err.response?.data?.error || "Booking not found.");
