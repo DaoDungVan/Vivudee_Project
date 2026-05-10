@@ -1,4 +1,5 @@
 import axios from "axios";
+import axiosInstance from "./axiosInstance";
 
 const API = "https://backend-log-function-2.onrender.com/api/flights";
 
@@ -47,4 +48,4 @@ export const searchFlights = (params) => {
   return outboundRequest;
 };
 
-export const getFlightPosition = (flightId) => API.get(`/flights/${flightId}/position`);
+export const getFlightPosition = (flightId) => axiosInstance.get(`/flights/${flightId}/position`);
