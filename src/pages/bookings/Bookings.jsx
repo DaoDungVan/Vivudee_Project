@@ -86,7 +86,6 @@ const Bookings = () => {
     setLookupLoading(true); setLookupError(""); setLookupResult(null);
     try {
       const res = await getBookingByCode(c);
-      console.log("[Booking lookup] outbound_flight:", res.data?.data?.outbound_flight);
       setLookupResult(res.data?.data);
     } catch (err) {
       setLookupError(err.response?.data?.error || "Booking not found.");
@@ -297,7 +296,8 @@ const Bookings = () => {
               setTrackerAlert("Chuyến bay đã hạ cánh. Hành trình đã hoàn thành.");
               setTimeout(() => setTrackerAlert(""), 4000);
             } else {
-              navigate(`/tracker/${data.outbound_flight?.flight_id}`, { state: { booking: data } });
+              const fid = data.outbound_flight?.flight_id ?? data.outbound_flight?.id ?? data.outbound_flight?.flightId;
+              navigate(`/tracker/${fid}`, { state: { booking: data } });
             }
           }}
         >
