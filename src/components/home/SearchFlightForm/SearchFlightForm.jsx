@@ -21,8 +21,10 @@ export default function SearchFlightForm({ initialData }) {
   const [activeInput, setActiveInput] = useState(null);
   const airportRef = useRef(null);
 
-  const todayStr = new Date().toISOString().split("T")[0];
-  const nextWeekStr = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+  const toLocalDateStr = (d) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const todayStr = toLocalDateStr(new Date());
+  const nextWeekStr = toLocalDateStr(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
 
   const [departureDate, setDepartureDate] = useState(initialData?.departureDate || todayStr);
   const [returnDate, setReturnDate] = useState(initialData?.returnDate || nextWeekStr);
@@ -156,7 +158,7 @@ export default function SearchFlightForm({ initialData }) {
     }).toString()}`);
   };
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = toLocalDateStr(new Date());
 
   const passengerDisplay = (() => {
     const a = passengers.adult;
