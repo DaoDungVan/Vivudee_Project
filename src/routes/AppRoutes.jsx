@@ -17,6 +17,7 @@ import Chat from "../pages/chat/Chat";
 import PaymentMomoResult from "../pages/payment/PaymentMomoResult";
 import PaymentPayosResult from "../pages/payment/PaymentPayosResult";
 import PaymentPaypalResult from "../pages/payment/PaymentPaypalResult";
+import FlightTracker from "../pages/flightTracker/FlightTracker";
 
 // Định nghĩa tất cả các đường dẫn (URL) của app và component tương ứng.
 // Khi user truy cập URL nào → React render component đó.
@@ -43,6 +44,7 @@ function AppRoutes() {
         <Route path="/chat" element={<Chat />} />
         <Route path="/tours" element={<Tours />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/tracker/:flightId" element={<FlightTracker />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,0 +1,72 @@
+.page { min-height: 100vh; display: flex; flex-direction: column; background: #f0f4f8; }
+.container { max-width: 1100px; margin: 24px auto; padding: 0 20px; flex: 1; width: 100%; }
+
+/* Header */
+.header { background: #fff; border-radius: 16px; padding: 18px 24px; margin-bottom: 16px; box-shadow: 0 4px 16px rgba(0,0,0,.08); border: 1px solid #e8e8e8; display: flex; align-items: center; gap: 16px; }
+.backBtn { background: none; border: none; color: #0e81cd; font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; font-family: inherit; }
+.backBtn:hover { opacity: .7; }
+.headerRight { flex: 1; }
+.flightBadge { display: inline-flex; background: #f0f8ff; border: 1px solid #cce8ff; border-radius: 20px; padding: 3px 12px; font-size: 11px; font-weight: 700; color: #0e81cd; margin-bottom: 6px; letter-spacing: .5px; }
+.routeRow { display: flex; align-items: center; gap: 10px; }
+.routeCity { font-size: 26px; font-weight: 800; color: #1a1a2e; font-family: monospace; letter-spacing: 1px; }
+.routeLine { flex: 1; text-align: center; }
+.routePlane { color: #0e81cd; font-size: 16px; }
+.routeSub { font-size: 12px; color: #999; margin-top: 4px; }
+
+/* Main layout */
+.mainLayout { display: grid; grid-template-columns: 1fr 300px; gap: 16px; }
+
+/* Map */
+.mapArea { background: #0a1628; border-radius: 16px; overflow: hidden; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+.mapSvg { width: 100%; display: block; }
+.liveBadge { position: absolute; top: 12px; left: 12px; display: flex; align-items: center; gap: 6px; background: rgba(10,22,40,.85); border: 1px solid rgba(74,222,128,.3); border-radius: 20px; padding: 5px 12px; font-size: 11px; font-weight: 700; color: rgba(255,255,255,.9); }
+.liveDot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 6px #4ade80; animation: pulse 1.4s ease-in-out infinite; }
+.mapControls { position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 6px; }
+.mapBtn { width: 32px; height: 32px; background: rgba(255,255,255,.1); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.15); border-radius: 8px; color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+/* Progress panel */
+.progressPanel { background: rgba(10,22,40,.88); backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,.08); padding: 12px 16px; }
+.progressTop { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,.8); font-weight: 600; margin-bottom: 8px; }
+.progressPct { background: rgba(255,255,255,.1); padding: 2px 8px; border-radius: 10px; }
+.progressTrack { height: 4px; background: rgba(255,255,255,.1); border-radius: 2px; margin-bottom: 6px; }
+.progressFill { height: 100%; background: linear-gradient(90deg,#0e81cd,#4aaee8); border-radius: 2px; transition: width .5s ease; }
+.progressTimes { display: flex; justify-content: space-between; font-size: 10px; color: rgba(255,255,255,.4); }
+
+/* Sidebar */
+.sidebar { display: flex; flex-direction: column; gap: 12px; }
+.statusPill { display: flex; align-items: center; gap: 8px; border-radius: 12px; padding: 12px 16px; font-weight: 700; font-size: 13px; }
+.statusAirborne { background: linear-gradient(135deg,#f0fdf4,#dcfce7); border: 1px solid #86efac; color: #16a34a; }
+.statusLanded { background: linear-gradient(135deg,#eff6ff,#dbeafe); border: 1px solid #93c5fd; color: #1d4ed8; }
+.statusDot { width: 9px; height: 9px; border-radius: 50%; background: currentColor; animation: pulse 1.4s ease-in-out infinite; flex-shrink: 0; }
+.statusUpdate { margin-left: auto; font-size: 10px; opacity: .6; }
+
+/* Countdown */
+.countdown { background: linear-gradient(135deg,#0e81cd,#0a5fa0); border-radius: 16px; padding: 18px; color: #fff; text-align: center; }
+.countdownLabel { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; opacity: .7; margin-bottom: 10px; text-transform: uppercase; }
+.countdownDigits { display: flex; justify-content: center; align-items: flex-end; gap: 4px; margin-bottom: 6px; }
+.countdownNum { background: rgba(0,0,0,.2); border-radius: 8px; padding: 6px 10px; font-family: monospace; font-size: 28px; font-weight: 500; min-width: 46px; text-align: center; }
+.countdownSep { font-size: 24px; opacity: .6; padding-bottom: 2px; }
+.countdownUnits { display: flex; justify-content: center; gap: 34px; font-size: 9px; opacity: .6; text-transform: uppercase; letter-spacing: 1px; }
+.countdownEta { font-size: 11px; opacity: .7; margin-top: 8px; }
+
+/* Landed */
+.landedBlock { background: #f0fdf4; border: 1px solid #86efac; border-radius: 16px; padding: 24px; text-align: center; color: #16a34a; }
+.landedBlock span { font-size: 36px; display: block; margin-bottom: 8px; }
+.landedBlock p { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.landedBlock small { font-size: 12px; opacity: .7; }
+
+/* Info grid */
+.infoGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.infoTile { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 14px; }
+.infoLabel { font-size: 10px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+.infoVal { font-size: 16px; font-weight: 800; color: #1a1a2e; font-family: monospace; }
+.infoSub { font-size: 11px; color: #999; margin-top: 2px; }
+
+/* Loading / Error */
+.loadingBody, .errorBody { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 16px; color: #666; }
+.spinner { width: 40px; height: 40px; border: 3px solid #e8e8e8; border-top-color: #0e81cd; border-radius: 50%; animation: spin 1s linear infinite; }
+.errorBody button { background: #0e81cd; color: #fff; border: none; border-radius: 10px; padding: 10px 20px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+/* Animations */
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
+@keyframes spin { to { transform: rotate(360deg); } }

@@ -461,3 +461,55 @@
   .detailFlightRow { flex-direction: column; align-items: flex-start; }
   .detailFlightDate { margin-left: 0; }
 }
+
+/* ✅ THÊM MỚI: Booking card đang bay — viền xanh nổi bật */
+.bookingCardAirborne {
+  border-color: #0e81cd !important;
+  background: linear-gradient(135deg, #f0f8ff, var(--card-bg)) !important;
+}
+
+/* ✅ THÊM MỚI: Nút theo dõi chuyến bay */
+.trackBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #0e81cd, #0a6aaa);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+.trackBtn:hover { opacity: 0.88; }
+
+/* ✅ THÊM MỚI: Chấm xanh nhấp nháy trong nút theo dõi */
+.trackDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 6px #4ade80;
+  flex-shrink: 0;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+/* ✅ THÊM MỚI: Note nhỏ bên dưới nút theo dõi */
+.airborneNote {
+  text-align: center;
+  font-size: 11px;
+  color: #27ae60;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ✅ THÊM MỚI: Animation pulse cho chấm xanh */
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .4; transform: scale(.8); }
+}

@@ -46,3 +46,5 @@ export const searchFlights = (params) => {
   // Nếu là một chiều thì chỉ trả về request duy nhất
   return outboundRequest;
 };
+
+export const getFlightPosition = (flightId) => API.get(`/flights/${flightId}/position`);

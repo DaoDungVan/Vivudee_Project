@@ -19,6 +19,18 @@ const formatDate = (iso) => {
   return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 };
 
+// ✅ THÊM MỚI: Kiểm tra chuyến bay có đang bay không
+// Điều kiện: now > departure_time VÀ now < departure_time + duration
+const isAirborne = (b) => {
+  const depTime  = b?.flight?.departure?.time;
+  const duration = b?.flight?.duration_minutes;
+  if (!depTime || !duration) return false;
+  const now   = Date.now();
+  const depMs = new Date(depTime).getTime();
+  const arrMs = depMs + duration * 60 * 1000;
+  return now >= depMs && now < arrMs;
+};
+
 const Bookings = () => {
   const navigate   = useNavigate();
   const location   = useLocation();
@@ -110,7 +122,10 @@ const Bookings = () => {
   };
 
   const BookingCard = ({ b, showCancel }) => (
-    <div className={styles.bookingCard} onClick={() => { setLookupCode(b.booking_code); setTab("lookup"); handleLookup(b.booking_code); }}>
+    <div
+      className={`${styles.bookingCard} ${isAirborne(b) ? styles.bookingCardAirborne : ""}`}
+      onClick={() => { setLookupCode(b.booking_code); setTab("lookup"); handleLookup(b.booking_code); }}
+    >
       <div className={styles.cardTop}>
         <div>
           <p className={styles.cardCode}>{b.booking_code}</p>
@@ -130,6 +145,30 @@ const Bookings = () => {
         <span className={styles.cardAirline}>{b.flight?.airline?.name}</span>
         <span className={styles.cardPrice}>{fmt(b.final_amount ?? b.total_price)}</span>
       </div>
+
+      {/* ✅ THÊM MỚI: Nút theo dõi — chỉ hiện khi đang bay */}
+      {isAirborne(b) && (
+        <button
+          className={styles.trackBtn}
+          onClick={(e) => {
+            // Ngăn sự kiện click lan lên bookingCard (tránh mở lookup)
+            e.stopPropagation();
+            navigate(`/tracker/${b.flight?.id}`, {
+              state: { booking: b },
+            });
+          }}
+        >
+          {/* Chấm xanh nhấp nháy */}
+          <span className={styles.trackDot} />
+          ✈ Theo dõi chuyến bay
+        </button>
+      )}
+
+      {/* ✅ THÊM MỚI: Note nhỏ khi đang bay */}
+      {isAirborne(b) && (
+        <p className={styles.airborneNote}>● Đang bay · Bấm để xem vị trí realtime</p>
+      )}
+
       {showCancel && b.status === "confirmed" && (
         confirmCancel === b.booking_code ? (
           <div className={styles.confirmRow}>
