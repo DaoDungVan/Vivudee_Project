@@ -644,5 +644,27 @@
     "iconCatTravel": "Travel",
     "iconCatFun": "Fun",
     "jumpToLatest": "Jump to latest"
+  },
+  "tracker": {
+    "myBookings": "My Bookings",
+    "live": "LIVE · Airborne",
+    "scheduled": "Not departed",
+    "landed": "Landed",
+    "updateEvery": "Updated every 100ms",
+    "etaLabel": "ESTIMATED LANDING TIME",
+    "etaSub": "Expected landing at {{time}}",
+    "departed": "Departure",
+    "arrival": "Arrival",
+    "journey": "Journey",
+    "progress": "Progress",
+    "passengers": "Passengers",
+    "seat": "Seat {{number}}",
+    "hour": "Hr",
+    "min": "Min",
+    "sec": "Sec",
+    "landedMsg": "Flight has landed",
+    "thankYou": "Thank you for flying with Vivudee",
+    "loadingMsg": "Loading flight information...",
+    "errorMsg": "Could not load flight information"
   }
 }

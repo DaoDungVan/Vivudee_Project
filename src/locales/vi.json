@@ -644,5 +644,27 @@
     "iconCatTravel": "Du lịch",
     "iconCatFun": "Vui vẻ",
     "jumpToLatest": "Xuống cuối"
+  },
+  "tracker": {
+    "myBookings": "Đặt chỗ của tôi",
+    "live": "TRỰC TIẾP · Đang bay",
+    "scheduled": "Chưa cất cánh",
+    "landed": "Đã hạ cánh",
+    "updateEvery": "Cập nhật mỗi 100ms",
+    "etaLabel": "THỜI GIAN HẠ CÁNH DỰ KIẾN",
+    "etaSub": "Dự kiến hạ cánh lúc {{time}}",
+    "departed": "Cất cánh",
+    "arrival": "Hạ cánh",
+    "journey": "Hành trình",
+    "progress": "Tiến trình",
+    "passengers": "Hành khách",
+    "seat": "Ghế {{number}}",
+    "hour": "Giờ",
+    "min": "Phút",
+    "sec": "Giây",
+    "landedMsg": "Chuyến bay đã hạ cánh",
+    "thankYou": "Cảm ơn bạn đã bay cùng Vivudee",
+    "loadingMsg": "Đang tải thông tin chuyến bay...",
+    "errorMsg": "Không thể tải thông tin chuyến bay"
   }
 }
