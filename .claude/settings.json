@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Read(//d/Vivudee_Admin/src/components/**)"
+      "Read(//d/Vivudee_Admin/src/components/**)",
+      "Bash(node -e \"require\\('./src/services/flight.service.js'\\); console.log\\('OK - no import errors'\\);\")"
     ]
   }
 }
