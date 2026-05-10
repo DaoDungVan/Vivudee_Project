@@ -31,6 +31,25 @@ const isAirborne = (b) => {
   return now >= depMs && now < arrMs;
 };
 
+const isCompleted = (b) => {
+  const depTime  = b?.flight?.departure?.time;
+  const duration = b?.flight?.duration_minutes;
+  if (!depTime || !duration) return false;
+  return Date.now() >= new Date(depTime).getTime() + duration * 60 * 1000;
+};
+
+const flightStatus = (flight) => {
+  const depTime  = flight?.departure?.time;
+  const duration = flight?.duration_minutes;
+  if (!depTime || !duration) return "unknown";
+  const now   = Date.now();
+  const depMs = new Date(depTime).getTime();
+  const arrMs = depMs + duration * 60 * 1000;
+  if (now < depMs) return "upcoming";
+  if (now < arrMs) return "airborne";
+  return "landed";
+};
+
 const Bookings = () => {
   const navigate   = useNavigate();
   const location   = useLocation();
@@ -49,6 +68,7 @@ const Bookings = () => {
   const [cancelLoading, setCancelLoading] = useState(null);
   const [cancelError,   setCancelError]   = useState("");
   const [confirmCancel, setConfirmCancel] = useState(null);
+  const [trackerAlert,  setTrackerAlert]  = useState("");
 
   const getStatusColor = (status) => {
     const map = {
@@ -146,25 +166,24 @@ const Bookings = () => {
         <span className={styles.cardPrice}>{fmt(b.final_amount ?? b.total_price)}</span>
       </div>
 
-      {/* ✅ THÊM MỚI: Nút theo dõi — chỉ hiện khi đang bay */}
-      {isAirborne(b) && (
+      {b.status !== "cancelled" && (
         <button
-          className={styles.trackBtn}
+          className={`${styles.trackBtn} ${isCompleted(b) ? styles.trackBtnLanded : ""}`}
           onClick={(e) => {
-            // Ngăn sự kiện click lan lên bookingCard (tránh mở lookup)
             e.stopPropagation();
-            navigate(`/tracker/${b.flight?.id}`, {
-              state: { booking: b },
-            });
+            if (isCompleted(b)) {
+              setTrackerAlert("Chuyến bay đã hạ cánh. Hành trình đã hoàn thành.");
+              setTimeout(() => setTrackerAlert(""), 4000);
+            } else {
+              navigate(`/tracker/${b.flight?.id}`, { state: { booking: b } });
+            }
           }}
         >
-          {/* Chấm xanh nhấp nháy */}
-          <span className={styles.trackDot} />
-          ✈ Theo dõi chuyến bay
+          {isAirborne(b) && <span className={styles.trackDot} />}
+          ✈ {isCompleted(b) ? "Chuyến bay đã hạ cánh" : "Theo dõi chuyến bay"}
         </button>
       )}
 
-      {/* ✅ THÊM MỚI: Note nhỏ khi đang bay */}
       {isAirborne(b) && (
         <p className={styles.airborneNote}>● Đang bay · Bấm để xem vị trí realtime</p>
       )}
@@ -267,6 +286,24 @@ const Bookings = () => {
           {t("bookings.continuePayment")}
         </button>
       )}
+
+      {data.status !== "cancelled" && (
+        <button
+          className={`${styles.trackBtn} ${flightStatus(data.outbound_flight) === "landed" ? styles.trackBtnLanded : ""}`}
+          style={{ marginTop: 12 }}
+          onClick={() => {
+            if (flightStatus(data.outbound_flight) === "landed") {
+              setTrackerAlert("Chuyến bay đã hạ cánh. Hành trình đã hoàn thành.");
+              setTimeout(() => setTrackerAlert(""), 4000);
+            } else {
+              navigate(`/tracker/${data.outbound_flight?.id}`, { state: { booking: data } });
+            }
+          }}
+        >
+          {flightStatus(data.outbound_flight) === "airborne" && <span className={styles.trackDot} />}
+          ✈ {flightStatus(data.outbound_flight) === "landed" ? "Chuyến bay đã hạ cánh" : "Theo dõi chuyến bay"}
+        </button>
+      )}
     </div>
   );
 
@@ -283,6 +320,12 @@ const Bookings = () => {
       <main className={styles.main}>
         <div className={styles.wrapper}>
           <h2 className={styles.pageTitle}>{t("bookings.title")}</h2>
+
+          {trackerAlert && (
+            <div className={styles.trackerAlertBanner} onClick={() => setTrackerAlert("")}>
+              ✈ {trackerAlert}
+            </div>
+          )}
 
           <div className={styles.tabs}>
             <button className={`${styles.tab} ${tab === "lookup" ? styles.tabActive : ""}`} onClick={() => setTab("lookup")}>

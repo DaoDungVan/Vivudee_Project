@@ -513,3 +513,26 @@
   0%, 100% { opacity: 1; transform: scale(1); }
   50%       { opacity: .4; transform: scale(.8); }
 }
+
+.trackBtnLanded {
+  background: linear-gradient(135deg, #95a5a6, #7f8c8d) !important;
+}
+
+.trackerAlertBanner {
+  background: #e8f5e9;
+  border: 1px solid #27ae60;
+  border-radius: 12px;
+  padding: 12px 18px;
+  color: #1e7e34;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  cursor: pointer;
+  text-align: center;
+}
+
+[data-theme="dark"] .trackerAlertBanner {
+  background: rgba(39, 174, 96, 0.12);
+  border-color: rgba(39, 174, 96, 0.3);
+  color: #4ade80;
+}
