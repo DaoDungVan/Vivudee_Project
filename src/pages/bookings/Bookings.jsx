@@ -175,7 +175,7 @@ const Bookings = () => {
               setTrackerAlert("Chuyến bay đã hạ cánh. Hành trình đã hoàn thành.");
               setTimeout(() => setTrackerAlert(""), 4000);
             } else {
-              navigate(`/tracker/${b.flight?.id}`, { state: { booking: b } });
+              navigate(`/tracker/${b.flight?.flight_id}`, { state: { booking: b } });
             }
           }}
         >
@@ -296,7 +296,7 @@ const Bookings = () => {
               setTrackerAlert("Chuyến bay đã hạ cánh. Hành trình đã hoàn thành.");
               setTimeout(() => setTrackerAlert(""), 4000);
             } else {
-              navigate(`/tracker/${data.outbound_flight?.id}`, { state: { booking: data } });
+              navigate(`/tracker/${data.outbound_flight?.flight_id}`, { state: { booking: data } });
             }
           }}
         >
