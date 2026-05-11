@@ -49,7 +49,7 @@ const formatCountdown = (ms) => {
 
 const formatTime = (iso) => {
   if (!iso) return "--:--";
-  return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+  return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" });
 };
 
 const formatDate = (iso, lang) => {
