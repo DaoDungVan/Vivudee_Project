@@ -209,7 +209,7 @@
 .liveBadge {
   position: absolute;
   top: 12px;
-  left: 690px;
+  left: 730px;
   z-index: 1000;
   display: flex;
   align-items: center;
