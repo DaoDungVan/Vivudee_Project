@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import styles from "./PassengerForm.module.css";
+import planeIcon from "../../../assets/icons/plane.png";
 
 const buildBaggageOptions = (flight, t) => {
   const fixedKgs = [0, 5, 10, 20];
@@ -44,10 +45,10 @@ const FlightSummary = ({
     <div className={styles.flightRow}>
       <div className={styles.airlineInfo}>
         <img
-          src={flight.airline?.logo_url || "https://cdn-icons-png.flaticon.com/512/34/34627.png"}
+          src={flight.airline?.logo_url || planeIcon}
           alt={flight.airline?.name}
           className={styles.airlineLogo}
-          onError={(e) => { e.target.src = "https://cdn-icons-png.flaticon.com/512/34/34627.png"; }}
+          onError={(e) => { e.target.src = planeIcon; }}
         />
         <div>
           <p className={styles.airlineName}>{flight.airline?.name}</p>

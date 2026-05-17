@@ -412,8 +412,8 @@ const Payment = () => {
         <div className={styles.momoOverlay}>
           <div className={styles.momoOverlayCard}>
             <img src={vietqrImg} alt="PayOS" className={styles.momoOverlayLogo} />
-            <div className={styles.momoOverlaySpinner} />
-            <p className={styles.momoOverlayTitle}>{t("payment.connectingPayos")}</p>
+            <div className={styles.payosOverlaySpinner} />
+            <p className={styles.payosOverlayTitle}>{t("payment.connectingPayos")}</p>
             <p className={styles.momoOverlayNote}>{t("payment.waitPayos")}</p>
           </div>
         </div>
@@ -423,8 +423,8 @@ const Payment = () => {
         <div className={styles.momoOverlay}>
           <div className={styles.momoOverlayCard}>
             <img src={paypalImg} alt="PayPal" className={styles.momoOverlayLogo} />
-            <div className={styles.momoOverlaySpinner} />
-            <p className={styles.momoOverlayTitle}>{t("payment.connectingPaypal")}</p>
+            <div className={styles.paypalOverlaySpinner} />
+            <p className={styles.paypalOverlayTitle}>{t("payment.connectingPaypal")}</p>
             <p className={styles.momoOverlayNote}>{t("payment.waitPaypal")}</p>
           </div>
         </div>
@@ -659,7 +659,7 @@ const Payment = () => {
                 )}
 
                 {selectedMethod === "PAYPAL" && (
-                  <div className={styles.momoMethodNote}>
+                  <div className={styles.paypalMethodNote}>
                     <span>💳</span>
                     <span>
                       You will be redirected to PayPal. After payment, PayPal will redirect you back to Vivudee.

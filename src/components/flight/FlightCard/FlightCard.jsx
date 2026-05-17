@@ -1,6 +1,7 @@
 import { useState } from "react";
 import styles from "./FlightCard.module.css";
 import { useTranslation } from "react-i18next";
+import planeIcon from "../../../assets/icons/plane.png";
 
 const FlightCard = ({ flight, onSelect, isSelected }) => {
   const [expanded, setExpanded] = useState(false);
@@ -38,9 +39,9 @@ const FlightCard = ({ flight, onSelect, isSelected }) => {
         <div className={styles.left}>
           <div className={styles.logoWrapper}>
             <img
-              src={flight?.airline?.logo_url || "https://cdn-icons-png.flaticon.com/512/34/34627.png"}
+              src={flight?.airline?.logo_url || planeIcon}
               alt={flight?.airline?.name || "airline"}
-              onError={(e) => { e.target.onerror = null; e.target.src = "https://cdn-icons-png.flaticon.com/512/34/34627.png"; }}
+              onError={(e) => { e.target.onerror = null; e.target.src = planeIcon; }}
             />
           </div>
           <div className={styles.info}>

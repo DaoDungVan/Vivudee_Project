@@ -5,6 +5,7 @@ import Footer from "../../components/common/Footer/Footer";
 import { useTranslation } from "react-i18next";
 import { createBooking } from "../../services/bookingService";
 import styles from "./Booking.module.css";
+import planeIcon from "../../assets/icons/plane.png";
 
 const fmt = (n) => `${new Intl.NumberFormat("vi-VN").format(n)} VND`;
 
@@ -163,10 +164,10 @@ const Booking = () => {
       <p className={styles.summaryLabel}>{label}</p>
       <div className={styles.summaryRow}>
         <img
-          src={flight.airline?.logo_url || "https://cdn-icons-png.flaticon.com/512/34/34627.png"}
+          src={flight.airline?.logo_url || planeIcon}
           alt={flight.airline?.name}
           className={styles.summaryLogo}
-          onError={(e) => { e.target.src = "https://cdn-icons-png.flaticon.com/512/34/34627.png"; }}
+          onError={(e) => { e.target.src = planeIcon; }}
         />
         <div className={styles.summaryInfo}>
           <p className={styles.summaryAirline}>{flight.airline?.name}</p>

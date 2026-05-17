@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useNavigate }         from "react-router-dom";
 import { parseTokenFromHash }  from "../../lib/supabase";
 import API                     from "../../services/axiosInstance";
+import styles                  from "./AuthCallback.module.css";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -49,21 +50,9 @@ export default function AuthCallback() {
   }, [navigate]);
 
   return (
-    <div style={{
-      display: "flex", flexDirection: "column",
-      alignItems: "center", justifyContent: "center",
-      minHeight: "100vh", gap: 16,
-      background: "#f0f6ff", fontFamily: "Roboto, sans-serif",
-    }}>
-      <div style={{
-        width: 48, height: 48,
-        border: "4px solid #e0e8f0",
-        borderTop: "4px solid #0e81cd",
-        borderRadius: "50%",
-        animation: "spin 0.8s linear infinite",
-      }} />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      <p style={{ color: "#555", fontSize: 16 }}>{status}</p>
+    <div className={styles.page}>
+      <div className={styles.spinner} />
+      <p className={styles.status}>{status}</p>
     </div>
   );
 }
