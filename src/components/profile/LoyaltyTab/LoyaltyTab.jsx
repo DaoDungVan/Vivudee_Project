@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import i18n from "../../../i18n";
+import { useTheme } from "../../../hooks/useTheme";
 import { getMembership, getRewards, getLoyaltyHistory, redeemReward } from "../../../services/loyaltyService";
 import styles from "./LoyaltyTab.module.css";
 
@@ -122,7 +123,8 @@ const fmtPts = (n) => new Intl.NumberFormat("vi-VN").format(n ?? 0);
 const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString("vi-VN") : "—";
 
 export default function LoyaltyTab() {
-  const { t } = useTranslation();
+  const { t }      = useTranslation();
+  const { isDark } = useTheme();
 
   const [membership, setMembership]   = useState(null);
   const [rewards,    setRewards]      = useState([]);
@@ -230,7 +232,14 @@ export default function LoyaltyTab() {
       <div className={`${styles.tierBanner} ${tier.css}`}>
         <div className={styles.tierTop}>
           <div className={styles.tierBadge}>
-            <GemBadge tierKey={tier.gemKey} size={58} />
+            {(() => {
+              const badgeUrl = isDark
+                ? membership?.badge_url_dark  || membership?.badge_url_light
+                : membership?.badge_url_light || membership?.badge_url_dark;
+              return badgeUrl
+                ? <img src={badgeUrl} alt={t(tier.labelKey)} className={styles.tierBadgeImg} />
+                : <GemBadge tierKey={tier.gemKey} size={58} />;
+            })()}
             <div>
               <p className={styles.tierName}>{t(tier.labelKey)}</p>
               <p className={styles.tierLabel}>{t("loyalty.tierLabel")}</p>
