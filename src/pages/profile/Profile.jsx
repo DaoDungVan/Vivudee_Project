@@ -170,7 +170,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (!localStorage.getItem("token")) return;
-    getMembership()
+    getMembership("vi")
       .then((res) => setTierName((res.data?.data || res.data)?.tier_name || ""))
       .catch(() => {});
   }, []);

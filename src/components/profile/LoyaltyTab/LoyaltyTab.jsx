@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import i18n from "../../../i18n";
 import { getMembership, getRewards, getLoyaltyHistory, redeemReward } from "../../../services/loyaltyService";
 import styles from "./LoyaltyTab.module.css";
 
@@ -138,7 +139,8 @@ export default function LoyaltyTab() {
     const load = async () => {
       setLoading(true);
       try {
-        const [memRes, rewRes] = await Promise.all([getMembership(), getRewards()]);
+        const lang = i18n.language?.slice(0, 2) || "vi";
+        const [memRes, rewRes] = await Promise.all([getMembership(lang), getRewards()]);
         if (!active) return;
         setMembership(memRes.data?.data || memRes.data);
         setRewards(rewRes.data?.data || rewRes.data || []);
@@ -172,7 +174,7 @@ export default function LoyaltyTab() {
       const res = await redeemReward(rewardId);
       const d = res.data?.data || res.data;
       setVoucher(d?.voucherCode || d?.voucher_code || "—");
-      const memRes = await getMembership();
+      const memRes = await getMembership(i18n.language?.slice(0, 2) || "vi");
       setMembership(memRes.data?.data || memRes.data);
     } catch (err) {
       alert(err?.response?.data?.error || err?.response?.data?.message || "Đổi thưởng thất bại.");
