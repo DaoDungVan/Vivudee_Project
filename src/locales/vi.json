@@ -762,6 +762,10 @@
     "viewBtn": "Xem vé",
     "alsoLike": "Bạn cũng có thể quan tâm"
   },
+  "browseFlights": {
+    "title": "✈ Khám phá chuyến bay",
+    "sub": "Chọn tuyến bay phù hợp với bạn"
+  },
   "alternatives": {
     "title": "🔄 Chuyến bay thay thế",
     "subtitle": "Các lựa chọn khác còn chỗ cùng tuyến",

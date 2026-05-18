@@ -4,6 +4,7 @@ import FlightCard from "../../components/flight/FlightCard/FlightCard";
 import RecommendationBar from "../../components/flight/RecommendationBar/RecommendationBar";
 import PriceCalendar from "../../components/flight/PriceCalendar/PriceCalendar";
 import AlternativeFlights from "../../components/flight/AlternativeFlights/AlternativeFlights";
+import BrowseByAirline from "../../components/flight/BrowseByAirline/BrowseByAirline";
 import styles from "./FlightSearch.module.css";
 
 import { useEffect, useState } from "react";
@@ -102,8 +103,11 @@ const FlightSearch = () => {
 
   const initialData = { from, to, departureDate, returnDate, tripType, adults, children, seatClass };
 
+  const hasSearchParams = !!(from && to && departureDate);
+
   useEffect(() => {
     const fetchFlights = async () => {
+      if (!hasSearchParams) { setLoading(false); return; }
       setLoading(true);
       try {
         const res = await searchFlights({ from, to, departureDate, returnDate, tripType, adults, children, seatClass });
@@ -125,7 +129,7 @@ const FlightSearch = () => {
       }
     };
     fetchFlights();
-  }, [from, to, departureDate, returnDate, tripType, adults, children, seatClass]);
+  }, [from, to, departureDate, returnDate, tripType, adults, children, seatClass, hasSearchParams]);
 
   const handleSelectOutbound = (flight) => {
     if (selectedOutbound?.flight_id === flight.flight_id) { setShowBooking(true); return; }
@@ -175,40 +179,44 @@ const FlightSearch = () => {
             <div className={styles.topSticky}>
               <SearchFlightForm initialData={initialData} />
 
-              <div className={styles.filterToggleRow}>
-                <button
-                  className={styles.filterToggleBtn}
-                  type="button"
-                  onClick={() => setFiltersOpen((prev) => !prev)}
-                >
-                  {filtersOpen ? t("flightSearch.hideFilters") : t("flightSearch.showFilters")}
-                  {activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
-                </button>
-              </div>
-
-              <div className={styles.titleRow}>
-                <h2 className={styles.title}>
-                  {t("flightSearch.flights")} <strong>{from}</strong> → <strong>{to}</strong>
-                </h2>
-
-                {isRoundTrip && (
-                  <div className={styles.tabs}>
+              {hasSearchParams && (
+                <>
+                  <div className={styles.filterToggleRow}>
                     <button
-                      className={`${styles.tabBtn} ${step === "outbound" ? styles.activeTab : ""}`}
-                      onClick={() => setStep("outbound")}
+                      className={styles.filterToggleBtn}
+                      type="button"
+                      onClick={() => setFiltersOpen((prev) => !prev)}
                     >
-                      {t("flightSearch.outboundShort")}
-                    </button>
-                    <button
-                      className={`${styles.tabBtn} ${step === "return" ? styles.activeTab : ""}`}
-                      onClick={() => setStep("return")}
-                      disabled={!selectedOutbound}
-                    >
-                      {t("flightSearch.returnShort")}
+                      {filtersOpen ? t("flightSearch.hideFilters") : t("flightSearch.showFilters")}
+                      {activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
                     </button>
                   </div>
-                )}
-              </div>
+
+                  <div className={styles.titleRow}>
+                    <h2 className={styles.title}>
+                      {t("flightSearch.flights")} <strong>{from}</strong> → <strong>{to}</strong>
+                    </h2>
+
+                    {isRoundTrip && (
+                      <div className={styles.tabs}>
+                        <button
+                          className={`${styles.tabBtn} ${step === "outbound" ? styles.activeTab : ""}`}
+                          onClick={() => setStep("outbound")}
+                        >
+                          {t("flightSearch.outboundShort")}
+                        </button>
+                        <button
+                          className={`${styles.tabBtn} ${step === "return" ? styles.activeTab : ""}`}
+                          onClick={() => setStep("return")}
+                          disabled={!selectedOutbound}
+                        >
+                          {t("flightSearch.returnShort")}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Price Calendar */}
@@ -228,7 +236,9 @@ const FlightSearch = () => {
             )}
 
             <div className={styles.results}>
-              {loading ? (
+              {!hasSearchParams ? (
+                <BrowseByAirline />
+              ) : loading ? (
                 <p className={styles.loading}>{t("flightSearch.loadingFlights")}</p>
               ) : (
                 <div className={styles.sliderWrapper}>

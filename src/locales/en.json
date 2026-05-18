@@ -762,6 +762,10 @@
     "viewBtn": "View",
     "alsoLike": "You might also like"
   },
+  "browseFlights": {
+    "title": "✈ Explore Flights",
+    "sub": "Browse available flights by airline"
+  },
   "alternatives": {
     "title": "🔄 Alternative Flights",
     "subtitle": "Other available options on this route",
