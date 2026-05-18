@@ -82,7 +82,8 @@ const Transactions = () => {
   // Summary stats
   const totalPaid    = transactions.filter(t => ["PAID","SUCCESS","COMPLETED","CONFIRMED"].includes(t.status?.toUpperCase()))
     .reduce((s, t) => s + (Number(t.final_amount) || Number(t.amount) || 0), 0);
-  const totalPending = transactions.filter(t => t.status?.toUpperCase() === "PENDING").length;
+  const totalPending   = transactions.filter(t => t.status?.toUpperCase() === "PENDING").length;
+  const totalCancelled = transactions.filter(t => ["CANCELLED","EXPIRED","FAILED"].includes(t.status?.toUpperCase())).length;
 
   const statusInfo = (status) => {
     const info = STATUS_MAP[status?.toUpperCase()];
@@ -136,6 +137,10 @@ const Transactions = () => {
             <div className={styles.summaryCard}>
               <p className={styles.summaryLabel}>{t("transactions.totalPending")}</p>
               <p className={`${styles.summaryValue} ${totalPending > 0 ? styles.summaryOrange : ""}`}>{totalPending}</p>
+            </div>
+            <div className={styles.summaryCard}>
+              <p className={styles.summaryLabel}>{t("transactions.totalCancelled")}</p>
+              <p className={`${styles.summaryValue} ${totalCancelled > 0 ? styles.summaryRed : ""}`}>{totalCancelled}</p>
             </div>
           </div>
         )}

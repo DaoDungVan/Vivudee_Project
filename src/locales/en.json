@@ -630,6 +630,7 @@
     "emptyPendingMsg": "You have no transactions awaiting payment",
     "emptyCancel": "No cancelled transactions",
     "emptyCancelMsg": "You have no cancelled or failed transactions",
+    "totalCancelled": "Cancelled",
     "totalTx": "Transactions",
     "totalPaid": "Total Paid",
     "totalPending": "Pending",
