@@ -302,7 +302,7 @@
     "status_confirmed": "Confirmed",
     "status_cancelled": "Cancelled",
     "status_expired": "Expired",
-    "trackFlight": "✈ Track Flight",
+    "trackFlight": "Track Flight",
     "trackLanded": "Landed",
     "flightLanded": "This flight has landed.",
     "refundBtn": "↩ Request Refund",
