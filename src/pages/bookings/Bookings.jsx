@@ -4,6 +4,7 @@ import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import { useTranslation } from "react-i18next";
 import { getBookingByCode, getMyBookings, cancelBooking } from "../../services/bookingService";
+import { requestRefund } from "../../services/refundService";
 import styles from "./Bookings.module.css";
 
 const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n) + " VND";
@@ -70,6 +71,14 @@ const Bookings = () => {
   const [confirmCancel, setConfirmCancel] = useState(null);
   const [trackerAlert,  setTrackerAlert]  = useState("");
 
+  // Refund modal state
+  const [refundTarget,  setRefundTarget]  = useState(null);
+  const [refundType,    setRefundType]    = useState("full");
+  const [refundReason,  setRefundReason]  = useState("");
+  const [refundLoading, setRefundLoading] = useState(false);
+  const [refundError,   setRefundError]   = useState("");
+  const [refundSuccess, setRefundSuccess] = useState("");
+
   const getStatusColor = (status) => {
     const map = {
       pending:   { bg: "#fff8e1", color: "#f39c12", label: t("bookings.status_pending") },
@@ -134,6 +143,57 @@ const Bookings = () => {
         passengers: data.passengers?.list?.filter((p) => p.flight_type === "outbound")?.map((p) => ({ fullName: p.full_name })) || [],
       },
     });
+  };
+
+  // Tính policy hoàn vé dựa vào giờ còn đến departure
+  const getRefundPolicy = (depTime) => {
+    if (!depTime) return null;
+    const hoursLeft = (new Date(depTime) - Date.now()) / 3600000;
+    if (hoursLeft < 0)  return null;       // đã bay
+    if (hoursLeft < 12) return { pct: 0,   label: "Không được hoàn vé (< 12 giờ)" };
+    if (hoursLeft < 24) return { pct: 50,  label: "Hoàn 50% (12–24 giờ trước)" };
+    if (hoursLeft < 72) return { pct: 80,  label: "Hoàn 80% (24–72 giờ trước)" };
+    return              { pct: 100, label: "Hoàn 100% (> 72 giờ trước)" };
+  };
+
+  const canRequestRefund = (b) => {
+    if (b.status !== "confirmed") return false;
+    const depTime = b.flight?.departure?.time;
+    if (!depTime) return false;
+    const hoursLeft = (new Date(depTime) - Date.now()) / 3600000;
+    return hoursLeft >= 12;
+  };
+
+  const openRefundModal = (b) => {
+    setRefundTarget(b);
+    setRefundType("full");
+    setRefundReason("");
+    setRefundError("");
+    setRefundSuccess("");
+  };
+
+  const closeRefundModal = () => setRefundTarget(null);
+
+  const handleRefundSubmit = async () => {
+    if (refundReason.trim().length < 10) {
+      setRefundError("Lý do phải có ít nhất 10 ký tự.");
+      return;
+    }
+    setRefundLoading(true);
+    setRefundError("");
+    try {
+      const res = await requestRefund(refundTarget.booking_code, {
+        refund_type: refundType,
+        reason:      refundReason.trim(),
+      });
+      const d = res.data?.data || res.data;
+      setRefundSuccess(d?.refund_code || "Đã gửi yêu cầu thành công!");
+      fetchMyBookings();
+    } catch (err) {
+      setRefundError(err?.response?.data?.error || err?.response?.data?.message || "Gửi yêu cầu thất bại.");
+    } finally {
+      setRefundLoading(false);
+    }
   };
 
   const StatusBadge = ({ status }) => {
@@ -205,6 +265,21 @@ const Bookings = () => {
             {t("bookings.cancelBtn")}
           </button>
         )
+      )}
+
+      {showCancel && canRequestRefund(b) && (
+        <button
+          className={styles.refundBtn}
+          onClick={(e) => { e.stopPropagation(); openRefundModal(b); }}
+        >
+          ↩ Yêu cầu hoàn vé
+        </button>
+      )}
+
+      {showCancel && ["refund_pending", "refunded"].includes(b.status) && (
+        <span className={styles.refundPendingBadge}>
+          {b.status === "refund_pending" ? "⏳ Đang chờ hoàn vé" : "✅ Đã hoàn vé"}
+        </span>
       )}
     </div>
   );
@@ -362,6 +437,11 @@ const Bookings = () => {
           {tab === "my" && isLoggedIn && (
             <div className={styles.mySection}>
               {cancelError && <div className={styles.cancelErrorBanner}>{cancelError}</div>}
+              <div className={styles.refundHistoryLink}>
+                <button className={styles.refundHistoryBtn} onClick={() => navigate("/refunds")}>
+                  ↩ Xem lịch sử hoàn vé →
+                </button>
+              </div>
               <div className={styles.filterRow}>
                 {filterOptions.map((f) => (
                   <button key={f.id} className={`${styles.filterBtn} ${myFilter === f.id ? styles.filterActive : ""}`} onClick={() => setMyFilter(f.id)}>
@@ -386,6 +466,76 @@ const Bookings = () => {
         </div>
       </main>
       <Footer />
+
+      {/* REFUND MODAL */}
+      {refundTarget && (
+        <div className={styles.refundOverlay} onClick={(e) => { if (e.target === e.currentTarget) closeRefundModal(); }}>
+          <div className={styles.refundModal}>
+            <h3 className={styles.refundModalTitle}>Yêu cầu hoàn vé</h3>
+            <p className={styles.refundModalCode}>Mã đặt vé: <strong>{refundTarget.booking_code}</strong></p>
+
+            {/* Hiển thị policy */}
+            {(() => {
+              const policy = getRefundPolicy(refundTarget.flight?.departure?.time);
+              if (!policy) return null;
+              return (
+                <div className={`${styles.policyBox} ${policy.pct === 0 ? styles.policyZero : policy.pct === 100 ? styles.policyFull : styles.policyPartial}`}>
+                  <span>📋 {policy.label}</span>
+                  {policy.pct > 0 && (
+                    <span className={styles.policyAmt}>
+                      ≈ {new Intl.NumberFormat("vi-VN").format(
+                        Math.round((refundTarget.final_amount ?? refundTarget.total_price ?? 0) * policy.pct / 100)
+                      )} VND
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
+
+            {refundSuccess ? (
+              <div className={styles.refundSuccessBox}>
+                <p>✅ Yêu cầu đã được gửi!</p>
+                <p className={styles.refundSuccessCode}>Mã hoàn vé: <strong>{refundSuccess}</strong></p>
+                <button className={styles.refundSuccessClose} onClick={() => { closeRefundModal(); navigate("/refunds"); }}>
+                  Xem lịch sử hoàn vé →
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Loại hoàn */}
+                <label className={styles.refundLabel}>Loại hoàn vé</label>
+                <select className={styles.refundSelect} value={refundType} onChange={(e) => setRefundType(e.target.value)}>
+                  <option value="full">Hoàn toàn bộ vé</option>
+                  <option value="partial_leg">Hoàn 1 chặng</option>
+                  <option value="partial_passenger">Hoàn theo hành khách</option>
+                </select>
+
+                {/* Lý do */}
+                <label className={styles.refundLabel}>Lý do hoàn vé <span style={{color:"#ef4444"}}>*</span></label>
+                <textarea
+                  className={styles.refundTextarea}
+                  placeholder="Mô tả lý do hoàn vé (tối thiểu 10 ký tự)..."
+                  rows={3}
+                  value={refundReason}
+                  onChange={(e) => { setRefundReason(e.target.value); setRefundError(""); }}
+                />
+                {refundError && <p className={styles.refundError}>{refundError}</p>}
+
+                <div className={styles.refundActions}>
+                  <button className={styles.refundCancelModalBtn} onClick={closeRefundModal}>Huỷ</button>
+                  <button
+                    className={styles.refundSubmitBtn}
+                    onClick={handleRefundSubmit}
+                    disabled={refundLoading || getRefundPolicy(refundTarget.flight?.departure?.time)?.pct === 0}
+                  >
+                    {refundLoading ? "Đang gửi..." : "Gửi yêu cầu"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

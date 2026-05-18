@@ -5,6 +5,7 @@ import Coupon from "../../components/home/Coupon/Coupon";
 import HeroBanner from "../../components/home/HeroBanner/HeroBanner";
 import Payments from "../../components/home/Payments/Payments";
 import WhyChooseUs from "../../components/home/WhyChooseUs/WhyChooseUs";
+import Recommendations from "../../components/home/Recommendations/Recommendations";
 
 function Home() {
   return (
@@ -12,6 +13,7 @@ function Home() {
       <NavBar />
       <HeroBanner/>
       <Coupon />
+      <Recommendations from="SGN" to="HAN" title="✈ Chuyến bay gợi ý" />
       <Airlines/>
       <Payments/>
       <WhyChooseUs/>

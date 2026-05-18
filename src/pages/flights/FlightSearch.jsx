@@ -1,6 +1,8 @@
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import FlightCard from "../../components/flight/FlightCard/FlightCard";
+import RecommendationBar from "../../components/flight/RecommendationBar/RecommendationBar";
+import PriceCalendar from "../../components/flight/PriceCalendar/PriceCalendar";
 import styles from "./FlightSearch.module.css";
 
 import { useEffect, useState } from "react";
@@ -141,6 +143,8 @@ const FlightSearch = () => {
     else if (isRoundTrip && selectedOutbound && selectedReturn) setShowBooking(true);
   }, [selectedOutbound, selectedReturn, isRoundTrip]);
 
+  const [cheapestCalPrice, setCheapestCalPrice] = useState(null);
+
   const filteredOutbound = applyFilters(outboundFlights, filters);
   const filteredReturn = applyFilters(returnFlights, filters);
   const activeFilterCount =
@@ -206,6 +210,22 @@ const FlightSearch = () => {
               </div>
             </div>
 
+            {/* Price Calendar */}
+            {!loading && from && to && departureDate && (
+              <PriceCalendar
+                from={from}
+                to={to}
+                selectedDate={departureDate}
+                seatClass={seatClass || "economy"}
+                adults={Number(adults || 1)}
+                searchParams={new URLSearchParams(window.location.search).toString()}
+                onCalendarLoad={(calMap) => {
+                  const prices = Object.values(calMap).filter(Boolean);
+                  if (prices.length) setCheapestCalPrice(Math.min(...prices));
+                }}
+              />
+            )}
+
             <div className={styles.results}>
               {loading ? (
                 <p className={styles.loading}>{t("flightSearch.loadingFlights")}</p>
@@ -220,6 +240,7 @@ const FlightSearch = () => {
                           flight={flight}
                           onSelect={() => handleSelectOutbound(flight)}
                           isSelected={selectedOutbound?.flight_id === flight.flight_id}
+                          cheapestCalPrice={cheapestCalPrice}
                         />
                       ))}
                     </div>
@@ -242,6 +263,9 @@ const FlightSearch = () => {
                       )}
                     </div>
                   </div>
+
+                  {/* Gợi ý chuyến bay khác */}
+                  <RecommendationBar from={from} to={to} />
                 </div>
               )}
             </div>

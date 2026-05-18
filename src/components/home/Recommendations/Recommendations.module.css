@@ -1,0 +1,102 @@
+.section { padding: 0 0 60px; }
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.title { font-size: 22px; font-weight: 700; margin-bottom: 16px; color: var(--text-dark); }
+
+.grid {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-behavior: smooth;
+  cursor: grab;
+}
+.grid:active { cursor: grabbing; }
+.grid::-webkit-scrollbar { height: 4px; }
+.grid::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 10px; }
+
+/* Card */
+.card {
+  min-width: 240px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
+  flex-shrink: 0;
+}
+.card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+
+.cardTop { display: flex; align-items: center; gap: 10px; }
+
+.logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: var(--bg-muted);
+  flex-shrink: 0;
+}
+
+.airlineName { font-size: 13px; font-weight: 700; color: var(--text-dark); margin: 0; }
+.flightNum   { font-size: 11px; color: var(--text-muted); margin: 2px 0 0; font-family: monospace; }
+
+.route {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-dark);
+}
+.arrow { color: var(--text-muted); font-size: 14px; }
+
+.time { font-size: 11px; color: var(--text-secondary); }
+
+.cardBottom { display: flex; align-items: center; justify-content: space-between; }
+
+.price {
+  font-size: 15px;
+  font-weight: 800;
+  color: #e74c3c;
+  font-family: monospace;
+}
+
+.viewBtn {
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+.viewBtn:hover { opacity: 0.85; }
+
+/* Skeleton */
+.skeleton { animation: shimmer 1.4s infinite; }
+.skCard {
+  min-width: 240px;
+  height: 120px;
+  background: var(--bg-muted);
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+@keyframes shimmer {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+
+.error { font-size: 13px; color: var(--text-muted); }

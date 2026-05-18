@@ -3,7 +3,9 @@ import styles from "./FlightCard.module.css";
 import { useTranslation } from "react-i18next";
 import planeIcon from "../../../assets/icons/plane.png";
 
-const FlightCard = ({ flight, onSelect, isSelected }) => {
+const fmtShort = (n) => n >= 1e6 ? `${(n / 1e6).toFixed(1)}tr` : `${Math.round(n / 1000)}k`;
+
+const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
   const [expanded, setExpanded] = useState(false);
   const { t } = useTranslation();
 
@@ -46,6 +48,11 @@ const FlightCard = ({ flight, onSelect, isSelected }) => {
           </div>
           <div className={styles.info}>
             <h3>{flight?.airline?.name || t("flightCard.unknownAirline")}</h3>
+            {cheapestCalPrice && flight?.seat?.total_price > cheapestCalPrice && (
+              <span className={styles.cheaperBadge}>
+                📅 Có ngày rẻ hơn {fmtShort(flight.seat.total_price - cheapestCalPrice)}
+              </span>
+            )}
             <div className={styles.timeline}>
               <span>{formatTime(flight?.departure?.time)}</span>
               <div className={styles.line}></div>

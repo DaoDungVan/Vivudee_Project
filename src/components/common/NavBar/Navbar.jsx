@@ -12,6 +12,7 @@ import {
   FaSignOutAlt,
   FaBars,
   FaTimes,
+  FaUndo,
   FaSun,
   FaMoon,
 } from "react-icons/fa";
@@ -146,6 +147,9 @@ function NavBar() {
                     <p className={styles.icons} onClick={() => { navigate("/coupons"); setShowMenu(false); }}>
                       <FaTicketAlt /> {t("nav.coupons")}
                     </p>
+                    <p className={styles.icons} onClick={() => { navigate("/refunds"); setShowMenu(false); }}>
+                      <FaUndo /> My Refunds
+                    </p>
                     <p className={styles.icons} onClick={openChatWidget}>
                       <FaComments /> Chat
                     </p>
@@ -195,6 +199,7 @@ function NavBar() {
               <span onClick={() => { navigate("/my-booking"); closeMobile(); }}><FaPlane /> {t("nav.myBooking")}</span>
               <span onClick={() => { navigate("/transactions"); closeMobile(); }}><FaCreditCard /> {t("nav.transactions")}</span>
               <span onClick={() => { navigate("/coupons"); closeMobile(); }}><FaTicketAlt /> {t("nav.coupons")}</span>
+              <span onClick={() => { navigate("/refunds"); closeMobile(); }}><FaUndo /> My Refunds</span>
               <span onClick={openChatWidget}><FaComments /> Chat</span>
               <span className={styles.mobileLogout} onClick={() => { handleLogout(); closeMobile(); }}><FaSignOutAlt /> {t("nav.logout")}</span>
             </>

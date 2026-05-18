@@ -26,12 +26,35 @@
   text-align: center;
   color: #fff;
 }
+.avatarWrap {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
 .avatar {
   width: 80px;
   height: 80px;
   border-radius: 50%;
   border: 3px solid rgba(255,255,255,0.4);
-  margin-bottom: 12px;
+  display: block;
+}
+
+/* Hexagon tier badge — góc dưới phải */
+.tierHex {
+  position: absolute;
+  bottom: -2px;
+  right: -4px;
+  width: 24px;
+  height: 24px;
+  clip-path: polygon(50% 0%,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 900;
+  color: rgba(0,0,0,0.6);
+  letter-spacing: 0;
 }
 .sidebarName {
   font-size: 16px;

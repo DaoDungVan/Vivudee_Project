@@ -536,3 +536,172 @@
   border-color: rgba(39, 174, 96, 0.3);
   color: #4ade80;
 }
+
+/* ── Refund ── */
+.refundBtn {
+  width: 100%;
+  padding: 8px 14px;
+  background: #f0f9ff;
+  color: #0e81cd;
+  border: 1px solid #93c5fd;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.refundBtn:hover { background: #0e81cd; color: #fff; }
+[data-theme="dark"] .refundBtn { background: rgba(14,129,205,0.12); }
+
+.refundPendingBadge {
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #d97706;
+  padding: 6px 0;
+}
+
+.refundHistoryLink { margin-bottom: 14px; text-align: right; }
+.refundHistoryBtn {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+.refundHistoryBtn:hover { text-decoration: underline; }
+
+/* Refund Modal */
+.refundOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.refundModal {
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: clamp(20px, 4vw, 36px);
+  max-width: 460px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.refundModalTitle { font-size: 20px; font-weight: 800; color: var(--text-dark); margin: 0; }
+.refundModalCode  { font-size: 13px; color: var(--text-muted); margin: 0; }
+
+.policyBox {
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.policyFull    { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+.policyPartial { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
+.policyZero    { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+[data-theme="dark"] .policyFull    { background: rgba(21,128,61,0.15); border-color: rgba(134,239,172,0.3); color: #4ade80; }
+[data-theme="dark"] .policyPartial { background: rgba(133,77,14,0.15); border-color: rgba(253,230,138,0.3); color: #fde68a; }
+[data-theme="dark"] .policyZero    { background: rgba(220,38,38,0.15); border-color: rgba(252,165,165,0.3); color: #f87171; }
+.policyAmt { font-size: 15px; font-weight: 900; font-family: monospace; }
+
+.refundLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0;
+}
+
+.refundSelect {
+  width: 100%;
+  height: 44px;
+  border: 1.5px solid var(--input-border);
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 14px;
+  background: var(--input-bg);
+  color: var(--input-text);
+  outline: none;
+}
+
+.refundTextarea {
+  width: 100%;
+  border: 1.5px solid var(--input-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  background: var(--input-bg);
+  color: var(--input-text);
+  resize: vertical;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+.refundTextarea:focus { border-color: var(--primary-color); }
+
+.refundError { color: #ef4444; font-size: 12px; margin: 0; }
+
+.refundActions { display: flex; gap: 10px; }
+.refundCancelModalBtn {
+  flex: 1;
+  height: 46px;
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.refundSubmitBtn {
+  flex: 2;
+  height: 46px;
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.refundSubmitBtn:hover:not(:disabled) { opacity: 0.88; }
+.refundSubmitBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.refundSuccessBox {
+  text-align: center;
+  padding: 16px 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.refundSuccessBox p { margin: 0; font-size: 16px; font-weight: 700; color: #16a34a; }
+.refundSuccessCode  { font-size: 13px !important; color: var(--text-muted) !important; font-weight: 400 !important; }
+.refundSuccessClose {
+  margin-top: 8px;
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}

@@ -1,0 +1,120 @@
+.wrap {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 8px;
+}
+
+.title { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.7px; margin: 0; }
+
+.navBtn {
+  background: var(--bg-muted);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.navBtn:hover:not(:disabled) { background: var(--primary-color); color: #fff; }
+.navBtn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.grid {
+  display: flex;
+  gap: 8px;
+}
+
+.cell {
+  flex: 1;
+  min-width: 0;
+  border-radius: 12px;
+  padding: 10px 6px;
+  text-align: center;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.15s;
+  background: var(--bg-muted);
+}
+.cell:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+.cellSelected {
+  border-color: var(--primary-color) !important;
+  background: var(--info-bg) !important;
+  box-shadow: 0 0 0 3px rgba(14,129,205,0.15);
+}
+
+.cellCheaper { background: #dcfce7; }
+.cellPricier { background: #fee2e2; }
+
+[data-theme="dark"] .cellCheaper { background: rgba(22,163,74,0.15); }
+[data-theme="dark"] .cellPricier { background: rgba(220,38,38,0.12); }
+
+.dayLabel {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.dateNum {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-dark);
+  line-height: 1.2;
+}
+
+.cellSelected .dateNum { color: var(--primary-color); }
+
+.cellPrice {
+  font-size: 10px;
+  font-weight: 700;
+  font-family: monospace;
+  margin-top: 4px;
+  color: var(--text-secondary);
+}
+.cellCheaper .cellPrice { color: #16a34a; }
+.cellPricier .cellPrice { color: #dc2626; }
+.cellSelected .cellPrice { color: var(--primary-color); }
+
+.noPrice { font-size: 9px; color: var(--text-muted); margin-top: 4px; }
+
+.diffLabel {
+  font-size: 9px;
+  margin-top: 2px;
+  font-weight: 600;
+  color: #16a34a;
+}
+.diffPricier { color: #dc2626; }
+
+/* Skeleton */
+.skCell {
+  flex: 1;
+  height: 74px;
+  background: var(--bg-muted);
+  border-radius: 12px;
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+@media (max-width: 600px) {
+  .dateNum  { font-size: 13px; }
+  .cellPrice { font-size: 9px; }
+  .grid { gap: 5px; }
+  .cell { padding: 8px 4px; }
+}

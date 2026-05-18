@@ -8,7 +8,10 @@
       "Bash(Get-ChildItem -Path \"g:\\\\Vivudee_Project\" -Recurse -Force)",
       "Bash(Select-Object FullName)",
       "Read(//mnt/g/**)",
-      "Bash(dir \"G:\\\\\\\\backend-log-function\\\\\\\\\")"
+      "Bash(dir \"G:\\\\\\\\backend-log-function\\\\\\\\\")",
+      "Read(//d/backend-log-function/src/services/**)",
+      "Read(//d/backend-log-function/src/queries/**)",
+      "Read(//d/backend-log-function/src/**)"
     ]
   }
 }

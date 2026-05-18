@@ -1,0 +1,368 @@
+/* ── Tier banner ── */
+.tierBanner {
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+}
+
+/* Tier-specific gradients */
+.tierBronze   { background: linear-gradient(135deg, #cd7f32, #b87333); }
+.tierSilver   { background: linear-gradient(135deg, #c0c0c0, #9e9e9e); }
+.tierGold     { background: linear-gradient(135deg, #ffd700, #f59e0b); }
+.tierPlatinum { background: linear-gradient(135deg, #e8e8e8, #c8c8d0); }
+
+.tierBronze   .tierName,
+.tierBronze   .tierPts,
+.tierBronze   .tierLabel   { color: #7a4a1e; }
+.tierSilver   .tierName,
+.tierSilver   .tierPts,
+.tierSilver   .tierLabel   { color: #3a3a3a; }
+.tierGold     .tierName,
+.tierGold     .tierPts,
+.tierGold     .tierLabel   { color: #7a5c00; }
+.tierPlatinum .tierName,
+.tierPlatinum .tierPts,
+.tierPlatinum .tierLabel   { color: #3a3a5a; }
+
+.tierTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 12px;
+}
+
+.tierBadge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tierIcon { font-size: 32px; }
+
+.tierName {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.tierLabel {
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 2px 0 0;
+}
+
+.tierPtsBox { text-align: right; }
+
+.tierPts {
+  font-size: 28px;
+  font-weight: 900;
+  font-family: monospace;
+  margin: 0;
+}
+
+.tierPtsLabel {
+  font-size: 11px;
+  opacity: 0.7;
+  margin: 2px 0 0;
+}
+
+/* Progress bar */
+.progressRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  opacity: 0.8;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.progressTrack {
+  height: 8px;
+  background: rgba(0,0,0,0.18);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+  background: rgba(255,255,255,0.6);
+}
+
+.progressNote {
+  font-size: 11px;
+  opacity: 0.75;
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+.tierMax .progressNote { opacity: 0.8; }
+
+/* ── Benefits ── */
+.benefitsCard {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+}
+
+.benefitsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.benefitItem {
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.benefitItem::before {
+  content: "✦";
+  color: var(--primary-color);
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+/* ── Rewards ── */
+.rewardsCard {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+
+.rewardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.rewardItem {
+  background: var(--bg-muted);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rewardPoints {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--primary-color);
+  font-family: monospace;
+}
+
+.rewardPtsLabel {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: -4px;
+}
+
+.rewardName {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 4px 0 2px;
+}
+
+.rewardDesc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.redeemBtn {
+  margin-top: 6px;
+  width: 100%;
+  height: 34px;
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.redeemBtn:hover:not(:disabled) { opacity: 0.85; }
+.redeemBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.rewardNoFunds {
+  font-size: 10px;
+  color: #ef4444;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.emptyRewards {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* Voucher popup */
+.voucherBox {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+[data-theme="dark"] .voucherBox {
+  background: rgba(34,197,94,0.1);
+  border-color: rgba(74,222,128,0.3);
+}
+
+.voucherLabel { font-size: 12px; color: #15803d; font-weight: 600; }
+.voucherCode {
+  font-size: 18px;
+  font-weight: 900;
+  color: #16a34a;
+  letter-spacing: 2px;
+  font-family: monospace;
+}
+[data-theme="dark"] .voucherLabel { color: #4ade80; }
+[data-theme="dark"] .voucherCode  { color: #4ade80; }
+
+.voucherClose {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text-muted);
+  padding: 0;
+  line-height: 1;
+}
+
+/* ── History ── */
+.historyCard {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+}
+
+.historyTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.historyTable th {
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--text-muted);
+  padding: 0 0 10px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.historyTable td {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--divider-muted);
+  color: var(--text-secondary);
+  vertical-align: top;
+}
+
+.historyTable tr:last-child td { border-bottom: none; }
+
+.txType {
+  display: inline-block;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.txEarn   { background: #dcfce7; color: #16a34a; }
+.txRedeem { background: #dbeafe; color: #1d4ed8; }
+.txRevoke { background: #fee2e2; color: #dc2626; }
+[data-theme="dark"] .txEarn   { background: rgba(22,163,74,0.15);   color: #4ade80; }
+[data-theme="dark"] .txRedeem { background: rgba(29,78,216,0.15);   color: #60a5fa; }
+[data-theme="dark"] .txRevoke { background: rgba(220,38,38,0.15);   color: #f87171; }
+
+.txPoints {
+  font-weight: 800;
+  font-family: monospace;
+  white-space: nowrap;
+}
+.txPositive { color: #16a34a; }
+.txNegative { color: #dc2626; }
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.pageBtn {
+  background: var(--bg-muted);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: background 0.15s;
+}
+.pageBtn:hover:not(:disabled) { background: var(--primary-color); color: #fff; }
+.pageBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pageInfo { font-size: 12px; color: var(--text-muted); }
+
+.emptyHistory {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* Loading / Error */
+.loading { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
+.errorMsg { color: #dc2626; font-size: 13px; margin-bottom: 14px; }
+
+@media (max-width: 600px) {
+  .rewardsGrid { grid-template-columns: 1fr 1fr; }
+  .tierPts { font-size: 22px; }
+  .tierName { font-size: 18px; }
+}

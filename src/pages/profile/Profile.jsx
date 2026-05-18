@@ -6,7 +6,17 @@ import Footer from "../../components/common/Footer/Footer";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import API from "../../services/axiosInstance";
 import { forgotPassword, resetPassword } from "../../services/authService";
+import { getMembership } from "../../services/loyaltyService";
+import LoyaltyTab from "../../components/profile/LoyaltyTab/LoyaltyTab";
 import styles from "./Profile.module.css";
+
+const TIER_STYLES = {
+  member:   { border: "#cd7f32", glow: "rgba(205,127,50,0.4)",  abbr: "Đ",  bg: "linear-gradient(135deg,#cd7f32,#b87333)" },
+  silver:   { border: "#c0c0c0", glow: "rgba(192,192,192,0.4)", abbr: "B",  bg: "linear-gradient(135deg,#c0c0c0,#9e9e9e)" },
+  gold:     { border: "#ffd700", glow: "rgba(255,215,0,0.5)",   abbr: "V",  bg: "linear-gradient(135deg,#ffd700,#f59e0b)" },
+  platinum: { border: "#c8c8d0", glow: "rgba(200,200,208,0.5)", abbr: "BK", bg: "linear-gradient(135deg,#e8e8e8,#c8c8d0)" },
+};
+const getTierStyle = (name = "") => TIER_STYLES[name.toLowerCase()] || null;
 
 const MAX_AVATAR_FILE_SIZE = 5 * 1024 * 1024;
 const MAX_AVATAR_DIMENSION = 512;
@@ -91,6 +101,7 @@ const Profile = () => {
   const [success, setSuccess]   = useState("");
   const [error, setError]       = useState("");
   const [activeTab, setActiveTab] = useState("info");
+  const [tierName, setTierName] = useState("");
 
   // ── Change Password Modal ──
   const [showChangePw, setShowChangePw] = useState(false);
@@ -156,6 +167,13 @@ const Profile = () => {
   }, []);
 
   useEffect(() => {
+    if (!localStorage.getItem("token")) return;
+    getMembership()
+      .then((res) => setTierName((res.data?.data || res.data)?.tier_name || ""))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
     if (!showChangePw || cpStep !== 2 || cpCountdown <= 0) return;
     const timer = setInterval(() => setCpCountdown((prev) => prev - 1), 1000);
     return () => clearInterval(timer);
@@ -167,7 +185,8 @@ const Profile = () => {
     return `${m}:${s}`;
   };
 
-  const avatarUrl = form.avatar_url || user?.avatar_url || getAvatarFallbackUrl(form.full_name || user?.email || "User");
+  const avatarUrl  = form.avatar_url || user?.avatar_url || getAvatarFallbackUrl(form.full_name || user?.email || "User");
+  const tierStyle  = getTierStyle(tierName);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -363,14 +382,33 @@ const Profile = () => {
           {/* Sidebar */}
           <div className={styles.sidebar}>
             <div className={styles.avatarSection}>
-              <img src={avatarUrl} alt="avatar" className={styles.avatar} />
+              <div className={styles.avatarWrap}>
+                <img
+                  src={avatarUrl}
+                  alt="avatar"
+                  className={styles.avatar}
+                  style={tierStyle ? {
+                    border: `3px solid ${tierStyle.border}`,
+                    boxShadow: `0 0 0 2px ${tierStyle.glow}, 0 0 12px ${tierStyle.glow}`,
+                  } : {}}
+                />
+                {tierStyle && (
+                  <span
+                    className={styles.tierHex}
+                    style={{ background: tierStyle.bg }}
+                  >
+                    {tierStyle.abbr}
+                  </span>
+                )}
+              </div>
               <p className={styles.sidebarName}>{user?.full_name || "User"}</p>
               <p className={styles.sidebarEmail}>{user?.email}</p>
             </div>
             <nav className={styles.sideNav}>
               {[
-                { id: "info",     label: "Personal Info", icon: "👤" },
-                { id: "security", label: "Security",      icon: "🔒" },
+                { id: "info",       label: "Personal Info", icon: "👤" },
+                { id: "security",   label: "Security",      icon: "🔒" },
+                { id: "membership", label: "Membership",    icon: "🏅" },
               ].map((item) => (
                 <button
                   key={item.id}
@@ -389,6 +427,9 @@ const Profile = () => {
               </button>
               <button className={styles.sideNavBtn} onClick={() => navigate("/coupons")}>
                 <span>🎟</span> Coupons
+              </button>
+              <button className={styles.sideNavBtn} onClick={() => navigate("/refunds")}>
+                <span>↩️</span> My Refunds
               </button>
             </nav>
           </div>
@@ -463,6 +504,14 @@ const Profile = () => {
                 </button>
                   </>
                 )}
+              </div>
+            )}
+
+            {activeTab === "membership" && (
+              <div className={styles.card}>
+                <h2 className={styles.cardTitle}>Membership</h2>
+                <p className={styles.cardSubtitle}>Tích điểm, đổi thưởng và theo dõi hạng thành viên</p>
+                <LoyaltyTab />
               </div>
             )}
 

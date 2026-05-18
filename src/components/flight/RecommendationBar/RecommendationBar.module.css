@@ -1,0 +1,27 @@
+.wrap { margin-top: 24px; }
+.title { font-size: 14px; font-weight: 700; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.6px; }
+
+.grid { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.card {
+  flex: 1;
+  min-width: 200px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.card:hover { border-color: var(--primary-color); box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+
+.logo { width: 28px; height: 28px; object-fit: contain; border-radius: 6px; flex-shrink: 0; }
+
+.info { flex: 1; min-width: 0; }
+.route { font-size: 14px; font-weight: 800; color: var(--text-dark); }
+.sub   { font-size: 11px; color: var(--text-muted); }
+
+.price { font-size: 14px; font-weight: 800; color: #e74c3c; white-space: nowrap; font-family: monospace; }
