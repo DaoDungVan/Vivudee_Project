@@ -13,7 +13,7 @@ function Home() {
       <NavBar />
       <HeroBanner/>
       <Coupon />
-      <Recommendations from="SGN" to="HAN" title="✈ Chuyến bay gợi ý" />
+      <Recommendations from="SGN" to="HAN" />
       <Airlines/>
       <Payments/>
       <WhyChooseUs/>

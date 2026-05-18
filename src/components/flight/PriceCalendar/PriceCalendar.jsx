@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { getPriceCalendar } from "../../../services/flightService";
 import styles from "./PriceCalendar.module.css";
 
@@ -17,6 +18,7 @@ const WINDOW = 2; // ngày trước + ngày sau
 
 export default function PriceCalendar({ from, to, selectedDate, seatClass = "economy", adults = 1, searchParams, onCalendarLoad }) {
   const navigate  = useNavigate();
+  const { t }     = useTranslation();
   const [calData, setCalData]   = useState({});   // { "YYYY-MM-DD": min_price }
   const [loading, setLoading]   = useState(false);
   const [offset,  setOffset]    = useState(0);    // dịch cửa sổ ngày
@@ -63,7 +65,7 @@ export default function PriceCalendar({ from, to, selectedDate, seatClass = "eco
   return (
     <div className={styles.wrap}>
       <div className={styles.header}>
-        <p className={styles.title}>📅 So sánh giá theo ngày</p>
+        <p className={styles.title}>{t("priceCalendar.title")}</p>
         <button
           className={styles.navBtn}
           onClick={() => setOffset((o) => o - 1)}

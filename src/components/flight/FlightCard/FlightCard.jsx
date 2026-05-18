@@ -50,7 +50,7 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
             <h3>{flight?.airline?.name || t("flightCard.unknownAirline")}</h3>
             {cheapestCalPrice && flight?.seat?.total_price > cheapestCalPrice && (
               <span className={styles.cheaperBadge}>
-                📅 Có ngày rẻ hơn {fmtShort(flight.seat.total_price - cheapestCalPrice)}
+                {t("flightCard.cheaperBadge", { amount: fmtShort(flight.seat.total_price - cheapestCalPrice) })}
               </span>
             )}
             <div className={styles.timeline}>

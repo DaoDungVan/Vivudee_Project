@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { getRecommendations } from "../../../services/flightService";
 import planeIcon from "../../../assets/icons/plane.png";
 import styles from "./RecommendationBar.module.css";
@@ -8,6 +9,7 @@ const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n ?? 0) + " ₫";
 
 export default function RecommendationBar({ from, to }) {
   const navigate = useNavigate();
+  const { t }    = useTranslation();
   const [flights, setFlights] = useState([]);
 
   useEffect(() => {
@@ -26,7 +28,7 @@ export default function RecommendationBar({ from, to }) {
 
   return (
     <div className={styles.wrap}>
-      <p className={styles.title}>Bạn cũng có thể quan tâm</p>
+      <p className={styles.title}>{t("recommendations.alsoLike")}</p>
       <div className={styles.grid}>
         {flights.map((f) => (
           <div key={f.flight_id} className={styles.card} onClick={() => handlePick(f)}>

@@ -11,7 +11,8 @@
     "logout": "Logout",
     "login": "Login",
     "register": "Register",
-    "hi": "Hi, {{name}}"
+    "hi": "Hi, {{name}}",
+    "myRefunds": "My Refunds"
   },
   "hero": {
     "title": "Find Cheap Flights & Airline Deals",
@@ -60,7 +61,8 @@
     "checkedBaggage": "🧳 {{kg}} kg checked baggage",
     "cabinBaggage": "🎒 {{kg}} kg cabin baggage",
     "extraBaggage": "➕ Extra baggage packages: {{options}}",
-    "unknownAirline": "Unknown Airline"
+    "unknownAirline": "Unknown Airline",
+    "cheaperBadge": "📅 Cheaper on other dates (-{{amount}})"
   },
   "flightSearch": {
     "outbound": "Outbound flight",
@@ -246,7 +248,11 @@
     "cpError6digit": "Please enter the complete 6-digit OTP",
     "cpErrorRequired": "Password is required",
     "cpErrorLength": "Password must be at least 8 characters",
-    "cpErrorMatch": "Passwords do not match"
+    "cpErrorMatch": "Passwords do not match",
+    "membership": "Membership",
+    "membershipTitle": "Membership",
+    "membershipSubtitle": "Track points, redeem rewards and view tier status",
+    "myRefunds": "My Refunds"
   },
   "bookings": {
     "title": "Bookings",
@@ -295,7 +301,30 @@
     "status_pending": "Pending Payment",
     "status_confirmed": "Confirmed",
     "status_cancelled": "Cancelled",
-    "status_expired": "Expired"
+    "status_expired": "Expired",
+    "refundBtn": "↩ Request Refund",
+    "refundPendingBadge": "⏳ Refund Pending",
+    "refundedBadge": "✅ Refunded",
+    "refundHistoryBtn": "Refund History →",
+    "refundModalTitle": "Request Refund",
+    "refundModalCode": "Booking Code:",
+    "refundTypeLabel": "Refund Type",
+    "refundTypeFull": "Full Refund",
+    "refundTypeLeg": "1 Leg Refund",
+    "refundTypePassenger": "Refund by Passenger",
+    "refundReasonLabel": "Reason",
+    "refundReasonPlaceholder": "Describe your reason (min 10 characters)...",
+    "refundReasonError": "Reason must be at least 10 characters.",
+    "refundCancel": "Cancel",
+    "refundSubmit": "Submit Request",
+    "refundSubmitting": "Submitting...",
+    "refundSuccessMsg": "Request submitted successfully!",
+    "refundSuccessCode": "Refund code:",
+    "viewRefunds": "View Refund History →",
+    "policyFull100": "Full refund 100% (> 72 hrs before)",
+    "policy80": "80% refund (24–72 hrs before)",
+    "policy50": "50% refund (12–24 hrs before)",
+    "policyZero": "No refund (< 12 hrs before)"
   },
   "booking": {
     "title": "Passenger Information",
@@ -644,6 +673,73 @@
     "iconCatTravel": "Travel",
     "iconCatFun": "Fun",
     "jumpToLatest": "Jump to latest"
+  },
+  "loyalty": {
+    "tierLabel": "Membership Tier",
+    "currentPtsLabel": "redeemable points",
+    "tierPtsLabel": "tier points",
+    "progressLeft": "Need {{amount}} pts → {{tier}}",
+    "maxTier": "🎉 You are at the highest tier!",
+    "benefitsTitle": "{{tier}} Tier Benefits",
+    "rewardsTitle": "Redeem Points for Rewards",
+    "emptyRewards": "No rewards available at this time.",
+    "redeemBtn": "Redeem",
+    "redeemingBtn": "Redeeming...",
+    "pointsUnit": "points",
+    "noFunds": "Need {{amount}} more pts",
+    "voucherLabel": "Your Voucher Code",
+    "historyTitle": "Points Transaction History",
+    "historyEmpty": "No transactions yet.",
+    "txType": "Type",
+    "txDesc": "Description",
+    "txPoints": "Points",
+    "txDate": "Date",
+    "txEarn": "Earn",
+    "txRedeem": "Redeem",
+    "txRevoke": "Revoke",
+    "prevPage": "← Prev",
+    "nextPage": "Next →",
+    "pageLabel": "Page {{page}} / {{total}}",
+    "loading": "Loading..."
+  },
+  "refunds": {
+    "title": "Refund History",
+    "subtitle": "Track the status of your refund requests",
+    "loading": "Loading...",
+    "emptyTitle": "No refund requests yet",
+    "emptyMsg": "When you request a refund, it will appear here.",
+    "statusPending": "Pending",
+    "statusApproved": "Approved",
+    "statusCompleted": "Completed",
+    "statusRejected": "Rejected",
+    "statusCancelled": "Cancelled",
+    "statusProcessing": "Processing",
+    "statusFailed": "Failed",
+    "bookingCodeLabel": "Booking Code",
+    "typeFull": "Full Refund",
+    "typeLeg": "1 Leg Refund",
+    "typePassenger": "Passenger Refund",
+    "reasonLabel": "Reason",
+    "createdAt": "Created",
+    "adminNotes": "Note",
+    "cancelBtn": "Cancel Request",
+    "cancellingBtn": "Cancelling...",
+    "prevPage": "← Prev",
+    "nextPage": "Next →",
+    "pageLabel": "Page {{page}} / {{total}}"
+  },
+  "recommendations": {
+    "title": "✈ Recommended Flights",
+    "viewBtn": "View",
+    "alsoLike": "You might also like"
+  },
+  "alternatives": {
+    "title": "🔄 Alternative Flights",
+    "subtitle": "Other available options on this route",
+    "selectBtn": "Select"
+  },
+  "priceCalendar": {
+    "title": "📅 Compare Prices by Date"
   },
   "tracker": {
     "myBookings": "My Bookings",

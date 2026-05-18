@@ -76,7 +76,7 @@ export default function LoyaltyTab() {
     }
   };
 
-  if (loading) return <div className={styles.loading}>Đang tải...</div>;
+  if (loading) return <div className={styles.loading}>{t("loyalty.loading")}</div>;
   if (error)   return <div className={styles.errorMsg}>{error}</div>;
 
   const tier     = getTierMeta(membership?.tier_name);
@@ -96,6 +96,11 @@ export default function LoyaltyTab() {
     if (type === "redeem") return `${styles.txType} ${styles.txRedeem}`;
     return `${styles.txType} ${styles.txRevoke}`;
   };
+  const txLabel = (type) => {
+    if (type === "earn")   return t("loyalty.txEarn");
+    if (type === "redeem") return t("loyalty.txRedeem");
+    return t("loyalty.txRevoke");
+  };
 
   return (
     <div>
@@ -103,7 +108,7 @@ export default function LoyaltyTab() {
       {voucher && (
         <div className={styles.voucherBox}>
           <div>
-            <p className={styles.voucherLabel}>Mã voucher của bạn</p>
+            <p className={styles.voucherLabel}>{t("loyalty.voucherLabel")}</p>
             <p className={styles.voucherCode}>{voucher}</p>
           </div>
           <button className={styles.voucherClose} onClick={() => setVoucher(null)}>✕</button>
@@ -117,33 +122,31 @@ export default function LoyaltyTab() {
             <span className={styles.tierIcon}>{tier.icon}</span>
             <div>
               <p className={styles.tierName}>{tier.label}</p>
-              <p className={styles.tierLabel}>Hạng thành viên</p>
+              <p className={styles.tierLabel}>{t("loyalty.tierLabel")}</p>
             </div>
           </div>
           <div className={styles.tierPtsBox}>
             <p className={styles.tierPts}>{fmtPts(membership?.current_points)}</p>
-            <p className={styles.tierPtsLabel}>điểm tích lũy</p>
+            <p className={styles.tierPtsLabel}>{t("loyalty.currentPtsLabel")}</p>
           </div>
         </div>
 
         <div className={styles.progressRow}>
-          <span>{fmtPts(curPts)} điểm hạng</span>
-          {!isMax && <span>Cần {fmtPts(nextPts)} → {membership?.next_tier?.name}</span>}
+          <span>{fmtPts(curPts)} {t("loyalty.tierPtsLabel")}</span>
+          {!isMax && <span>{t("loyalty.progressLeft", { amount: fmtPts(nextPts - curPts), tier: membership?.next_tier?.name })}</span>}
         </div>
         <div className={styles.progressTrack}>
           <div className={styles.progressFill} style={{ width: `${progress}%` }} />
         </div>
         <p className={styles.progressNote}>
-          {isMax
-            ? "🎉 Bạn đang ở hạng cao nhất!"
-            : `Còn ${fmtPts(nextPts - curPts)} điểm để lên hạng ${membership?.next_tier?.name}`}
+          {isMax ? t("loyalty.maxTier") : t("loyalty.progressLeft", { amount: fmtPts(nextPts - curPts), tier: membership?.next_tier?.name })}
         </p>
       </div>
 
       {/* Benefits */}
       {membership?.benefits?.length > 0 && (
         <div className={styles.benefitsCard}>
-          <p className={styles.sectionTitle}>Quyền lợi hạng {tier.label}</p>
+          <p className={styles.sectionTitle}>{t("loyalty.benefitsTitle", { tier: tier.label })}</p>
           <ul className={styles.benefitsList}>
             {membership.benefits.map((b, i) => (
               <li key={i} className={styles.benefitItem}>{b}</li>
@@ -154,9 +157,9 @@ export default function LoyaltyTab() {
 
       {/* Rewards */}
       <div className={styles.rewardsCard}>
-        <p className={styles.sectionTitle}>Đổi điểm lấy thưởng</p>
+        <p className={styles.sectionTitle}>{t("loyalty.rewardsTitle")}</p>
         {rewards.length === 0 ? (
-          <p className={styles.emptyRewards}>Hiện chưa có phần thưởng nào.</p>
+          <p className={styles.emptyRewards}>{t("loyalty.emptyRewards")}</p>
         ) : (
           <div className={styles.rewardsGrid}>
             {rewards.map((r) => {
@@ -164,11 +167,11 @@ export default function LoyaltyTab() {
               return (
                 <div key={r.id} className={styles.rewardItem}>
                   <p className={styles.rewardPoints}>{fmtPts(r.points_required)}</p>
-                  <p className={styles.rewardPtsLabel}>điểm</p>
+                  <p className={styles.rewardPtsLabel}>{t("loyalty.pointsUnit")}</p>
                   <p className={styles.rewardName}>{r.name || r.description}</p>
                   {r.discount_amount && (
                     <p className={styles.rewardDesc}>
-                      Giảm {new Intl.NumberFormat("vi-VN").format(r.discount_amount)} VND
+                      {new Intl.NumberFormat("vi-VN").format(r.discount_amount)} VND
                     </p>
                   )}
                   <button
@@ -176,11 +179,11 @@ export default function LoyaltyTab() {
                     disabled={!canRedeem || redeeming === r.id}
                     onClick={() => handleRedeem(r.id)}
                   >
-                    {redeeming === r.id ? "Đang đổi..." : "Đổi thưởng"}
+                    {redeeming === r.id ? t("loyalty.redeemingBtn") : t("loyalty.redeemBtn")}
                   </button>
                   {!canRedeem && (
                     <p className={styles.rewardNoFunds}>
-                      Thiếu {fmtPts(r.points_required - (membership?.current_points ?? 0))} điểm
+                      {t("loyalty.noFunds", { amount: fmtPts(r.points_required - (membership?.current_points ?? 0)) })}
                     </p>
                   )}
                 </div>
@@ -192,32 +195,26 @@ export default function LoyaltyTab() {
 
       {/* History */}
       <div className={styles.historyCard}>
-        <p className={styles.sectionTitle}>Lịch sử giao dịch điểm</p>
+        <p className={styles.sectionTitle}>{t("loyalty.historyTitle")}</p>
         {history.length === 0 ? (
-          <p className={styles.emptyHistory}>Chưa có giao dịch nào.</p>
+          <p className={styles.emptyHistory}>{t("loyalty.historyEmpty")}</p>
         ) : (
           <>
             <table className={styles.historyTable}>
               <thead>
                 <tr>
-                  <th>Loại</th>
-                  <th>Mô tả</th>
-                  <th>Điểm</th>
-                  <th>Ngày</th>
+                  <th>{t("loyalty.txType")}</th>
+                  <th>{t("loyalty.txDesc")}</th>
+                  <th>{t("loyalty.txPoints")}</th>
+                  <th>{t("loyalty.txDate")}</th>
                 </tr>
               </thead>
               <tbody>
                 {history.map((tx) => (
                   <tr key={tx.id}>
-                    <td>
-                      <span className={txBadge(tx.type)}>
-                        {tx.type === "earn" ? "Tích" : tx.type === "redeem" ? "Đổi" : "Hoàn"}
-                      </span>
-                    </td>
+                    <td><span className={txBadge(tx.type)}>{txLabel(tx.type)}</span></td>
                     <td>{tx.description || tx.booking_id || "—"}</td>
-                    <td className={txClass(tx.type)}>
-                      {txSign(tx.type)}{fmtPts(tx.points)}
-                    </td>
+                    <td className={txClass(tx.type)}>{txSign(tx.type)}{fmtPts(tx.points)}</td>
                     <td>{fmtDate(tx.created_at)}</td>
                   </tr>
                 ))}
@@ -225,9 +222,9 @@ export default function LoyaltyTab() {
             </table>
             {totalPages > 1 && (
               <div className={styles.pagination}>
-                <button className={styles.pageBtn} disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Trước</button>
-                <span className={styles.pageInfo}>Trang {page} / {totalPages}</span>
-                <button className={styles.pageBtn} disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>Sau →</button>
+                <button className={styles.pageBtn} disabled={page <= 1} onClick={() => setPage(p => p - 1)}>{t("loyalty.prevPage")}</button>
+                <span className={styles.pageInfo}>{t("loyalty.pageLabel", { page, total: totalPages })}</span>
+                <button className={styles.pageBtn} disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>{t("loyalty.nextPage")}</button>
               </div>
             )}
           </>

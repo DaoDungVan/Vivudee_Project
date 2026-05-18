@@ -3,6 +3,7 @@ import Footer from "../../components/common/Footer/Footer";
 import FlightCard from "../../components/flight/FlightCard/FlightCard";
 import RecommendationBar from "../../components/flight/RecommendationBar/RecommendationBar";
 import PriceCalendar from "../../components/flight/PriceCalendar/PriceCalendar";
+import AlternativeFlights from "../../components/flight/AlternativeFlights/AlternativeFlights";
 import styles from "./FlightSearch.module.css";
 
 import { useEffect, useState } from "react";
@@ -243,6 +244,14 @@ const FlightSearch = () => {
                           cheapestCalPrice={cheapestCalPrice}
                         />
                       ))}
+                      {selectedOutbound && (
+                        <AlternativeFlights
+                          selectedFlight={selectedOutbound}
+                          seatClass={seatClass || "economy"}
+                          adults={Number(adults || 1)}
+                          onSelect={(f) => handleSelectOutbound(f)}
+                        />
+                      )}
                     </div>
 
                     <div className={styles.page}>

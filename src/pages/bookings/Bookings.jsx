@@ -149,11 +149,11 @@ const Bookings = () => {
   const getRefundPolicy = (depTime) => {
     if (!depTime) return null;
     const hoursLeft = (new Date(depTime) - Date.now()) / 3600000;
-    if (hoursLeft < 0)  return null;       // đã bay
-    if (hoursLeft < 12) return { pct: 0,   label: "Không được hoàn vé (< 12 giờ)" };
-    if (hoursLeft < 24) return { pct: 50,  label: "Hoàn 50% (12–24 giờ trước)" };
-    if (hoursLeft < 72) return { pct: 80,  label: "Hoàn 80% (24–72 giờ trước)" };
-    return              { pct: 100, label: "Hoàn 100% (> 72 giờ trước)" };
+    if (hoursLeft < 0)  return null;
+    if (hoursLeft < 12) return { pct: 0,   labelKey: "bookings.policyZero" };
+    if (hoursLeft < 24) return { pct: 50,  labelKey: "bookings.policy50" };
+    if (hoursLeft < 72) return { pct: 80,  labelKey: "bookings.policy80" };
+    return              { pct: 100, labelKey: "bookings.policyFull100" };
   };
 
   const canRequestRefund = (b) => {
@@ -272,13 +272,13 @@ const Bookings = () => {
           className={styles.refundBtn}
           onClick={(e) => { e.stopPropagation(); openRefundModal(b); }}
         >
-          ↩ Yêu cầu hoàn vé
+          {t("bookings.refundBtn")}
         </button>
       )}
 
       {showCancel && ["refund_pending", "refunded"].includes(b.status) && (
         <span className={styles.refundPendingBadge}>
-          {b.status === "refund_pending" ? "⏳ Đang chờ hoàn vé" : "✅ Đã hoàn vé"}
+          {b.status === "refund_pending" ? t("bookings.refundPendingBadge") : t("bookings.refundedBadge")}
         </span>
       )}
     </div>
@@ -439,7 +439,7 @@ const Bookings = () => {
               {cancelError && <div className={styles.cancelErrorBanner}>{cancelError}</div>}
               <div className={styles.refundHistoryLink}>
                 <button className={styles.refundHistoryBtn} onClick={() => navigate("/refunds")}>
-                  ↩ Xem lịch sử hoàn vé →
+                  {t("bookings.refundHistoryBtn")}
                 </button>
               </div>
               <div className={styles.filterRow}>
@@ -471,8 +471,8 @@ const Bookings = () => {
       {refundTarget && (
         <div className={styles.refundOverlay} onClick={(e) => { if (e.target === e.currentTarget) closeRefundModal(); }}>
           <div className={styles.refundModal}>
-            <h3 className={styles.refundModalTitle}>Yêu cầu hoàn vé</h3>
-            <p className={styles.refundModalCode}>Mã đặt vé: <strong>{refundTarget.booking_code}</strong></p>
+            <h3 className={styles.refundModalTitle}>{t("bookings.refundModalTitle")}</h3>
+            <p className={styles.refundModalCode}>{t("bookings.refundModalCode")} <strong>{refundTarget.booking_code}</strong></p>
 
             {/* Hiển thị policy */}
             {(() => {
@@ -480,7 +480,7 @@ const Bookings = () => {
               if (!policy) return null;
               return (
                 <div className={`${styles.policyBox} ${policy.pct === 0 ? styles.policyZero : policy.pct === 100 ? styles.policyFull : styles.policyPartial}`}>
-                  <span>📋 {policy.label}</span>
+                  <span>📋 {t(policy.labelKey)}</span>
                   {policy.pct > 0 && (
                     <span className={styles.policyAmt}>
                       ≈ {new Intl.NumberFormat("vi-VN").format(
@@ -494,41 +494,39 @@ const Bookings = () => {
 
             {refundSuccess ? (
               <div className={styles.refundSuccessBox}>
-                <p>✅ Yêu cầu đã được gửi!</p>
-                <p className={styles.refundSuccessCode}>Mã hoàn vé: <strong>{refundSuccess}</strong></p>
+                <p>✅ {t("bookings.refundSuccessMsg")}</p>
+                <p className={styles.refundSuccessCode}>{t("bookings.refundSuccessCode")} <strong>{refundSuccess}</strong></p>
                 <button className={styles.refundSuccessClose} onClick={() => { closeRefundModal(); navigate("/refunds"); }}>
-                  Xem lịch sử hoàn vé →
+                  {t("bookings.viewRefunds")}
                 </button>
               </div>
             ) : (
               <>
-                {/* Loại hoàn */}
-                <label className={styles.refundLabel}>Loại hoàn vé</label>
+                <label className={styles.refundLabel}>{t("bookings.refundTypeLabel")}</label>
                 <select className={styles.refundSelect} value={refundType} onChange={(e) => setRefundType(e.target.value)}>
-                  <option value="full">Hoàn toàn bộ vé</option>
-                  <option value="partial_leg">Hoàn 1 chặng</option>
-                  <option value="partial_passenger">Hoàn theo hành khách</option>
+                  <option value="full">{t("bookings.refundTypeFull")}</option>
+                  <option value="partial_leg">{t("bookings.refundTypeLeg")}</option>
+                  <option value="partial_passenger">{t("bookings.refundTypePassenger")}</option>
                 </select>
 
-                {/* Lý do */}
-                <label className={styles.refundLabel}>Lý do hoàn vé <span style={{color:"#ef4444"}}>*</span></label>
+                <label className={styles.refundLabel}>{t("bookings.refundReasonLabel")} <span style={{color:"#ef4444"}}>*</span></label>
                 <textarea
                   className={styles.refundTextarea}
-                  placeholder="Mô tả lý do hoàn vé (tối thiểu 10 ký tự)..."
+                  placeholder={t("bookings.refundReasonPlaceholder")}
                   rows={3}
                   value={refundReason}
                   onChange={(e) => { setRefundReason(e.target.value); setRefundError(""); }}
                 />
-                {refundError && <p className={styles.refundError}>{refundError}</p>}
+                {refundError && <p className={styles.refundError}>{t("bookings.refundReasonError")}</p>}
 
                 <div className={styles.refundActions}>
-                  <button className={styles.refundCancelModalBtn} onClick={closeRefundModal}>Huỷ</button>
+                  <button className={styles.refundCancelModalBtn} onClick={closeRefundModal}>{t("bookings.refundCancel")}</button>
                   <button
                     className={styles.refundSubmitBtn}
                     onClick={handleRefundSubmit}
                     disabled={refundLoading || getRefundPolicy(refundTarget.flight?.departure?.time)?.pct === 0}
                   >
-                    {refundLoading ? "Đang gửi..." : "Gửi yêu cầu"}
+                    {refundLoading ? t("bookings.refundSubmitting") : t("bookings.refundSubmit")}
                   </button>
                 </div>
               </>

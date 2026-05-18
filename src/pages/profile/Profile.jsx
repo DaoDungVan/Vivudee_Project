@@ -1,6 +1,7 @@
 // src/pages/profile/Profile.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -84,6 +85,7 @@ const resizeAvatarFile = async (file) => {
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { t }    = useTranslation();
   const [user, setUser] = useState(() => {
     try { return JSON.parse(localStorage.getItem("user") || "null"); } catch { return null; }
   });
@@ -406,9 +408,9 @@ const Profile = () => {
             </div>
             <nav className={styles.sideNav}>
               {[
-                { id: "info",       label: "Personal Info", icon: "👤" },
-                { id: "security",   label: "Security",      icon: "🔒" },
-                { id: "membership", label: "Membership",    icon: "🏅" },
+                { id: "info",       label: t("profile.personalInfo"), icon: "👤" },
+                { id: "security",   label: t("profile.security"),     icon: "🔒" },
+                { id: "membership", label: t("profile.membership"),   icon: "🏅" },
               ].map((item) => (
                 <button
                   key={item.id}
@@ -429,7 +431,7 @@ const Profile = () => {
                 <span>🎟</span> Coupons
               </button>
               <button className={styles.sideNavBtn} onClick={() => navigate("/refunds")}>
-                <span>↩️</span> My Refunds
+                <span>↩️</span> {t("profile.myRefunds")}
               </button>
             </nav>
           </div>
@@ -509,8 +511,8 @@ const Profile = () => {
 
             {activeTab === "membership" && (
               <div className={styles.card}>
-                <h2 className={styles.cardTitle}>Membership</h2>
-                <p className={styles.cardSubtitle}>Tích điểm, đổi thưởng và theo dõi hạng thành viên</p>
+                <h2 className={styles.cardTitle}>{t("profile.membershipTitle")}</h2>
+                <p className={styles.cardSubtitle}>{t("profile.membershipSubtitle")}</p>
                 <LoyaltyTab />
               </div>
             )}

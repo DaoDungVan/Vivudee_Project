@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { getRecommendations } from "../../../services/flightService";
 import planeIcon from "../../../assets/icons/plane.png";
 import styles from "./Recommendations.module.css";
@@ -11,8 +12,9 @@ const fmtTime = (iso) => {
   return match ? `${match[1]}:${match[2]}` : "--:--";
 };
 
-export default function Recommendations({ from = "SGN", to = "HAN", title = "✈ Chuyến bay gợi ý" }) {
+export default function Recommendations({ from = "SGN", to = "HAN" }) {
   const navigate  = useNavigate();
+  const { t }     = useTranslation();
   const sliderRef = useRef(null);
   const drag      = useRef({ down: false, startX: 0, scrollLeft: 0 });
   const [flights, setFlights] = useState([]);
@@ -50,7 +52,7 @@ export default function Recommendations({ from = "SGN", to = "HAN", title = "✈
   return (
     <section className={styles.section}>
       <div className={styles.container}>
-        <h2 className={styles.title}>{title}</h2>
+        <h2 className={styles.title}>{t("recommendations.title")}</h2>
         <div
           className={styles.grid}
           ref={sliderRef}
@@ -83,7 +85,7 @@ export default function Recommendations({ from = "SGN", to = "HAN", title = "✈
                   <p className={styles.time}>{fmtTime(f.departure?.time)} · {f.duration_label}</p>
                   <div className={styles.cardBottom}>
                     <span className={styles.price}>{fmt(f.seat?.total_price)}</span>
-                    <button className={styles.viewBtn} onClick={() => handleView(f)}>Xem vé</button>
+                    <button className={styles.viewBtn} onClick={() => handleView(f)}>{t("recommendations.viewBtn")}</button>
                   </div>
                 </div>
               ))}

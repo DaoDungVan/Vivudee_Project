@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import { getMyRefunds, cancelRefund } from "../../services/refundService";
@@ -8,20 +9,15 @@ import styles from "./Refunds.module.css";
 const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n ?? 0) + " ₫";
 const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString("vi-VN") : "—";
 
-const STATUS_META = {
-  pending:    { label: "Chờ duyệt",    css: styles.statusPending    },
-  approved:   { label: "Đã duyệt",     css: styles.statusApproved   },
-  completed:  { label: "Hoàn thành",   css: styles.statusCompleted  },
-  rejected:   { label: "Từ chối",      css: styles.statusRejected   },
-  cancelled:  { label: "Đã huỷ",       css: styles.statusCancelled  },
-  processing: { label: "Đang xử lý",   css: styles.statusProcessing },
-  failed:     { label: "Thất bại",     css: styles.statusRejected   },
+const STATUS_CSS = {
+  pending: styles.statusPending, approved: styles.statusApproved,
+  completed: styles.statusCompleted, rejected: styles.statusRejected,
+  cancelled: styles.statusCancelled, processing: styles.statusProcessing, failed: styles.statusRejected,
 };
-
-const getStatusMeta = (s = "") => STATUS_META[s.toLowerCase()] || { label: s, css: styles.statusCancelled };
 
 export default function Refunds() {
   const navigate = useNavigate();
+  const { t }    = useTranslation();
   const [refunds,    setRefunds]    = useState([]);
   const [loading,    setLoading]    = useState(true);
   const [page,       setPage]       = useState(1);
@@ -61,38 +57,42 @@ export default function Refunds() {
       <NavBar />
       <div className={styles.wrapper}>
         <div className={styles.header}>
-          <h1 className={styles.title}>Lịch sử hoàn vé</h1>
-          <p className={styles.subtitle}>Theo dõi trạng thái các yêu cầu hoàn tiền của bạn</p>
+          <h1 className={styles.title}>{t("refunds.title")}</h1>
+          <p className={styles.subtitle}>{t("refunds.subtitle")}</p>
         </div>
 
         {loading ? (
-          <div className={styles.loading}>Đang tải...</div>
+          <div className={styles.loading}>{t("refunds.loading")}</div>
         ) : refunds.length === 0 ? (
           <div className={styles.empty}>
             <div className={styles.emptyIcon}>↩️</div>
-            <p className={styles.emptyTitle}>Chưa có yêu cầu hoàn vé</p>
-            <p className={styles.emptyMsg}>Khi bạn yêu cầu hoàn vé, chúng sẽ hiển thị tại đây.</p>
+            <p className={styles.emptyTitle}>{t("refunds.emptyTitle")}</p>
+            <p className={styles.emptyMsg}>{t("refunds.emptyMsg")}</p>
           </div>
         ) : (
           <>
             <div className={styles.list}>
               {refunds.map((r) => {
-                const sm = getStatusMeta(r.status);
+                const statusKey = `refunds.status${r.status?.charAt(0).toUpperCase() + r.status?.slice(1)}`;
+                const statusCss = STATUS_CSS[r.status?.toLowerCase()] || styles.statusCancelled;
                 const canCancel = ["pending", "approved"].includes(r.status);
+                const typeLabel = r.refund_type === "full" ? t("refunds.typeFull")
+                  : r.refund_type === "partial_leg" ? t("refunds.typeLeg")
+                  : r.refund_type === "partial_passenger" ? t("refunds.typePassenger") : "";
                 return (
                   <div key={r.refund_code || r.id} className={styles.card}>
                     <div className={styles.cardLeft}>
                       <div className={styles.cardTop}>
                         <span className={styles.refundCode}>{r.refund_code}</span>
-                        <span className={`${styles.statusBadge} ${sm.css}`}>{sm.label}</span>
+                        <span className={`${styles.statusBadge} ${statusCss}`}>{t(statusKey, { defaultValue: r.status })}</span>
                       </div>
                       <p className={styles.bookingInfo}>
-                        Mã đặt vé: <strong>{r.booking_code}</strong>
-                        {r.refund_type && ` · ${r.refund_type === "full" ? "Hoàn toàn bộ" : r.refund_type === "partial_leg" ? "Hoàn 1 chặng" : "Hoàn theo hành khách"}`}
+                        {t("refunds.bookingCodeLabel")}: <strong>{r.booking_code}</strong>
+                        {typeLabel && ` · ${typeLabel}`}
                       </p>
-                      {r.reason && <p className={styles.meta}>Lý do: {r.reason}</p>}
-                      <p className={styles.meta}>Ngày tạo: {fmtDate(r.created_at)}</p>
-                      {r.admin_notes && <p className={styles.meta}>Ghi chú: {r.admin_notes}</p>}
+                      {r.reason && <p className={styles.meta}>{t("refunds.reasonLabel")}: {r.reason}</p>}
+                      <p className={styles.meta}>{t("refunds.createdAt")}: {fmtDate(r.created_at)}</p>
+                      {r.admin_notes && <p className={styles.meta}>{t("refunds.adminNotes")}: {r.admin_notes}</p>}
                     </div>
                     <div className={styles.cardRight}>
                       <span className={styles.amount}>{fmt(r.net_refund_amount ?? r.refund_amount)}</span>
@@ -102,7 +102,7 @@ export default function Refunds() {
                           disabled={cancelling === r.refund_code}
                           onClick={() => handleCancel(r.refund_code)}
                         >
-                          {cancelling === r.refund_code ? "Đang huỷ..." : "Huỷ yêu cầu"}
+                          {cancelling === r.refund_code ? t("refunds.cancellingBtn") : t("refunds.cancelBtn")}
                         </button>
                       )}
                     </div>
@@ -112,9 +112,9 @@ export default function Refunds() {
             </div>
             {totalPages > 1 && (
               <div className={styles.pagination}>
-                <button className={styles.pageBtn} disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Trước</button>
-                <span className={styles.pageInfo}>Trang {page} / {totalPages}</span>
-                <button className={styles.pageBtn} disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>Sau →</button>
+                <button className={styles.pageBtn} disabled={page <= 1} onClick={() => setPage(p => p - 1)}>{t("refunds.prevPage")}</button>
+                <span className={styles.pageInfo}>{t("refunds.pageLabel", { page, total: totalPages })}</span>
+                <button className={styles.pageBtn} disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>{t("refunds.nextPage")}</button>
               </div>
             )}
           </>
