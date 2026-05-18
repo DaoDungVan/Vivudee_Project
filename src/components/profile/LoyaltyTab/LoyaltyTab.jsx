@@ -153,7 +153,7 @@ export default function LoyaltyTab() {
     };
     load();
     return () => { active = false; };
-  }, []);
+  }, [i18n.language]);
 
   useEffect(() => {
     let active = true;

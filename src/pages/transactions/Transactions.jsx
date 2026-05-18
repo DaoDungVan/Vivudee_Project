@@ -81,7 +81,7 @@ const Transactions = () => {
 
   // Summary stats
   const totalPaid    = transactions.filter(t => ["PAID","SUCCESS","COMPLETED","CONFIRMED"].includes(t.status?.toUpperCase()))
-    .reduce((s, t) => s + (t.final_amount || t.amount || 0), 0);
+    .reduce((s, t) => s + (Number(t.final_amount) || Number(t.amount) || 0), 0);
   const totalPending = transactions.filter(t => t.status?.toUpperCase() === "PENDING").length;
 
   const statusInfo = (status) => {
@@ -160,10 +160,24 @@ const Transactions = () => {
           <div className={styles.errorBox}>{error}</div>
         ) : filtered.length === 0 ? (
           <div className={styles.empty}>
-            <div className={styles.emptyIcon}>💳</div>
-            <p className={styles.emptyTitle}>{t("transactions.empty")}</p>
-            <p className={styles.emptyMsg}>{t("transactions.emptyMsg")}</p>
-            <button className={styles.emptyBtn} onClick={() => navigate("/")}>{t("transactions.bookNow")}</button>
+            <div className={styles.emptyIcon}>
+              {filter === "paid" ? "✅" : filter === "pending" ? "⏳" : filter === "cancel" ? "❌" : "💳"}
+            </div>
+            <p className={styles.emptyTitle}>
+              {filter === "paid"    ? t("transactions.emptyPaid")
+                : filter === "pending" ? t("transactions.emptyPending")
+                : filter === "cancel"  ? t("transactions.emptyCancel")
+                : t("transactions.emptyAll")}
+            </p>
+            <p className={styles.emptyMsg}>
+              {filter === "paid"    ? t("transactions.emptyPaidMsg")
+                : filter === "pending" ? t("transactions.emptyPendingMsg")
+                : filter === "cancel"  ? t("transactions.emptyCancelMsg")
+                : t("transactions.emptyAllMsg")}
+            </p>
+            {filter === "all" && (
+              <button className={styles.emptyBtn} onClick={() => navigate("/")}>{t("transactions.bookNow")}</button>
+            )}
           </div>
         ) : (
           <div className={styles.list}>
