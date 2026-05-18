@@ -20,23 +20,24 @@ const formatDate = (iso) => {
   return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 };
 
-// ✅ THÊM MỚI: Kiểm tra chuyến bay có đang bay không
-// Điều kiện: now > departure_time VÀ now < departure_time + duration
+// Normalize booking — hỗ trợ cả flat (my bookings) lẫn nested (lookup)
+const depTime  = (b) => b?.departure_time  || b?.flight?.departure?.time;
+const arrTime  = (b) => b?.arrival_time    || b?.flight?.arrival?.time;
+const depCode  = (b) => b?.dep_code        || b?.flight?.departure?.code;
+const arrCode  = (b) => b?.arr_code        || b?.flight?.arrival?.code;
+const airName  = (b) => b?.airline_name    || b?.flight?.airline?.name;
+const flightId = (b) => b?.flight_id       || b?.flight?.flight_id;
+const durMin   = (b) => b?.duration_minutes|| b?.flight?.duration_minutes || 120;
+
 const isAirborne = (b) => {
-  const depTime  = b?.flight?.departure?.time;
-  const duration = b?.flight?.duration_minutes;
-  if (!depTime || !duration) return false;
-  const now   = Date.now();
-  const depMs = new Date(depTime).getTime();
-  const arrMs = depMs + duration * 60 * 1000;
-  return now >= depMs && now < arrMs;
+  const dt = depTime(b); if (!dt) return false;
+  const now = Date.now(), dep = new Date(dt).getTime();
+  return now >= dep && now < dep + durMin(b) * 60000;
 };
 
 const isCompleted = (b) => {
-  const depTime  = b?.flight?.departure?.time;
-  const duration = b?.flight?.duration_minutes;
-  if (!depTime || !duration) return false;
-  return Date.now() >= new Date(depTime).getTime() + duration * 60 * 1000;
+  const dt = depTime(b); if (!dt) return false;
+  return Date.now() >= new Date(dt).getTime() + durMin(b) * 60000;
 };
 
 const flightStatus = (flight) => {
@@ -146,9 +147,9 @@ const Bookings = () => {
   };
 
   // Tính policy hoàn vé dựa vào giờ còn đến departure
-  const getRefundPolicy = (depTime) => {
-    if (!depTime) return null;
-    const hoursLeft = (new Date(depTime) - Date.now()) / 3600000;
+  const getRefundPolicy = (dt) => {
+    if (!dt) return null;
+    const hoursLeft = (new Date(dt) - Date.now()) / 3600000;
     if (hoursLeft < 0)  return null;
     if (hoursLeft < 12) return { pct: 0,   labelKey: "bookings.policyZero" };
     if (hoursLeft < 24) return { pct: 50,  labelKey: "bookings.policy50" };
@@ -158,10 +159,9 @@ const Bookings = () => {
 
   const canRequestRefund = (b) => {
     if (b.status !== "confirmed") return false;
-    const depTime = b.flight?.departure?.time;
-    if (!depTime) return false;
-    const hoursLeft = (new Date(depTime) - Date.now()) / 3600000;
-    return hoursLeft >= 12;
+    const dt = depTime(b);
+    if (!dt) return false;
+    return (new Date(dt) - Date.now()) / 3600000 >= 12;
   };
 
   const openRefundModal = (b) => {
@@ -215,14 +215,14 @@ const Bookings = () => {
       </div>
       <div className={styles.cardFlight}>
         <div className={styles.cardRoute}>
-          <strong>{b.flight?.departure?.code}</strong>
+          <strong>{depCode(b)}</strong>
           <span className={styles.cardArrow}>→</span>
-          <strong>{b.flight?.arrival?.code}</strong>
+          <strong>{arrCode(b)}</strong>
         </div>
-        <div className={styles.cardTimes}>{formatTime(b.flight?.departure?.time)} · {formatDate(b.flight?.departure?.time)}</div>
+        <div className={styles.cardTimes}>{formatTime(depTime(b))} · {formatDate(depTime(b))}</div>
       </div>
       <div className={styles.cardBottom}>
-        <span className={styles.cardAirline}>{b.flight?.airline?.name}</span>
+        <span className={styles.cardAirline}>{airName(b)}</span>
         <span className={styles.cardPrice}>{fmt(b.final_amount ?? b.total_price)}</span>
       </div>
 
@@ -232,15 +232,15 @@ const Bookings = () => {
           onClick={(e) => {
             e.stopPropagation();
             if (isCompleted(b)) {
-              setTrackerAlert("Chuyến bay đã hạ cánh. Hành trình đã hoàn thành.");
+              setTrackerAlert(t("bookings.flightLanded") || "Chuyến bay đã hạ cánh.");
               setTimeout(() => setTrackerAlert(""), 4000);
             } else {
-              navigate(`/tracker/${b.flight?.flight_id}`, { state: { booking: b } });
+              navigate(`/tracker/${flightId(b)}`, { state: { booking: b } });
             }
           }}
         >
           {isAirborne(b) && <span className={styles.trackDot} />}
-          ✈ {isCompleted(b) ? "Chuyến bay đã hạ cánh" : "Theo dõi chuyến bay"}
+          ✈ {isCompleted(b) ? t("bookings.trackLanded") || "Chuyến bay đã hạ cánh" : t("bookings.trackFlight") || "Theo dõi chuyến bay"}
         </button>
       )}
 
@@ -476,7 +476,7 @@ const Bookings = () => {
 
             {/* Hiển thị policy */}
             {(() => {
-              const policy = getRefundPolicy(refundTarget.flight?.departure?.time);
+              const policy = getRefundPolicy(depTime(refundTarget));
               if (!policy) return null;
               return (
                 <div className={`${styles.policyBox} ${policy.pct === 0 ? styles.policyZero : policy.pct === 100 ? styles.policyFull : styles.policyPartial}`}>
@@ -484,7 +484,7 @@ const Bookings = () => {
                   {policy.pct > 0 && (
                     <span className={styles.policyAmt}>
                       ≈ {new Intl.NumberFormat("vi-VN").format(
-                        Math.round((refundTarget.final_amount ?? refundTarget.total_price ?? 0) * policy.pct / 100)
+                        Math.round((Number(refundTarget.final_amount) || Number(refundTarget.total_price) || 0) * policy.pct / 100)
                       )} VND
                     </span>
                   )}
@@ -524,7 +524,7 @@ const Bookings = () => {
                   <button
                     className={styles.refundSubmitBtn}
                     onClick={handleRefundSubmit}
-                    disabled={refundLoading || getRefundPolicy(refundTarget.flight?.departure?.time)?.pct === 0}
+                    disabled={refundLoading || getRefundPolicy(depTime(refundTarget))?.pct === 0}
                   >
                     {refundLoading ? t("bookings.refundSubmitting") : t("bookings.refundSubmit")}
                   </button>
