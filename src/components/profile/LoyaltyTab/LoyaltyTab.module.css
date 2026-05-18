@@ -35,7 +35,7 @@
   width: 55%;
   height: 160%;
   background: linear-gradient(
-    120deg,
+    45deg,
     transparent         25%,
     rgba(255,255,255,0.07) 38%,
     rgba(255,255,255,0.28) 48%,
@@ -44,7 +44,7 @@
     transparent         75%
   );
   transform: skewX(-8deg);
-  animation: metalShine 3s ease-in-out infinite;
+  animation: metalShine 4s ease-in-out infinite;
   pointer-events: none;
   border-radius: inherit;
 }
