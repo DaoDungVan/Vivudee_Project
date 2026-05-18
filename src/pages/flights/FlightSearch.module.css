@@ -14,6 +14,11 @@
   padding: 20px;
 }
 
+.mainLayoutFull {
+  grid-template-columns: 1fr;
+  max-width: 1100px;
+}
+
 .filterColumn {
   min-width: 0;
 }

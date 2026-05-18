@@ -165,15 +165,17 @@ const FlightSearch = () => {
       <NavBar />
 
       <div className={styles.wrapper}>
-        <div className={styles.mainLayout}>
-          <div className={`${styles.filterColumn} ${filtersOpen ? styles.filterColumnOpen : ""}`}>
-            <FilterPanel
-              filters={filters}
-              setFilters={setFilters}
-              outboundFlights={outboundFlights}
-              returnFlights={returnFlights}
-            />
-          </div>
+        <div className={`${styles.mainLayout} ${!hasSearchParams ? styles.mainLayoutFull : ""}`}>
+          {hasSearchParams && (
+            <div className={`${styles.filterColumn} ${filtersOpen ? styles.filterColumnOpen : ""}`}>
+              <FilterPanel
+                filters={filters}
+                setFilters={setFilters}
+                outboundFlights={outboundFlights}
+                returnFlights={returnFlights}
+              />
+            </div>
+          )}
 
           <div className={styles.content}>
             <div className={styles.topSticky}>
