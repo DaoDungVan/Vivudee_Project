@@ -675,6 +675,10 @@
     "jumpToLatest": "Jump to latest"
   },
   "loyalty": {
+    "tierBronze": "Bronze",
+    "tierSilver": "Silver",
+    "tierGold": "Gold",
+    "tierPlatinum": "Platinum",
     "tierLabel": "Membership Tier",
     "currentPtsLabel": "redeemable points",
     "tierPtsLabel": "tier points",

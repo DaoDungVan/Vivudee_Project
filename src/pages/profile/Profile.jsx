@@ -12,10 +12,10 @@ import LoyaltyTab from "../../components/profile/LoyaltyTab/LoyaltyTab";
 import styles from "./Profile.module.css";
 
 const TIER_STYLES = {
-  member:   { border: "#cd7f32", glow: "rgba(205,127,50,0.4)",  abbr: "Đ",  bg: "linear-gradient(135deg,#cd7f32,#b87333)" },
-  silver:   { border: "#c0c0c0", glow: "rgba(192,192,192,0.4)", abbr: "B",  bg: "linear-gradient(135deg,#c0c0c0,#9e9e9e)" },
-  gold:     { border: "#ffd700", glow: "rgba(255,215,0,0.5)",   abbr: "V",  bg: "linear-gradient(135deg,#ffd700,#f59e0b)" },
-  platinum: { border: "#c8c8d0", glow: "rgba(200,200,208,0.5)", abbr: "BK", bg: "linear-gradient(135deg,#e8e8e8,#c8c8d0)" },
+  member:   { border: "#c06828", glow: "rgba(192,104,40,0.55)",  abbr: "Đ",  bg: "linear-gradient(145deg,#f0a060,#c06828,#7a3010,#b05820)" },
+  silver:   { border: "#b0b0b0", glow: "rgba(160,160,160,0.45)", abbr: "B",  bg: "linear-gradient(145deg,#f0f0f0,#b0b0b0,#686868,#a0a0a0)" },
+  gold:     { border: "#f0c800", glow: "rgba(240,200,0,0.6)",    abbr: "V",  bg: "linear-gradient(145deg,#fff4a0,#f0c800,#a07800,#d4a010)"  },
+  platinum: { border: "#a0a0d0", glow: "rgba(140,140,210,0.55)", abbr: "BK", bg: "linear-gradient(145deg,#eeeeff,#a0a0d0,#505090,#8888c0)"  },
 };
 const getTierStyle = (name = "") => TIER_STYLES[name.toLowerCase()] || null;
 

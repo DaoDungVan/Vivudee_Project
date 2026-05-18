@@ -3,14 +3,119 @@ import { useTranslation } from "react-i18next";
 import { getMembership, getRewards, getLoyaltyHistory, redeemReward } from "../../../services/loyaltyService";
 import styles from "./LoyaltyTab.module.css";
 
-const TIER_META = {
-  member:   { label: "Đồng",     icon: "🥉", css: styles.tierBronze,   abbr: "Đ"  },
-  silver:   { label: "Bạc",      icon: "🥈", css: styles.tierSilver,   abbr: "B"  },
-  gold:     { label: "Vàng",     icon: "🥇", css: styles.tierGold,     abbr: "V"  },
-  platinum: { label: "Bạch Kim", icon: "💎", css: styles.tierPlatinum, abbr: "BK" },
+// Ngưỡng điểm để xác định tier tiếp theo khi API không trả next_tier
+const TIER_THRESHOLDS = {
+  member:   { next: "silver",   nextPts: 5000  },
+  silver:   { next: "gold",     nextPts: 20000 },
+  gold:     { next: "platinum", nextPts: 50000 },
+  platinum: { next: null,       nextPts: null  },
 };
 
-const getTierMeta = (name = "") => TIER_META[name.toLowerCase()] || TIER_META.member;
+// 4-pointed sparkle star path (center 30,29)
+const STAR_PATH = "M30,18 L32.6,25.8 L40.5,28.5 L32.6,31.2 L30,39 L27.4,31.2 L19.5,28.5 L27.4,25.8 Z";
+
+// Gem shape — rounded badge/jewel narrowing to bottom
+const GEM_PATH = "M30,2 C44,2 58,13 58,28 C58,43 50,55 38,63 C35,65.5 30,68 30,68 C30,68 25,65.5 22,63 C10,55 2,43 2,28 C2,13 16,2 30,2 Z";
+
+const GEM_CONFIGS = {
+  member: {
+    body:  ["#f0a060","#c06828","#7a3010","#b05820"],
+    rim:   "#e08840",
+    shine: "#ffd8b0",
+    glow:  "rgba(200,100,40,0.7)",
+  },
+  silver: {
+    body:  ["#f0f0f0","#b0b0b0","#686868","#a0a0a0"],
+    rim:   "#d8d8d8",
+    shine: "#ffffff",
+    glow:  "rgba(160,160,160,0.6)",
+  },
+  gold: {
+    body:  ["#fff4a0","#f0c800","#a07800","#d4a010"],
+    rim:   "#fde030",
+    shine: "#fffae0",
+    glow:  "rgba(220,180,0,0.75)",
+  },
+  platinum: {
+    body:  ["#eeeeff","#a0a0d0","#505090","#8888c0"],
+    rim:   "#c8c8f0",
+    shine: "#f8f8ff",
+    glow:  "rgba(140,140,220,0.65)",
+  },
+};
+
+const GemBadge = ({ tierKey, size = 56 }) => {
+  const c  = GEM_CONFIGS[tierKey] || GEM_CONFIGS.member;
+  const id = `gem-${tierKey}`;
+  const h  = Math.round(size * 68 / 60);
+
+  return (
+    <svg
+      width={size} height={h}
+      viewBox="0 0 60 68"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ flexShrink: 0, filter: `drop-shadow(0 4px 10px ${c.glow})` }}
+    >
+      <defs>
+        {/* Radial body gradient — 3D light from top-left */}
+        <radialGradient id={`${id}-body`} cx="38%" cy="28%" r="72%" fx="38%" fy="28%">
+          <stop offset="0%"   stopColor={c.body[0]} />
+          <stop offset="35%"  stopColor={c.body[1]} />
+          <stop offset="75%"  stopColor={c.body[2]} />
+          <stop offset="100%" stopColor={c.body[3]} />
+        </radialGradient>
+
+        {/* Rim gradient */}
+        <linearGradient id={`${id}-rim`} x1="20%" y1="0%" x2="80%" y2="100%">
+          <stop offset="0%"   stopColor={c.rim}                    />
+          <stop offset="100%" stopColor={c.body[2]} stopOpacity="0.6" />
+        </linearGradient>
+
+        {/* Glossy top shine */}
+        <radialGradient id={`${id}-shine`} cx="42%" cy="20%" r="48%">
+          <stop offset="0%"   stopColor={c.shine} stopOpacity="0.95" />
+          <stop offset="55%"  stopColor={c.shine} stopOpacity="0.3"  />
+          <stop offset="100%" stopColor={c.shine} stopOpacity="0"    />
+        </radialGradient>
+
+        {/* Bottom inner shadow */}
+        <radialGradient id={`${id}-shadow`} cx="50%" cy="85%" r="50%">
+          <stop offset="0%"   stopColor="rgba(0,0,0,0.25)" />
+          <stop offset="100%" stopColor="rgba(0,0,0,0)"    />
+        </radialGradient>
+      </defs>
+
+      {/* Rim — slightly larger = colored border */}
+      <path d={GEM_PATH} fill={`url(#${id}-rim)`}
+        transform="scale(1.05) translate(-1.43,-1.6)"
+      />
+
+      {/* Main gem body */}
+      <path d={GEM_PATH} fill={`url(#${id}-body)`} />
+
+      {/* Bottom depth shadow */}
+      <path d={GEM_PATH} fill={`url(#${id}-shadow)`} />
+
+      {/* Top gloss */}
+      <path d={GEM_PATH} fill={`url(#${id}-shine)`} />
+
+      {/* 4-pointed sparkle star */}
+      <path d={STAR_PATH} fill="white" opacity="0.93"
+        style={{ filter: "drop-shadow(0 0 4px rgba(255,255,255,0.9))" }}
+      />
+    </svg>
+  );
+};
+
+const TIER_META = {
+  member:   { labelKey: "loyalty.tierBronze",   css: styles.tierBronze,   abbr: "Đ",  gemKey: "member"   },
+  silver:   { labelKey: "loyalty.tierSilver",   css: styles.tierSilver,   abbr: "B",  gemKey: "silver"   },
+  gold:     { labelKey: "loyalty.tierGold",     css: styles.tierGold,     abbr: "V",  gemKey: "gold"     },
+  platinum: { labelKey: "loyalty.tierPlatinum", css: styles.tierPlatinum, abbr: "BK", gemKey: "platinum" },
+};
+
+const getTierMeta  = (name = "") => TIER_META[name.toLowerCase()] || TIER_META.member;
+const getTierThres = (name = "") => TIER_THRESHOLDS[name.toLowerCase()] || TIER_THRESHOLDS.member;
 
 const fmtPts = (n) => new Intl.NumberFormat("vi-VN").format(n ?? 0);
 const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString("vi-VN") : "—";
@@ -79,11 +184,15 @@ export default function LoyaltyTab() {
   if (loading) return <div className={styles.loading}>{t("loyalty.loading")}</div>;
   if (error)   return <div className={styles.errorMsg}>{error}</div>;
 
-  const tier     = getTierMeta(membership?.tier_name);
+  const tierName = membership?.tier_name || "member";
+  const tier     = getTierMeta(tierName);
+  const thres    = getTierThres(tierName);
   const curPts   = membership?.tier_points ?? 0;
-  const nextPts  = membership?.next_tier?.required_points;
-  const progress = nextPts ? Math.min(100, Math.round((curPts / nextPts) * 100)) : 100;
+  // Dùng next_tier từ API, fallback sang threshold cứng nếu API không trả
+  const nextPts  = membership?.next_tier?.required_points ?? thres.nextPts;
+  const nextName = membership?.next_tier?.name ?? thres.next;
   const isMax    = !nextPts;
+  const progress = nextPts ? Math.min(100, Math.round((curPts / nextPts) * 100)) : 100;
 
   const txSign = (type) => (type === "earn" ? "+" : "−");
   const txClass = (type) => {
@@ -119,9 +228,9 @@ export default function LoyaltyTab() {
       <div className={`${styles.tierBanner} ${tier.css}`}>
         <div className={styles.tierTop}>
           <div className={styles.tierBadge}>
-            <span className={styles.tierIcon}>{tier.icon}</span>
+            <GemBadge tierKey={tier.gemKey} size={58} />
             <div>
-              <p className={styles.tierName}>{tier.label}</p>
+              <p className={styles.tierName}>{t(tier.labelKey)}</p>
               <p className={styles.tierLabel}>{t("loyalty.tierLabel")}</p>
             </div>
           </div>
@@ -133,20 +242,26 @@ export default function LoyaltyTab() {
 
         <div className={styles.progressRow}>
           <span>{fmtPts(curPts)} {t("loyalty.tierPtsLabel")}</span>
-          {!isMax && <span>{t("loyalty.progressLeft", { amount: fmtPts(nextPts - curPts), tier: membership?.next_tier?.name })}</span>}
+          {!isMax && nextName && (
+            <span>{t("loyalty.progressLeft", { amount: fmtPts(nextPts - curPts), tier: nextName })}</span>
+          )}
         </div>
         <div className={styles.progressTrack}>
           <div className={styles.progressFill} style={{ width: `${progress}%` }} />
         </div>
         <p className={styles.progressNote}>
-          {isMax ? t("loyalty.maxTier") : t("loyalty.progressLeft", { amount: fmtPts(nextPts - curPts), tier: membership?.next_tier?.name })}
+          {isMax
+            ? t("loyalty.maxTier")
+            : nextName
+              ? t("loyalty.progressLeft", { amount: fmtPts(nextPts - curPts), tier: nextName })
+              : ""}
         </p>
       </div>
 
       {/* Benefits */}
       {membership?.benefits?.length > 0 && (
         <div className={styles.benefitsCard}>
-          <p className={styles.sectionTitle}>{t("loyalty.benefitsTitle", { tier: tier.label })}</p>
+          <p className={styles.sectionTitle}>{t("loyalty.benefitsTitle", { tier: t(tier.labelKey) })}</p>
           <ul className={styles.benefitsList}>
             {membership.benefits.map((b, i) => (
               <li key={i} className={styles.benefitItem}>{b}</li>

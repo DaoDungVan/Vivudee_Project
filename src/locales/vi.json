@@ -675,6 +675,10 @@
     "jumpToLatest": "Xuống cuối"
   },
   "loyalty": {
+    "tierBronze": "Đồng",
+    "tierSilver": "Bạc",
+    "tierGold": "Vàng",
+    "tierPlatinum": "Bạch Kim",
     "tierLabel": "Hạng thành viên",
     "currentPtsLabel": "điểm tích lũy",
     "tierPtsLabel": "điểm hạng",

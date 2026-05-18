@@ -8,24 +8,36 @@
   color: #fff;
 }
 
-/* Tier-specific gradients */
-.tierBronze   { background: linear-gradient(135deg, #cd7f32, #b87333); }
-.tierSilver   { background: linear-gradient(135deg, #c0c0c0, #9e9e9e); }
-.tierGold     { background: linear-gradient(135deg, #ffd700, #f59e0b); }
-.tierPlatinum { background: linear-gradient(135deg, #e8e8e8, #c8c8d0); }
+/* Tier-specific gradients — metallic with highlight */
+.tierBronze {
+  background: linear-gradient(145deg,
+    #f0c070 0%, #cd7f32 20%, #8b4513 45%, #b87333 65%, #e8a050 85%, #cd7f32 100%);
+}
+.tierSilver {
+  background: linear-gradient(145deg,
+    #f4f4f4 0%, #c8c8c8 20%, #888 45%, #b8b8b8 65%, #e8e8e8 85%, #c0c0c0 100%);
+}
+.tierGold {
+  background: linear-gradient(145deg,
+    #fff8a0 0%, #ffd700 20%, #c8960c 45%, #e8bc18 65%, #fff176 85%, #ffd700 100%);
+}
+.tierPlatinum {
+  background: linear-gradient(145deg,
+    #ffffff 0%, #e0e0ee 20%, #9090b0 45%, #c0c0d8 65%, #f4f4ff 85%, #e8e8f0 100%);
+}
 
 .tierBronze   .tierName,
 .tierBronze   .tierPts,
-.tierBronze   .tierLabel   { color: #7a4a1e; }
+.tierBronze   .tierLabel   { color: #4a2800; }
 .tierSilver   .tierName,
 .tierSilver   .tierPts,
-.tierSilver   .tierLabel   { color: #3a3a3a; }
+.tierSilver   .tierLabel   { color: #2a2a2a; }
 .tierGold     .tierName,
 .tierGold     .tierPts,
-.tierGold     .tierLabel   { color: #7a5c00; }
+.tierGold     .tierLabel   { color: #5a3c00; }
 .tierPlatinum .tierName,
 .tierPlatinum .tierPts,
-.tierPlatinum .tierLabel   { color: #3a3a5a; }
+.tierPlatinum .tierLabel   { color: #2a2a4a; }
 
 .tierTop {
   display: flex;
@@ -41,7 +53,7 @@
   gap: 10px;
 }
 
-.tierIcon { font-size: 32px; }
+.tierIcon { display: flex; align-items: center; }
 
 .tierName {
   font-size: 22px;
