@@ -26,7 +26,7 @@
     #ffffff 0%, #e0e0ee 20%, #9090b0 45%, #c0c0d8 65%, #f4f4ff 85%, #e8e8f0 100%);
 }
 
-/* ── Metallic light sweep ── */
+/* ── Metallic light sweep ── hiệu ứng kim loại */ 
 .tierBanner::after {
   content: '';
   position: absolute;
