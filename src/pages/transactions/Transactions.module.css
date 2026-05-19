@@ -41,6 +41,18 @@
 .list { display: flex; flex-direction: column; gap: 10px; }
 
 /* ── Card ── */
+/* Chevron toggle */
+.chevron {
+  font-size: 20px;
+  color: var(--text-muted);
+  transform: rotate(90deg);
+  display: inline-block;
+  transition: transform 0.25s ease;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.chevronUp { transform: rotate(-90deg); }
+
 .txnCard {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
@@ -53,7 +65,90 @@
   transition: box-shadow 0.15s, transform 0.15s;
   position: relative;
 }
-.txnCard:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.09); transform: translateY(-1px); }
+.txnCard:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.09); }
+.txnCardOpen  { border-color: var(--primary-color); box-shadow: 0 4px 20px rgba(14,129,205,0.12); }
+
+/* ── Inline expand panel ── */
+.expandPanel {
+  border-top: 1px dashed var(--card-border);
+  padding: 16px 20px;
+  animation: expandIn 0.22s ease;
+}
+@keyframes expandIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.expandLoading { text-align: center; color: var(--text-muted); font-size: 13px; padding: 12px 0; }
+
+/* Airline + route inside expand */
+.expandFlight { margin-bottom: 14px; }
+
+.expandAirline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.expandAirlineLogo { width: 28px; height: 28px; object-fit: contain; border-radius: 6px; flex-shrink: 0; }
+.expandAirlineName { font-size: 13px; font-weight: 700; color: var(--text-dark); }
+.expandFlightNum   { font-size: 12px; color: var(--text-muted); font-family: monospace; margin-left: auto; }
+
+.expandRoute {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--info-bg);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.expandApt      { flex: 1; }
+.expandAptRight { text-align: right; }
+.expandIata  { font-size: 22px; font-weight: 900; color: var(--primary-color); margin: 0; font-family: monospace; }
+.expandCity  { font-size: 11px; color: var(--text-muted); margin: 1px 0 4px; }
+.expandTime  { font-size: 14px; font-weight: 800; color: var(--text-dark); margin: 0; font-family: monospace; }
+
+.expandMid   { flex-shrink: 0; text-align: center; min-width: 70px; }
+.expandDur   { font-size: 11px; color: var(--text-muted); margin: 0 0 4px; }
+.expandLine  { display: flex; align-items: center; gap: 4px; }
+.expandLineDash { flex: 1; height: 1px; background: var(--primary-color); opacity: 0.35; }
+.expandPlane { font-size: 14px; color: var(--primary-color); }
+.expandClass { font-size: 10px; color: var(--text-muted); margin: 4px 0 0; }
+
+.expandPax { border-top: 1px dashed var(--card-border); margin-top: 10px; padding-top: 10px; }
+.expandPaxRow { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+.expandPaxName { font-weight: 700; color: var(--text-dark); }
+.expandPaxSeat { color: var(--text-muted); font-size: 12px; }
+
+/* Payment rows */
+.expandPayInfo {
+  border-top: 1px solid var(--divider-muted);
+  padding-top: 12px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.expandPayRow  { display: flex; justify-content: space-between; font-size: 13px; }
+.expandPayLabel { color: var(--text-muted); }
+.expandPayVal   { font-weight: 700; color: var(--text-dark); }
+.expandPayTotal { border-top: 1px solid var(--divider-muted); padding-top: 8px; margin-top: 4px; }
+.expandPayTotal .expandPayLabel { font-weight: 700; font-size: 14px; color: var(--text-dark); }
+.expandPayTotal .expandPayVal   { font-size: 16px; }
+
+.expandActions { margin-top: 14px; }
+.expandGoBtn {
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.expandGoBtn:hover { opacity: 0.88; }
 
 /* Status accent bar on left */
 .accentBar { width: 4px; flex-shrink: 0; }

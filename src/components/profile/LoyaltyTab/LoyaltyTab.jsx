@@ -367,7 +367,7 @@ export default function LoyaltyTab() {
                   <tr key={tx.id}>
                     <td><span className={txBadge(tx.type)}>{txLabel(tx.type)}</span></td>
                     <td>{tx.description || tx.booking_id || "—"}</td>
-                    <td className={txClass(tx.type)}>{txSign(tx.type)}{fmtPts(tx.points)}</td>
+                    <td className={txClass(tx.type)}>{txSign(tx.type)}{fmtPts(Math.abs(tx.points))}</td>
                     <td>{fmtDate(tx.created_at)}</td>
                   </tr>
                 ))}
