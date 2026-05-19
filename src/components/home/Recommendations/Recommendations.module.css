@@ -12,7 +12,8 @@
   display: flex;
   gap: 16px;
   overflow-x: auto;
-  padding-bottom: 8px;
+  padding: 8px 4px 12px;  /* space cho shadow không bị clip */
+  margin: -8px -4px -4px;
   scroll-behavior: smooth;
   cursor: grab;
 }
@@ -30,11 +31,18 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
   flex-shrink: 0;
 }
-.card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+  border-color: var(--primary-color);
+}
+[data-theme="dark"] .card:hover {
+  box-shadow: 0 12px 28px rgba(0,0,0,0.55), 0 0 0 1px var(--primary-color);
+}
 
 .cardTop { display: flex; align-items: center; gap: 10px; }
 
