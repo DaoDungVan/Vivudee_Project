@@ -214,8 +214,9 @@ const Transactions = () => {
               return (
                 <div key={txn.payment_code || i} className={`${styles.txnCard} ${isOpen ? styles.txnCardOpen : ""}`}>
                   {/* ── Card header (clickable) ── */}
+                  <div className={styles.cardRow} onClick={() => toggleDetail(txn)}>
                   <div className={`${styles.accentBar} ${accent}`} />
-                  <div className={styles.cardInner} onClick={() => toggleDetail(txn)} style={{ cursor: "pointer" }}>
+                  <div className={styles.cardInner}>
                     <div className={styles.methodLogoWrap}>
                       {method?.img
                         ? <img src={method.img} alt={method.label} className={styles.methodLogo} />
@@ -242,6 +243,7 @@ const Transactions = () => {
                       <span className={`${styles.chevron} ${isOpen ? styles.chevronUp : ""}`}>›</span>
                     </div>
                   </div>
+                  </div>{/* end cardRow */}
 
                   {/* ── Inline expand ── */}
                   {isOpen && (
@@ -256,40 +258,59 @@ const Transactions = () => {
                         const finalAmt = Number(detail?.final_amount) || Number(txn.final_amount) || Number(txn.amount) || 0;
 
                         return (
-                          <>
-                            {/* Flight info */}
+                          <div className={styles.expandGrid}>
+                            {/* LEFT — flight detail */}
                             {flight && (
-                              <div className={styles.expandFlight}>
+                              <div className={styles.expandLeft}>
+                                {/* Airline row */}
                                 <div className={styles.expandAirline}>
                                   {flight.airline?.logo_url
                                     ? <img src={flight.airline.logo_url} alt={flight.airline.name} className={styles.expandAirlineLogo} onError={e => { e.target.src = planeIcon; }} />
                                     : <img src={planeIcon} alt="airline" className={styles.expandAirlineLogo} />}
-                                  <span className={styles.expandAirlineName}>{flight.airline?.name}</span>
-                                  <span className={styles.expandFlightNum}>{flight.flight_number}</span>
-                                </div>
-                                <div className={styles.expandRoute}>
-                                  <div className={styles.expandApt}>
-                                    <p className={styles.expandIata}>{flight.departure?.code}</p>
-                                    <p className={styles.expandCity}>{flight.departure?.city}</p>
-                                    <p className={styles.expandTime}>{flight.departure?.time ? new Date(flight.departure.time).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit",hour12:false}) : "—"}</p>
+                                  <div>
+                                    <p className={styles.expandAirlineName}>{flight.airline?.name}</p>
+                                    <p className={styles.expandFlightNum}>{flight.flight_number} · {flight.seat_class || booking?.outbound_seat_class || "Economy"}</p>
                                   </div>
-                                  <div className={styles.expandMid}>
+                                </div>
+
+                                {/* Timeline + airports */}
+                                <div className={styles.expandDetailRow}>
+                                  {/* Timeline */}
+                                  <div className={styles.expandTimeline}>
+                                    <div className={styles.expandTimeBlock}>
+                                      <p className={styles.expandTimeHr}>{flight.departure?.time ? new Date(flight.departure.time).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit",hour12:false}) : "—"}</p>
+                                      <p className={styles.expandTimeDate}>{fmtDate(flight.departure?.time)}</p>
+                                    </div>
+                                    <div className={styles.expandVLine}>
+                                      <div className={styles.expandVDot}/>
+                                      <div className={styles.expandVTrack}/>
+                                      <span className={styles.expandVPlane}>✈</span>
+                                      <div className={styles.expandVTrack}/>
+                                      <div className={styles.expandVDot}/>
+                                    </div>
+                                    <div className={styles.expandTimeBlock}>
+                                      <p className={styles.expandTimeHr}>{flight.arrival?.time ? new Date(flight.arrival.time).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit",hour12:false}) : "—"}</p>
+                                      <p className={styles.expandTimeDate}>{fmtDate(flight.arrival?.time)}</p>
+                                    </div>
+                                  </div>
+
+                                  {/* Airport info */}
+                                  <div className={styles.expandAptInfo}>
+                                    <div className={styles.expandAptBlock}>
+                                      <p className={styles.expandIata}>{flight.departure?.code}</p>
+                                      <p className={styles.expandCity}>{flight.departure?.city}</p>
+                                    </div>
                                     {(flight.duration_label || flight.duration_minutes) && (
                                       <p className={styles.expandDur}>{flight.duration_label || fmtDur(flight.duration_minutes)}</p>
                                     )}
-                                    <div className={styles.expandLine}>
-                                      <div className={styles.expandLineDash}/>
-                                      <span className={styles.expandPlane}>✈</span>
-                                      <div className={styles.expandLineDash}/>
+                                    <div className={styles.expandAptBlock}>
+                                      <p className={styles.expandIata}>{flight.arrival?.code}</p>
+                                      <p className={styles.expandCity}>{flight.arrival?.city}</p>
                                     </div>
-                                    <p className={styles.expandClass}>{flight.seat_class || booking?.outbound_seat_class || "Economy"}</p>
-                                  </div>
-                                  <div className={`${styles.expandApt} ${styles.expandAptRight}`}>
-                                    <p className={styles.expandIata}>{flight.arrival?.code}</p>
-                                    <p className={styles.expandCity}>{flight.arrival?.city}</p>
-                                    <p className={styles.expandTime}>{flight.arrival?.time ? new Date(flight.arrival.time).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit",hour12:false}) : "—"}</p>
                                   </div>
                                 </div>
+
+                                {/* Passengers */}
                                 {passengers.length > 0 && (
                                   <div className={styles.expandPax}>
                                     {passengers.map((p, idx) => (
@@ -303,40 +324,35 @@ const Transactions = () => {
                               </div>
                             )}
 
-                            {/* Payment info */}
-                            <div className={styles.expandPayInfo}>
-                              <div className={styles.expandPayRow}>
-                                <span className={styles.expandPayLabel}>{t("transactions.detailMethod")}</span>
-                                <span className={styles.expandPayVal}>{method?.label || txn.payment_method}</span>
-                              </div>
-                              <div className={styles.expandPayRow}>
-                                <span className={styles.expandPayLabel}>{t("transactions.detailDate")}</span>
-                                <span className={styles.expandPayVal}>{fmtDate(txn.created_at)}</span>
-                              </div>
-                              {detail?.discount_amount > 0 && (
+                            {/* RIGHT — payment info */}
+                            <div className={styles.expandRight}>
+                              <div className={styles.expandPayInfo}>
                                 <div className={styles.expandPayRow}>
-                                  <span className={styles.expandPayLabel}>{t("transactions.detailDiscount")}</span>
-                                  <span className={`${styles.expandPayVal} ${styles.amountPaid}`}>−{fmt(detail.discount_amount)}</span>
+                                  <span className={styles.expandPayLabel}>{t("transactions.detailMethod")}</span>
+                                  <span className={styles.expandPayVal}>{method?.label || txn.payment_method}</span>
                                 </div>
-                              )}
-                              <div className={`${styles.expandPayRow} ${styles.expandPayTotal}`}>
-                                <span className={styles.expandPayLabel}>{t("transactions.detailFinal")}</span>
-                                <span className={`${styles.expandPayVal} ${styles.amountPaid}`}>{fmt(finalAmt)}</span>
+                                <div className={styles.expandPayRow}>
+                                  <span className={styles.expandPayLabel}>{t("transactions.detailDate")}</span>
+                                  <span className={styles.expandPayVal}>{fmtDate(txn.created_at)}</span>
+                                </div>
+                                {detail?.discount_amount > 0 && (
+                                  <div className={styles.expandPayRow}>
+                                    <span className={styles.expandPayLabel}>{t("transactions.detailDiscount")}</span>
+                                    <span className={`${styles.expandPayVal} ${styles.amountPaid}`}>−{fmt(detail.discount_amount)}</span>
+                                  </div>
+                                )}
+                                <div className={`${styles.expandPayRow} ${styles.expandPayTotal}`}>
+                                  <span className={styles.expandPayLabel}>{t("transactions.detailFinal")}</span>
+                                  <span className={`${styles.expandPayVal} ${styles.amountPaid}`}>{fmt(finalAmt)}</span>
+                                </div>
                               </div>
-                            </div>
-
-                            {/* Actions */}
-                            {txn.booking_code && (
-                              <div className={styles.expandActions}>
-                                <button
-                                  className={styles.expandGoBtn}
-                                  onClick={() => navigate(`/bookings?code=${txn.booking_code}`)}
-                                >
+                              {txn.booking_code && (
+                                <button className={styles.expandGoBtn} onClick={() => navigate(`/bookings?code=${txn.booking_code}`)}>
                                   {t("transactions.goToBooking")} →
                                 </button>
-                              </div>
-                            )}
-                          </>
+                              )}
+                            </div>
+                          </div>
                         );
                       })()}
                     </div>
