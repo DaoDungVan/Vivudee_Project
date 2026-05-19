@@ -6,7 +6,7 @@
   padding: 0 20px;
 }
 
-.title { font-size: 22px; font-weight: 700; margin-bottom: 16px; color: var(--text-dark); }
+.title { font-size: 28px; font-weight: 700; margin-bottom: 16px; color: var(--text-dark); }
 
 .grid {
   display: flex;

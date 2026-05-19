@@ -12,8 +12,8 @@ function Home() {
     <div>
       <NavBar />
       <HeroBanner/>
-      <Coupon />
       <Recommendations from="SGN" to="HAN" />
+      <Coupon />
       <Airlines/>
       <Payments/>
       <WhyChooseUs/>
