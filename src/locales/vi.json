@@ -305,6 +305,9 @@
     "trackFlight": "Theo dõi chuyến bay",
     "trackLanded": "Đã hạ cánh",
     "flightLanded": "Chuyến bay đã hạ cánh. Hành trình đã hoàn thành.",
+    "notFound": "Không tìm thấy đặt chỗ.",
+    "cancelFailed": "Huỷ thất bại. Vui lòng thử lại.",
+    "airborneNote": "● Đang bay · Bấm để xem vị trí realtime",
     "refundBtn": "↩ Yêu cầu hoàn vé",
     "refundPendingBadge": "⏳ Đang chờ hoàn vé",
     "refundedBadge": "✅ Đã hoàn vé",
@@ -625,6 +628,8 @@
     "status_paid": "Đã thanh toán",
     "status_pending": "Chờ xử lý",
     "status_cancelled": "Đã hủy",
+    "confirmCancel": "Bạn có chắc muốn huỷ yêu cầu hoàn vé này?",
+    "cancelError": "Huỷ thất bại. Vui lòng thử lại.",
     "emptyAll": "Chưa có giao dịch nào",
     "emptyAllMsg": "Các giao dịch thanh toán của bạn sẽ hiển thị ở đây",
     "emptyPaid": "Không có giao dịch thành công",
@@ -649,7 +654,9 @@
     "detailStatus": "Trạng thái",
     "detailEmail": "Email",
     "goToBooking": "Xem đặt chỗ",
-    "close": "Đóng"
+    "close": "Đóng",
+    "passengers": "Hành khách",
+    "seatTba": "Thông báo khi check-in"
   },
   "chat": {
     "pageEyebrow": "Vivudee Chat",
@@ -714,6 +721,10 @@
     "maxTier": "🎉 Bạn đang ở hạng cao nhất!",
     "benefitsTitle": "Quyền lợi hạng {{tier}}",
     "rewardsTitle": "Đổi điểm lấy thưởng",
+    "catAll": "Tất cả",
+    "catVoucher": "Voucher",
+    "catUpgrade": "Nâng hạng",
+    "catLounge": "Tiện ích",
     "emptyRewards": "Hiện chưa có phần thưởng nào.",
     "redeemBtn": "Đổi thưởng",
     "redeemingBtn": "Đang đổi...",
@@ -732,7 +743,9 @@
     "prevPage": "← Trước",
     "nextPage": "Sau →",
     "pageLabel": "Trang {{page}} / {{total}}",
-    "loading": "Đang tải..."
+    "loading": "Đang tải...",
+    "loadError": "Không thể tải thông tin membership.",
+    "redeemError": "Đổi thưởng thất bại."
   },
   "refunds": {
     "title": "Lịch sử hoàn vé",

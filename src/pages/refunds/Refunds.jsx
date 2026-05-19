@@ -42,13 +42,13 @@ export default function Refunds() {
   useEffect(() => { load(page); }, [page]); // eslint-disable-line
 
   const handleCancel = async (code) => {
-    if (!window.confirm("Bạn có chắc muốn huỷ yêu cầu hoàn vé này?")) return;
+    if (!window.confirm(t("refunds.confirmCancel"))) return;
     setCancelling(code);
     try {
       await cancelRefund(code, "Người dùng huỷ yêu cầu");
       load(page);
     } catch (err) {
-      alert(err?.response?.data?.error || "Huỷ thất bại.");
+      alert(err?.response?.data?.error || t("refunds.cancelError"));
     } finally { setCancelling(null); }
   };
 

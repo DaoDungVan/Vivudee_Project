@@ -126,15 +126,16 @@ export default function LoyaltyTab() {
   const { t }      = useTranslation();
   const { isDark } = useTheme();
 
-  const [membership, setMembership]   = useState(null);
-  const [rewards,    setRewards]      = useState([]);
-  const [history,    setHistory]      = useState([]);
-  const [totalPages, setTotalPages]   = useState(1);
-  const [page,       setPage]         = useState(1);
-  const [loading,    setLoading]      = useState(true);
-  const [error,      setError]        = useState("");
-  const [voucher,    setVoucher]      = useState(null);
-  const [redeeming,  setRedeeming]    = useState(null);
+  const [membership,    setMembership]    = useState(null);
+  const [rewards,       setRewards]       = useState([]);
+  const [rewardFilter,  setRewardFilter]  = useState("all");
+  const [history,       setHistory]       = useState([]);
+  const [totalPages,    setTotalPages]    = useState(1);
+  const [page,          setPage]          = useState(1);
+  const [loading,       setLoading]       = useState(true);
+  const [error,         setError]         = useState("");
+  const [voucher,       setVoucher]       = useState(null);
+  const [redeeming,     setRedeeming]     = useState(null);
 
   useEffect(() => {
     let active = true;
@@ -148,7 +149,7 @@ export default function LoyaltyTab() {
         setRewards(rewRes.data?.data || rewRes.data || []);
         setError("");
       } catch {
-        if (active) setError("Không thể tải thông tin membership.");
+        if (active) setError(t("loyalty.loadError"));
       } finally {
         if (active) setLoading(false);
       }
@@ -176,10 +177,18 @@ export default function LoyaltyTab() {
       const res = await redeemReward(rewardId);
       const d = res.data?.data || res.data;
       setVoucher(d?.voucherCode || d?.voucher_code || "—");
-      const memRes = await getMembership(i18n.language?.slice(0, 2) || "vi");
+      const lang = i18n.language?.slice(0, 2) || "vi";
+      const memRes = await getMembership(lang);
       setMembership(memRes.data?.data || memRes.data);
+      // Reload history về trang 1 để thấy giao dịch redeem vừa tạo
+      setPage(1);
+      getLoyaltyHistory(1, 8).then((res) => {
+        const h = res.data?.data || res.data;
+        setHistory(Array.isArray(h?.transactions) ? h.transactions : (Array.isArray(h) ? h : []));
+        if (h?.pagination) setTotalPages(h.pagination.total_pages || 1);
+      }).catch(() => {});
     } catch (err) {
-      alert(err?.response?.data?.error || err?.response?.data?.message || "Đổi thưởng thất bại.");
+      alert(err?.response?.data?.error || err?.response?.data?.message || t("loyalty.redeemError"));
     } finally {
       setRedeeming(null);
     }
@@ -282,11 +291,31 @@ export default function LoyaltyTab() {
       {/* Rewards */}
       <div className={styles.rewardsCard}>
         <p className={styles.sectionTitle}>{t("loyalty.rewardsTitle")}</p>
+
+        {/* Category filter tabs */}
+        {rewards.length > 0 && (
+          <div className={styles.rewardTabs}>
+            {["all", ...new Set(rewards.map(r => r.category || "voucher"))].map((cat) => (
+              <button
+                key={cat}
+                className={`${styles.rewardTab} ${rewardFilter === cat ? styles.rewardTabActive : ""}`}
+                onClick={() => setRewardFilter(cat)}
+              >
+                {cat === "all"     ? t("loyalty.catAll", "Tất cả")
+                : cat === "voucher" ? t("loyalty.catVoucher", "Voucher")
+                : cat === "upgrade" ? t("loyalty.catUpgrade", "Nâng hạng")
+                : cat === "lounge"  ? t("loyalty.catLounge", "Tiện ích")
+                : cat}
+              </button>
+            ))}
+          </div>
+        )}
+
         {rewards.length === 0 ? (
           <p className={styles.emptyRewards}>{t("loyalty.emptyRewards")}</p>
         ) : (
           <div className={styles.rewardsGrid}>
-            {rewards.map((r) => {
+            {rewards.filter(r => rewardFilter === "all" || (r.category || "voucher") === rewardFilter).map((r) => {
               const canRedeem = (membership?.current_points ?? 0) >= r.points_required;
               return (
                 <div key={r.id} className={styles.rewardItem}>

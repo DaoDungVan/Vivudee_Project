@@ -6,6 +6,8 @@ import Footer from "../../components/common/Footer/Footer";
 import { useTranslation } from "react-i18next";
 import API from "../../services/axiosInstance";
 import { getPaymentByCode } from "../../services/paymentService";
+import { getBookingByCode } from "../../services/bookingService";
+import planeIcon from "../../assets/icons/plane.png";
 import styles from "./Transactions.module.css";
 
 import momoImg   from "../../assets/images/payments/momo.png";
@@ -47,8 +49,9 @@ const Transactions = () => {
   const [loading,   setLoading]   = useState(true);
   const [error,     setError]     = useState("");
   const [filter,    setFilter]    = useState("all");
-  const [selected,  setSelected]  = useState(null);   // transaction being viewed
-  const [detail,    setDetail]    = useState(null);    // full detail from API
+  const [selected,  setSelected]  = useState(null);
+  const [detail,    setDetail]    = useState(null);    // payment detail
+  const [booking,   setBooking]   = useState(null);    // booking detail
   const [detailLoading, setDetailLoading] = useState(false);
 
   const fetchTransactions = useCallback(async () => {
@@ -94,18 +97,20 @@ const Transactions = () => {
   const openDetail = async (txn) => {
     setSelected(txn);
     setDetail(null);
+    setBooking(null);
     setDetailLoading(true);
     try {
-      const res = await getPaymentByCode(txn.payment_code);
-      setDetail(res?.payment || res?.data || null);
-    } catch {
-      setDetail(null);
-    } finally {
-      setDetailLoading(false);
-    }
+      const [payRes, bkRes] = await Promise.allSettled([
+        getPaymentByCode(txn.payment_code),
+        txn.booking_code ? getBookingByCode(txn.booking_code) : Promise.reject(),
+      ]);
+      if (payRes.status === "fulfilled") setDetail(payRes.value?.payment || payRes.value?.data || null);
+      if (bkRes.status  === "fulfilled") setBooking(bkRes.value?.data?.data || bkRes.value?.data || null);
+    } catch { /* silent */ }
+    finally { setDetailLoading(false); }
   };
 
-  const closeDetail = () => { setSelected(null); setDetail(null); };
+  const closeDetail = () => { setSelected(null); setDetail(null); setBooking(null); };
 
   const filterTabs = [
     { id: "all",     label: t("transactions.all")       },
@@ -246,126 +251,139 @@ const Transactions = () => {
       </div>
       <Footer />
 
-      {/* Detail Modal */}
+      {/* E-Ticket Modal */}
       {selected && (
         <div className={styles.overlay} onClick={(e) => { if (e.target === e.currentTarget) closeDetail(); }}>
           <div className={styles.modal}>
             <div className={styles.modalHandle} />
-            <div className={styles.modalHeader}>
-              <p className={styles.modalTitle}>{t("transactions.detailTitle")}</p>
-              <button className={styles.modalClose} onClick={closeDetail}>✕</button>
-            </div>
 
-            <div className={styles.modalBody}>
-              {/* Status hero */}
-              {(() => {
-                const st = statusInfo(selected.status);
-                return (
-                  <div className={styles.detailStatus}>
-                    <span className={styles.detailStatusIcon}>{st.icon}</span>
-                    <div className={styles.detailStatusText}>
-                      <p className={`${styles.statusBig} ${st.cls === "paid" ? styles.amountPaid : st.cls === "cancel" ? styles.amountCancel : styles.summaryOrange}`}>
-                        {st.label}
-                      </p>
-                      <p className={styles.statusSub}>
-                        {selected.payment_code}
-                      </p>
+            {detailLoading ? (
+              <div className={styles.ticketLoading}>{t("transactions.loading")}</div>
+            ) : (() => {
+              const st = statusInfo(selected.status);
+              const bkCode = booking?.booking_code || detail?.booking_code || selected.booking_code;
+              const flight = booking?.outbound_flight;
+              const passengers = booking?.passengers?.list?.filter(p => p.flight_type === "outbound") || [];
+              const method = METHOD_META[(selected.payment_method || "").toUpperCase()];
+              const finalAmt = Number(detail?.final_amount) || Number(selected.final_amount) || Number(selected.amount) || 0;
+
+              return (
+                <>
+                  {/* ── Ticket header ── */}
+                  <div className={styles.ticketHeader}>
+                    <div className={styles.ticketHeaderLeft}>
+                      <span className={`${styles.statusBadge} ${styles[st.cls]}`}>{st.icon} {st.label}</span>
+                      {bkCode && <p className={styles.ticketBkCode}>{bkCode}</p>}
                     </div>
-                  </div>
-                );
-              })()}
-
-              {detailLoading ? (
-                <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "20px 0" }}>
-                  {t("transactions.loading")}
-                </p>
-              ) : (
-                <div className={styles.detailRows}>
-                  {/* Method */}
-                  <div className={styles.detailRow}>
-                    <span className={styles.detailKey}>{t("transactions.detailMethod")}</span>
-                    <span className={styles.detailValue}>
-                      <span className={styles.detailMethodRow}>
-                        {(() => {
-                          const m = METHOD_META[(selected.payment_method || "").toUpperCase()];
-                          return m?.img
-                            ? <><img src={m.img} alt={m.label} className={styles.detailMethodLogo} /> {m.label}</>
-                            : selected.payment_method || "—";
-                        })()}
-                      </span>
-                    </span>
+                    <div className={styles.ticketHeaderRight}>
+                      {flight?.airline?.logo_url
+                        ? <img src={flight.airline.logo_url} alt={flight.airline.name} className={styles.ticketAirlineLogo} onError={(e) => { e.target.src = planeIcon; }} />
+                        : <img src={planeIcon} alt="airline" className={styles.ticketAirlineLogo} />}
+                      {flight?.airline?.name && <p className={styles.ticketAirlineName}>{flight.airline.name}</p>}
+                    </div>
+                    <button className={styles.modalClose} onClick={closeDetail}>✕</button>
                   </div>
 
-                  {/* Date */}
-                  <div className={styles.detailRow}>
-                    <span className={styles.detailKey}>{t("transactions.detailDate")}</span>
-                    <span className={styles.detailValue}>{fmtDate(selected.created_at)}</span>
-                  </div>
-
-                  {/* Booking code */}
-                  {(detail?.booking_code || selected.booking_code) && (
-                    <div className={styles.detailRow}>
-                      <span className={styles.detailKey}>{t("transactions.detailBooking")}</span>
-                      <span
-                        className={`${styles.detailValue} ${styles.detailValueBlue} ${styles.detailValueMono}`}
-                        onClick={() => { closeDetail(); navigate(`/bookings?code=${detail?.booking_code || selected.booking_code}`); }}
-                      >
-                        {detail?.booking_code || selected.booking_code}
-                      </span>
+                  {/* ── Flight route ── */}
+                  {flight && (
+                    <div className={styles.ticketRoute}>
+                      <div className={styles.ticketAirport}>
+                        <p className={styles.ticketIata}>{flight.departure?.code}</p>
+                        <p className={styles.ticketCity}>{flight.departure?.city}</p>
+                        <p className={styles.ticketTime}>{fmtDate(flight.departure?.time)}</p>
+                        <p className={styles.ticketTimeHour}>{flight.departure?.time ? new Date(flight.departure.time).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit",hour12:false}) : "—"}</p>
+                      </div>
+                      <div className={styles.ticketRouteMiddle}>
+                        <p className={styles.ticketDuration}>{flight.duration_label || "—"}</p>
+                        <div className={styles.ticketRouteLine}>
+                          <span className={styles.ticketDot} />
+                          <div className={styles.ticketLineTrack} />
+                          <span className={styles.ticketPlaneIcon}>✈</span>
+                          <div className={styles.ticketLineTrack} />
+                          <span className={styles.ticketDot} />
+                        </div>
+                        <p className={styles.ticketFlightNum}>{flight.flight_number} · {flight.seat_class || booking?.outbound_seat_class || "Economy"}</p>
+                      </div>
+                      <div className={`${styles.ticketAirport} ${styles.ticketAirportRight}`}>
+                        <p className={styles.ticketIata}>{flight.arrival?.code}</p>
+                        <p className={styles.ticketCity}>{flight.arrival?.city}</p>
+                        <p className={styles.ticketTime}>{fmtDate(flight.arrival?.time)}</p>
+                        <p className={styles.ticketTimeHour}>{flight.arrival?.time ? new Date(flight.arrival.time).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit",hour12:false}) : "—"}</p>
+                      </div>
                     </div>
                   )}
 
-                  {/* Email */}
-                  {(detail?.email || selected.email) && (
-                    <div className={styles.detailRow}>
-                      <span className={styles.detailKey}>{t("transactions.detailEmail")}</span>
-                      <span className={styles.detailValue}>{detail?.email || selected.email}</span>
-                    </div>
-                  )}
-
-                  <hr className={styles.dividerSection} />
-
-                  {/* Amount breakdown */}
-                  {(detail?.total_amount || detail?.original_amount) && (
-                    <div className={styles.detailRow}>
-                      <span className={styles.detailKey}>{t("transactions.detailOriginal")}</span>
-                      <span className={styles.detailValue}>{fmt(detail.total_amount || detail.original_amount)}</span>
-                    </div>
-                  )}
-
-                  {(detail?.discount_amount > 0) && (
-                    <div className={styles.detailRow}>
-                      <span className={styles.detailKey}>{t("transactions.detailDiscount")}</span>
-                      <span className={`${styles.detailValue} ${styles.amountPaid}`}>
-                        − {fmt(detail.discount_amount)}
-                      </span>
-                    </div>
-                  )}
-
-                  <div className={styles.detailRow}>
-                    <span className={styles.detailKey}>{t("transactions.detailFinal")}</span>
-                    <span className={`${styles.detailValue} ${styles.detailValueGreen} ${styles.detailValueMono}`}>
-                      {fmt(detail?.final_amount || selected.final_amount || selected.amount)}
-                    </span>
+                  {/* ── Perforation ── */}
+                  <div className={styles.perforation}>
+                    <div className={styles.perforationCircle} />
+                    <div className={styles.perforationDash} />
+                    <div className={styles.perforationCircle} />
                   </div>
-                </div>
-              )}
 
-              {/* Actions */}
-              <div className={styles.modalActions}>
-                {(detail?.booking_code || selected.booking_code) && (
-                  <button
-                    className={styles.actionBtnPrimary}
-                    onClick={() => { closeDetail(); navigate(`/bookings?code=${detail?.booking_code || selected.booking_code}`); }}
-                  >
-                    {t("transactions.goToBooking")} →
-                  </button>
-                )}
-                <button className={styles.actionBtnSecondary} onClick={closeDetail}>
-                  {t("transactions.close")}
-                </button>
-              </div>
-            </div>
+                  <div className={styles.ticketBody}>
+                    {/* ── Passengers ── */}
+                    {passengers.length > 0 && (
+                      <div className={styles.ticketSection}>
+                        <p className={styles.ticketSectionLabel}>{t("transactions.passengers", "Hành khách")}</p>
+                        {passengers.map((p, i) => (
+                          <div key={i} className={styles.ticketPaxRow}>
+                            <span className={styles.ticketPaxName}>{p.full_name}</span>
+                            <span className={styles.ticketPaxSeat}>
+                              {p.seat_number ? `Ghế ${p.seat_number}` : t("transactions.seatTba","Thông báo khi check-in")}
+                            </span>
+                            {p.ticket_number && <span className={styles.ticketPaxNum}>{p.ticket_number}</span>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* ── Payment info ── */}
+                    <div className={styles.ticketSection}>
+                      <p className={styles.ticketSectionLabel}>{t("transactions.detailTitle")}</p>
+                      <div className={styles.ticketInfoGrid}>
+                        <div>
+                          <p className={styles.ticketInfoLabel}>{t("transactions.detailMethod")}</p>
+                          <div className={styles.detailMethodRow}>
+                            {method?.img && <img src={method.img} alt={method.label} className={styles.detailMethodLogo} />}
+                            <span className={styles.ticketInfoVal}>{method?.label || selected.payment_method}</span>
+                          </div>
+                        </div>
+                        <div>
+                          <p className={styles.ticketInfoLabel}>{t("transactions.detailDate")}</p>
+                          <p className={styles.ticketInfoVal}>{fmtDate(selected.created_at)}</p>
+                        </div>
+                        {detail?.discount_amount > 0 && (
+                          <div>
+                            <p className={styles.ticketInfoLabel}>{t("transactions.detailDiscount")}</p>
+                            <p className={`${styles.ticketInfoVal} ${styles.amountPaid}`}>−{fmt(detail.discount_amount)}</p>
+                          </div>
+                        )}
+                        <div>
+                          <p className={styles.ticketInfoLabel}>{t("transactions.detailFinal")}</p>
+                          <p className={`${styles.ticketInfoVal} ${styles.ticketAmount}`}>{fmt(finalAmt)}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ── Payment code barcode-style ── */}
+                    <div className={styles.ticketBarcode}>
+                      <p className={styles.ticketBarcodeLabel}>{t("transactions.detailCode")}</p>
+                      <p className={styles.ticketBarcodeVal}>{selected.payment_code}</p>
+                    </div>
+                  </div>
+
+                  {/* ── Actions ── */}
+                  <div className={styles.ticketActions}>
+                    {bkCode && (
+                      <button className={styles.actionBtnPrimary} onClick={() => { closeDetail(); navigate(`/bookings?code=${bkCode}`); }}>
+                        {t("transactions.goToBooking")} →
+                      </button>
+                    )}
+                    <button className={styles.actionBtnSecondary} onClick={closeDetail}>{t("transactions.close")}</button>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
       )}

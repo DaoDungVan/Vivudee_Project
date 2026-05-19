@@ -98,7 +98,7 @@ const Bookings = () => {
       const res = await getBookingByCode(c);
       setLookupResult(res.data?.data);
     } catch (err) {
-      setLookupError(err.response?.data?.error || "Booking not found.");
+      setLookupError(err.response?.data?.error || t("bookings.notFound"));
     } finally {
       setLookupLoading(false);
     }
@@ -131,7 +131,7 @@ const Bookings = () => {
       await cancelBooking(code);
       fetchMyBookings();
     } catch (err) {
-      setCancelError(err.response?.data?.error || "Cancel failed.");
+      setCancelError(err.response?.data?.error || t("bookings.cancelFailed"));
     } finally { setCancelLoading(null); }
   };
 
@@ -176,7 +176,7 @@ const Bookings = () => {
 
   const handleRefundSubmit = async () => {
     if (refundReason.trim().length < 10) {
-      setRefundError("Lý do phải có ít nhất 10 ký tự.");
+      setRefundError(t("bookings.refundReasonError"));
       return;
     }
     setRefundLoading(true);
@@ -245,7 +245,7 @@ const Bookings = () => {
       )}
 
       {isAirborne(b) && (
-        <p className={styles.airborneNote}>● Đang bay · Bấm để xem vị trí realtime</p>
+        <p className={styles.airborneNote}>{t("bookings.airborneNote")}</p>
       )}
 
       {showCancel && b.status === "confirmed" && (

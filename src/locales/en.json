@@ -305,6 +305,9 @@
     "trackFlight": "Track Flight",
     "trackLanded": "Landed",
     "flightLanded": "This flight has landed.",
+    "notFound": "Booking not found.",
+    "cancelFailed": "Cancel failed. Please try again.",
+    "airborneNote": "● In flight · Tap to view live position",
     "refundBtn": "↩ Request Refund",
     "refundPendingBadge": "⏳ Refund Pending",
     "refundedBadge": "✅ Refunded",
@@ -625,6 +628,8 @@
     "status_paid": "Paid",
     "status_pending": "Pending",
     "status_cancelled": "Cancelled",
+    "confirmCancel": "Are you sure you want to cancel this refund request?",
+    "cancelError": "Cancel failed. Please try again.",
     "emptyAll": "No transactions yet",
     "emptyAllMsg": "Your payment transactions will appear here",
     "emptyPaid": "No successful transactions",
@@ -649,7 +654,9 @@
     "detailStatus": "Status",
     "detailEmail": "Email",
     "goToBooking": "View Booking",
-    "close": "Close"
+    "close": "Close",
+    "passengers": "Passengers",
+    "seatTba": "Notified at check-in"
   },
   "chat": {
     "pageEyebrow": "Vivudee Chat",
@@ -714,6 +721,10 @@
     "maxTier": "🎉 You are at the highest tier!",
     "benefitsTitle": "{{tier}} Tier Benefits",
     "rewardsTitle": "Redeem Points for Rewards",
+    "catAll": "All",
+    "catVoucher": "Vouchers",
+    "catUpgrade": "Upgrades",
+    "catLounge": "Amenities",
     "emptyRewards": "No rewards available at this time.",
     "redeemBtn": "Redeem",
     "redeemingBtn": "Redeeming...",
@@ -732,7 +743,9 @@
     "prevPage": "← Prev",
     "nextPage": "Next →",
     "pageLabel": "Page {{page}} / {{total}}",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "loadError": "Unable to load membership information.",
+    "redeemError": "Redemption failed."
   },
   "refunds": {
     "title": "Refund History",

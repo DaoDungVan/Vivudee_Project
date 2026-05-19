@@ -154,6 +154,122 @@
   font-size: 15px; font-weight: 700; cursor: pointer;
 }
 
+/* ── E-Ticket styles ── */
+.ticketLoading { text-align: center; padding: 40px; color: var(--text-muted); }
+
+.ticketHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 20px 16px;
+  gap: 12px;
+}
+.ticketHeaderLeft  { flex: 1; }
+.ticketHeaderRight { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.ticketBkCode      { font-size: 20px; font-weight: 900; color: var(--text-dark); letter-spacing: 2px; font-family: monospace; margin: 6px 0 0; }
+.ticketAirlineLogo { height: 36px; object-fit: contain; max-width: 120px; }
+.ticketAirlineName { font-size: 11px; color: var(--text-muted); font-weight: 600; text-align: right; }
+
+/* Flight route */
+.ticketRoute {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+  background: var(--info-bg);
+  border-top: 1px solid var(--card-border);
+  border-bottom: 1px solid var(--card-border);
+}
+.ticketAirport { flex: 1; }
+.ticketAirportRight { text-align: right; }
+.ticketIata   { font-size: 32px; font-weight: 900; color: var(--primary-color); margin: 0; font-family: monospace; }
+.ticketCity   { font-size: 11px; color: var(--text-muted); margin: 2px 0 6px; }
+.ticketTime   { font-size: 11px; color: var(--text-secondary); margin: 0; }
+.ticketTimeHour { font-size: 16px; font-weight: 800; color: var(--text-dark); margin: 2px 0 0; font-family: monospace; }
+
+.ticketRouteMiddle { flex-shrink: 0; text-align: center; min-width: 80px; }
+.ticketDuration    { font-size: 11px; color: var(--text-muted); margin: 0 0 6px; }
+.ticketRouteLine   { display: flex; align-items: center; gap: 4px; margin: 0 0 4px; }
+.ticketDot         { width: 7px; height: 7px; border-radius: 50%; background: var(--primary-color); flex-shrink: 0; }
+.ticketLineTrack   { flex: 1; height: 1.5px; background: var(--primary-color); opacity: 0.4; }
+.ticketPlaneIcon   { font-size: 16px; color: var(--primary-color); }
+.ticketFlightNum   { font-size: 10px; color: var(--text-muted); font-weight: 600; }
+
+/* Perforation divider */
+.perforation {
+  display: flex;
+  align-items: center;
+  padding: 0 -10px;
+  position: relative;
+}
+.perforationCircle {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--bg-subtle);
+  flex-shrink: 0;
+  margin: 0 -10px;
+  border: 1px solid var(--card-border);
+}
+.perforationDash {
+  flex: 1;
+  border-top: 2px dashed var(--card-border);
+  margin: 0 4px;
+}
+
+/* Ticket body */
+.ticketBody { padding: 16px 20px 0; }
+
+.ticketSection { margin-bottom: 16px; }
+.ticketSectionLabel {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin: 0 0 8px;
+}
+
+.ticketPaxRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--divider-muted);
+  flex-wrap: wrap;
+}
+.ticketPaxRow:last-child { border-bottom: none; }
+.ticketPaxName  { font-size: 14px; font-weight: 700; color: var(--text-dark); flex: 1; }
+.ticketPaxSeat  { font-size: 11px; color: var(--text-muted); }
+.ticketPaxNum   { font-size: 11px; color: var(--text-secondary); font-family: monospace; }
+
+.ticketInfoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.ticketInfoLabel { font-size: 10px; color: var(--text-muted); font-weight: 600; margin: 0 0 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+.ticketInfoVal   { font-size: 13px; font-weight: 700; color: var(--text-dark); margin: 0; }
+.ticketAmount    { font-size: 17px !important; color: #16a34a !important; font-family: monospace; }
+
+/* Barcode-style payment code */
+.ticketBarcode {
+  background: var(--bg-muted);
+  border-radius: 12px;
+  padding: 12px 16px;
+  text-align: center;
+  margin-top: 4px;
+  margin-bottom: 16px;
+  border: 1px dashed var(--card-border);
+}
+.ticketBarcodeLabel { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px; }
+.ticketBarcodeVal   { font-size: 13px; font-weight: 900; color: var(--primary-color); font-family: monospace; letter-spacing: 1.5px; margin: 0; word-break: break-all; }
+
+.ticketActions {
+  display: flex;
+  gap: 10px;
+  padding: 0 20px 20px;
+}
+
 /* ── Detail Modal ── */
 .overlay {
   position: fixed;
