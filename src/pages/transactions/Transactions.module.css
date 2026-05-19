@@ -95,41 +95,73 @@
 /* LEFT — flight detail */
 .expandLeft { min-width: 0; }
 
-.expandAirline { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-.expandAirlineLogo { width: 36px; height: 36px; object-fit: contain; border-radius: 8px; flex-shrink: 0; background: var(--card-bg); border: 1px solid var(--card-border); padding: 2px; }
-.expandAirlineName { font-size: 14px; font-weight: 800; color: var(--text-dark); margin: 0; }
-.expandFlightNum   { font-size: 12px; color: var(--text-muted); margin: 2px 0 0; font-family: monospace; }
-
-/* Timeline + airports layout (like FlightCard detail) */
-.expandDetailRow { display: flex; gap: 16px; align-items: stretch; }
-
-.expandTimeline {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 80px;
-  flex-shrink: 0;
+/* ── Boarding pass card ── */
+.boardingPass {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  overflow: hidden;
 }
-.expandTimeBlock { text-align: center; }
-.expandTimeHr    { font-size: 16px; font-weight: 800; color: var(--text-dark); margin: 0; font-family: monospace; }
-.expandTimeDate  { font-size: 10px; color: var(--text-muted); margin: 2px 0 0; }
 
-.expandVLine  { display: flex; flex-direction: column; align-items: center; flex: 1; gap: 3px; padding: 6px 0; }
-.expandVDot   { width: 8px; height: 8px; border-radius: 50%; background: var(--primary-color); flex-shrink: 0; }
-.expandVTrack { flex: 1; width: 2px; background: var(--divider); border-radius: 1px; }
-.expandVPlane { font-size: 13px; color: var(--primary-color); }
+/* Airline row */
+.bpAirlineRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--card-border);
+  background: var(--info-bg);
+}
+.bpLogo { width: 40px; height: 40px; object-fit: contain; border-radius: 8px; flex-shrink: 0; }
+.bpAirlineName { font-size: 14px; font-weight: 800; color: var(--text-dark); margin: 0; }
+.bpFlightNum   { font-size: 11px; color: var(--text-muted); margin: 2px 0 0; font-family: monospace; }
+.bpDurBadge {
+  margin-left: auto;
+  background: var(--primary-color);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
 
-.expandAptInfo { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-.expandAptBlock { }
-.expandIata   { font-size: 18px; font-weight: 900; color: var(--primary-color); margin: 0; font-family: monospace; }
-.expandCity   { font-size: 11px; color: var(--text-secondary); margin: 2px 0 0; }
-.expandDur    { font-size: 11px; color: var(--text-muted); text-align: center; padding: 6px 0; font-weight: 600; }
+/* Route row */
+.bpRoute {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+}
+.bpApt      { flex-shrink: 0; min-width: 80px; }
+.bpAptRight { text-align: right; }
+.bpTime { font-size: 24px; font-weight: 900; color: var(--text-dark); margin: 0; font-family: monospace; }
+.bpIata { font-size: 18px; font-weight: 900; color: var(--primary-color); margin: 2px 0 2px; font-family: monospace; }
+.bpCity { font-size: 12px; color: var(--text-secondary); margin: 0; }
+.bpDate { font-size: 10px; color: var(--text-muted); margin: 3px 0 0; }
 
-/* Passengers */
-.expandPax { border-top: 1px dashed var(--card-border); margin-top: 12px; padding-top: 10px; }
-.expandPaxRow  { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 4px 0; }
-.expandPaxName { font-weight: 700; color: var(--text-dark); }
-.expandPaxSeat { color: var(--text-muted); font-size: 12px; }
+.bpLine { flex: 1; display: flex; align-items: center; gap: 5px; }
+.bpLineDot   { width: 8px; height: 8px; border-radius: 50%; background: var(--primary-color); flex-shrink: 0; }
+.bpLineTrack { flex: 1; height: 1.5px; background: var(--primary-color); opacity: 0.3; }
+.bpLinePlane { font-size: 16px; color: var(--primary-color); }
+
+/* Perforation */
+.bpPerf {
+  display: flex;
+  align-items: center;
+  padding: 0 -8px;
+  border-top: 2px dashed var(--card-border);
+  margin: 0;
+}
+
+/* Passengers section */
+.bpPaxSection { padding: 12px 16px; }
+.bpPaxLabel { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin: 0 0 8px; }
+.bpPaxList  { display: flex; flex-direction: column; gap: 0; }
+.bpPaxRow   { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--divider-muted); }
+.bpPaxRow:last-child { border-bottom: none; }
+.bpPaxName  { font-size: 14px; font-weight: 700; color: var(--text-dark); }
+.bpPaxSeat  { font-size: 12px; color: var(--text-muted); font-family: monospace; background: var(--bg-muted); padding: 2px 8px; border-radius: 4px; }
 
 /* RIGHT — payment info */
 .expandRight {

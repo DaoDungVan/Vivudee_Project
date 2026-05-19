@@ -262,65 +262,65 @@ const Transactions = () => {
                             {/* LEFT — flight detail */}
                             {flight && (
                               <div className={styles.expandLeft}>
-                                {/* Airline row */}
-                                <div className={styles.expandAirline}>
-                                  {flight.airline?.logo_url
-                                    ? <img src={flight.airline.logo_url} alt={flight.airline.name} className={styles.expandAirlineLogo} onError={e => { e.target.src = planeIcon; }} />
-                                    : <img src={planeIcon} alt="airline" className={styles.expandAirlineLogo} />}
-                                  <div>
-                                    <p className={styles.expandAirlineName}>{flight.airline?.name}</p>
-                                    <p className={styles.expandFlightNum}>{flight.flight_number} · {flight.seat_class || booking?.outbound_seat_class || "Economy"}</p>
-                                  </div>
-                                </div>
-
-                                {/* Timeline + airports */}
-                                <div className={styles.expandDetailRow}>
-                                  {/* Timeline */}
-                                  <div className={styles.expandTimeline}>
-                                    <div className={styles.expandTimeBlock}>
-                                      <p className={styles.expandTimeHr}>{flight.departure?.time ? new Date(flight.departure.time).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit",hour12:false}) : "—"}</p>
-                                      <p className={styles.expandTimeDate}>{fmtDate(flight.departure?.time)}</p>
-                                    </div>
-                                    <div className={styles.expandVLine}>
-                                      <div className={styles.expandVDot}/>
-                                      <div className={styles.expandVTrack}/>
-                                      <span className={styles.expandVPlane}>✈</span>
-                                      <div className={styles.expandVTrack}/>
-                                      <div className={styles.expandVDot}/>
-                                    </div>
-                                    <div className={styles.expandTimeBlock}>
-                                      <p className={styles.expandTimeHr}>{flight.arrival?.time ? new Date(flight.arrival.time).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit",hour12:false}) : "—"}</p>
-                                      <p className={styles.expandTimeDate}>{fmtDate(flight.arrival?.time)}</p>
-                                    </div>
-                                  </div>
-
-                                  {/* Airport info */}
-                                  <div className={styles.expandAptInfo}>
-                                    <div className={styles.expandAptBlock}>
-                                      <p className={styles.expandIata}>{flight.departure?.code}</p>
-                                      <p className={styles.expandCity}>{flight.departure?.city}</p>
+                                <div className={styles.boardingPass}>
+                                  {/* Row 1: Airline */}
+                                  <div className={styles.bpAirlineRow}>
+                                    <img
+                                      src={flight.airline?.logo_url || planeIcon}
+                                      alt={flight.airline?.name}
+                                      className={styles.bpLogo}
+                                      onError={e => { e.target.src = planeIcon; }}
+                                    />
+                                    <div>
+                                      <p className={styles.bpAirlineName}>{flight.airline?.name}</p>
+                                      <p className={styles.bpFlightNum}>{flight.flight_number} · {flight.seat_class || booking?.outbound_seat_class || "Economy"}</p>
                                     </div>
                                     {(flight.duration_label || flight.duration_minutes) && (
-                                      <p className={styles.expandDur}>{flight.duration_label || fmtDur(flight.duration_minutes)}</p>
+                                      <span className={styles.bpDurBadge}>{flight.duration_label || fmtDur(flight.duration_minutes)}</span>
                                     )}
-                                    <div className={styles.expandAptBlock}>
-                                      <p className={styles.expandIata}>{flight.arrival?.code}</p>
-                                      <p className={styles.expandCity}>{flight.arrival?.city}</p>
+                                  </div>
+
+                                  {/* Row 2: Route */}
+                                  <div className={styles.bpRoute}>
+                                    <div className={styles.bpApt}>
+                                      <p className={styles.bpTime}>{flight.departure?.time ? new Date(flight.departure.time).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit",hour12:false}) : "—"}</p>
+                                      <p className={styles.bpIata}>{flight.departure?.code}</p>
+                                      <p className={styles.bpCity}>{flight.departure?.city}</p>
+                                      <p className={styles.bpDate}>{fmtDate(flight.departure?.time)}</p>
+                                    </div>
+                                    <div className={styles.bpLine}>
+                                      <div className={styles.bpLineDot}/>
+                                      <div className={styles.bpLineTrack}/>
+                                      <span className={styles.bpLinePlane}>✈</span>
+                                      <div className={styles.bpLineTrack}/>
+                                      <div className={styles.bpLineDot}/>
+                                    </div>
+                                    <div className={`${styles.bpApt} ${styles.bpAptRight}`}>
+                                      <p className={styles.bpTime}>{flight.arrival?.time ? new Date(flight.arrival.time).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit",hour12:false}) : "—"}</p>
+                                      <p className={styles.bpIata}>{flight.arrival?.code}</p>
+                                      <p className={styles.bpCity}>{flight.arrival?.city}</p>
+                                      <p className={styles.bpDate}>{fmtDate(flight.arrival?.time)}</p>
                                     </div>
                                   </div>
-                                </div>
 
-                                {/* Passengers */}
-                                {passengers.length > 0 && (
-                                  <div className={styles.expandPax}>
-                                    {passengers.map((p, idx) => (
-                                      <div key={idx} className={styles.expandPaxRow}>
-                                        <span className={styles.expandPaxName}>{p.full_name}</span>
-                                        <span className={styles.expandPaxSeat}>{p.seat_number ? `Ghế ${p.seat_number}` : t("transactions.seatTba")}</span>
+                                  {/* Perforation */}
+                                  {passengers.length > 0 && <div className={styles.bpPerf} />}
+
+                                  {/* Row 3: Passengers */}
+                                  {passengers.length > 0 && (
+                                    <div className={styles.bpPaxSection}>
+                                      <p className={styles.bpPaxLabel}>{t("transactions.passengers")}</p>
+                                      <div className={styles.bpPaxList}>
+                                        {passengers.map((p, idx) => (
+                                          <div key={idx} className={styles.bpPaxRow}>
+                                            <span className={styles.bpPaxName}>{p.full_name}</span>
+                                            <span className={styles.bpPaxSeat}>{p.seat_number ? `Ghế ${p.seat_number}` : t("transactions.seatTba")}</span>
+                                          </div>
+                                        ))}
                                       </div>
-                                    ))}
-                                  </div>
-                                )}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             )}
 
