@@ -22,7 +22,7 @@ const formatDate = (iso) => {
 };
 
 // Normalize booking — hỗ trợ cả flat (my bookings) lẫn nested (lookup)
-const depTime  = (b) => b?.departure_time  || b?.flight?.departure?.time;
+const depTime  = (b) => b?.departure_time  || b?.flight?.departure?.time || b?.outbound_flight?.departure?.time;
 const arrTime  = (b) => b?.arrival_time    || b?.flight?.arrival?.time;
 const depCode  = (b) => b?.dep_code        || b?.flight?.departure?.code;
 const arrCode  = (b) => b?.arr_code        || b?.flight?.arrival?.code;
@@ -382,6 +382,22 @@ const Bookings = () => {
           {flightStatus(data.outbound_flight) === "landed" ? "Chuyến bay đã hạ cánh" : "Theo dõi chuyến bay"}
         </button>
       )}
+
+      {canRequestRefund(data) && (
+        <button
+          className={styles.refundBtn}
+          style={{ marginTop: 10 }}
+          onClick={() => openRefundModal(data)}
+        >
+          {t("bookings.refundBtn")}
+        </button>
+      )}
+
+      {["refund_pending", "refunded"].includes(data.status) && (
+        <span className={styles.refundPendingBadge} style={{ display: "block", marginTop: 10 }}>
+          {data.status === "refund_pending" ? t("bookings.refundPendingBadge") : t("bookings.refundedBadge")}
+        </span>
+      )}
     </div>
   );
 
@@ -486,7 +502,7 @@ const Bookings = () => {
                   {policy.pct > 0 && (
                     <span className={styles.policyAmt}>
                       ≈ {new Intl.NumberFormat("vi-VN").format(
-                        Math.round((Number(refundTarget.final_amount) || Number(refundTarget.total_price) || 0) * policy.pct / 100)
+                        Math.round((Number(refundTarget.final_amount) || Number(refundTarget.price?.final_amount) || Number(refundTarget.total_price) || Number(refundTarget.price?.total_price) || 0) * policy.pct / 100)
                       )} VND
                     </span>
                   )}
