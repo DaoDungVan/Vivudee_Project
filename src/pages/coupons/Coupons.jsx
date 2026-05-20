@@ -1,5 +1,6 @@
 // src/pages/coupons/Coupons.jsx
 import { useState, useEffect, useCallback } from "react";
+import { LuCopy } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
@@ -140,7 +141,7 @@ const Coupons = () => {
                 <div className={styles.couponRight}>
                   <div className={styles.couponCodeBox}>
                     <span className={styles.couponCode}>{c.code}</span>
-                    <button className={styles.copyBtn} onClick={() => copyCode(c.code)} title={t("coupons.copy")}>📋</button>
+                    <button className={styles.copyBtn} onClick={() => copyCode(c.code)} title={t("coupons.copy")}><LuCopy size={13} /></button>
                   </div>
                   {c.is_used ? (
                     <span className={styles.usedBadge}>{t("coupons.used")}</span>

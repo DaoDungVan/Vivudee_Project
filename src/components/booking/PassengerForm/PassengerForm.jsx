@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import styles from "./PassengerForm.module.css";
 import planeIcon from "../../../assets/icons/plane.png";
+import { LuLuggage, LuBackpack, LuUser } from "react-icons/lu";
 
 const buildBaggageOptions = (flight, t) => {
   const fixedKgs = [0, 5, 10, 20];
@@ -79,8 +80,8 @@ const FlightSummary = ({
     </div>
 
     <div className={styles.includedBaggage}>
-      🧳 {flight.seat?.baggage_included_kg || 0}kg checked &nbsp;·&nbsp;
-      🎒 {flight.seat?.carry_on_kg || 7}kg cabin included
+      <LuLuggage size={13} style={{marginRight:4,verticalAlign:"middle"}}/>{flight.seat?.baggage_included_kg || 0}kg checked &nbsp;·&nbsp;
+      <LuBackpack size={13} style={{marginRight:4,verticalAlign:"middle"}}/>{flight.seat?.carry_on_kg || 7}kg cabin included
     </div>
 
     <div className={styles.baggageSection}>
@@ -152,7 +153,7 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
 
         <div className={styles.body}>
           <div className={styles.paxBadge}>
-            👤 {passengers?.adults || 1} {t("passengerForm.adult")}{(passengers?.adults || 1) > 1 ? "s" : ""}
+            <LuUser size={13} style={{marginRight:4,verticalAlign:"middle"}}/>{passengers?.adults || 1} {t("passengerForm.adult")}{(passengers?.adults || 1) > 1 ? "s" : ""}
             {passengers?.children > 0 && ` · ${passengers.children} ${t("passengerForm.child")}${passengers.children > 1 ? "ren" : ""}`}
           </div>
 

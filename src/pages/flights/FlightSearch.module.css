@@ -27,6 +27,23 @@
   display: none;
 }
 
+.heatCalBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-muted);
+  border: 1.5px solid var(--card-border);
+  border-radius: 20px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: all 0.15s;
+}
+.heatCalBtn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+
 .filterToggleBtn {
   border: 1px solid var(--card-border);
   background: var(--card-bg);

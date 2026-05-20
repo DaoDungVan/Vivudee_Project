@@ -275,6 +275,10 @@
 
 /* SEARCH BUTTON */
 .searchBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   padding: 13px 26px;
   border: none;
   border-radius: 14px;

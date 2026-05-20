@@ -5,6 +5,8 @@ import RecommendationBar from "../../components/flight/RecommendationBar/Recomme
 import PriceCalendar from "../../components/flight/PriceCalendar/PriceCalendar";
 import AlternativeFlights from "../../components/flight/AlternativeFlights/AlternativeFlights";
 import BrowseByAirline from "../../components/flight/BrowseByAirline/BrowseByAirline";
+import HeatCalendar from "../../components/flight/HeatCalendar/HeatCalendar";
+import { LuCalendarDays, LuPlaneTakeoff, LuPlaneLanding } from "react-icons/lu";
 import styles from "./FlightSearch.module.css";
 
 import { useEffect, useState } from "react";
@@ -149,6 +151,7 @@ const FlightSearch = () => {
   }, [selectedOutbound, selectedReturn, isRoundTrip]);
 
   const [cheapestCalPrice, setCheapestCalPrice] = useState(null);
+  const [showHeatCal, setShowHeatCal]           = useState(false);
 
   const filteredOutbound = applyFilters(outboundFlights, filters);
   const filteredReturn = applyFilters(returnFlights, filters);
@@ -221,7 +224,29 @@ const FlightSearch = () => {
               )}
             </div>
 
-            {/* Price Calendar */}
+            {/* Heat Calendar toggle */}
+            {hasSearchParams && from && to && (
+              <div style={{ marginBottom: 8 }}>
+                <button
+                  className={styles.heatCalBtn}
+                  onClick={() => setShowHeatCal(p => !p)}
+                >
+                  <LuCalendarDays size={15} />
+                  {showHeatCal ? t("heatCalendar.toggleHide") : t("heatCalendar.toggleShow")}
+                </button>
+                {showHeatCal && (
+                  <HeatCalendar
+                    from={from}
+                    to={to}
+                    selectedDate={departureDate}
+                    seatClass={seatClass || "economy"}
+                    adults={Number(adults || 1)}
+                  />
+                )}
+              </div>
+            )}
+
+            {/* Price Calendar (5-day strip) */}
             {!loading && from && to && departureDate && (
               <PriceCalendar
                 from={from}
@@ -229,7 +254,6 @@ const FlightSearch = () => {
                 selectedDate={departureDate}
                 seatClass={seatClass || "economy"}
                 adults={Number(adults || 1)}
-                searchParams={new URLSearchParams(window.location.search).toString()}
                 onCalendarLoad={(calMap) => {
                   const prices = Object.values(calMap).filter(Boolean);
                   if (prices.length) setCheapestCalPrice(Math.min(...prices));
@@ -246,7 +270,7 @@ const FlightSearch = () => {
                 <div className={styles.sliderWrapper}>
                   <div className={`${styles.slider} ${step === "return" ? styles.slideLeft : ""}`}>
                     <div className={styles.page}>
-                      <h3>✈️ {t("flightSearch.outboundShort")} ({filteredOutbound.length})</h3>
+                      <h3><LuPlaneTakeoff size={18} style={{ marginRight: 8, verticalAlign: "middle" }} />{t("flightSearch.outboundShort")} ({filteredOutbound.length})</h3>
                       {filteredOutbound.map((flight) => (
                         <FlightCard
                           key={flight.flight_id}
@@ -256,14 +280,6 @@ const FlightSearch = () => {
                           cheapestCalPrice={cheapestCalPrice}
                         />
                       ))}
-                      {selectedOutbound && (
-                        <AlternativeFlights
-                          selectedFlight={selectedOutbound}
-                          seatClass={seatClass || "economy"}
-                          adults={Number(adults || 1)}
-                          onSelect={(f) => handleSelectOutbound(f)}
-                        />
-                      )}
                     </div>
 
                     <div className={styles.page}>
@@ -271,7 +287,7 @@ const FlightSearch = () => {
                         <p className={styles.note}>{t("flightSearch.selectOutboundFirst")}</p>
                       ) : (
                         <>
-                          <h3>🔁 {t("flightSearch.returnShort")} ({filteredReturn.length})</h3>
+                          <h3><LuPlaneLanding size={18} style={{ marginRight: 8, verticalAlign: "middle" }} />{t("flightSearch.returnShort")} ({filteredReturn.length})</h3>
                           {filteredReturn.map((flight) => (
                             <FlightCard
                               key={flight.flight_id}
@@ -288,6 +304,16 @@ const FlightSearch = () => {
                   {/* Gợi ý chuyến bay khác */}
                   <RecommendationBar from={from} to={to} />
                 </div>
+              )}
+
+              {/* Alternative Flights — ngoài overflow:hidden */}
+              {hasSearchParams && !loading && selectedOutbound && (
+                <AlternativeFlights
+                  selectedFlight={selectedOutbound}
+                  seatClass={seatClass || "economy"}
+                  adults={Number(adults || 1)}
+                  onSelect={(f) => handleSelectOutbound(f)}
+                />
               )}
             </div>
           </div>

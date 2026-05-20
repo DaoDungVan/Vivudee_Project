@@ -64,7 +64,7 @@ export default function BrowseByAirline() {
   return (
     <div className={styles.wrap}>
       <div className={styles.intro}>
-        <p className={styles.introTitle}>{t("browseFlights.title", "✈ Khám phá chuyến bay")}</p>
+        <p className={styles.introTitle}>{t("browseFlights.title", "Khám phá chuyến bay")}</p>
         <p className={styles.introSub}>{t("browseFlights.sub", "Chọn tuyến bay phù hợp với bạn")}</p>
       </div>
 

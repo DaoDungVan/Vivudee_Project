@@ -211,7 +211,9 @@
 }
 
 .cheaperBadge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   background: #dcfce7;
   color: #15803d;
   border: 1px solid #86efac;

@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  FaChevronDown,
-  FaCommentDots,
-  FaPaperclip,
-  FaPaperPlane,
-  FaRobot,
-  FaSmile,
-  FaTimes,
-  FaUserTie,
-} from "react-icons/fa";
+  LuChevronDown,
+  LuMessageCircle,
+  LuPaperclip,
+  LuSendHorizontal,
+  LuBot,
+  LuSmile,
+  LuX,
+  LuHeadset,
+} from "react-icons/lu";
 import {
   getAiConversation,
   getSupportConversation,
@@ -233,7 +233,7 @@ function AttachmentPreviewList({ attachments, onRemove, t }) {
             onClick={() => onRemove(attachment.id)}
             aria-label={t("chat.removeAttachment")}
           >
-            <FaTimes />
+            <LuX />
           </button>
         </div>
       ))}
@@ -921,7 +921,7 @@ function ChatWidget() {
           <header className={styles.header}>
             <div className={styles.headerLeft}>
               <div className={`${styles.headerAvatar} ${mode === "support" ? styles.headerAvatarAdmin : styles.headerAvatarAi}`}>
-                {mode === "support" ? <FaUserTie /> : <FaRobot />}
+                {mode === "support" ? <LuHeadset /> : <LuBot />}
               </div>
               <div className={styles.headerText}>
                 <p className={styles.kicker}>Vivudee Chat</p>
@@ -942,14 +942,14 @@ function ChatWidget() {
               onClick={() => setIsOpen(false)}
               aria-label={t("chat.closeChat")}
             >
-              <FaTimes />
+              <LuX />
             </button>
           </header>
 
           <div className={styles.actionBar}>
             {mode === "ai" ? (
               <button type="button" className={styles.toAdminBtn} onClick={openAdminChat}>
-                <FaUserTie />
+                <LuHeadset />
                 <span>{t("chat.switchToAdmin")}</span>
                 {supportUnread > 0 && <em>{supportUnread}</em>}
               </button>
@@ -964,7 +964,7 @@ function ChatWidget() {
                   setError("");
                 }}
               >
-                <FaRobot />
+                <LuBot />
                 <span>{t("chat.switchToAi")}</span>
                 {unread.ai > 0 && <em>{unread.ai}</em>}
               </button>
@@ -990,7 +990,7 @@ function ChatWidget() {
               ) : currentMessages.length === 0 ? (
                 <div className={styles.stateBox}>
                   <div className={styles.emptyIcon}>
-                    {mode === "support" ? <FaUserTie /> : <FaRobot />}
+                    {mode === "support" ? <LuHeadset /> : <LuBot />}
                   </div>
                   <strong>
                     {mode === "support" ? t("chat.emptySupportTitle") : t("chat.emptyAiTitle")}
@@ -1045,7 +1045,7 @@ function ChatWidget() {
                 }}
                 aria-label={t("chat.jumpToLatest", { defaultValue: "Xuống cuối" })}
               >
-                <FaChevronDown />
+                <LuChevronDown />
               </button>
             )}
           </div>
@@ -1073,7 +1073,7 @@ function ChatWidget() {
                   className={styles.toolButton}
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <FaPaperclip />
+                  <LuPaperclip />
                   <span>{t("chat.attachFiles")}</span>
                 </button>
 
@@ -1083,7 +1083,7 @@ function ChatWidget() {
                   className={`${styles.toolButton} ${isStickerPickerOpen ? styles.toolButtonActive : ""}`}
                   onClick={() => setIsStickerPickerOpen((previous) => !previous)}
                 >
-                  <FaSmile />
+                  <LuSmile />
                   <span>{t("chat.icons")}</span>
                 </button>
               </div>
@@ -1098,7 +1098,7 @@ function ChatWidget() {
                       onClick={() => setIsStickerPickerOpen(false)}
                       aria-label={t("chat.closeIcons")}
                     >
-                      <FaTimes />
+                      <LuX />
                     </button>
                   </div>
                   <div className={styles.stickerCategories}>
@@ -1156,7 +1156,7 @@ function ChatWidget() {
               onClick={handleSend}
               disabled={sendDisabled}
             >
-              <FaPaperPlane />
+              <LuSendHorizontal />
             </button>
           </div>
         </section>
@@ -1168,7 +1168,7 @@ function ChatWidget() {
         onClick={() => setIsOpen((previous) => !previous)}
         aria-label={isOpen ? t("chat.closeChat") : t("chat.openChat")}
       >
-        <FaCommentDots />
+        <LuMessageCircle />
         {totalUnread > 0 && <span>{totalUnread}</span>}
       </button>
     </div>

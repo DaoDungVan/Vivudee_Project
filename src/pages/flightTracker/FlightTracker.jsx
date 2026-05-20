@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { LuPlaneTakeoff, LuPlaneLanding, LuClock, LuMapPin, LuCircleAlert, LuHourglass, LuMap } from "react-icons/lu";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Polyline, Marker } from "react-leaflet";
 import L from "leaflet";
@@ -9,6 +10,7 @@ import Footer from "../../components/common/Footer/Footer";
 import { getFlightPosition } from "../../services/flightService";
 import { createSocketConnection } from "../../services/socketService";
 import styles from "./FlightTracker.module.css";
+import planeMarkerImg from "../../assets/icons/plane-marker.png";
 
 // ── Math helpers ────────────────────────────────────────────────────────────
 const D2R = Math.PI / 180;
@@ -30,6 +32,14 @@ const gcPoints = (lat1, lng1, lat2, lng2, n = 80) => {
     const z = A * Math.sin(φ1) + B * Math.sin(φ2);
     return [Math.atan2(z, Math.sqrt(x * x + y * y)) * R2D, Math.atan2(y, x) * R2D];
   });
+};
+
+const computeBearing = (lat1, lng1, lat2, lng2) => {
+  const φ1 = lat1 * D2R, φ2 = lat2 * D2R;
+  const Δλ = (lng2 - lng1) * D2R;
+  const y = Math.sin(Δλ) * Math.cos(φ2);
+  const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+  return ((Math.atan2(y, x) * R2D) + 360) % 360;
 };
 
 const haversineKm = (lat1, lng1, lat2, lng2) => {
@@ -74,12 +84,24 @@ const makeAirportIcon = (code, color = "#0e81cd") =>
     iconAnchor: [16, 16],
   });
 
-const makePlaneIcon = (heading = 0) =>
+const makePlaneIcon = (heading = 0, animated = false) =>
   L.divIcon({
-    html: `<div style="transform:rotate(${heading - 45}deg);font-size:22px;line-height:1;filter:drop-shadow(0 2px 5px rgba(0,0,0,.5));color:#0e81cd">✈</div>`,
-    className: "",
-    iconSize: [26, 26],
-    iconAnchor: [13, 13],
+    html: `
+      ${animated ? `<style>@keyframes planeRock{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}</style>` : ""}
+      <div style="width:34px;height:34px;transform:rotate(${heading}deg);filter:drop-shadow(0 3px 10px rgba(0,0,0,.65))">
+        <div style="width:34px;height:34px;${animated ? "animation:planeRock 2.4s ease-in-out infinite;" : ""}transform-origin:center">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="34" height="34">
+            <path d="M12 1 C12.8 1 13.8 4 13.8 9 L22 14.5 L22 16 L13.8 13 L13.5 20 L16 21 L16 23 L12 22 L8 23 L8 21 L10.5 20 L10.2 13 L2 16 L2 14.5 L10.2 9 C10.2 4 11.2 1 12 1 Z"
+              fill="#f59e0b" stroke="rgba(255,255,255,0.55)" stroke-width="0.5" stroke-linejoin="round"/>
+            <path d="M12 2 L12 20.5" stroke="rgba(0,0,0,0.15)" stroke-width="0.9"/>
+            <ellipse cx="17.2" cy="13.8" rx="1" ry="1.7" fill="#d97706"/>
+            <ellipse cx="6.8" cy="13.8" rx="1" ry="1.7" fill="#d97706"/>
+          </svg>
+        </div>
+      </div>`,
+    className: "plane-marker",
+    iconSize: [34, 34],
+    iconAnchor: [17, 17],
   });
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -102,6 +124,14 @@ const FlightTracker = () => {
   const socketRef        = useRef(null);
   const countdownRef     = useRef(null);
   const timeRemainingRef = useRef(0);
+
+  // Inject smooth transition cho plane marker
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.textContent = `.plane-marker { transition: transform 1.8s linear; }`;
+    document.head.appendChild(style);
+    return () => style.remove();
+  }, []);
 
   // Sync dark theme with MutationObserver
   useEffect(() => {
@@ -178,7 +208,7 @@ const FlightTracker = () => {
     <div className={styles.page}>
       <NavBar />
       <div className={styles.centerBody}>
-        <p className={styles.errorText}>❌ {error}</p>
+        <p className={styles.errorText}><LuCircleAlert size={20} style={{marginRight:8,verticalAlign:"middle"}} />{error}</p>
         <button className={styles.backBtnLarge} onClick={() => navigate("/bookings")}>
           ← {t("tracker.myBookings")}
         </button>
@@ -220,7 +250,14 @@ const FlightTracker = () => {
   const statusKey = isAirborne ? "live" : isLanded ? "landed" : "scheduled";
   const depIcon   = makeAirportIcon(departure?.code || "", "#0e81cd");
   const arrIcon   = makeAirportIcon(arrival?.code   || "", isLanded ? "#16a34a" : "#64748b");
-  const planeIcon = makePlaneIcon(position?.heading || 0);
+  const planeHeading = hasCoords
+    ? computeBearing(
+        position?.lat ?? departure.lat,
+        position?.lng ?? departure.lng,
+        arrival.lat, arrival.lng
+      )
+    : 0;
+  const planeIcon = makePlaneIcon(planeHeading, isAirborne);
 
   return (
     <div className={styles.page}>
@@ -236,14 +273,14 @@ const FlightTracker = () => {
 
           <div className={styles.headerCenter}>
             <div className={styles.headerBadges}>
-              <span className={styles.flightBadge}>✈ {flightNumber}</span>
+              <span className={styles.flightBadge}><LuPlaneTakeoff size={14} style={{marginRight:5,verticalAlign:"middle"}} />{flightNumber}</span>
               {airlineName && <span className={styles.airlineBadge}>{airlineName}</span>}
             </div>
             <div className={styles.routeRow}>
               <span className={styles.iata}>{departure?.code}</span>
               <div className={styles.routeTrack}>
                 <div className={styles.routeLine} />
-                <span className={styles.routePlaneIcon}>✈</span>
+                <span className={styles.routePlaneIcon}><LuPlaneTakeoff size={16} /></span>
                 <div className={styles.routeLine} />
               </div>
               <span className={styles.iata}>{arrival?.code}</span>
@@ -302,7 +339,7 @@ const FlightTracker = () => {
                 {!isLanded && planePos && <Marker position={planePos} icon={planeIcon} />}
               </MapContainer>
             ) : (
-              <div className={styles.mapPlaceholder}>🗺 {t("tracker.loadingMsg")}</div>
+              <div className={styles.mapPlaceholder}><LuMap size={20} style={{marginRight:8,verticalAlign:"middle"}} />{t("tracker.loadingMsg")}</div>
             )}
 
             {/* Live badge */}
@@ -358,7 +395,7 @@ const FlightTracker = () => {
             {/* Landed */}
             {isLanded && (
               <div className={styles.landedCard}>
-                <span className={styles.landedIcon}>🛬</span>
+                <span className={styles.landedIcon}><LuPlaneLanding size={32} /></span>
                 <p className={styles.landedTitle}>{t("tracker.landedMsg")}</p>
                 <p className={styles.landedSub}>{t("tracker.thankYou")}</p>
               </div>
@@ -367,7 +404,7 @@ const FlightTracker = () => {
             {/* Scheduled notice */}
             {!isAirborne && !isLanded && (
               <div className={styles.scheduledCard}>
-                <span className={styles.scheduledIcon}>⏳</span>
+                <span className={styles.scheduledIcon}><LuHourglass size={32} /></span>
                 <p className={styles.scheduledText}>{t("tracker.scheduled")}</p>
                 <p className={styles.scheduledSub}>{t("tracker.updateEvery")}</p>
               </div>
@@ -376,24 +413,24 @@ const FlightTracker = () => {
             {/* Info Grid */}
             <div className={styles.infoGrid}>
               <div className={styles.infoCard}>
-                <p className={styles.infoLabel}>✈ {t("tracker.departed")}</p>
+                <p className={styles.infoLabel}><LuPlaneTakeoff size={13} style={{marginRight:4,verticalAlign:"middle"}} />{t("tracker.departed")}</p>
                 <p className={styles.infoTime}>{formatTime(departure?.time)}</p>
                 <p className={styles.infoCity}>{departure?.city}</p>
                 <p className={styles.infoCode}>{departure?.code}</p>
               </div>
               <div className={styles.infoCard}>
-                <p className={styles.infoLabel}>🛬 {t("tracker.arrival")}</p>
+                <p className={styles.infoLabel}><LuPlaneLanding size={13} style={{marginRight:4,verticalAlign:"middle"}} />{t("tracker.arrival")}</p>
                 <p className={styles.infoTime}>{formatTime(arrival?.time)}</p>
                 <p className={styles.infoCity}>{arrival?.city}</p>
                 <p className={styles.infoCode}>{arrival?.code}</p>
               </div>
               <div className={styles.infoCard}>
-                <p className={styles.infoLabel}>⏱ {t("tracker.journey")}</p>
+                <p className={styles.infoLabel}><LuClock size={13} style={{marginRight:4,verticalAlign:"middle"}} />{t("tracker.journey")}</p>
                 <p className={styles.infoTime}>{dh}h {dm}m</p>
                 {totalKm && <p className={styles.infoCode}>{totalKm.toLocaleString()} km</p>}
               </div>
               <div className={styles.infoCard}>
-                <p className={styles.infoLabel}>📍 {t("tracker.progress")}</p>
+                <p className={styles.infoLabel}><LuMapPin size={13} style={{marginRight:4,verticalAlign:"middle"}} />{t("tracker.progress")}</p>
                 <p className={styles.infoTime}>{Math.round(progress * 100)}%</p>
                 {flownKm != null && <p className={styles.infoCode}>~{flownKm.toLocaleString()} km</p>}
               </div>

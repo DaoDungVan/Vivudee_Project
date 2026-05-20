@@ -4,6 +4,9 @@ import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import { useTranslation } from "react-i18next";
 import styles from "./Contact.module.css";
+import { LuPhone, LuMail, LuMessageSquare, LuMapPin, LuCircleCheck } from "react-icons/lu";
+import { SiZalo } from "react-icons/si";
+import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 
 const FAQS = [
   {
@@ -56,10 +59,10 @@ const Contact = () => {
   };
 
   const INFO_CARDS = [
-    { icon: "📞", titleKey: "phone",    value: "1900 6789",                    sub: "Mon – Sun: 7:00 – 22:00" },
-    { icon: "📧", titleKey: "email",    value: "nguyentuminhlong@gmail.com",    sub: "Response within 24 hours" },
-    { icon: "💬", titleKey: "liveChat", value: "Chat with us",                 sub: "Average response in 5 min" },
-    { icon: "📍", titleKey: "office",   value: "Ho Chi Minh City",             sub: "123 Nguyen Hue, District 1" },
+    { icon: <LuPhone size={20} />,         titleKey: "phone",    value: "1900 6789",                    sub: "Mon – Sun: 7:00 – 22:00" },
+    { icon: <LuMail size={20} />,          titleKey: "email",    value: "nguyentuminhlong@gmail.com",    sub: "Response within 24 hours" },
+    { icon: <LuMessageSquare size={20} />, titleKey: "liveChat", value: "Chat with us",                 sub: "Average response in 5 min" },
+    { icon: <LuMapPin size={20} />,        titleKey: "office",   value: "Ho Chi Minh City",             sub: "123 Nguyen Hue, District 1" },
   ];
 
   return (
@@ -90,7 +93,7 @@ const Contact = () => {
 
             {submitted ? (
               <div className={styles.successBox}>
-                <div className={styles.successIcon}>✅</div>
+                <div className={styles.successIcon}><LuCircleCheck size={48} color="#22c55e" /></div>
                 <h3>{t("contact.messageSentTitle")}</h3>
                 <p>{t("contact.messageSentDesc")}</p>
                 <button onClick={() => { setSubmitted(false); setForm({ name: "", email: "", subject: "", message: "" }); }}>
@@ -162,13 +165,13 @@ const Contact = () => {
           <p className={styles.socialTitle}>{t("contact.followUs")}</p>
           <div className={styles.socialLinks}>
             {[
-              { label: "Facebook",  icon: "📘", url: "#" },
-              { label: "Zalo",      icon: "💬", url: "#" },
-              { label: "Instagram", icon: "📸", url: "#" },
-              { label: "YouTube",   icon: "▶️",  url: "#" },
+              { label: "Facebook",  icon: <FaFacebook  size={18} />, url: "#", showLabel: true  },
+              { label: "Zalo",      icon: <SiZalo      size={32} />, url: "#", showLabel: false },
+              { label: "Instagram", icon: <FaInstagram size={18} />, url: "#", showLabel: true  },
+              { label: "YouTube",   icon: <FaYoutube   size={18} />, url: "#", showLabel: true  },
             ].map((s) => (
               <a key={s.label} href={s.url} className={styles.socialLink} target="_blank" rel="noreferrer">
-                <span>{s.icon}</span> {s.label}
+                <span>{s.icon}</span> {s.showLabel !== false && s.label}
               </a>
             ))}
           </div>

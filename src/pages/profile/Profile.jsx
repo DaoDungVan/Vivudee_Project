@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { LuEye, LuEyeOff } from "react-icons/lu";
 import API from "../../services/axiosInstance";
 import { forgotPassword, resetPassword } from "../../services/authService";
 import { getMembership } from "../../services/loyaltyService";
@@ -639,7 +639,7 @@ const Profile = () => {
                         onChange={(e) => { setCpNewPassword(e.target.value); setCpError(""); }}
                       />
                       <span className={styles.modalEye} onClick={() => setCpShowNew(!cpShowNew)}>
-                        {cpShowNew ? <FaEyeSlash /> : <FaEye />}
+                        {cpShowNew ? <LuEyeOff /> : <LuEye />}
                       </span>
                     </div>
 
@@ -653,7 +653,7 @@ const Profile = () => {
                         onChange={(e) => { setCpConfirmPassword(e.target.value); setCpError(""); }}
                       />
                       <span className={styles.modalEye} onClick={() => setCpShowConfirm(!cpShowConfirm)}>
-                        {cpShowConfirm ? <FaEyeSlash /> : <FaEye />}
+                        {cpShowConfirm ? <LuEyeOff /> : <LuEye />}
                       </span>
                     </div>
 

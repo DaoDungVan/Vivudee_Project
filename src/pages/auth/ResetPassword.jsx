@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import NavBar from "../../components/common/NavBar/Navbar";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { LuEye, LuEyeOff } from "react-icons/lu";
 import { useTranslation } from "react-i18next";
 import { resetPassword } from "../../services/authService";
 import styles from "./ResetPassword.module.css";
@@ -95,7 +95,7 @@ const ResetPassword = () => {
                   onChange={(e) => { setNewPassword(e.target.value); setErrors((p) => ({ ...p, newPassword: "" })); }}
                 />
                 <span className={styles.eye} onClick={() => setShowNew(!showNew)}>
-                  {showNew ? <FaEyeSlash /> : <FaEye />}
+                  {showNew ? <LuEyeOff /> : <LuEye />}
                 </span>
               </div>
               {errors.newPassword && <p className={styles.fieldError}>{errors.newPassword}</p>}
@@ -110,7 +110,7 @@ const ResetPassword = () => {
                   onChange={(e) => { setConfirmPassword(e.target.value); setErrors((p) => ({ ...p, confirmPassword: "" })); }}
                 />
                 <span className={styles.eye} onClick={() => setShowConfirm(!showConfirm)}>
-                  {showConfirm ? <FaEyeSlash /> : <FaEye />}
+                  {showConfirm ? <LuEyeOff /> : <LuEye />}
                 </span>
               </div>
               {errors.confirmPassword && <p className={styles.fieldError}>{errors.confirmPassword}</p>}

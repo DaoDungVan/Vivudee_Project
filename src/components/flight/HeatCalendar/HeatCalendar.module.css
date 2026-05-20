@@ -1,0 +1,134 @@
+.wrap {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.title { font-size: 14px; font-weight: 800; color: var(--text-dark); margin: 0; }
+.navRow { display: flex; align-items: center; gap: 8px; }
+.monthLabel { font-size: 13px; font-weight: 700; color: var(--text-secondary); min-width: 100px; text-align: center; }
+.navBtn {
+  width: 28px; height: 28px;
+  background: var(--bg-muted);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-secondary);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.navBtn:hover { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+
+/* Legend */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.legendLabel { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+.legendBar {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #22c55e, #fbbf24, #ef4444);
+  min-width: 80px;
+  max-width: 160px;
+}
+.legendCheap { font-size: 10px; color: #16a34a; font-weight: 700; }
+.legendExp   { font-size: 10px; color: #dc2626; font-weight: 700; }
+
+/* Day-of-week header */
+.weekRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 3px;
+}
+.weekDay {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 4px 0;
+  text-transform: uppercase;
+}
+
+/* Calendar grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.cell {
+  border-radius: 8px;
+  padding: 6px 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: box-shadow 0.15s, border-color 0.1s;
+  position: relative;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: var(--bg-muted);
+  border: 1.5px solid var(--card-border);
+}
+.cell:hover { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(14,129,205,0.15); }
+
+.cellEmpty { cursor: default; background: transparent !important; border: none !important; }
+.cellEmpty:hover { box-shadow: none; border-color: transparent !important; }
+
+/* Cell không có giá — mờ nhạt nhưng vẫn thấy */
+.cellNoData { background: var(--bg-muted) !important; opacity: 0.55; }
+
+.cellSelected {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(14,129,205,0.25) !important;
+  z-index: 3;
+}
+
+.cellPast { opacity: 0.3; cursor: not-allowed; }
+.cellPast:hover { box-shadow: none; border-color: var(--card-border) !important; }
+
+.cellNum {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-dark);
+  line-height: 1;
+}
+.cellPrice {
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+.cellNoPrice {
+  font-size: 10px;
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+/* No data state */
+.noData { text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px 0; }
+.loading { text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px 0; }
+
+@media (max-width: 600px) {
+  .cell { min-height: 44px; padding: 4px 2px; }
+  .cellNum { font-size: 12px; }
+  .cellPrice { font-size: 8px; }
+}

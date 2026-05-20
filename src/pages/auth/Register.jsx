@@ -2,8 +2,9 @@ import Footer from "../../components/common/Footer/Footer";
 import styles  from "./Register.module.css";
 import NavBar  from "../../components/common/NavBar/Navbar";
 
-import { FcGoogle }                      from "react-icons/fc";
-import { FaFacebook, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FcGoogle }    from "react-icons/fc";
+import { FaFacebook } from "react-icons/fa";
+import { LuEye, LuEyeOff } from "react-icons/lu";
 
 import { useState, useEffect }                    from "react";
 import { useNavigate }                            from "react-router-dom";
@@ -195,7 +196,7 @@ const Register = () => {
                 onChange={(e) => { setPassword(e.target.value); setErrors((p) => ({ ...p, password: "" })); }}
               />
               <span className={styles.eye} onClick={() => setShowPassword(!showPassword)}>
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                {showPassword ? <LuEyeOff /> : <LuEye />}
               </span>
             </div>
             {errors.password && <p className={styles.fieldError}>{errors.password}</p>}
@@ -210,7 +211,7 @@ const Register = () => {
                 onChange={(e) => { setConfirmPassword(e.target.value); setErrors((p) => ({ ...p, confirmPassword: "" })); }}
               />
               <span className={styles.eye} onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                {showConfirmPassword ? <LuEyeOff /> : <LuEye />}
               </span>
             </div>
             {errors.confirmPassword && <p className={styles.fieldError}>{errors.confirmPassword}</p>}

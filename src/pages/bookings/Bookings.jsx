@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { LuPlaneTakeoff, LuMail, LuPhone } from "react-icons/lu";
 import { useLocation, useNavigate } from "react-router-dom";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
@@ -240,7 +241,8 @@ const Bookings = () => {
           }}
         >
           {isAirborne(b) && <span className={styles.trackDot} />}
-          ✈ {isCompleted(b) ? t("bookings.trackLanded") || "Chuyến bay đã hạ cánh" : t("bookings.trackFlight") || "Theo dõi chuyến bay"}
+          <LuPlaneTakeoff size={15} style={{marginRight:6,verticalAlign:"middle"}} />
+          {isCompleted(b) ? t("bookings.trackLanded") : t("bookings.trackFlight")}
         </button>
       )}
 
@@ -352,8 +354,8 @@ const Bookings = () => {
       </div>
 
       <div className={styles.detailContact}>
-        <p>📧 {data.contact?.email}</p>
-        {data.contact?.phone && <p>📞 {data.contact?.phone}</p>}
+        <p><LuMail size={14} style={{marginRight:6,verticalAlign:"middle"}} />{data.contact?.email}</p>
+        {data.contact?.phone && <p><LuPhone size={14} style={{marginRight:6,verticalAlign:"middle"}} />{data.contact?.phone}</p>}
       </div>
 
       {data.status === "pending" && (
@@ -377,7 +379,7 @@ const Bookings = () => {
           }}
         >
           {flightStatus(data.outbound_flight) === "airborne" && <span className={styles.trackDot} />}
-          ✈ {flightStatus(data.outbound_flight) === "landed" ? "Chuyến bay đã hạ cánh" : "Theo dõi chuyến bay"}
+          {flightStatus(data.outbound_flight) === "landed" ? "Chuyến bay đã hạ cánh" : "Theo dõi chuyến bay"}
         </button>
       )}
     </div>
@@ -399,7 +401,7 @@ const Bookings = () => {
 
           {trackerAlert && (
             <div className={styles.trackerAlertBanner} onClick={() => setTrackerAlert("")}>
-              ✈ {trackerAlert}
+              {trackerAlert}
             </div>
           )}
 
@@ -480,7 +482,7 @@ const Bookings = () => {
               if (!policy) return null;
               return (
                 <div className={`${styles.policyBox} ${policy.pct === 0 ? styles.policyZero : policy.pct === 100 ? styles.policyFull : styles.policyPartial}`}>
-                  <span>📋 {t(policy.labelKey)}</span>
+                  <span>{t(policy.labelKey)}</span>
                   {policy.pct > 0 && (
                     <span className={styles.policyAmt}>
                       ≈ {new Intl.NumberFormat("vi-VN").format(
@@ -494,7 +496,7 @@ const Bookings = () => {
 
             {refundSuccess ? (
               <div className={styles.refundSuccessBox}>
-                <p>✅ {t("bookings.refundSuccessMsg")}</p>
+                <p>{t("bookings.refundSuccessMsg")}</p>
                 <p className={styles.refundSuccessCode}>{t("bookings.refundSuccessCode")} <strong>{refundSuccess}</strong></p>
                 <button className={styles.refundSuccessClose} onClick={() => { closeRefundModal(); navigate("/refunds"); }}>
                   {t("bookings.viewRefunds")}

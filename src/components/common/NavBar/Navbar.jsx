@@ -4,18 +4,18 @@ import logoDark from "../../../assets/images/LogoNav_Dark.svg";
 import { useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import {
-  FaUser,
-  FaPlane,
-  FaCreditCard,
-  FaTicketAlt,
-  FaComments,
-  FaSignOutAlt,
-  FaBars,
-  FaTimes,
-  FaUndo,
-  FaSun,
-  FaMoon,
-} from "react-icons/fa";
+  LuUser,
+  LuPlaneTakeoff,
+  LuCreditCard,
+  LuTicket,
+  LuMessageSquare,
+  LuLogOut,
+  LuMenu,
+  LuX,
+  LuUndo2,
+  LuSun,
+  LuMoon,
+} from "react-icons/lu";
 import { useTheme } from "../../../hooks/useTheme";
 import { useTranslation } from "react-i18next";
 
@@ -121,7 +121,7 @@ function NavBar() {
               title={isDark ? "Switch to Light mode" : "Switch to Dark mode"}
               aria-label="Toggle theme"
             >
-              {isDark ? <FaSun className={styles.sunIcon} /> : <FaMoon className={styles.moonIcon} />}
+              {isDark ? <LuSun className={styles.sunIcon} /> : <LuMoon className={styles.moonIcon} />}
             </button>
 
             {token ? (
@@ -136,26 +136,26 @@ function NavBar() {
                 {showMenu && (
                   <div className={styles.dropdown}>
                     <p className={styles.icons} onClick={() => { navigate("/profile"); setShowMenu(false); }}>
-                      <FaUser /> {t("nav.profile")}
+                      <LuUser /> {t("nav.profile")}
                     </p>
                     <p className={styles.icons} onClick={() => { navigate("/my-booking"); setShowMenu(false); }}>
-                      <FaPlane /> {t("nav.myBooking")}
+                      <LuPlaneTakeoff /> {t("nav.myBooking")}
                     </p>
                     <p className={styles.icons} onClick={() => { navigate("/transactions"); setShowMenu(false); }}>
-                      <FaCreditCard /> {t("nav.transactions")}
+                      <LuCreditCard /> {t("nav.transactions")}
                     </p>
                     <p className={styles.icons} onClick={() => { navigate("/coupons"); setShowMenu(false); }}>
-                      <FaTicketAlt /> {t("nav.coupons")}
+                      <LuTicket /> {t("nav.coupons")}
                     </p>
                     <p className={styles.icons} onClick={() => { navigate("/refunds"); setShowMenu(false); }}>
-                      <FaUndo /> {t("nav.myRefunds")}
+                      <LuUndo2 /> {t("nav.myRefunds")}
                     </p>
                     <p className={styles.icons} onClick={openChatWidget}>
-                      <FaComments /> Chat
+                      <LuMessageSquare /> Chat
                     </p>
                     <hr className={styles.dividerLine} />
                     <p className={styles.logout} onClick={handleLogout}>
-                      <FaSignOutAlt /> {t("nav.logout")}
+                      <LuLogOut /> {t("nav.logout")}
                     </p>
                   </div>
                 )}
@@ -178,10 +178,10 @@ function NavBar() {
             onClick={toggle}
             aria-label="Toggle theme"
           >
-            {isDark ? <FaSun className={styles.sunIcon} /> : <FaMoon className={styles.moonIcon} />}
+            {isDark ? <LuSun className={styles.sunIcon} /> : <LuMoon className={styles.moonIcon} />}
           </button>
           <button className={styles.hamburger} onClick={() => setMobileOpen((p) => !p)} aria-label="Toggle menu">
-            {mobileOpen ? <FaTimes /> : <FaBars />}
+            {mobileOpen ? <LuX /> : <LuMenu />}
           </button>
         </div>
       </div>
@@ -195,13 +195,13 @@ function NavBar() {
           <hr className={styles.mobileDivider} />
           {token ? (
             <>
-              <span onClick={() => { navigate("/profile"); closeMobile(); }}><FaUser /> {t("nav.profile")}</span>
-              <span onClick={() => { navigate("/my-booking"); closeMobile(); }}><FaPlane /> {t("nav.myBooking")}</span>
-              <span onClick={() => { navigate("/transactions"); closeMobile(); }}><FaCreditCard /> {t("nav.transactions")}</span>
-              <span onClick={() => { navigate("/coupons"); closeMobile(); }}><FaTicketAlt /> {t("nav.coupons")}</span>
-              <span onClick={() => { navigate("/refunds"); closeMobile(); }}><FaUndo /> {t("nav.myRefunds")}</span>
-              <span onClick={openChatWidget}><FaComments /> Chat</span>
-              <span className={styles.mobileLogout} onClick={() => { handleLogout(); closeMobile(); }}><FaSignOutAlt /> {t("nav.logout")}</span>
+              <span onClick={() => { navigate("/profile"); closeMobile(); }}><LuUser /> {t("nav.profile")}</span>
+              <span onClick={() => { navigate("/my-booking"); closeMobile(); }}><LuPlaneTakeoff /> {t("nav.myBooking")}</span>
+              <span onClick={() => { navigate("/transactions"); closeMobile(); }}><LuCreditCard /> {t("nav.transactions")}</span>
+              <span onClick={() => { navigate("/coupons"); closeMobile(); }}><LuTicket /> {t("nav.coupons")}</span>
+              <span onClick={() => { navigate("/refunds"); closeMobile(); }}><LuUndo2 /> {t("nav.myRefunds")}</span>
+              <span onClick={openChatWidget}><LuMessageSquare /> Chat</span>
+              <span className={styles.mobileLogout} onClick={() => { handleLogout(); closeMobile(); }}><LuLogOut /> {t("nav.logout")}</span>
             </>
           ) : (
             <div className={styles.mobileAuth}>

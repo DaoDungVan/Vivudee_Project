@@ -2,6 +2,7 @@ import { useState } from "react";
 import styles from "./FlightCard.module.css";
 import { useTranslation } from "react-i18next";
 import planeIcon from "../../../assets/icons/plane.png";
+import { LuCalendarDays, LuLuggage, LuBackpack, LuPlus } from "react-icons/lu";
 
 const fmtShort = (n) => n >= 1e6 ? `${(n / 1e6).toFixed(1)}tr` : `${Math.round(n / 1000)}k`;
 
@@ -50,6 +51,7 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
             <h3>{flight?.airline?.name || t("flightCard.unknownAirline")}</h3>
             {cheapestCalPrice && flight?.seat?.total_price > cheapestCalPrice && (
               <span className={styles.cheaperBadge}>
+                <LuCalendarDays size={10} />
                 {t("flightCard.cheaperBadge", { amount: fmtShort(flight.seat.total_price - cheapestCalPrice) })}
               </span>
             )}
@@ -102,9 +104,9 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
                 <span>{flight?.flight_number || "--"} • {flight?.seat?.class || "economy"}</span>
               </div>
               <div className={styles.baggage}>
-                <p>{t("flightCard.checkedBaggage", { kg: flight?.seat?.baggage_included_kg || 0 })}</p>
-                <p>{t("flightCard.cabinBaggage", { kg: flight?.seat?.carry_on_kg || 0 })}</p>
-                <p>{t("flightCard.extraBaggage", { options: formatExtraBaggagePackages(flight?.seat?.extra_baggage_options) })}</p>
+                <p><LuLuggage size={13} style={{marginRight:5,verticalAlign:"middle"}} />{t("flightCard.checkedBaggage", { kg: flight?.seat?.baggage_included_kg || 0 })}</p>
+                <p><LuBackpack size={13} style={{marginRight:5,verticalAlign:"middle"}} />{t("flightCard.cabinBaggage", { kg: flight?.seat?.carry_on_kg || 0 })}</p>
+                <p><LuPlus size={13} style={{marginRight:5,verticalAlign:"middle"}} />{t("flightCard.extraBaggage", { options: formatExtraBaggagePackages(flight?.seat?.extra_baggage_options) })}</p>
               </div>
               <div className={styles.airportBlock}>
                 <h3>{flight?.arrival?.city} ({flight?.arrival?.code})</h3>

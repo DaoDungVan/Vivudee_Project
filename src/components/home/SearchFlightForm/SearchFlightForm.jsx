@@ -3,6 +3,7 @@ import { getAirports } from "../../../services/airportService";
 import styles from "./SearchFlightForm.module.css";
 import swapIcon from "../../../assets/icons/swap.png";
 import { useNavigate } from "react-router-dom";
+import { LuSearch } from "react-icons/lu";
 import { useTranslation } from "react-i18next";
 
 const getAirportLabel = (airportList, code) => {
@@ -324,11 +325,12 @@ export default function SearchFlightForm({ initialData }) {
         )}
 
         <button className={styles.searchBtn} onClick={handleSearch} type="button">
+          <LuSearch size={16} />
           {t("search.searchFlights")}
         </button>
       </div>
 
-      {searchError && <div className={styles.searchError}>⚠️ {searchError}</div>}
+      {searchError && <div className={styles.searchError}>{searchError}</div>}
     </div>
   );
 }

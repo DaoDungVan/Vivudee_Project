@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { LuCalendarDays } from "react-icons/lu";
 import { getPriceCalendar } from "../../../services/flightService";
 import styles from "./PriceCalendar.module.css";
 
@@ -16,7 +17,7 @@ const addDay = (dateStr, n) => {
 
 const WINDOW = 2; // ngày trước + ngày sau
 
-export default function PriceCalendar({ from, to, selectedDate, seatClass = "economy", adults = 1, searchParams, onCalendarLoad }) {
+export default function PriceCalendar({ from, to, selectedDate, seatClass = "economy", adults = 1, onCalendarLoad }) {
   const navigate  = useNavigate();
   const { t }     = useTranslation();
   const [calData, setCalData]   = useState({});   // { "YYYY-MM-DD": min_price }
@@ -57,7 +58,8 @@ export default function PriceCalendar({ from, to, selectedDate, seatClass = "eco
   const selectedPrice = calData[selectedDate];
 
   const goToDate = (dateStr) => {
-    const params = new URLSearchParams(searchParams || {});
+    // Dùng window.location.search để luôn lấy params hiện tại
+    const params = new URLSearchParams(window.location.search);
     params.set("departureDate", dateStr);
     navigate(`/flights?${params.toString()}`);
   };
@@ -65,7 +67,7 @@ export default function PriceCalendar({ from, to, selectedDate, seatClass = "eco
   return (
     <div className={styles.wrap}>
       <div className={styles.header}>
-        <p className={styles.title}>{t("priceCalendar.title")}</p>
+        <p className={styles.title}><LuCalendarDays size={14} style={{ marginRight: 6, verticalAlign: "middle" }} />{t("priceCalendar.title")}</p>
         <button
           className={styles.navBtn}
           onClick={() => setOffset((o) => o - 1)}
@@ -93,8 +95,8 @@ export default function PriceCalendar({ from, to, selectedDate, seatClass = "eco
                 <div
                   key={day}
                   className={`${styles.cell} ${isToday ? styles.cellSelected : ""} ${!isToday && cheaper ? styles.cellCheaper : ""} ${!isToday && pricier ? styles.cellPricier : ""}`}
-                  onClick={() => !isToday && price && goToDate(day)}
-                  style={{ cursor: isToday || !price ? "default" : "pointer" }}
+                  onClick={() => !isToday && goToDate(day)}
+                  style={{ cursor: isToday ? "default" : "pointer" }}
                 >
                   <p className={styles.dayLabel}>{DAY_LABELS[d.getDay()]}</p>
                   <p className={styles.dateNum}>{d.getDate()}/{d.getMonth() + 1}</p>

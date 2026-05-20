@@ -286,7 +286,7 @@
   height: 100%;
   background: linear-gradient(90deg, #0e81cd, #4aaee8);
   border-radius: 3px;
-  transition: width .5s ease;
+  transition: width 1.8s linear;
 }
 
 .progressTimes {
