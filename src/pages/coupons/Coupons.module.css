@@ -68,10 +68,12 @@
 .couponCard {
   background: var(--card-bg); border: 1px solid var(--card-border);
   border-radius: 16px; display: flex;
-  overflow: hidden; transition: box-shadow 0.15s;
+  transition: box-shadow 0.15s, transform 0.15s;
   position: relative;
 }
-.couponCard:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+.couponCard:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.1); z-index: 2; }
+
+.couponRight { border-radius: 0 16px 16px 0; overflow: hidden; }
 .used { opacity: 0.55; }
 
 .couponLeft {

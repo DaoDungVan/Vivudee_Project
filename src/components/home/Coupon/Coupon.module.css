@@ -26,7 +26,8 @@
   display:flex;
   gap:20px;
   overflow-x:auto;
-  padding-bottom:10px;
+  padding: 10px 4px 16px;
+  margin: -10px -4px -6px;
   scroll-behavior:smooth;
   cursor:grab;
 }
@@ -58,8 +59,12 @@
 }
 
 .card:hover{
-  transform:translateY(-6px);
-  box-shadow:0 15px 35px rgba(0,0,0,0.15);
+  transform:translateY(-4px);
+  box-shadow:0 12px 28px rgba(0,0,0,0.18);
+  border-color: var(--primary-color);
+}
+[data-theme="dark"] .card:hover{
+  box-shadow:0 12px 28px rgba(0,0,0,0.55), 0 0 0 1px var(--primary-color);
 }
 
 /* TOP */
