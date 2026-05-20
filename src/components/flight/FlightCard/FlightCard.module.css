@@ -127,7 +127,7 @@
   margin-bottom: 15px;
   border: 1px solid var(--card-border);
   border-radius: 0 0 12px 12px;
-  border-top: 1px dashed var(--divider);
+  border-top: 1px dashed rgba(0,0,0,0.2);
   animation: fadeIn 0.25s ease;
 }
 
@@ -140,29 +140,38 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 90px;
-  position: relative;
+  width: 70px;
+  flex-shrink: 0;
+}
+
+.timeBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
 }
 
 .timeBlock h4 {
   margin: 0;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   color: var(--text-dark);
 }
 
 .timeBlock span {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
 }
 
 .verticalLine {
   width: 2px;
-  height: 50px;
-  background: var(--divider);
+  flex: 1;
+  min-height: 40px;
+  background: rgba(0,0,0,0.2);
   margin: 6px 0;
   position: relative;
 }
+[data-theme="dark"] .verticalLine { background: rgba(255,255,255,0.15); }
 
 .verticalLine::before,
 .verticalLine::after {
@@ -179,35 +188,58 @@
 .verticalLine::before { top: 0; }
 .verticalLine::after  { bottom: 0; }
 
-.detailContent { flex: 1; }
+.detailContent { flex: 1; min-width: 0; }
 
 .airportBlock { margin-bottom: 12px; }
 
 .airportBlock h3 {
-  margin: 0;
+  margin: 0 0 2px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-dark);
 }
 
 .airportBlock p {
-  font-size: 13px;
-  color: var(--text-secondary);
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
 }
 
 .airline {
-  margin: 10px 0;
-  font-size: 14px;
+  margin: 0;
+  padding: 10px 0;
+  border-top: 1px dashed rgba(0,0,0,0.2);
+  font-size: 13px;
   display: flex;
-  gap: 20px;
-  color: var(--text-primary);
+  gap: 12px;
+  align-items: center;
+  color: var(--text-secondary);
 }
 
+.airline strong { color: var(--text-dark); font-weight: 700; }
+
 .baggage {
-  margin: 10px 0;
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--text-primary);
+  margin: 0;
+  padding: 10px 0;
+  border-top: 1px dashed rgba(0,0,0,0.2);
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.baggage p { margin: 0; display: flex; align-items: center; gap: 6px; }
+
+[data-theme="dark"] .airline,
+[data-theme="dark"] .baggage,
+[data-theme="dark"] .arrivalBlock {
+  border-top-color: rgba(255,255,255,0.15);
+}
+
+.arrivalBlock {
+  padding-top: 10px;
+  border-top: 1px dashed rgba(0,0,0,0.2);
 }
 
 .cheaperBadge {

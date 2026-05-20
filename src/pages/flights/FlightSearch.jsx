@@ -270,7 +270,7 @@ const FlightSearch = () => {
                 <div className={styles.sliderWrapper}>
                   <div className={`${styles.slider} ${step === "return" ? styles.slideLeft : ""}`}>
                     <div className={styles.page}>
-                      <h3><LuPlaneTakeoff size={18} style={{ marginRight: 8, verticalAlign: "middle" }} />{t("flightSearch.outboundShort")} ({filteredOutbound.length})</h3>
+                      <h3><LuPlaneTakeoff size={17} />{t("flightSearch.outboundShort")} ({filteredOutbound.length})</h3>
                       {filteredOutbound.map((flight) => (
                         <FlightCard
                           key={flight.flight_id}
@@ -287,7 +287,7 @@ const FlightSearch = () => {
                         <p className={styles.note}>{t("flightSearch.selectOutboundFirst")}</p>
                       ) : (
                         <>
-                          <h3><LuPlaneLanding size={18} style={{ marginRight: 8, verticalAlign: "middle" }} />{t("flightSearch.returnShort")} ({filteredReturn.length})</h3>
+                          <h3><LuPlaneLanding size={17} />{t("flightSearch.returnShort")} ({filteredReturn.length})</h3>
                           {filteredReturn.map((flight) => (
                             <FlightCard
                               key={flight.flight_id}

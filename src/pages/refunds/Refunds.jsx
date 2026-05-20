@@ -5,6 +5,7 @@ import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import { getMyRefunds, cancelRefund } from "../../services/refundService";
 import styles from "./Refunds.module.css";
+import { LuUndo2 } from "react-icons/lu";
 
 const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n ?? 0) + " ₫";
 const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString("vi-VN") : "—";
@@ -65,7 +66,7 @@ export default function Refunds() {
           <div className={styles.loading}>{t("refunds.loading")}</div>
         ) : refunds.length === 0 ? (
           <div className={styles.empty}>
-            <div className={styles.emptyIcon}>↩️</div>
+            <div className={styles.emptyIcon}><LuUndo2 size={48} /></div>
             <p className={styles.emptyTitle}>{t("refunds.emptyTitle")}</p>
             <p className={styles.emptyMsg}>{t("refunds.emptyMsg")}</p>
           </div>

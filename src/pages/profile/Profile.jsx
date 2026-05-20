@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
-import { LuEye, LuEyeOff } from "react-icons/lu";
+import { LuEye, LuEyeOff, LuUser, LuShield, LuAward, LuPlaneTakeoff, LuCreditCard, LuTicket, LuUndo2 } from "react-icons/lu";
 import API from "../../services/axiosInstance";
 import { forgotPassword, resetPassword } from "../../services/authService";
 import { getMembership } from "../../services/loyaltyService";
@@ -408,9 +408,9 @@ const Profile = () => {
             </div>
             <nav className={styles.sideNav}>
               {[
-                { id: "info",       label: t("profile.personalInfo"), icon: "👤" },
-                { id: "security",   label: t("profile.security"),     icon: "🔒" },
-                { id: "membership", label: t("profile.membership"),   icon: "🏅" },
+                { id: "info",       label: t("profile.personalInfo"), icon: <LuUser   size={15} /> },
+                { id: "security",   label: t("profile.security"),     icon: <LuShield size={15} /> },
+                { id: "membership", label: t("profile.membership"),   icon: <LuAward  size={15} /> },
               ].map((item) => (
                 <button
                   key={item.id}
@@ -422,16 +422,16 @@ const Profile = () => {
               ))}
               <hr className={styles.sideNavDivider} />
               <button className={styles.sideNavBtn} onClick={() => navigate("/my-booking")}>
-                <span>✈️</span> My Bookings
+                <LuPlaneTakeoff size={15} /> My Bookings
               </button>
               <button className={styles.sideNavBtn} onClick={() => navigate("/transactions")}>
-                <span>💳</span> Transactions
+                <LuCreditCard size={15} /> Transactions
               </button>
               <button className={styles.sideNavBtn} onClick={() => navigate("/coupons")}>
-                <span>🎟</span> Coupons
+                <LuTicket size={15} /> Coupons
               </button>
               <button className={styles.sideNavBtn} onClick={() => navigate("/refunds")}>
-                <span>↩️</span> {t("profile.myRefunds")}
+                <LuUndo2 size={15} /> {t("profile.myRefunds")}
               </button>
             </nav>
           </div>

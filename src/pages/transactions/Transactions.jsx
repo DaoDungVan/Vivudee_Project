@@ -9,6 +9,7 @@ import { getPaymentByCode } from "../../services/paymentService";
 import { getBookingByCode } from "../../services/bookingService";
 import planeIcon from "../../assets/icons/plane.png";
 import styles from "./Transactions.module.css";
+import { LuHourglass, LuCircleCheck, LuCircleX, LuCreditCard, LuPlaneTakeoff } from "react-icons/lu";
 
 import momoImg   from "../../assets/images/payments/momo.png";
 import vietqrImg from "../../assets/images/payments/vietqr.png";
@@ -25,14 +26,14 @@ const METHOD_META = {
 };
 
 const STATUS_MAP = {
-  PENDING:   { labelKey: "status_pending", cls: "pending", icon: "⏳" },
-  PAID:      { labelKey: "status_paid",    cls: "paid",    icon: "✅" },
-  SUCCESS:   { labelKey: "status_paid",    cls: "paid",    icon: "✅" },
-  COMPLETED: { labelKey: "status_paid",    cls: "paid",    icon: "✅" },
-  CONFIRMED: { labelKey: "status_paid",    cls: "paid",    icon: "✅" },
-  CANCELLED: { labelKey: "status_cancelled", cls: "cancel", icon: "❌" },
-  EXPIRED:   { labelKey: "status_cancelled", cls: "cancel", icon: "❌" },
-  FAILED:    { labelKey: "status_cancelled", cls: "cancel", icon: "❌" },
+  PENDING:   { labelKey: "status_pending",   cls: "pending", icon: <LuHourglass  size={18} /> },
+  PAID:      { labelKey: "status_paid",      cls: "paid",    icon: <LuCircleCheck size={18} /> },
+  SUCCESS:   { labelKey: "status_paid",      cls: "paid",    icon: <LuCircleCheck size={18} /> },
+  COMPLETED: { labelKey: "status_paid",      cls: "paid",    icon: <LuCircleCheck size={18} /> },
+  CONFIRMED: { labelKey: "status_paid",      cls: "paid",    icon: <LuCircleCheck size={18} /> },
+  CANCELLED: { labelKey: "status_cancelled", cls: "cancel",  icon: <LuCircleX     size={18} /> },
+  EXPIRED:   { labelKey: "status_cancelled", cls: "cancel",  icon: <LuCircleX     size={18} /> },
+  FAILED:    { labelKey: "status_cancelled", cls: "cancel",  icon: <LuCircleX     size={18} /> },
 };
 
 const fmt    = (n) => n != null ? new Intl.NumberFormat("vi-VN").format(n) + " VND" : "—";
@@ -94,7 +95,7 @@ const Transactions = () => {
 
   const statusInfo = (status) => {
     const info = STATUS_MAP[status?.toUpperCase()];
-    if (!info) return { label: status || "N/A", cls: "pending", icon: "⏳" };
+    if (!info) return { label: status || "N/A", cls: "pending", icon: <LuHourglass size={18} /> };
     return { label: t(`transactions.${info.labelKey}`), cls: info.cls, icon: info.icon };
   };
 
@@ -183,7 +184,7 @@ const Transactions = () => {
         ) : filtered.length === 0 ? (
           <div className={styles.empty}>
             <div className={styles.emptyIcon}>
-              {filter === "paid" ? "✅" : filter === "pending" ? "⏳" : filter === "cancel" ? "❌" : "💳"}
+              {filter === "paid" ? <LuCircleCheck size={48} color="#22c55e" /> : filter === "pending" ? <LuHourglass size={48} color="#f59e0b" /> : filter === "cancel" ? <LuCircleX size={48} color="#ef4444" /> : <LuCreditCard size={48} color="#0e81cd" />}
             </div>
             <p className={styles.emptyTitle}>
               {filter === "paid"    ? t("transactions.emptyPaid")
@@ -220,7 +221,7 @@ const Transactions = () => {
                     <div className={styles.methodLogoWrap}>
                       {method?.img
                         ? <img src={method.img} alt={method.label} className={styles.methodLogo} />
-                        : <span className={styles.methodEmoji}>💳</span>}
+                        : <span className={styles.methodEmoji}><LuCreditCard size={22} /></span>}
                     </div>
 
                     <div className={styles.cardInfo}>
@@ -291,7 +292,7 @@ const Transactions = () => {
                                     <div className={styles.bpLine}>
                                       <div className={styles.bpLineDot}/>
                                       <div className={styles.bpLineTrack}/>
-                                      <span className={styles.bpLinePlane}>✈</span>
+                                      <span className={styles.bpLinePlane}><LuPlaneTakeoff size={13} /></span>
                                       <div className={styles.bpLineTrack}/>
                                       <div className={styles.bpLineDot}/>
                                     </div>

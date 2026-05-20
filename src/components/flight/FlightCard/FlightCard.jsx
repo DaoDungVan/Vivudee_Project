@@ -88,7 +88,7 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
                 <h4>{formatTime(flight?.departure?.time)}</h4>
                 <span>{flight?.departure?.date || ""}</span>
               </div>
-              <div className={styles.verticalLine}></div>
+              <div className={styles.verticalLine} />
               <div className={styles.timeBlock}>
                 <h4>{formatTime(flight?.arrival?.time)}</h4>
                 <span>{flight?.arrival?.date || ""}</span>
@@ -101,14 +101,14 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
               </div>
               <div className={styles.airline}>
                 <strong>{flight?.airline?.name}</strong>
-                <span>{flight?.flight_number || "--"} • {flight?.seat?.class || "economy"}</span>
+                <span>{flight?.flight_number || "--"} · {flight?.seat?.class || "economy"}</span>
               </div>
               <div className={styles.baggage}>
-                <p><LuLuggage size={13} style={{marginRight:5,verticalAlign:"middle"}} />{t("flightCard.checkedBaggage", { kg: flight?.seat?.baggage_included_kg || 0 })}</p>
-                <p><LuBackpack size={13} style={{marginRight:5,verticalAlign:"middle"}} />{t("flightCard.cabinBaggage", { kg: flight?.seat?.carry_on_kg || 0 })}</p>
-                <p><LuPlus size={13} style={{marginRight:5,verticalAlign:"middle"}} />{t("flightCard.extraBaggage", { options: formatExtraBaggagePackages(flight?.seat?.extra_baggage_options) })}</p>
+                <p><LuLuggage size={13} />{t("flightCard.checkedBaggage", { kg: flight?.seat?.baggage_included_kg || 0 })}</p>
+                <p><LuBackpack size={13} />{t("flightCard.cabinBaggage", { kg: flight?.seat?.carry_on_kg || 0 })}</p>
+                <p><LuPlus size={13} />{t("flightCard.extraBaggage", { options: formatExtraBaggagePackages(flight?.seat?.extra_baggage_options) })}</p>
               </div>
-              <div className={styles.airportBlock}>
+              <div className={`${styles.airportBlock} ${styles.arrivalBlock}`}>
                 <h3>{flight?.arrival?.city} ({flight?.arrival?.code})</h3>
                 <p>{flight?.arrival?.airport_name}</p>
               </div>
