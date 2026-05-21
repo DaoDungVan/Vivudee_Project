@@ -23,12 +23,17 @@ const getCachedIds = () => {
 const addToCache = (flightId, seatClass) => {
   const ids = getCachedIds();
   const key = `${flightId}_${seatClass}`;
-  if (!ids.includes(key)) { ids.push(key); localStorage.setItem(LS_CACHE_KEY, JSON.stringify(ids)); }
+  if (!ids.includes(key)) {
+    ids.push(key);
+    localStorage.setItem(LS_CACHE_KEY, JSON.stringify(ids));
+    setTimeout(() => window.dispatchEvent(new Event("storage")), 0);
+  }
 };
 
 const removeFromCache = (flightId, seatClass) => {
   const ids = getCachedIds().filter(k => k !== `${flightId}_${seatClass}`);
   localStorage.setItem(LS_CACHE_KEY, JSON.stringify(ids));
+  setTimeout(() => window.dispatchEvent(new Event("storage")), 0);
 };
 
 export const clearWishlistCache = () => localStorage.removeItem(LS_CACHE_KEY);

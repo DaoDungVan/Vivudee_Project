@@ -17,7 +17,7 @@ import {
   LuMoon,
   LuHeart,
 } from "react-icons/lu";
-import { getLocalWishlist } from "../../../services/wishlistService";
+import { getLocalWishlist, isCachedInWishlist } from "../../../services/wishlistService";
 import { useTheme } from "../../../hooks/useTheme";
 import { useTranslation } from "react-i18next";
 
@@ -54,8 +54,15 @@ function NavBar() {
   const menuRef = useRef(null);
 
   useEffect(() => {
-    const updateWishlistCount = () =>
-      setWishlistCount(localStorage.getItem("token") ? 0 : getLocalWishlist().length);
+    const updateWishlistCount = () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try { setWishlistCount(JSON.parse(localStorage.getItem("vivudee_wishlist_cache") || "[]").length); }
+        catch { setWishlistCount(0); }
+      } else {
+        setWishlistCount(getLocalWishlist().length);
+      }
+    };
 
     updateWishlistCount();
 

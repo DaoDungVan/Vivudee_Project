@@ -19,12 +19,14 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
 
   const handleToggleSave = async (e) => {
     e.stopPropagation();
-    if (!flightId) return;
+    if (!flightId) {
+      console.warn("[Wishlist] flightId undefined — flight:", flight);
+      return;
+    }
     setSaveLoading(true);
 
-    // Optimistic update — cập nhật UI ngay, revert nếu fail
     const prevSaved = saved;
-    setSaved(!saved);
+    setSaved(!saved); // optimistic
 
     try {
       if (prevSaved) {
@@ -33,8 +35,15 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
         await addToWishlist(flightId, seatClass, flight);
       }
     } catch (err) {
-      setSaved(prevSaved); // revert nếu lỗi
-      console.error("[Wishlist] Toggle failed:", err?.response?.data || err?.message);
+      setSaved(prevSaved); // revert
+      const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message || "Lỗi";
+      console.error("[Wishlist] failed:", msg, "| flightId:", flightId, "| seatClass:", seatClass);
+      // Hiện toast ngắn để dễ debug
+      const toast = document.createElement("div");
+      toast.textContent = `Wishlist error: ${msg}`;
+      Object.assign(toast.style, { position:"fixed", bottom:"20px", left:"50%", transform:"translateX(-50%)", background:"#ef4444", color:"#fff", padding:"8px 16px", borderRadius:"8px", zIndex:99999, fontSize:"13px" });
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
     } finally {
       setSaveLoading(false);
     }

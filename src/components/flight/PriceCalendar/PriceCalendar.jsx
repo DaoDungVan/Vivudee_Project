@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LuCalendarDays } from "react-icons/lu";
@@ -24,6 +24,13 @@ export default function PriceCalendar({ from, to, selectedDate, seatClass = "eco
   const [loading, setLoading]   = useState(false);
   const [offset,  setOffset]    = useState(0);    // dịch cửa sổ ngày
 
+  // Gọi onCalendarLoad sau khi calData thay đổi — KHÔNG gọi trong setState updater
+  const onCalendarLoadRef = useRef(onCalendarLoad);
+  useEffect(() => { onCalendarLoadRef.current = onCalendarLoad; }, [onCalendarLoad]);
+  useEffect(() => {
+    if (Object.keys(calData).length > 0) onCalendarLoadRef.current?.(calData);
+  }, [calData]);
+
   const fetchCalendar = useCallback(async (date) => {
     if (!from || !to || !date) return;
     setLoading(true);
@@ -33,11 +40,7 @@ export default function PriceCalendar({ from, to, selectedDate, seatClass = "eco
       const rows  = res.data?.data || [];
       const map   = {};
       rows.forEach((r) => { map[r.flight_date] = Number(r.min_price); });
-      setCalData((prev) => {
-        const merged = { ...prev, ...map };
-        onCalendarLoad?.(merged);
-        return merged;
-      });
+      setCalData((prev) => ({ ...prev, ...map }));
     } catch {
       // silent
     } finally {

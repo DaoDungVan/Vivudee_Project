@@ -41,7 +41,11 @@ export default function Wishlist() {
     setRemoving(`${flightId}_${seatClass}`);
     try {
       await removeFromWishlist(flightId, seatClass);
-      setItems(prev => prev.filter(i => !(i.flight_id === flightId && i.seat_class === seatClass)));
+      // item.flight.id là flight ID từ backend formatItem
+      setItems(prev => prev.filter(i => {
+        const fid = i.flight?.id || i.flight_id;
+        return !(String(fid) === String(flightId) && i.seat_class === seatClass);
+      }));
     } catch { /* ignore */ }
     finally { setRemoving(null); }
   };
@@ -86,19 +90,20 @@ export default function Wishlist() {
             {items.map((item) => {
               const flight = item.flight || item;
               // Backend trả flight_id trong flight.id (từ formatItem)
-              const flightId  = item.flight_id  || flight?.id || flight?.flight_id;
-              const seatClass = item.seat_class  || "economy";
+              // Backend formatItem: { id, seat_class, flight: { id, departure_time, arrival_time, base_price, departure:{code,city}, arrival:{code,city}, airline:{name,logo_url} } }
+              const flightId  = flight?.id || item.flight_id;
+              const seatClass = item.seat_class || "economy";
               const key = `${flightId}_${seatClass}`;
 
-              const depCode   = flight.departure?.code  || item.dep_code  || "—";
-              const arrCode   = flight.arrival?.code    || item.arr_code  || "—";
-              const depCity   = flight.departure?.city  || item.dep_city  || depCode;
-              const arrCity   = flight.arrival?.city    || item.arr_city  || arrCode;
-              const depTime   = flight.departure?.time  || item.dep_time;
-              const arrTime   = flight.arrival?.time    || item.arr_time;
-              const price     = flight.seat?.total_price || flight.price  || item.saved_price;
-              const airline   = flight.airline?.name    || item.airline_name || "—";
-              const logoUrl   = flight.airline?.logo_url|| item.airline_logo;
+              const depCode   = flight?.departure?.code  || "—";
+              const arrCode   = flight?.arrival?.code    || "—";
+              const depCity   = flight?.departure?.city  || depCode;
+              const arrCity   = flight?.arrival?.city    || arrCode;
+              const depTime   = flight?.departure_time   || flight?.departure?.time;
+              const arrTime   = flight?.arrival_time     || flight?.arrival?.time;
+              const price     = flight?.base_price       || flight?.seat?.total_price;
+              const airline   = flight?.airline?.name    || "—";
+              const logoUrl   = flight?.airline?.logo_url;
 
               return (
                 <div key={key} className={styles.card}>
