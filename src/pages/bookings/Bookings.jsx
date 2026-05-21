@@ -165,6 +165,10 @@ const Bookings = () => {
     return (new Date(dt) - Date.now()) / 3600000 >= 12;
   };
 
+  // Kiểm tra có phải round-trip không
+  const isRoundTrip = (b) =>
+    b?.trip_type === "round_trip" || !!b?.return_flight || !!b?.return_departure_time;
+
   const openRefundModal = (b) => {
     setRefundTarget(b);
     setRefundType("full");
@@ -183,9 +187,21 @@ const Bookings = () => {
     setRefundLoading(true);
     setRefundError("");
     try {
+      // Map UI refund type → backend format
+      let backendType = refundType;
+      let requestedItems = null;
+      if (refundType === "partial_leg_outbound") {
+        backendType = "partial_leg";
+        requestedItems = { legs: ["outbound"] };
+      } else if (refundType === "partial_leg_return") {
+        backendType = "partial_leg";
+        requestedItems = { legs: ["return"] };
+      }
+
       const res = await requestRefund(refundTarget.booking_code, {
-        refund_type: refundType,
-        reason:      refundReason.trim(),
+        refund_type:     backendType,
+        reason:          refundReason.trim(),
+        requested_items: requestedItems,
       });
       const d = res.data?.data || res.data;
       setRefundSuccess(d?.refund_code || "Đã gửi yêu cầu thành công!");
@@ -502,7 +518,11 @@ const Bookings = () => {
                   {policy.pct > 0 && (
                     <span className={styles.policyAmt}>
                       ≈ {new Intl.NumberFormat("vi-VN").format(
-                        Math.round((Number(refundTarget.final_amount) || Number(refundTarget.price?.final_amount) || Number(refundTarget.total_price) || Number(refundTarget.price?.total_price) || 0) * policy.pct / 100)
+                        Math.round(
+                          (Number(refundTarget.final_amount) || Number(refundTarget.price?.final_amount) || Number(refundTarget.total_price) || Number(refundTarget.price?.total_price) || 0)
+                          * (["partial_leg_outbound","partial_leg_return"].includes(refundType) ? 0.5 : 1)
+                          * policy.pct / 100
+                        )
                       )} VND
                     </span>
                   )}
@@ -521,11 +541,17 @@ const Bookings = () => {
             ) : (
               <>
                 <label className={styles.refundLabel}>{t("bookings.refundTypeLabel")}</label>
-                <select className={styles.refundSelect} value={refundType} onChange={(e) => setRefundType(e.target.value)}>
-                  <option value="full">{t("bookings.refundTypeFull")}</option>
-                  <option value="partial_leg">{t("bookings.refundTypeLeg")}</option>
-                  <option value="partial_passenger">{t("bookings.refundTypePassenger")}</option>
-                </select>
+                {isRoundTrip(refundTarget) ? (
+                  <select className={styles.refundSelect} value={refundType} onChange={(e) => setRefundType(e.target.value)}>
+                    <option value="full">{t("bookings.refundTypeRoundFull")}</option>
+                    <option value="partial_leg_outbound">{t("bookings.refundTypeOutbound")}</option>
+                    <option value="partial_leg_return">{t("bookings.refundTypeReturn")}</option>
+                  </select>
+                ) : (
+                  <select className={styles.refundSelect} value={refundType} onChange={(e) => setRefundType(e.target.value)}>
+                    <option value="full">{t("bookings.refundTypeFull")}</option>
+                  </select>
+                )}
 
                 <label className={styles.refundLabel}>{t("bookings.refundReasonLabel")} <span style={{color:"#ef4444"}}>*</span></label>
                 <textarea
