@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { loginUser, forgotPassword } from "../../services/authService";
+import { markJustLoggedIn } from "../../services/axiosInstance";
 import { signInWithGoogle, signInWithFacebook } from "../../lib/supabase";
 
 const Login = () => {
@@ -38,6 +39,11 @@ const Login = () => {
     const s = String(seconds % 60).padStart(2, "0");
     return `${m}:${s}`;
   };
+
+  // Nếu đã đăng nhập rồi → về home
+  useEffect(() => {
+    if (localStorage.getItem("token")) navigate("/", { replace: true });
+  }, [navigate]);
 
   useEffect(() => {
     if (!showForgot || forgotStep !== 2 || forgotCountdown <= 0) return;
@@ -70,6 +76,7 @@ const Login = () => {
       const res = await loginUser({ email: email.trim(), password: password.trim() });
       const token = res.data?.token;
       if (!token) { setError("No token received"); return; }
+      markJustLoggedIn();
       localStorage.setItem("token", token);
       if (res.data?.user) localStorage.setItem("user", JSON.stringify(res.data.user));
       window.dispatchEvent(new Event("storage"));

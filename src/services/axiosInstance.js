@@ -17,18 +17,31 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
+// Thời điểm login gần nhất — để tránh logout ngay sau khi vừa đăng nhập
+let lastLoginTime = 0;
+export const markJustLoggedIn = () => { lastLoginTime = Date.now(); };
+
 API.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      const publicPaths = ["/login", "/register", "/reset-password"];
+      const publicPaths = ["/login", "/register", "/reset-password", "/auth"];
       const isPublic = publicPaths.some((p) => window.location.pathname.startsWith(p));
-      if (!isPublic) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        window.dispatchEvent(new Event("storage"));
-        window.location.href = "/login";
-      }
+
+      // Bỏ qua nếu đang ở trang public
+      if (isPublic) return Promise.reject(error);
+
+      // Bỏ qua nếu vừa mới login xong (trong vòng 3 giây) — tránh race condition
+      if (Date.now() - lastLoginTime < 3000) return Promise.reject(error);
+
+      // Bỏ qua nếu không có token (request public bị 401 bình thường)
+      if (!localStorage.getItem("token")) return Promise.reject(error);
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.dispatchEvent(new Event("storage"));
+      // Dùng replace để không bị browser bfcache giữ state cũ
+      window.location.replace("/login");
     }
     return Promise.reject(error);
   }
