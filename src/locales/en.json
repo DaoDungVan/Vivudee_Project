@@ -210,6 +210,8 @@
  "children_plural": "{{count}} Children",
  "direct": "Direct",
  "free": "Free",
+ "checkedBag": "{{kg}}kg checked",
+ "cabinBag": "{{kg}}kg cabin included",
  "includedBaggage": "{{kg}}kg checked · {{carryOn}}kg cabin included"
  },
  "profile": {

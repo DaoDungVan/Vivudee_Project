@@ -43,6 +43,7 @@ const FlightSummary = ({
   <div className={styles.flightBox}>
     <p className={styles.boxLabel}>{label}</p>
 
+    {/* Dòng 1: Airline + Price */}
     <div className={styles.flightRow}>
       <div className={styles.airlineInfo}>
         <img
@@ -56,32 +57,32 @@ const FlightSummary = ({
           <p className={styles.flightCode}>{flight.flight_number} · {flight.seat?.class}</p>
         </div>
       </div>
-
-      <div className={styles.timeline}>
-        <div className={styles.timeBlock}>
-          <span className={styles.time}>{formatTime(flight.departure?.time)}</span>
-          <span className={styles.code}>{flight.departure?.code}</span>
-        </div>
-        <div className={styles.timelineLine}>
-          <span className={styles.duration}>{flight.duration_label}</span>
-          <div className={styles.line} />
-          <span className={styles.direct}>{t("passengerForm.direct")}</span>
-        </div>
-        <div className={styles.timeBlock}>
-          <span className={styles.time}>{formatTime(flight.arrival?.time)}</span>
-          <span className={styles.code}>{flight.arrival?.code}</span>
-        </div>
-      </div>
-
       <div className={styles.priceBlock}>
         <span className={styles.price}>{fmt(flight.seat?.total_price || 0)}</span>
         <span className={styles.perPax}>{t("passengerForm.allPax")}</span>
       </div>
     </div>
 
+    {/* Dòng 2: Timeline full width */}
+    <div className={styles.timeline}>
+      <div className={styles.timeBlock}>
+        <span className={styles.time}>{formatTime(flight.departure?.time)}</span>
+        <span className={styles.code}>{flight.departure?.code}</span>
+      </div>
+      <div className={styles.timelineLine}>
+        <span className={styles.duration}>{flight.duration_label}</span>
+        <div className={styles.line} />
+        <span className={styles.direct}>{t("passengerForm.direct")}</span>
+      </div>
+      <div className={styles.timeBlock}>
+        <span className={styles.time}>{formatTime(flight.arrival?.time)}</span>
+        <span className={styles.code}>{flight.arrival?.code}</span>
+      </div>
+    </div>
+
     <div className={styles.includedBaggage}>
-      <LuLuggage size={13} style={{marginRight:4,verticalAlign:"middle"}}/>{flight.seat?.baggage_included_kg || 0}kg checked &nbsp;·&nbsp;
-      <LuBackpack size={13} style={{marginRight:4,verticalAlign:"middle"}}/>{flight.seat?.carry_on_kg || 7}kg cabin included
+      <LuLuggage size={13} style={{marginRight:4,verticalAlign:"middle"}}/>{t("passengerForm.checkedBag", { kg: flight.seat?.baggage_included_kg || 0 })} &nbsp;·&nbsp;
+      <LuBackpack size={13} style={{marginRight:4,verticalAlign:"middle"}}/>{t("passengerForm.cabinBag", { kg: flight.seat?.carry_on_kg || 7 })}
     </div>
 
     <div className={styles.baggageSection}>

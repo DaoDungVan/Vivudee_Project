@@ -210,6 +210,8 @@
  "children_plural": "{{count}} Trẻ em",
  "direct": "Bay thẳng",
  "free": "Miễn phí",
+ "checkedBag": "{{kg}}kg ký gửi",
+ "cabinBag": "{{kg}}kg xách tay",
  "includedBaggage": "{{kg}}kg ký gửi · {{carryOn}}kg xách tay"
  },
  "profile": {

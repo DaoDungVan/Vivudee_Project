@@ -1,4 +1,12 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import ChatWidget from "../components/chat/ChatWidget";
+
+const HIDE_CHAT = ["/auth/callback", "/auth/", "/payment/momo", "/payment/payos", "/payment/paypal"];
+
+function ChatWidgetConditional() {
+  const { pathname } = useLocation();
+  return HIDE_CHAT.some(p => pathname.startsWith(p)) ? null : <ChatWidget />;
+}
 import Home from "../pages/home/Home";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
@@ -50,6 +58,7 @@ function AppRoutes() {
         <Route path="/refunds" element={<Refunds />} />
         <Route path="/wishlist" element={<Wishlist />} />
       </Routes>
+      <ChatWidgetConditional />
     </BrowserRouter>
   );
 }

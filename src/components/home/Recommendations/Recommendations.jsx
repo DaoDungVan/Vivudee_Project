@@ -5,7 +5,7 @@ import { getRecommendations } from "../../../services/flightService";
 import planeIcon from "../../../assets/icons/plane.png";
 import styles from "./Recommendations.module.css";
 
-const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n ?? 0) + " ₫";
+const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n ?? 0) + " VND";
 const fmtTime = (iso) => {
   if (!iso) return "--:--";
   const match = String(iso).match(/(\d{2}):(\d{2})/);

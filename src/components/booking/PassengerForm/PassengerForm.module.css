@@ -117,7 +117,9 @@
 .flightRow {
   display: flex;
   align-items: center;
-  gap: 14px;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 /* Airline */
@@ -149,14 +151,14 @@
   margin: 2px 0 0;
 }
 
-/* Timeline */
+/* Timeline — full width riêng dòng 2 */
 .timeline {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex: 1;
-  min-width: 0;
-  flex-wrap: wrap;
+  width: 100%;
+  flex-wrap: nowrap;
+  margin-bottom: 10px;
 }
 
 .timeBlock {
@@ -357,6 +359,8 @@
 
   .timeline {
     width: 100%;
+    min-width: 0;
+    flex-wrap: nowrap;
   }
 
   .priceBlock {
