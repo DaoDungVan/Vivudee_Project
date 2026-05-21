@@ -10,7 +10,8 @@ const fmtShort = (n) => n >= 1e6 ? `${(n / 1e6).toFixed(1)}tr` : `${Math.round(n
 const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
   const [expanded, setExpanded] = useState(false);
   const { t } = useTranslation();
-  const seatClass = flight?.seat?.class || "economy";
+  // Normalize seat class về lowercase để khớp backend
+  const seatClass = (flight?.seat?.class || "economy").toLowerCase();
   const flightId  = flight?.flight_id || flight?.id;
 
   const [saved, setSaved] = useState(() => isCachedInWishlist(flightId, seatClass));
@@ -22,16 +23,23 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
     e.stopPropagation();
     if (!flightId) return;
     setSaveLoading(true);
+
+    // Optimistic update — cập nhật UI ngay, revert nếu fail
+    const prevSaved = saved;
+    setSaved(!saved);
+
     try {
-      if (saved) {
+      if (prevSaved) {
         await removeFromWishlist(flightId, seatClass);
-        setSaved(false);
       } else {
         await addToWishlist(flightId, seatClass, flight);
-        setSaved(true);
       }
-    } catch { /* ignore */ }
-    finally { setSaveLoading(false); }
+    } catch (err) {
+      setSaved(prevSaved); // revert nếu lỗi
+      console.error("[Wishlist] Toggle failed:", err?.response?.data || err?.message);
+    } finally {
+      setSaveLoading(false);
+    }
   };
 
   const formatPrice = (price) => new Intl.NumberFormat("vi-VN").format(price) + " VND";

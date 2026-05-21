@@ -53,18 +53,25 @@ export const initWishlistCache = async () => {
 
 // ── CU-02: Thêm vào wishlist ────────────────────────────
 export const addToWishlist = async (flightId, seatClass = "economy", flightSnapshot = null) => {
+  const normalizedClass = (seatClass || "economy").toLowerCase();
   try {
-    const res = await API.post("/wishlist", { flight_id: flightId, seat_class: seatClass });
-    addToCache(flightId, seatClass);
+    const res = await API.post("/wishlist", { flight_id: flightId, seat_class: normalizedClass });
+    addToCache(flightId, normalizedClass);
     return { source: "server", data: res.data };
   } catch (err) {
+    // 409 = đã tồn tại trên server — cập nhật cache và coi như success
+    if (err.response?.status === 409) {
+      addToCache(flightId, normalizedClass);
+      return { source: "server", alreadyExists: true };
+    }
     if (err.response?.data?.save_local || err.response?.status === 401) {
       const list = getLocalWishlist();
-      const exists = list.find(i => String(i.flight_id) === String(flightId) && i.seat_class === seatClass);
+      const exists = list.find(i => String(i.flight_id) === String(flightId) && i.seat_class === normalizedClass);
       if (!exists) {
-        list.push({ flight_id: flightId, seat_class: seatClass, saved_at: new Date().toISOString(), flight: flightSnapshot });
+        list.push({ flight_id: flightId, seat_class: normalizedClass, saved_at: new Date().toISOString(), flight: flightSnapshot });
         setLocalWishlist(list);
-        window.dispatchEvent(new Event("storage")); // update WishlistBtn badge
+        // Defer để tránh setState-during-render
+        setTimeout(() => window.dispatchEvent(new Event("storage")), 0);
       }
       return { source: "local" };
     }
@@ -84,7 +91,7 @@ export const removeFromWishlist = async (flightId, seatClass = "economy") => {
         i => !(String(i.flight_id) === String(flightId) && i.seat_class === seatClass)
       );
       setLocalWishlist(list);
-      window.dispatchEvent(new Event("storage"));
+      setTimeout(() => window.dispatchEvent(new Event("storage")), 0);
       return { source: "local" };
     }
     throw err;
@@ -123,11 +130,16 @@ export const syncWishlistAfterLogin = async () => {
   if (!localItems.length) return;
   try {
     await API.post("/wishlist/sync", {
-      items: localItems.map(i => ({ flight_id: i.flight_id, seat_class: i.seat_class })),
+      items: localItems.map(i => ({ flight_id: i.flight_id, seat_class: i.seat_class || "economy" })),
     });
     clearLocalWishlist();
     console.log(`[Wishlist] Synced ${localItems.length} items to server`);
   } catch (err) {
-    console.error("[Wishlist] Sync failed:", err.message);
+    // 409 = items đã tồn tại, vẫn clear local vì server đã có rồi
+    if (err.response?.status === 409 || err.response?.status === 200) {
+      clearLocalWishlist();
+    } else {
+      console.error("[Wishlist] Sync failed:", err.message);
+    }
   }
 };
