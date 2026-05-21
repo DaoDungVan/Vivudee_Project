@@ -58,11 +58,26 @@
  "flightCard": {
  "perCustomer": "/Customer",
  "select": "Select",
+ "save": "Save flight",
+ "unsave": "Unsave",
  "checkedBaggage": "{{kg}} kg checked baggage",
  "cabinBaggage": "{{kg}} kg cabin baggage",
  "extraBaggage": "Extra baggage packages: {{options}}",
  "unknownAirline": "Unknown Airline",
- "cheaperBadge": "Cheaper days available (-{{amount}})"
+ "cheaperBadge": "Change date, save {{amount}}",
+ "bestPrice": "Best price today"
+ },
+ "wishlist": {
+ "title": "Saved Flights",
+ "subtitle": "Flights you have saved",
+ "guestNote": "Viewing temporary wishlist — log in to save permanently",
+ "loading": "Loading...",
+ "empty": "No saved flights yet",
+ "emptySub": "Search for flights and click the heart icon to save them",
+ "browse": "Browse Flights",
+ "remove": "Remove from wishlist",
+ "book": "Book Now",
+ "savedAt": "Saved on"
  },
  "flightSearch": {
  "outbound": "Outbound flight",

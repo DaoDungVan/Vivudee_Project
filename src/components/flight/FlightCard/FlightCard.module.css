@@ -96,6 +96,18 @@
 
 .amount { color: #f47703; }
 
+.saveBtn {
+  width: 34px; height: 34px;
+  border-radius: 50%; border: 1.5px solid var(--card-border);
+  background: var(--card-bg); color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .2s;
+  flex-shrink: 0;
+}
+.saveBtn:hover { border-color: #ef4444; color: #ef4444; background: #fef2f2; }
+.saveBtnActive { border-color: #ef4444; color: #ef4444; background: #fef2f2; }
+[data-theme="dark"] .saveBtnActive { background: rgba(239,68,68,.15); }
+
 .btn {
   padding: 8px 18px;
   border-radius: 20px;
@@ -240,6 +252,25 @@
 .arrivalBlock {
   padding-top: 10px;
   border-top: 1px dashed rgba(0,0,0,0.2);
+}
+
+.bestPriceBadge {
+  display: inline-flex;
+  align-items: center;
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+  border-radius: 20px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+[data-theme="dark"] .bestPriceBadge {
+  background: rgba(22,163,74,0.15);
+  border-color: rgba(74,222,128,0.3);
+  color: #4ade80;
 }
 
 .cheaperBadge {

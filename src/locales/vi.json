@@ -58,11 +58,26 @@
  "flightCard": {
  "perCustomer": "/Khách",
  "select": "Chọn",
+ "save": "Lưu chuyến bay",
+ "unsave": "Bỏ lưu",
  "checkedBaggage": "{{kg}} kg hành lý ký gửi",
  "cabinBaggage": "{{kg}} kg hành lý xách tay",
  "extraBaggage": "Gói hành lý thêm: {{options}}",
  "unknownAirline": "Hãng bay chưa rõ",
- "cheaperBadge": "Có ngày rẻ hơn (-{{amount}})"
+ "cheaperBadge": "Đổi ngày tiết kiệm {{amount}}",
+ "bestPrice": "Giá tốt nhất hôm nay"
+ },
+ "wishlist": {
+ "title": "Chuyến bay đã lưu",
+ "subtitle": "Danh sách chuyến bay bạn đã lưu",
+ "guestNote": "Bạn đang xem wishlist tạm thời — đăng nhập để lưu vĩnh viễn",
+ "loading": "Đang tải...",
+ "empty": "Chưa có chuyến bay nào được lưu",
+ "emptySub": "Tìm kiếm chuyến bay và nhấn icon tim để lưu lại",
+ "browse": "Tìm chuyến bay",
+ "remove": "Xóa khỏi danh sách",
+ "book": "Đặt vé",
+ "savedAt": "Đã lưu ngày"
  },
  "flightSearch": {
  "outbound": "Chuyến đi",

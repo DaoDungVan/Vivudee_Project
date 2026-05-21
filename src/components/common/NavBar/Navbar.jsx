@@ -15,9 +15,42 @@ import {
   LuUndo2,
   LuSun,
   LuMoon,
+  LuHeart,
 } from "react-icons/lu";
+import { getLocalWishlist } from "../../../services/wishlistService";
 import { useTheme } from "../../../hooks/useTheme";
 import { useTranslation } from "react-i18next";
+
+// Nút wishlist — hiện cho cả guest (local) lẫn logged-in
+function WishlistBtn({ navigate }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const update = () => {
+      const token = localStorage.getItem("token");
+      if (!token) setCount(getLocalWishlist().length);
+      else setCount(0); // logged-in: không cần đếm local
+    };
+    update();
+    window.addEventListener("storage", update);
+    return () => window.removeEventListener("storage", update);
+  }, []);
+
+  return (
+    <button
+      style={{ position: "relative", background: "none", border: "none", cursor: "pointer", padding: "6px", color: "var(--text-secondary)", display: "flex", alignItems: "center" }}
+      onClick={() => navigate("/wishlist")}
+      title="Wishlist"
+    >
+      <LuHeart size={20} />
+      {count > 0 && (
+        <span style={{ position: "absolute", top: 0, right: 0, background: "#ef4444", color: "#fff", borderRadius: "50%", width: 16, height: 16, fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {count}
+        </span>
+      )}
+    </button>
+  );
+}
 
 function NavBar() {
   const navigate = useNavigate();
@@ -123,6 +156,8 @@ function NavBar() {
             >
               {isDark ? <LuSun className={styles.sunIcon} /> : <LuMoon className={styles.moonIcon} />}
             </button>
+
+            <WishlistBtn navigate={navigate} />
 
             {token ? (
               <div ref={menuRef} className={styles.userWrapper}>

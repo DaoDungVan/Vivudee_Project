@@ -1,14 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./FlightCard.module.css";
 import { useTranslation } from "react-i18next";
 import planeIcon from "../../../assets/icons/plane.png";
-import { LuCalendarDays, LuLuggage, LuBackpack, LuPlus } from "react-icons/lu";
+import { LuCalendarDays, LuLuggage, LuBackpack, LuPlus, LuHeart } from "react-icons/lu";
+import { addToWishlist, removeFromWishlist, getLocalWishlist } from "../../../services/wishlistService";
 
 const fmtShort = (n) => n >= 1e6 ? `${(n / 1e6).toFixed(1)}tr` : `${Math.round(n / 1000)}k`;
 
 const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
   const [expanded, setExpanded] = useState(false);
   const { t } = useTranslation();
+  const seatClass = flight?.seat?.class || "economy";
+
+  const checkSaved = () => {
+    const token = localStorage.getItem("token");
+    if (!token) return getLocalWishlist().some(i => i.flight_id === flight?.flight_id && i.seat_class === seatClass);
+    return false;
+  };
+
+  const [saved, setSaved] = useState(checkSaved);
+  const [saveLoading, setSaveLoading] = useState(false);
+
+  useEffect(() => { setSaved(checkSaved()); }, [flight?.flight_id]);
+
+  const handleToggleSave = async (e) => {
+    e.stopPropagation();
+    if (!flight?.flight_id) return;
+    setSaveLoading(true);
+    try {
+      if (saved) {
+        await removeFromWishlist(flight.flight_id, seatClass);
+        setSaved(false);
+      } else {
+        await addToWishlist(flight.flight_id, seatClass, flight);
+        setSaved(true);
+      }
+    } catch { /* ignore */ }
+    finally { setSaveLoading(false); }
+  };
 
   const formatPrice = (price) => new Intl.NumberFormat("vi-VN").format(price) + " VND";
   const formatExtraBaggagePackages = (options = []) => {
@@ -49,6 +78,11 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
           </div>
           <div className={styles.info}>
             <h3>{flight?.airline?.name || t("flightCard.unknownAirline")}</h3>
+            {cheapestCalPrice && flight?.seat?.total_price <= cheapestCalPrice && (
+              <span className={styles.bestPriceBadge}>
+                {t("flightCard.bestPrice")}
+              </span>
+            )}
             {cheapestCalPrice && flight?.seat?.total_price > cheapestCalPrice && (
               <span className={styles.cheaperBadge}>
                 <LuCalendarDays size={10} />
@@ -74,9 +108,19 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
             <span className={styles.amount}>{formatPrice(flight?.seat?.total_price || 0)}</span>
             <span className={styles.per}>{t("flightCard.perCustomer")}</span>
           </p>
-          <button className={styles.btn} onClick={(e) => { e.stopPropagation(); onSelect(); }}>
-            {t("flightCard.select")}
-          </button>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <button
+              className={`${styles.saveBtn} ${saved ? styles.saveBtnActive : ""}`}
+              onClick={handleToggleSave}
+              disabled={saveLoading}
+              title={saved ? t("flightCard.unsave") : t("flightCard.save")}
+            >
+              <LuHeart size={15} fill={saved ? "currentColor" : "none"} />
+            </button>
+            <button className={styles.btn} onClick={(e) => { e.stopPropagation(); onSelect(); }}>
+              {t("flightCard.select")}
+            </button>
+          </div>
         </div>
       </div>
 
