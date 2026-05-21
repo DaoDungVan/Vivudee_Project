@@ -35,18 +35,26 @@ export const clearWishlistCache = () => localStorage.removeItem(LS_CACHE_KEY);
 
 // Kiểm tra nhanh không cần API call
 export const isCachedInWishlist = (flightId, seatClass = "economy") => {
+  if (!flightId) return false;
+  const sc = (seatClass || "economy").toLowerCase();
   if (!localStorage.getItem("token")) {
-    return getLocalWishlist().some(i => String(i.flight_id) === String(flightId) && i.seat_class === seatClass);
+    return getLocalWishlist().some(i => String(i.flight_id) === String(flightId) && i.seat_class === sc);
   }
-  return getCachedIds().includes(`${flightId}_${seatClass}`);
+  return getCachedIds().includes(`${flightId}_${sc}`);
 };
 
 // Khởi tạo cache từ server sau khi login
 export const initWishlistCache = async () => {
   try {
     const res = await API.get("/wishlist");
-    const items = res.data?.data || res.data?.wishlist || [];
-    const ids = items.map(i => `${i.flight_id}_${i.seat_class || "economy"}`);
+    const d = res.data;
+    const items = d?.items || d?.data || d?.wishlist || (Array.isArray(d) ? d : []);
+    // Backend trả flight_id trong nested object: item.flight.id
+    const ids = items.map(i => {
+      const fid = i.flight_id || i.flight?.id;
+      const sc  = i.seat_class || "economy";
+      return `${fid}_${sc}`;
+    });
     localStorage.setItem(LS_CACHE_KEY, JSON.stringify(ids));
   } catch { /* ignore */ }
 };
@@ -115,7 +123,10 @@ export const isInWishlist = async (flightId, seatClass = "economy") => {
 export const getWishlist = async () => {
   try {
     const res = await API.get("/wishlist");
-    return { source: "server", items: res.data?.data || res.data?.wishlist || [] };
+    // Backend trả { total, items: [...] }
+    const d = res.data;
+    const items = d?.items || d?.data || d?.wishlist || (Array.isArray(d) ? d : []);
+    return { source: "server", items };
   } catch (err) {
     if (err.response?.data?.read_local || err.response?.status === 401) {
       return { source: "local", items: getLocalWishlist() };

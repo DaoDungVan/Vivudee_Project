@@ -85,7 +85,8 @@ export default function Wishlist() {
           <div className={styles.grid}>
             {items.map((item) => {
               const flight = item.flight || item;
-              const flightId  = item.flight_id  || flight.flight_id;
+              // Backend trả flight_id trong flight.id (từ formatItem)
+              const flightId  = item.flight_id  || flight?.id || flight?.flight_id;
               const seatClass = item.seat_class  || "economy";
               const key = `${flightId}_${seatClass}`;
 

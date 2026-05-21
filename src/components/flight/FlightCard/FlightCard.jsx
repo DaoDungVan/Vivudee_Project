@@ -17,8 +17,6 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
   const [saved, setSaved] = useState(() => isCachedInWishlist(flightId, seatClass));
   const [saveLoading, setSaveLoading] = useState(false);
 
-  useEffect(() => { setSaved(isCachedInWishlist(flightId, seatClass)); }, [flightId, seatClass]);
-
   const handleToggleSave = async (e) => {
     e.stopPropagation();
     if (!flightId) return;
