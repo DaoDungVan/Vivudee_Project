@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import styles from "./PassengerForm.module.css";
 import planeIcon from "../../../assets/icons/plane.png";
 import { LuLuggage, LuBackpack, LuUser } from "react-icons/lu";
+import SeatMap from "../SeatMap/SeatMap";
 
 const buildBaggageOptions = (flight, t) => {
   const fixedKgs = [0, 5, 10, 20];

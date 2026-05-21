@@ -380,6 +380,7 @@
  "personCount": "{{count}} person",
  "personsCount": "{{count}} persons",
  "continueToPayment": "Continue to Payment →",
+ "selectSeats": "Select Seats →",
  "processing": "Processing...",
  "secure": "Your information is securely encrypted",
  "allPax": "all pax",

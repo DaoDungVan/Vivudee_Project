@@ -28,6 +28,7 @@ import PaymentPaypalResult from "../pages/payment/PaymentPaypalResult";
 import FlightTracker from "../pages/flightTracker/FlightTracker";
 import Refunds from "../pages/refunds/Refunds";
 import Wishlist from "../pages/wishlist/Wishlist";
+import SeatMapPage from "../pages/seatmap/SeatMapPage";
 
 // Định nghĩa tất cả các đường dẫn (URL) của app và component tương ứng.
 // Khi user truy cập URL nào → React render component đó.
@@ -57,6 +58,7 @@ function AppRoutes() {
         <Route path="/tracker/:flightId" element={<FlightTracker />} />
         <Route path="/refunds" element={<Refunds />} />
         <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/seat-map" element={<SeatMapPage />} />
       </Routes>
       <ChatWidgetConditional />
     </BrowserRouter>

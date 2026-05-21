@@ -54,3 +54,5 @@ export const getAlternatives     = (flight_id, seat_class = "economy", adults = 
   axios.get(`${API}/alternatives`, { params: { flight_id, seat_class, adults } });
 export const getPriceCalendar    = (from, to, month, seat_class = "economy", adults = 1) =>
   axios.get(`${API}/price-calendar`, { params: { from, to, month, seat_class, adults } });
+export const getSeatMap          = (flightId, seat_class = "economy") =>
+  axios.get(`${API}/${flightId}/seat-map`, { params: { seat_class } });

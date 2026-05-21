@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { createBooking } from "../../services/bookingService";
 import styles from "./Booking.module.css";
 import planeIcon from "../../assets/icons/plane.png";
+import SeatMap from "../../components/booking/SeatMap/SeatMap";
 
 const fmt = (n) => `${new Intl.NumberFormat("vi-VN").format(n)} VND`;
 
@@ -52,6 +53,8 @@ const Booking = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
+  const [step, setStep] = useState("form"); // "form" | "seatmap"
+  const [seatSelections, setSeatSelections] = useState({});
 
   if (!selectedFlights) {
     return (
@@ -99,7 +102,8 @@ const Booking = () => {
     return errs;
   };
 
-  const handleSubmit = async () => {
+  // Bước 1: validate → navigate sang trang seat map
+  const handleGoToSeatMap = () => {
     const errs = validate();
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
@@ -107,7 +111,35 @@ const Booking = () => {
       document.getElementById(firstKey)?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
+    // Build payload sẵn để SeatMapPage dùng
+    const isRoundTrip = !!selectedFlights.return;
+    const passengerRecords = [];
+    paxList.forEach((p, idx) => {
+      const type = idx < adultCount ? "adult" : "child";
+      const base = { passenger_type: type, full_name: p.fullName, date_of_birth: p.dob || null, gender: p.gender?.toLowerCase() || null, passport_number: p.idNumber || null, extra_baggage_kg: baggage?.outbound || 0 };
+      passengerRecords.push({ ...base, flight_type: "outbound" });
+      if (isRoundTrip) passengerRecords.push({ ...base, flight_type: "return", extra_baggage_kg: baggage?.return || 0 });
+    });
+    navigate("/seat-map", {
+      state: {
+        selectedFlights, paxList, contact, totalPrice, adultCount,
+        bookingPayload: {
+          outbound_flight_id: selectedFlights.outbound.flight_id,
+          outbound_seat_class: selectedFlights.outbound.seat?.class || "economy",
+          return_flight_id: isRoundTrip ? selectedFlights.return.flight_id : undefined,
+          return_seat_class: isRoundTrip ? selectedFlights.return.seat?.class : undefined,
+          trip_type: isRoundTrip ? "round_trip" : "one_way",
+          adults: adultCount, children: childCount, infants: 0,
+          contact_name: paxList[0].fullName, contact_email: contact.email, contact_phone: contact.phone,
+          passengers: passengerRecords, total_price: totalPrice,
+        },
+      },
+    });
+  };
 
+  // Bước 2: sau khi chọn ghế → tạo booking
+  const handleSubmit = async (seats = {}) => {
+    setSeatSelections(seats);
     setLoading(true);
     setApiError("");
 
@@ -116,6 +148,7 @@ const Booking = () => {
       const passengerRecords = [];
       paxList.forEach((p, idx) => {
         const type = idx < adultCount ? "adult" : "child";
+        const paxId = idx;
         const base = {
           passenger_type: type,
           full_name: p.fullName,
@@ -123,6 +156,7 @@ const Booking = () => {
           gender: p.gender?.toLowerCase() || null,
           passport_number: p.idNumber || null,
           extra_baggage_kg: baggage?.outbound || 0,
+          seat_number: seats[paxId] || null,
         };
         passengerRecords.push({ ...base, flight_type: "outbound" });
         if (isRoundTrip) {
@@ -329,8 +363,8 @@ const Booking = () => {
                 <span>{t("booking.total")}</span>
                 <span className={styles.summaryTotal}>{fmt(totalPrice)}</span>
               </div>
-              <button className={styles.submitBtn} onClick={handleSubmit} disabled={loading}>
-                {loading ? t("booking.processing") : t("booking.continueToPayment")}
+              <button className={styles.submitBtn} onClick={handleGoToSeatMap} disabled={loading}>
+                {t("booking.selectSeats") || "Chọn ghế →"}
               </button>
               <p className={styles.secureNote}>{t("booking.secure")}</p>
             </div>
@@ -338,6 +372,7 @@ const Booking = () => {
         </div>
       </div>
       <Footer />
+
     </>
   );
 };
