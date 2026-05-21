@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 
 import { loginUser, forgotPassword } from "../../services/authService";
 import { markJustLoggedIn } from "../../services/axiosInstance";
-import { syncWishlistAfterLogin } from "../../services/wishlistService";
+import { syncWishlistAfterLogin, initWishlistCache } from "../../services/wishlistService";
 import { signInWithGoogle, signInWithFacebook } from "../../lib/supabase";
 
 const Login = () => {
@@ -82,6 +82,7 @@ const Login = () => {
       if (res.data?.user) localStorage.setItem("user", JSON.stringify(res.data.user));
       window.dispatchEvent(new Event("storage"));
       syncWishlistAfterLogin(); // CU-03: sync localStorage wishlist → server
+      initWishlistCache();     // khởi tạo cache IDs cho logged-in user
       navigate("/");
     } catch (err) {
       setError(err.response?.data?.message || err.response?.data?.error || "Login failed");

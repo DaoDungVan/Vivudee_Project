@@ -3,7 +3,7 @@ import styles from "./FlightCard.module.css";
 import { useTranslation } from "react-i18next";
 import planeIcon from "../../../assets/icons/plane.png";
 import { LuCalendarDays, LuLuggage, LuBackpack, LuPlus, LuHeart } from "react-icons/lu";
-import { addToWishlist, removeFromWishlist, getLocalWishlist } from "../../../services/wishlistService";
+import { addToWishlist, removeFromWishlist, isCachedInWishlist } from "../../../services/wishlistService";
 
 const fmtShort = (n) => n >= 1e6 ? `${(n / 1e6).toFixed(1)}tr` : `${Math.round(n / 1000)}k`;
 
@@ -11,28 +11,23 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
   const [expanded, setExpanded] = useState(false);
   const { t } = useTranslation();
   const seatClass = flight?.seat?.class || "economy";
+  const flightId  = flight?.flight_id || flight?.id;
 
-  const checkSaved = () => {
-    const token = localStorage.getItem("token");
-    if (!token) return getLocalWishlist().some(i => i.flight_id === flight?.flight_id && i.seat_class === seatClass);
-    return false;
-  };
-
-  const [saved, setSaved] = useState(checkSaved);
+  const [saved, setSaved] = useState(() => isCachedInWishlist(flightId, seatClass));
   const [saveLoading, setSaveLoading] = useState(false);
 
-  useEffect(() => { setSaved(checkSaved()); }, [flight?.flight_id]);
+  useEffect(() => { setSaved(isCachedInWishlist(flightId, seatClass)); }, [flightId, seatClass]);
 
   const handleToggleSave = async (e) => {
     e.stopPropagation();
-    if (!flight?.flight_id) return;
+    if (!flightId) return;
     setSaveLoading(true);
     try {
       if (saved) {
-        await removeFromWishlist(flight.flight_id, seatClass);
+        await removeFromWishlist(flightId, seatClass);
         setSaved(false);
       } else {
-        await addToWishlist(flight.flight_id, seatClass, flight);
+        await addToWishlist(flightId, seatClass, flight);
         setSaved(true);
       }
     } catch { /* ignore */ }

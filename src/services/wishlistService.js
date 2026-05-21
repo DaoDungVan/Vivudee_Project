@@ -1,6 +1,7 @@
 import API from "./axiosInstance";
 
-const LS_KEY = "vivudee_wishlist";
+const LS_KEY       = "vivudee_wishlist";       // guest local items
+const LS_CACHE_KEY = "vivudee_wishlist_cache"; // logged-in IDs cache
 
 // ── LocalStorage helpers ────────────────────────────────
 export const getLocalWishlist = () => {
@@ -13,19 +14,57 @@ const setLocalWishlist = (items) =>
 
 const clearLocalWishlist = () => localStorage.removeItem(LS_KEY);
 
+// ── Cache wishlist IDs cho logged-in user ────────────────
+const getCachedIds = () => {
+  try { return JSON.parse(localStorage.getItem(LS_CACHE_KEY) || "[]"); }
+  catch { return []; }
+};
+
+const addToCache = (flightId, seatClass) => {
+  const ids = getCachedIds();
+  const key = `${flightId}_${seatClass}`;
+  if (!ids.includes(key)) { ids.push(key); localStorage.setItem(LS_CACHE_KEY, JSON.stringify(ids)); }
+};
+
+const removeFromCache = (flightId, seatClass) => {
+  const ids = getCachedIds().filter(k => k !== `${flightId}_${seatClass}`);
+  localStorage.setItem(LS_CACHE_KEY, JSON.stringify(ids));
+};
+
+export const clearWishlistCache = () => localStorage.removeItem(LS_CACHE_KEY);
+
+// Kiểm tra nhanh không cần API call
+export const isCachedInWishlist = (flightId, seatClass = "economy") => {
+  if (!localStorage.getItem("token")) {
+    return getLocalWishlist().some(i => String(i.flight_id) === String(flightId) && i.seat_class === seatClass);
+  }
+  return getCachedIds().includes(`${flightId}_${seatClass}`);
+};
+
+// Khởi tạo cache từ server sau khi login
+export const initWishlistCache = async () => {
+  try {
+    const res = await API.get("/wishlist");
+    const items = res.data?.data || res.data?.wishlist || [];
+    const ids = items.map(i => `${i.flight_id}_${i.seat_class || "economy"}`);
+    localStorage.setItem(LS_CACHE_KEY, JSON.stringify(ids));
+  } catch { /* ignore */ }
+};
+
 // ── CU-02: Thêm vào wishlist ────────────────────────────
 export const addToWishlist = async (flightId, seatClass = "economy", flightSnapshot = null) => {
   try {
     const res = await API.post("/wishlist", { flight_id: flightId, seat_class: seatClass });
+    addToCache(flightId, seatClass);
     return { source: "server", data: res.data };
   } catch (err) {
     if (err.response?.data?.save_local || err.response?.status === 401) {
-      // Guest → lưu localStorage
       const list = getLocalWishlist();
-      const exists = list.find(i => i.flight_id === flightId && i.seat_class === seatClass);
+      const exists = list.find(i => String(i.flight_id) === String(flightId) && i.seat_class === seatClass);
       if (!exists) {
         list.push({ flight_id: flightId, seat_class: seatClass, saved_at: new Date().toISOString(), flight: flightSnapshot });
         setLocalWishlist(list);
+        window.dispatchEvent(new Event("storage")); // update WishlistBtn badge
       }
       return { source: "local" };
     }
@@ -37,13 +76,15 @@ export const addToWishlist = async (flightId, seatClass = "economy", flightSnaps
 export const removeFromWishlist = async (flightId, seatClass = "economy") => {
   try {
     await API.delete("/wishlist", { data: { flight_id: flightId, seat_class: seatClass } });
+    removeFromCache(flightId, seatClass);
     return { source: "server" };
   } catch (err) {
     if (err.response?.data?.remove_local || err.response?.status === 401) {
       const list = getLocalWishlist().filter(
-        i => !(i.flight_id === flightId && i.seat_class === seatClass)
+        i => !(String(i.flight_id) === String(flightId) && i.seat_class === seatClass)
       );
       setLocalWishlist(list);
+      window.dispatchEvent(new Event("storage"));
       return { source: "local" };
     }
     throw err;
