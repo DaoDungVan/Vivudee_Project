@@ -76,7 +76,7 @@ export default function Refunds() {
               {refunds.map((r) => {
                 const statusKey = `refunds.status${r.status?.charAt(0).toUpperCase() + r.status?.slice(1)}`;
                 const statusCss = STATUS_CSS[r.status?.toLowerCase()] || styles.statusCancelled;
-                const canCancel = ["pending", "approved"].includes(r.status);
+                const canCancel = r.status === "pending";
                 const typeLabel = r.refund_type === "full" ? t("refunds.typeFull")
                   : r.refund_type === "partial_leg" ? t("refunds.typeLeg")
                   : r.refund_type === "partial_passenger" ? t("refunds.typePassenger") : "";
