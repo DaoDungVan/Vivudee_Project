@@ -43,3 +43,6 @@ export const resetPassword = (data) => {
 export const changePassword = (data) => {
   return API.post("/auth/change-password", data);
 };
+
+// Đăng xuất — backend invalidate token (blacklist hoặc xóa refresh token).
+export const logoutUser = () => API.post("/auth/logout");

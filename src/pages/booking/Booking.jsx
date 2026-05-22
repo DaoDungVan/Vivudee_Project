@@ -37,6 +37,8 @@ const Booking = () => {
   const passengers = state?.passengers || {};
   const baggage = state?.baggage || {};
   const totalPrice = state?.totalPrice || 0;
+  const ancillarySelections = state?.ancillarySelections || [];
+  const ancillaryTotal = state?.ancillaryTotal || 0;
   const adultCount = Number(passengers?.adults || 1);
   const childCount = Number(passengers?.children || 0);
   const paxCount = adultCount + childCount;
@@ -123,6 +125,7 @@ const Booking = () => {
     navigate("/seat-map", {
       state: {
         selectedFlights, paxList, contact, totalPrice, adultCount,
+        ancillarySelections, ancillaryTotal,
         bookingPayload: {
           outbound_flight_id: selectedFlights.outbound.flight_id,
           outbound_seat_class: selectedFlights.outbound.seat?.class || "economy",
@@ -132,6 +135,11 @@ const Booking = () => {
           adults: adultCount, children: childCount, infants: 0,
           contact_name: paxList[0].fullName, contact_email: contact.email, contact_phone: contact.phone,
           passengers: passengerRecords, total_price: totalPrice,
+          ancillary_options: ancillarySelections.map((a) => ({
+            ancillary_option_id: a.id,
+            quantity: a.quantity,
+            unit_price: Number(a.price),
+          })),
         },
       },
     });
@@ -367,7 +375,7 @@ const Booking = () => {
                 <span className={styles.summaryTotal}>{fmt(totalPrice)}</span>
               </div>
               <button className={styles.submitBtn} onClick={handleGoToSeatMap} disabled={loading}>
-                {t("booking.selectSeats") || "Chọn ghế →"}
+                {t("booking.continue") || "Tiếp tục →"}
               </button>
               <p className={styles.secureNote}>{t("booking.secure")}</p>
             </div>

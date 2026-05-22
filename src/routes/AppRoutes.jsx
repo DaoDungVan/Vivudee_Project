@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import ChatWidget from "../components/chat/ChatWidget";
 
-const HIDE_CHAT = ["/auth/callback", "/auth/", "/payment/momo", "/payment/payos", "/payment/paypal", "/booking"];
+const HIDE_CHAT = ["/auth/callback", "/auth/", "/payment/momo", "/payment/payos", "/payment/paypal", "/booking", "/ancillary"];
 
 function ChatWidgetConditional() {
   const { pathname } = useLocation();
@@ -29,6 +29,7 @@ import FlightTracker from "../pages/flightTracker/FlightTracker";
 import Refunds from "../pages/refunds/Refunds";
 import Wishlist from "../pages/wishlist/Wishlist";
 import SeatMapPage from "../pages/seatmap/SeatMapPage";
+import AncillaryPage from "../pages/ancillary/AncillaryPage";
 
 // Định nghĩa tất cả các đường dẫn (URL) của app và component tương ứng.
 // Khi user truy cập URL nào → React render component đó.
@@ -58,6 +59,7 @@ function AppRoutes() {
         <Route path="/tracker/:flightId" element={<FlightTracker />} />
         <Route path="/refunds" element={<Refunds />} />
         <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/ancillary" element={<AncillaryPage />} />
         <Route path="/seat-map" element={<SeatMapPage />} />
       </Routes>
       <ChatWidgetConditional />

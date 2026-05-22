@@ -1,4 +1,5 @@
 import styles from "./NavBar.module.css";
+import { logoutUser } from "../../../services/authService";
 import logo from "../../../assets/images/LogoNav.svg";
 import logoDark from "../../../assets/images/LogoNav_Dark.svg";
 import { useNavigate } from "react-router-dom";
@@ -54,6 +55,39 @@ function NavBar() {
   const menuRef = useRef(null);
 
   useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (!storedToken) return;
+
+    const clearAuth = () => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      sessionStorage.removeItem("session_active");
+      setUser(null);
+      setToken(null);
+    };
+
+    // Đóng trình duyệt mà không logout → sessionStorage bị xóa → invalidate token cũ trên backend
+    if (!sessionStorage.getItem("session_active")) {
+      logoutUser().catch(() => {}).finally(() => {
+        clearAuth();
+        navigate("/login");
+      });
+      return;
+    }
+
+    // Token hết hạn
+    try {
+      const payload = JSON.parse(atob(storedToken.split(".")[1]));
+      if (payload.exp && payload.exp * 1000 < Date.now()) {
+        clearAuth();
+        navigate("/login");
+      }
+    } catch {
+      clearAuth();
+    }
+  }, []);
+
+  useEffect(() => {
     const updateWishlistCount = () => {
       const token = localStorage.getItem("token");
       if (token) {
@@ -89,14 +123,16 @@ function NavBar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try { await logoutUser(); } catch { /* backend lỗi vẫn clear client */ }
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    sessionStorage.removeItem("session_active");
     setUser(null);
     setToken(null);
     setShowMenu(false);
     window.dispatchEvent(new Event("storage"));
-    navigate("/");
+    navigate("/login");
   };
 
   const closeMobile = () => setMobileOpen(false);

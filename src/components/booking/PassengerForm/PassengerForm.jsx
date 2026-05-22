@@ -135,7 +135,7 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
     (selectedFlights.return?.seat?.total_price || 0) + extraReturn * paxCount;
 
   const handleContinue = () => {
-    navigate("/booking", {
+    navigate("/ancillary", {
       state: {
         selectedFlights,
         passengers,

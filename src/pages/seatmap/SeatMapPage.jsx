@@ -29,7 +29,7 @@ export default function SeatMapPage() {
 
   if (!state?.bookingPayload) { navigate("/flights"); return null; }
 
-  const { bookingPayload, selectedFlights, paxList, contact, totalPrice, adultCount } = state;
+  const { bookingPayload, selectedFlights, paxList, contact, totalPrice, adultCount, ancillarySelections, ancillaryTotal } = state;
   const flight = selectedFlights?.outbound;
   const initClass = flight?.seat?.class?.toLowerCase() || "economy";
 
@@ -73,11 +73,16 @@ export default function SeatMapPage() {
         passengers: passengerRecords,
         outbound_seat_class: activeClass,
         total_price: newTotal,
+        ancillary_options: (ancillarySelections || []).map((a) => ({
+          ancillary_option_id: a.id,
+          quantity: a.quantity,
+          unit_price: Number(a.price),
+        })),
       };
 
       const res = await createBooking(payload);
       const bookingData = res.data?.data;
-      navigate("/payment", { state: { bookingData, selectedFlights, passengers: paxList, contact, totalPrice: newTotal } });
+      navigate("/payment", { state: { bookingData, selectedFlights, passengers: paxList, contact, totalPrice: newTotal, ancillarySelections, ancillaryTotal } });
     } catch (err) {
       setError(err.response?.data?.error || "Đặt chỗ thất bại");
       setLoading(false);

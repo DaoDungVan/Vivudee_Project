@@ -84,6 +84,7 @@ export default function AuthCallback() {
         markJustLoggedIn();
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
+        sessionStorage.setItem("session_active", "1");
         window.dispatchEvent(new Event("storage"));
 
         setStatus("Thành công! Đang chuyển hướng...");
