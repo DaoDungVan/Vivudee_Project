@@ -26,6 +26,7 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: clip;
+  overflow-clip-margin: 100px;
   background: radial-gradient(circle at 50% -8%, rgba(255,255,255,.42), transparent 28%),
               linear-gradient(180deg, #b7dcfa 0%, #8dc6f0 44%, #6caee0 100%);
   display: flex;
@@ -33,39 +34,35 @@
 }
 
 /*
-  .plane  — rendered width = min(360px, 96vw), same as the SCALED wrapper.
-  height  = 7814 × scale  (7814 = SVG natural height at 880px display width)
-  --scale = 880 → min(360, 96vw) i.e. 360/880 = 0.409
+  .plane — width = (880 fuselage + 2×146.4 wings) × scale = 1172.8px × scale.
+  Centered in .scroll; wings are inside .plane so no overflow clipping needed.
+  --scale drives width, height, and planeWrap offset all at once.
 */
 .plane {
-  --scale: 0.409;
+  --scale: 0.18;
   position: relative;
-  width: min(360px, 96vw);
+  width: calc(1172.8px * var(--scale));
   height: calc(7814px * var(--scale));
   overflow: visible;
 }
 
-@media (max-width: 380px) {
-  .plane {
-    --scale: 0.386; /* 340/880 */
-  }
-}
-@media (max-width: 344px) {
-  .plane {
-    --scale: 0.364; /* 320/880 */
-  }
-}
+/* Responsive: scale tăng dần theo độ rộng viewport */
+@media (min-width: 420px)  { .plane { --scale: 0.24; } }
+@media (min-width: 540px)  { .plane { --scale: 0.30; } }
+@media (min-width: 700px)  { .plane { --scale: 0.38; } }
+@media (min-width: 900px)  { .plane { --scale: 0.48; } }
+@media (min-width: 1100px) { .plane { --scale: 0.58; } }
 
 /*
-  .planeWrap — the 880 px coordinate space (same as seatmaps.com).
-  transform: scale from top-left so scaled width = 880 × 0.409 = 360px = .plane width.
-  SVG inside: width=880px → height = 880/732 × 6503.65 = 7814px.
-  Seat buttons: position:absolute; left:50% (= 440px) + margin-left from source.
+  .planeWrap — the 880px coordinate space.
+  left = 146.4px × scale shifts the fuselage right so the left wing
+  occupies the first 146.4px × scale of .plane (the left wing area).
+  Wings then appear at 0px and at (1172.8px × scale) — exact .plane edges.
 */
 .planeWrap {
   position: absolute;
   top: 0;
-  left: 0;
+  left: calc(146.4px * var(--scale));
   width: 880px;
   height: 7814px;
   transform-origin: top left;
@@ -79,6 +76,7 @@
   width: 880px;
   height: 7814px;
   display: block;
+  overflow: visible;
 }
 
 /* ── SVG fill/stroke classes ── */
@@ -89,6 +87,8 @@
 .svgCut       { fill: none; stroke: #aab4c2; stroke-width: 1.5; }
 .svgStabilizer { fill: #e6ecf3; stroke: #c2c9d3; stroke-width: 2; }
 .svgSeparator  { fill: none; stroke: #c2c9d3; stroke-width: 1.5; }
+.svgExitBox    { fill: #0ec03d; stroke: #ffffff; stroke-width: 3; }
+.svgExitLabel  { fill: #ffffff; font-size: 35px; font-weight: 700; font-family: monospace; text-anchor: middle; dominant-baseline: middle; letter-spacing: 2px; }
 
 /* ── Column headers ── */
 .colLabel {
@@ -114,7 +114,7 @@
   align-items: center;
   justify-content: center;
   font-size: 25px;
-  font-weight: 700;
+  font-weight: 1000;
   color: #8a96aa;
   font-family: monospace;
   pointer-events: none;
@@ -125,7 +125,7 @@
 /* ── Seat button — 86×140px in the 880px coordinate space ── */
 .seatBtn {
   position: absolute;
-  left: 50%;  /* = 440px = center of 880px wrapper */
+  left: 50%;
   width: 86px;
   height: 140px;
   border: none;
@@ -135,8 +135,8 @@
   align-items: flex-end;
   justify-content: center;
   padding-bottom: 14px;
-  overflow: hidden;
-  transition: filter .1s;
+  overflow: visible;
+  transition: transform .12s, filter .12s, box-shadow .12s;
 }
 /* Headrest */
 .seatBtn::before {
@@ -147,7 +147,7 @@
   border-radius: 9px 9px 0 0;
   filter: brightness(.82);
 }
-.seatBtn:hover:not(:disabled) { filter: brightness(1.12); z-index: 10; }
+.seatBtn:hover:not(:disabled) { filter: brightness(1.1); }
 
 .seatNum {
   position: relative;
@@ -159,12 +159,35 @@
   text-shadow: 0 1px 2px rgba(0,0,0,.25);
 }
 
-.s_free     { background: #3d6ec4; }
-.s_occupied { background: #c04848; cursor: pointer; }
-.s_mine     { background: #c8a020; box-shadow: 0 0 0 4px #fff inset; }
+/* ════════════════════════════════════════════════
+   SEAT DESIGNS BY CLASS
+   ════════════════════════════════════════════════ */
+
+.s_occupied { background: #c04848; cursor: not-allowed; }
 .s_other    { background: #2d8050; }
-.s_blocked  { background: #4a5468; opacity: .4; cursor: not-allowed; }
-.seatActive { filter: brightness(1.15); box-shadow: 0 0 0 4px #fff, 0 0 0 8px #c8a020; }
+.s_blocked  { background: #4a5468; opacity: .35; cursor: not-allowed; }
+
+/* ══ ECONOMY ══ */
+.s_free {
+  background: linear-gradient(175deg, #4d82d8 0%, #2a5cbf 55%, #1e47a0 100%);
+  box-shadow: inset 0 3px 0 rgba(255,255,255,.22), inset 0 -2px 0 rgba(0,0,0,.18);
+}
+.s_mine {
+  background: linear-gradient(175deg, #e0b830 0%, #c8a020 100%);
+  box-shadow: 0 0 0 4px rgba(255,255,255,.9) inset;
+}
+
+/* ══ BUSINESS — navy, đối xứng qua aisle ══ */
+.cls_business .seatBtn.seatL { transform: translateX(24px)  rotate(25deg); }
+.cls_business .seatBtn.seatR { transform: translateX(-24px) rotate(-25deg); }
+.cls_business .s_free  { background: linear-gradient(175deg, #1f929f 0%, #1a7281 60%, #040d0e 100%); }
+.cls_business .s_mine  { background: linear-gradient(175deg, #d4a820 0%, #96710a 100%); }
+
+/* ══ FIRST CLASS — deep purple, đối xứng qua aisle ══ */
+.cls_first .seatBtn.seatL { transform: translateX(24px)  rotate(25deg); }
+.cls_first .seatBtn.seatR { transform: translateX(-24px) rotate(-25deg); }
+.cls_first .s_free     { background: linear-gradient(175deg, #541e75 0%, #2e213f 60%, #0e0020 100%); box-shadow: inset 0 3px 0 rgba(255,255,255,.18), inset 0 -2px 0 rgba(0,0,0,.25); }
+.cls_first .s_mine     { background: linear-gradient(175deg, #f0cf50 0%, #b8820a 100%);}
 
 /* Popup */
 .popupOverlay { position:fixed; inset:0; z-index:2000; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.5); }
@@ -178,12 +201,89 @@
 
 /* Footer */
 .footer { padding:12px 16px; border-top:1px solid var(--card-border); display:flex; flex-direction:column; gap:8px; flex-shrink:0; background:var(--card-bg); }
+.pagination { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.pgBtn { background:var(--bg-muted); border:1.5px solid var(--card-border); border-radius:8px; padding:6px 12px; cursor:pointer; font-size:12px; font-weight:600; color:var(--text-secondary); }
+.pgBtn:disabled { opacity:.35; cursor:not-allowed; }
+.pgBtn:not(:disabled):hover { border-color:var(--primary-color); color:var(--primary-color); }
+.pgInfo { font-size:12px; color:var(--text-secondary); text-align:center; flex:1; }
 .summary { display:flex; flex-wrap:wrap; gap:6px; }
 .sumItem { font-size:12px; color:var(--text-secondary); background:var(--bg-muted); border-radius:6px; padding:3px 10px; }
 .confirmBtn { width:100%; padding:13px; background:var(--primary-color); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; }
 .confirmBtn:disabled { opacity:.4; cursor:not-allowed; }
 .confirmBtn:not(:disabled):hover { opacity:.9; }
 
+/* ── Seat hover card ── */
+.hoverCard {
+  position: fixed;
+  transform: translateX(-50%) translateY(calc(-100% - 12px));
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  min-width: 160px;
+  max-width: 220px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.22);
+  z-index: 3000;
+  pointer-events: auto;
+}
+.hoverCard::after {
+  content: '';
+  position: absolute;
+  bottom: -7px; left: 50%;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-bottom: none;
+  border-top-color: var(--card-border);
+}
+.hoverTitle  { font-size: 14px; font-weight: 800; color: var(--text-dark); margin-bottom: 4px; }
+.hoverStatus { font-size: 12px; font-weight: 600; margin-bottom: 6px; }
+.hoverFree   { color: #16a34a; }
+.hoverOcc    { color: #dc2626; }
+.hoverMine   { color: #c8a020; }
+.hoverFeatures { margin: 0 0 6px; padding: 0 0 0 14px; font-size: 11px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 2px; }
+.hoverSpecs  { display: flex; gap: 8px; font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 6px; flex-wrap: wrap; }
+
 .loadingWrap { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:16px; color:var(--text-muted); }
 .spinner { width:32px; height:32px; border:3px solid var(--divider); border-top-color:var(--primary-color); border-radius:50%; animation:spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Wings (CSS divs, in 880px planeWrap coordinate space) ──
+   Wing dims: 800px wide × 520px tall, centered at y≈3700 (wing row area).
+   Extend 800px outward — most goes off-screen, body clips at viewport edge.
+   On a 375px phone (scale 0.31): ~60px of each wing visible beside fuselage.
+   clip-path creates swept-back leading edge + tapered tip shape.          */
+.wingLeft,
+.wingRight {
+  position: absolute;
+  pointer-events: none;
+  width: 1600px;
+  height: 1300px;
+  top: 3100px;
+  background: #f3f6fa;
+  border: 2px solid #c2c9d3;
+}
+/* Boeing 737-like swept wing:
+   root chord = full height (100%), tip chord ≈ 28% of root.
+   Leading edge sweeps ~25° back: at 1600px wide → 747px vertical offset = 57% of root.
+   Trailing edge sweeps ~5°: → 140px offset = 11% of root.
+   Left wing: x=0% = outer tip, x=100% = fuselage root.              */
+.wingLeft {
+  left: -1574px; /* outer at -1574, inner at 26 (fuselage wall) */
+  clip-path: polygon(100% 0%, 0% 57%, 0% 85%, 100% 89%);
+}
+.wingRight {
+  left: 854px; /* inner at 854, outer at 854+1600=2454 */
+  clip-path: polygon(0% 0%, 100% 57%, 100% 85%, 0% 89%);
+}
+/* Separator lines */
+.wingLeft::before, .wingLeft::after,
+.wingRight::before, .wingRight::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: #c2c9d3;
+}
+.wingLeft::before, .wingRight::before { top: 70%; }
+.wingLeft::after,  .wingRight::after  { top: 82%; }
+.wingLeft::after,  .wingRight::after  { top: 90%; }

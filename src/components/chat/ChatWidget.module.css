@@ -2,7 +2,7 @@
 .root {
   position: fixed;
   right: 28px;
-  bottom: 88px;
+  bottom: 140px;
   z-index: 900;
   display: flex;
   flex-direction: column;

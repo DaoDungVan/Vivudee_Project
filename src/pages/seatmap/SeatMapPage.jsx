@@ -1,36 +1,83 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import SeatMap from "../../components/booking/SeatMap/SeatMap";
 import { createBooking } from "../../services/bookingService";
-import { useState } from "react";
+import { getSeatMap } from "../../services/flightService";
+import { useState, useEffect } from "react";
 import NavBar from "../../components/common/NavBar/Navbar";
+import styles from "./SeatMapPage.module.css";
+import { useTranslation } from "react-i18next";
+
+const CLASS_ORDER = ["economy", "business", "first"];
+
+const fmt = (n) =>
+  n ? new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(Number(n)) + " VND" : "—";
 
 export default function SeatMapPage() {
   const { state } = useLocation();
   const navigate  = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState("");
+  const { t } = useTranslation();
+  const CLASS_LABEL = {
+    economy: t("seatMap.economy"),
+    business: t("seatMap.business"),
+    first: t("seatMap.first"),
+  };
 
-  if (!state?.bookingPayload) {
-    navigate("/flights");
-    return null;
-  }
+  const [loading, setLoading]       = useState(false);
+  const [error, setError]           = useState("");
+  const [allClassPrices, setAllClassPrices] = useState({});
+  const [panelOpen, setPanelOpen]   = useState(false);
+
+  if (!state?.bookingPayload) { navigate("/flights"); return null; }
 
   const { bookingPayload, selectedFlights, paxList, contact, totalPrice, adultCount } = state;
+  const flight = selectedFlights?.outbound;
+  const initClass = flight?.seat?.class?.toLowerCase() || "economy";
+
+  const [activeClass, setActiveClass] = useState(initClass);
+  const paxCount = paxList?.length || 1;
+
+  // Fetch all class prices once
+  useEffect(() => {
+    if (!flight?.flight_id) return;
+    const prices = {};
+    Promise.allSettled(
+      CLASS_ORDER.map(cls =>
+        getSeatMap(flight.flight_id, cls).then(res => {
+          const map = res.data?.data?.seat_map?.find(m => m.class === cls);
+          if (map?.base_price) prices[cls] = Number(map.base_price);
+        })
+      )
+    ).then(() => setAllClassPrices(prices));
+  }, [flight?.flight_id]);
+
+  const basePrice      = allClassPrices[initClass]
+    || (flight?.seat?.base_price ? Number(flight.seat.base_price) : 0)
+    || (flight?.seat?.total_price && paxCount ? Number(flight.seat.total_price) / paxCount : 0);
+  const activePricePerPax = allClassPrices[activeClass] || 0;
+  const baseTotalForClass  = basePrice * paxCount;
+  const activeTotalForClass = activePricePerPax * paxCount;
+  const priceDiff = activeTotalForClass - baseTotalForClass;
+  const newTotal  = (Number(totalPrice) || 0) + priceDiff;
 
   const handleConfirm = async (seats) => {
     setLoading(true);
     setError("");
     try {
-      // Gán seat_number vào từng passenger
       const passengerRecords = bookingPayload.passengers.map((p, i) => {
-        const paxIdx = i < adultCount ? i : i - adultCount;
         const realIdx = i % (bookingPayload.passengers.length / (bookingPayload.return_flight_id ? 2 : 1)) | 0;
         return { ...p, seat_number: seats[realIdx] || null };
       });
 
-      const res = await createBooking({ ...bookingPayload, passengers: passengerRecords });
+      const payload = {
+        ...bookingPayload,
+        passengers: passengerRecords,
+        outbound_seat_class: activeClass,
+        total_price: newTotal,
+      };
+
+      const res = await createBooking(payload);
       const bookingData = res.data?.data;
-      navigate("/payment", { state: { bookingData, selectedFlights, passengers: paxList, contact, totalPrice } });
+      navigate("/payment", { state: { bookingData, selectedFlights, passengers: paxList, contact, totalPrice: newTotal } });
     } catch (err) {
       setError(err.response?.data?.error || "Đặt chỗ thất bại");
       setLoading(false);
@@ -38,27 +85,116 @@ export default function SeatMapPage() {
   };
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+    <div className={styles.page}>
       <NavBar />
-      <div style={{ flex: 1, overflow: "hidden" }}>
-        <SeatMap
-          flightId={selectedFlights?.outbound?.flight_id}
-          seatClass={selectedFlights?.outbound?.seat?.class || "economy"}
-          passengers={paxList.map((p, i) => ({ id: i, fullName: p.fullName || `Hành khách ${i+1}` }))}
-          onConfirm={handleConfirm}
-          onBack={() => navigate(-1)}
-        />
-      </div>
-      {error && (
-        <div style={{ background: "#fee2e2", color: "#dc2626", padding: "10px 16px", fontSize: 13 }}>
-          {error}
+
+      <div className={styles.body}>
+        {/* ── Seat map (left) ── */}
+        <div className={styles.mapCol}>
+          <SeatMap
+            flightId={flight?.flight_id}
+            seatClass={activeClass}
+            passengers={paxList.map((p, i) => ({ id: i, fullName: p.fullName || `Hành khách ${i + 1}` }))}
+            onConfirm={handleConfirm}
+            onBack={() => navigate(-1)}
+          />
         </div>
-      )}
+
+        {/* ── Info panel (right / mobile bottom drawer) ── */}
+        <aside className={`${styles.panel} ${panelOpen ? styles.panelOpen : ""}`}>
+          {/* Handle bar — chỉ hiện trên mobile */}
+          <div className={styles.panelHandle} onClick={() => setPanelOpen(o => !o)}>
+            <span className={styles.handleBar} />
+            <span className={styles.handleLabel}>
+              {CLASS_LABEL[activeClass]} · {fmt(activePricePerPax > 0 ? newTotal : (Number(totalPrice) || 0))}
+            </span>
+            <span className={styles.handleArrow}>{panelOpen ? "▼" : "▲"}</span>
+          </div>
+          {/* Flight summary */}
+          <div className={styles.card}>
+            <div className={styles.cardTitle}>✈ {t("seatMap.flightInfo")}</div>
+            <div className={styles.infoRow}><span>{t("seatMap.flight")}</span><b>{flight?.flight_number || "—"}</b></div>
+            <div className={styles.infoRow}>
+              <span>{t("seatMap.route")}</span>
+              <b>{flight?.departure?.code || flight?.from_code || "?"} → {flight?.arrival?.code || flight?.to_code || "?"}</b>
+            </div>
+            <div className={styles.infoRow}>
+              <span>Khởi hành</span>
+              <b>{(flight?.departure?.time || flight?.departure_time)
+                ? new Date(flight.departure?.time || flight.departure_time).toLocaleString("vi-VN", { dateStyle: "short", timeStyle: "short" })
+                : "—"}</b>
+            </div>
+            <div className={styles.infoRow}><span>{t("seatMap.passengers")}</span><b>{t("seatMap.paxCount", { n: paxCount })}</b></div>
+          </div>
+
+          {/* Upgrade class */}
+          <div className={styles.card}>
+            <div className={styles.cardTitle}>💺 {t("seatMap.seatClass")}</div>
+            {CLASS_ORDER.map(cls => {
+              const pricePerPax = allClassPrices[cls];
+              const total = pricePerPax ? pricePerPax * paxCount : null;
+              const diff  = (pricePerPax && basePrice) ? (pricePerPax - basePrice) * paxCount : null;
+              const isActive = cls === activeClass;
+              const isInit   = cls === initClass;
+              return (
+                <button
+                  key={cls}
+                  className={`${styles.classBtn} ${isActive ? styles.classBtnActive : ""}`}
+                  onClick={() => setActiveClass(cls)}
+                >
+                  <div className={styles.classBtnTop}>
+                    <span className={styles.classBtnLabel}>{CLASS_LABEL[cls]}</span>
+                    {isActive && <span className={styles.classBtnCheck}>✓</span>}
+                  </div>
+                  {total != null ? (
+                    <div className={styles.classBtnPrice}>
+                      <span>{fmt(total)}</span>
+                      {!isInit && diff != null && diff !== 0 && (
+                        <span className={diff > 0 ? styles.diffUp : styles.diffDown}>
+                          {diff > 0
+                            ? t("seatMap.surcharge", { amount: fmt(diff) })
+                            : t("seatMap.saving", { amount: fmt(Math.abs(diff)) })}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <div className={styles.classBtnPrice} style={{ color: "var(--text-muted)" }}>Đang tải...</div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Price summary */}
+          <div className={styles.card}>
+            <div className={styles.cardTitle}>💰 {t("seatMap.totalPrice")}</div>
+            <div className={styles.infoRow}>
+              <span>{t("seatMap.ticketPrice", { n: paxCount })}</span>
+              <b>{fmt(activeTotalForClass || (Number(totalPrice) || 0))}</b>
+            </div>
+            {priceDiff !== 0 && activePricePerPax > 0 && (
+              <div className={styles.infoRow} style={{ color: priceDiff > 0 ? "#dc2626" : "#16a34a" }}>
+                <span>{priceDiff > 0 ? t("seatMap.surcharge", { amount: "" }).replace(" ", "") : t("seatMap.saving", { amount: "" }).replace(" ", "")}</span>
+                <b>{priceDiff > 0 ? "+" : ""}{fmt(priceDiff)}</b>
+              </div>
+            )}
+            <div className={`${styles.infoRow} ${styles.totalRow}`}>
+              <span>{t("seatMap.grandTotal")}</span>
+              <b>{fmt(activePricePerPax > 0 ? newTotal : (Number(totalPrice) || 0))}</b>
+            </div>
+          </div>
+
+          <p className={styles.hint}>{t("seatMap.hint")}</p>
+        </aside>
+      </div>
+
+      {error && <div className={styles.errBar}>{error}</div>}
+
       {loading && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
-          <div style={{ background: "var(--card-bg)", borderRadius: 12, padding: "24px 32px", textAlign: "center" }}>
-            <div style={{ width: 32, height: 32, border: "3px solid var(--divider)", borderTopColor: "var(--primary-color)", borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto 12px" }} />
-            <p style={{ color: "var(--text-secondary)", margin: 0 }}>Đang đặt chỗ...</p>
+        <div className={styles.loadingOverlay}>
+          <div className={styles.loadingBox}>
+            <div className={styles.spinner} />
+            <p>Đang đặt chỗ...</p>
           </div>
         </div>
       )}

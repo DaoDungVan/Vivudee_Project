@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import ChatWidget from "../components/chat/ChatWidget";
 
-const HIDE_CHAT = ["/auth/callback", "/auth/", "/payment/momo", "/payment/payos", "/payment/paypal"];
+const HIDE_CHAT = ["/auth/callback", "/auth/", "/payment/momo", "/payment/payos", "/payment/paypal", "/booking"];
 
 function ChatWidgetConditional() {
   const { pathname } = useLocation();

@@ -50,6 +50,7 @@ export default function SearchFlightForm({ initialData }) {
   const [showSeatClass, setShowSeatClass] = useState(false);
   const seatClassRef = useRef(null);
   const seatOptions = ["Economy", "Business", "First"];
+  const isResultsPage = !!initialData;
 
   const [searchError, setSearchError] = useState("");
   const navigate = useNavigate();
@@ -158,6 +159,16 @@ export default function SearchFlightForm({ initialData }) {
       tripType,
     }).toString()}`);
   };
+
+  // Auto-search when class changes on results page (don't trigger on initial mount)
+  const prevSeatClassRef = useRef(seatClass);
+  useEffect(() => {
+    if (!isResultsPage) return;
+    if (prevSeatClassRef.current === seatClass) return;
+    prevSeatClassRef.current = seatClass;
+    handleSearch();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seatClass]);
 
   const today = toLocalDateStr(new Date());
 
