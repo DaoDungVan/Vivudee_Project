@@ -61,30 +61,51 @@ function NavBar() {
     const clearAuth = () => {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+      localStorage.removeItem("last_active_time");
       sessionStorage.removeItem("session_active");
       setUser(null);
       setToken(null);
     };
 
-    // Đóng trình duyệt mà không logout → sessionStorage bị xóa → invalidate token cũ trên backend
+    // Cập nhật last_active_time mỗi phút khi user còn đang dùng
+    localStorage.setItem("last_active_time", String(Date.now()));
+    const ticker = setInterval(() => {
+      if (localStorage.getItem("token")) {
+        localStorage.setItem("last_active_time", String(Date.now()));
+      }
+    }, 60_000);
+
+    // Đóng trình duyệt mà không logout → sessionStorage bị xóa
     if (!sessionStorage.getItem("session_active")) {
-      logoutUser().catch(() => {}).finally(() => {
-        clearAuth();
-        navigate("/login");
-      });
-      return;
+      const lastActive = Number(localStorage.getItem("last_active_time") || 0);
+      const elapsed = Date.now() - lastActive;
+      const GRACE_MS = 15 * 60 * 1000; // 15 phút
+
+      if (elapsed > GRACE_MS) {
+        logoutUser().catch(() => {}).finally(() => {
+          clearAuth();
+          navigate("/login");
+        });
+        return;
+      }
+      // Còn trong 15 phút → khôi phục session
+      sessionStorage.setItem("session_active", "1");
     }
 
     // Token hết hạn
     try {
       const payload = JSON.parse(atob(storedToken.split(".")[1]));
       if (payload.exp && payload.exp * 1000 < Date.now()) {
+        clearInterval(ticker);
         clearAuth();
         navigate("/login");
       }
     } catch {
+      clearInterval(ticker);
       clearAuth();
     }
+
+    return () => clearInterval(ticker);
   }, []);
 
   useEffect(() => {

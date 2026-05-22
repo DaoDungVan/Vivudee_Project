@@ -80,6 +80,7 @@ const Login = () => {
       markJustLoggedIn();
       localStorage.setItem("token", token);
       if (res.data?.user) localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("last_active_time", String(Date.now()));
       sessionStorage.setItem("session_active", "1");
       window.dispatchEvent(new Event("storage"));
       syncWishlistAfterLogin(); // CU-03: sync localStorage wishlist → server
