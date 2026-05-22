@@ -561,7 +561,7 @@ const Bookings = () => {
                   value={refundReason}
                   onChange={(e) => { setRefundReason(e.target.value); setRefundError(""); }}
                 />
-                {refundError && <p className={styles.refundError}>{t("bookings.refundReasonError")}</p>}
+                {refundError && <p className={styles.refundError}>{refundError}</p>}
 
                 <div className={styles.refundActions}>
                   <button className={styles.refundCancelModalBtn} onClick={closeRefundModal}>{t("bookings.refundCancel")}</button>
