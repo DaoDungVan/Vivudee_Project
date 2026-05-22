@@ -4,6 +4,10 @@
       "Read(//d/Vivudee_Admin/src/components/**)",
       "Bash(node -e \"require\\('./src/services/flight.service.js'\\); console.log\\('OK - no import errors'\\);\")",
       "Bash(curl -s \"https://backend-log-function-2.onrender.com/api/ancillaries\")"
+    ],
+    "additionalDirectories": [
+      "D:\\Vivudee_Admin\\src\\api",
+      "D:\\Vivudee_Admin\\src\\pages"
     ]
   }
 }
