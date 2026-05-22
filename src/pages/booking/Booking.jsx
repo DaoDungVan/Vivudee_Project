@@ -228,7 +228,10 @@ const Booking = () => {
       <div className={styles.wrapper}>
         <div className={styles.layout}>
           <div className={styles.left}>
-            <h2 className={styles.pageTitle}>{t("booking.title")}</h2>
+            <div className={styles.pageTitleRow}>
+              <button className={styles.backBtn} onClick={() => navigate(-1)}>← {t("booking.back", "Quay lại")}</button>
+              <h2 className={styles.pageTitle}>{t("booking.title")}</h2>
+            </div>
 
             {apiError && <div className={styles.apiError}>{apiError}</div>}
 

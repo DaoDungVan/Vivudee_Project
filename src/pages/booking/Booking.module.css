@@ -16,12 +16,31 @@
   min-width: 0;
 }
 
+.pageTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
 .pageTitle {
   font-size: 24px;
   font-weight: 800;
   color: var(--text-dark);
-  margin: 0 0 24px;
+  margin: 0;
 }
+.backBtn {
+  background: none;
+  border: 1.5px solid var(--card-border);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.backBtn:hover { border-color: var(--primary-color); color: var(--primary-color); }
 
 /* ── Cards ── */
 .card {

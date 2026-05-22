@@ -354,6 +354,7 @@
  },
  "booking": {
  "title": "Thông tin hành khách",
+ "back": "Quay lại",
  "noData": "Không tìm thấy dữ liệu đặt chỗ.",
  "backHome": "Về trang chủ",
  "contactDetails": "Thông tin liên hệ",
