@@ -897,6 +897,11 @@
   "remaining": "{{n}} seat(s) remaining",
   "prevPage": "← Previous",
   "nextPage": "Next →",
-  "pageInfo": "Page {{page}}/{{total}} · Rows {{from}}–{{to}}"
+  "pageInfo": "Page {{page}}/{{total}} · Rows {{from}}–{{to}}",
+  "exitRowTitle": "Exit Row",
+  "exitRowWarn": "Passengers must be able-bodied and willing to assist with emergency exit door operation if required.",
+  "hoverFree": "Available",
+  "hoverOcc": "Already booked",
+  "hoverMine": "Your selected seat"
  }
 }

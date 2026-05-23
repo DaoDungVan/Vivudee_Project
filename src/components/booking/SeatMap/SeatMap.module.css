@@ -242,6 +242,21 @@
 .hoverMine   { color: #c8a020; }
 .hoverFeatures { margin: 0 0 6px; padding: 0 0 0 14px; font-size: 11px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 2px; }
 .hoverSpecs  { display: flex; gap: 8px; font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--card-border); padding-top: 6px; flex-wrap: wrap; }
+.hoverExitWarn {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  margin-top: 8px;
+  padding: 7px 9px;
+  background: #fff7ed;
+  border: 1px solid #f97316;
+  border-radius: 7px;
+  font-size: 11px;
+  color: #9a3412;
+  line-height: 1.4;
+}
+[data-theme="dark"] .hoverExitWarn { background: rgba(249,115,22,.12); color: #fb923c; border-color: #c2410c; }
+.hoverExitIcon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
 
 .loadingWrap { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:16px; color:var(--text-muted); }
 .spinner { width:32px; height:32px; border:3px solid var(--divider); border-top-color:var(--primary-color); border-radius:50%; animation:spin 1s linear infinite; }
@@ -287,3 +302,82 @@
 .wingLeft::before, .wingRight::before { top: 70%; }
 .wingLeft::after,  .wingRight::after  { top: 82%; }
 .wingLeft::after,  .wingRight::after  { top: 90%; }
+
+/* ── Exit row banner (đặt sau wings trong DOM → tự nhiên render trên cánh) ── */
+.exitRowBannerTopLeft {
+  position: absolute;
+  top: 1070px;          /* ngang với mép trên của cánh */
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0 30px;
+  pointer-events: none;
+  gap:650px;
+  z-index: 1;
+}
+
+.exitRowBannerTopRight {
+  position: absolute;
+  top: 1010px;          /* ngang với mép trên của cánh */
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0 30px;
+  pointer-events: none;
+  gap:620px;
+  z-index: 1;
+}
+
+.exitRowBannerMidTop {
+  position: absolute;
+  top: 3510px;          /* ngang với mép trên của cánh */
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0 30px;
+  pointer-events: none;
+  gap:850px;
+  z-index: 1;
+}
+
+.exitRowBannerMidBottom {
+  position: absolute;
+  top: 3720px;          /* ngang với mép trên của cánh */
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0 30px;
+  pointer-events: none;
+  gap:850px;
+  z-index: 1;
+}
+
+.exitRowBannerBottom {
+  position: absolute;
+  top: 6310px;          /* ngang với mép trên của cánh */
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0 30px;
+  pointer-events: none;
+  gap:520px;
+  z-index: 1;
+}
+
+.exitRowLabel {
+  background: #0ec03d;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 800;
+  font-family: monospace;
+  letter-spacing: 2px;
+  padding: 6px 18px;
+  border-radius: 6px;
+  border: 2.5px solid #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}

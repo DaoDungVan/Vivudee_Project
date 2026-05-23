@@ -897,6 +897,11 @@
   "remaining": "Còn {{n}} ghế chưa chọn",
   "prevPage": "← Trang trước",
   "nextPage": "Trang sau →",
-  "pageInfo": "Trang {{page}}/{{total}} · Hàng {{from}}–{{to}}"
+  "pageInfo": "Trang {{page}}/{{total}} · Hàng {{from}}–{{to}}",
+  "exitRowTitle": "Hàng thoát hiểm",
+  "exitRowWarn": "Yêu cầu hành khách có sức khỏe tốt, đủ khả năng vận hành cửa thoát hiểm khẩn cấp khi cần.",
+  "hoverFree": "Ghế trống",
+  "hoverOcc": "Đã được đặt",
+  "hoverMine": "Ghế bạn đã chọn"
  }
 }

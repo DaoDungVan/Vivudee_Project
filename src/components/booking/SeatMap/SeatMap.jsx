@@ -122,6 +122,9 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
   // Reset to page 0 when seatData changes
   useEffect(() => { setPage(0); }, [seatData]);
 
+  // Hàng ghế thoát hiểm: hàng sát cửa thoát hiểm (đầu, giữa, cuối máy bay)
+  const exitRowNums = new Set([1, 13, 14, 27]);
+
   const allSelected = passengers.every(p => selections[p.id]);
 
   if (loading) return (
@@ -217,16 +220,6 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
                 <polygon className={styles.svgStabilizer} points="0 724.3 453.91 605.97 286.34 6.96 0 207.35 0 724.3"/>
                 <path className={styles.svgSeparator} d="M403.74,430.2C315.21,462.12,2.31,568.78,2.31,568.78"/>
               </g>
-
-              {/* ── Emergency exit doors (inside cabin walls) ──
-                   Floor left edge at front ≈ x=56, right ≈ x=648.
-                   Rect inside dark floor area; ✕ symbol centred inside.
-                   Front: y=910  Rear: y=5180 (past last rows, before tail) */}
-              <g><rect className={styles.svgExitBox} x="52"  y="892" width="96" height="45" rx="8"/><text className={styles.svgExitLabel} x="100" y="920">EXIT</text></g>
-              <g><rect className={styles.svgExitBox} x="577" y="842" width="96" height="45" rx="8"/><text className={styles.svgExitLabel} x="625" y="870">EXIT</text></g>
-              <g><rect className={styles.svgExitBox} x="62"  y="5252" width="96" height="45" rx="8"/><text className={styles.svgExitLabel} x="110" y="5280">EXIT</text></g>
-              <g><rect className={styles.svgExitBox} x="577" y="5252" width="96" height="45" rx="8"/><text className={styles.svgExitLabel} x="625" y="5280">EXIT</text></g>
-
               {/* ── Tail vertical stabilizer (fin) ── */}
               <path className={styles.svgFuselage} d="M295.53,5529.58c.73,25.71,32,46.45,70.46,46.45s69.68-20.71,70.36-46.45c-1.15,66.49-3.87,168-8.57,253.57-38.72,704.22-61.84,718.91-61.84,718.91,0,0-23.12-14.69-61.84-718.91-4.71-85.53-7.43-187.08-8.57-253.57Z"/>
             </svg>
@@ -234,6 +227,28 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
             {/* ── Wings (CSS divs) ── */}
             <div className={styles.wingLeft} />
             <div className={styles.wingRight} />
+
+            {/* ── Exit row banner (HTML div — after wings in DOM → renders on top) ── */}
+            <div className={styles.exitRowBannerTopLeft}>
+              <span className={styles.exitRowLabel}>EXIT</span>
+              <span></span>
+            </div>
+            <div className={styles.exitRowBannerTopRight}>
+              <span></span>
+              <span className={styles.exitRowLabel}>EXIT</span>
+            </div>
+            <div className={styles.exitRowBannerMidTop}>
+              <span className={styles.exitRowLabel}>EXIT</span>
+              <span className={styles.exitRowLabel}>EXIT</span>
+            </div>
+            <div className={styles.exitRowBannerMidBottom}>
+              <span className={styles.exitRowLabel}>EXIT</span>
+              <span className={styles.exitRowLabel}>EXIT</span>
+            </div>
+            <div className={styles.exitRowBannerBottom}>
+              <span className={styles.exitRowLabel}>EXIT</span>
+              <span className={styles.exitRowLabel}>EXIT</span>
+            </div>
 
             {/* ── Column headers (just above first seat row) ── */}
             {cols.map(col => (
@@ -334,11 +349,17 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
           </div>
           <div className={styles.hoverStatus}>
             {hoverInfo.status === "occupied"
-              ? <span className={styles.hoverOcc}>✕ Đã được đặt</span>
+              ? <span className={styles.hoverOcc}>✕ {t("seatMap.hoverOcc")}</span>
               : hoverInfo.status === "mine"
-              ? <span className={styles.hoverMine}>✓ Ghế bạn đã chọn</span>
-              : <span className={styles.hoverFree}>✓ Ghế trống</span>}
+              ? <span className={styles.hoverMine}>✓ {t("seatMap.hoverMine")}</span>
+              : <span className={styles.hoverFree}>✓ {t("seatMap.hoverFree")}</span>}
           </div>
+          {exitRowNums.has(parseInt(hoverInfo.seat.seat_number)) && (
+            <div className={styles.hoverExitWarn}>
+              <span className={styles.hoverExitIcon}>⚠</span>
+              <span><b>{t("seatMap.exitRowTitle")}</b> — {t("seatMap.exitRowWarn")}</span>
+            </div>
+          )}
           {hoverInfo.seat.features?.length > 0 && (
             <ul className={styles.hoverFeatures}>
               {hoverInfo.seat.features.map((f, i) => <li key={i}>{f}</li>)}
