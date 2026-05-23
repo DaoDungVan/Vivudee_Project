@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import NavBar from "../../components/common/NavBar/Navbar";
 import styles from "./SeatMapPage.module.css";
 import { useTranslation } from "react-i18next";
+import { LuPlane, LuArmchair, LuCircleDollarSign, LuCheck } from "react-icons/lu";
 
 const CLASS_ORDER = ["economy", "business", "first"];
 
@@ -117,7 +118,7 @@ export default function SeatMapPage() {
           </div>
           {/* Flight summary */}
           <div className={styles.card}>
-            <div className={styles.cardTitle}>✈ {t("seatMap.flightInfo")}</div>
+            <div className={styles.cardTitle}><LuPlane size={15}/> {t("seatMap.flightInfo")}</div>
             <div className={styles.infoRow}><span>{t("seatMap.flight")}</span><b>{flight?.flight_number || "—"}</b></div>
             <div className={styles.infoRow}>
               <span>{t("seatMap.route")}</span>
@@ -134,7 +135,7 @@ export default function SeatMapPage() {
 
           {/* Upgrade class */}
           <div className={styles.card}>
-            <div className={styles.cardTitle}>💺 {t("seatMap.seatClass")}</div>
+            <div className={styles.cardTitle}><LuArmchair size={15}/> {t("seatMap.seatClass")}</div>
             {CLASS_ORDER.map(cls => {
               const pricePerPax = allClassPrices[cls];
               const total = pricePerPax ? pricePerPax * paxCount : null;
@@ -149,7 +150,7 @@ export default function SeatMapPage() {
                 >
                   <div className={styles.classBtnTop}>
                     <span className={styles.classBtnLabel}>{CLASS_LABEL[cls]}</span>
-                    {isActive && <span className={styles.classBtnCheck}>✓</span>}
+                    {isActive && <span className={styles.classBtnCheck}><LuCheck size={13}/></span>}
                   </div>
                   {total != null ? (
                     <div className={styles.classBtnPrice}>
@@ -172,7 +173,7 @@ export default function SeatMapPage() {
 
           {/* Price summary */}
           <div className={styles.card}>
-            <div className={styles.cardTitle}>💰 {t("seatMap.totalPrice")}</div>
+            <div className={styles.cardTitle}><LuCircleDollarSign size={15}/> {t("seatMap.totalPrice")}</div>
             <div className={styles.infoRow}>
               <span>{t("seatMap.ticketPrice", { n: paxCount })}</span>
               <b>{fmt(activeTotalForClass || (Number(totalPrice) || 0))}</b>

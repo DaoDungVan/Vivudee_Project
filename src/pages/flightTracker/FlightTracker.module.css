@@ -30,6 +30,9 @@
 }
 
 .backBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   background: none;
   border: none;
   color: var(--primary-color);
@@ -526,6 +529,10 @@
 .errorText { color: var(--text-secondary); font-size: 16px; }
 
 .backBtnLarge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   background: var(--primary-color);
   color: #fff;
   border: none;

@@ -5,14 +5,15 @@ import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import { getAncillaryOptions } from "../../services/ancillaryService";
 import styles from "./AncillaryPage.module.css";
+import { LuUtensils, LuShieldCheck, LuSofa, LuWifi, LuPlane, LuLock, LuChevronLeft, LuChevronRight } from "react-icons/lu";
 
 const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n) + " VND";
 
 const TYPE_ICONS = {
-  meal: "🍽️",
-  insurance: "🛡️",
-  lounge: "🛋️",
-  wifi: "📶",
+  meal:      <LuUtensils size={20} />,
+  insurance: <LuShieldCheck size={20} />,
+  lounge:    <LuSofa size={20} />,
+  wifi:      <LuWifi size={20} />,
 };
 
 // Types rendered per-passenger (each person picks independently)
@@ -141,7 +142,7 @@ export default function AncillaryPage() {
           <div className={styles.left}>
             <div className={styles.pageTitleRow}>
               <button className={styles.backBtn} onClick={() => navigate(-1)}>
-                ← {t("ancillary.back")}
+                <LuChevronLeft size={16}/> {t("ancillary.back")}
               </button>
               <h2 className={styles.pageTitle}>{t("ancillary.title")}</h2>
             </div>
@@ -157,7 +158,7 @@ export default function AncillaryPage() {
                 return (
                   <div key={type} className={styles.section}>
                     <div className={styles.sectionHeader}>
-                      <span className={styles.sectionIcon}>{TYPE_ICONS[type] || "✈️"}</span>
+                      <span className={styles.sectionIcon}>{TYPE_ICONS[type] || <LuPlane size={20}/>}</span>
                       <h3 className={styles.sectionTitle}>{typeLabel(type)}</h3>
                     </div>
 
@@ -258,9 +259,9 @@ export default function AncillaryPage() {
               </div>
 
               <button className={styles.continueBtn} onClick={handleContinue}>
-                {t("ancillary.continueBtn")}
+                {t("ancillary.continueBtn")} <LuChevronRight size={16}/>
               </button>
-              <p className={styles.secureNote}>🔒 {t("ancillary.secure")}</p>
+              <p className={styles.secureNote}><LuLock size={13}/> {t("ancillary.secure")}</p>
             </div>
           </div>
         </div>

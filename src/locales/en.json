@@ -200,7 +200,7 @@
  "extraBaggage": "Extra baggage (per person)",
  "noExtra": "No extra",
  "allPax": "all pax",
- "continue": "Continue →",
+ "continue": "Continue",
  "total": "Total",
  "adult": "Adult",
  "adults": "{{count}} Adult",
@@ -865,7 +865,7 @@
   "summaryFlight": "Flights ({{n}} pax)",
   "summaryServices": "Selected services ({{count}})",
   "summaryTotal": "Total",
-  "continueBtn": "Continue: Passenger Details →",
+  "continueBtn": "Continue: Passenger Details",
   "secure": "Your information is secure"
  },
  "seatMap": {

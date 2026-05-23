@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { LuPlaneTakeoff, LuPlaneLanding, LuClock, LuMapPin, LuCircleAlert, LuHourglass, LuMap } from "react-icons/lu";
+import { LuPlaneTakeoff, LuPlaneLanding, LuClock, LuMapPin, LuCircleAlert, LuHourglass, LuMap, LuChevronLeft } from "react-icons/lu";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Polyline, Marker } from "react-leaflet";
 import L from "leaflet";
@@ -210,7 +210,7 @@ const FlightTracker = () => {
       <div className={styles.centerBody}>
         <p className={styles.errorText}><LuCircleAlert size={20} style={{marginRight:8,verticalAlign:"middle"}} />{error}</p>
         <button className={styles.backBtnLarge} onClick={() => navigate("/bookings")}>
-          ← {t("tracker.myBookings")}
+          <LuChevronLeft size={16}/> {t("tracker.myBookings")}
         </button>
       </div>
       <Footer />
@@ -268,7 +268,7 @@ const FlightTracker = () => {
         {/* ── Header ── */}
         <div className={styles.header}>
           <button className={styles.backBtn} onClick={() => navigate("/bookings")}>
-            ← {t("tracker.myBookings")}
+            <LuChevronLeft size={16}/> {t("tracker.myBookings")}
           </button>
 
           <div className={styles.headerCenter}>

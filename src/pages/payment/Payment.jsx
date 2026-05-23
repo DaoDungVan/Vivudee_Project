@@ -7,6 +7,7 @@ import Footer from "../../components/common/Footer/Footer";
 import { initPayment, getPaymentByCode, cancelPayment, buildVietQRUrl } from "../../services/paymentService";
 import { getAvailableCoupons, getCouponErrorMessage, validateCoupon } from "../../services/couponService";
 import styles from "./Payment.module.css";
+import { LuSmartphone, LuCreditCard } from "react-icons/lu";
 
 import visaImg   from "../../assets/images/payments/visa.png";
 import masterImg from "../../assets/images/payments/mastercard.svg";
@@ -651,7 +652,7 @@ const Payment = () => {
 
                 {selectedMethod === "MOMO" && (
                   <div className={styles.momoMethodNote}>
-                    <span>📱</span>
+                    <span><LuSmartphone size={18}/></span>
                     <span>
                       You will be redirected to MoMo. On desktop, scan the QR or choose MoMo Wallet on the MoMo page.
                     </span>
@@ -660,7 +661,7 @@ const Payment = () => {
 
                 {selectedMethod === "PAYPAL" && (
                   <div className={styles.paypalMethodNote}>
-                    <span>💳</span>
+                    <span><LuCreditCard size={18}/></span>
                     <span>
                       You will be redirected to PayPal. After payment, PayPal will redirect you back to Vivudee.
                     </span>
@@ -798,7 +799,7 @@ const Payment = () => {
                 </div>
                 <div className={styles.qrPreview}>
                   <div className={styles.qrPreviewIcon}>
-                    {selectedMethod === "MOMO" ? "📲" : selectedMethod === "PAYPAL" ? "💳" : "📱"}
+                    {selectedMethod === "PAYPAL" ? <LuCreditCard size={32}/> : <LuSmartphone size={32}/>}
                   </div>
                   <p>
                     {selectedMethod === "MOMO"

@@ -47,6 +47,9 @@
   margin: 0 0 24px;
 }
 .backBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   background: none;
   border: 1.5px solid var(--card-border, #e5e7eb);
   border-radius: 8px;
@@ -220,6 +223,10 @@
   font-size: 18px;
 }
 .continueBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
   padding: 14px;
   background: var(--primary-color, #2563eb);
@@ -247,6 +254,10 @@
 }
 .skipBtn:hover { border-color: var(--text-secondary, #aaa); color: var(--text-dark, #333); }
 .secureNote {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
   text-align: center;
   font-size: 12px;
   color: var(--text-secondary, #aaa);

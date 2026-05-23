@@ -184,6 +184,10 @@
 .expandPayTotal .expandPayVal { font-size: 15px; color: #16a34a; }
 
 .expandGoBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
   background: var(--primary-color);
   color: #fff;
@@ -194,7 +198,6 @@
   font-weight: 700;
   cursor: pointer;
   transition: opacity 0.15s;
-  text-align: center;
 }
 .expandGoBtn:hover { opacity: 0.88; }
 

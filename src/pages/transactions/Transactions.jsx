@@ -9,7 +9,7 @@ import { getPaymentByCode } from "../../services/paymentService";
 import { getBookingByCode } from "../../services/bookingService";
 import planeIcon from "../../assets/icons/plane.png";
 import styles from "./Transactions.module.css";
-import { LuHourglass, LuCircleCheck, LuCircleX, LuCreditCard, LuPlaneTakeoff } from "react-icons/lu";
+import { LuHourglass, LuCircleCheck, LuCircleX, LuCreditCard, LuPlaneTakeoff, LuChevronRight } from "react-icons/lu";
 
 import momoImg   from "../../assets/images/payments/momo.png";
 import vietqrImg from "../../assets/images/payments/vietqr.png";
@@ -349,7 +349,7 @@ const Transactions = () => {
                               </div>
                               {txn.booking_code && (
                                 <button className={styles.expandGoBtn} onClick={() => navigate(`/bookings?code=${txn.booking_code}`)}>
-                                  {t("transactions.goToBooking")} →
+                                  {t("transactions.goToBooking")} <LuChevronRight size={14}/>
                                 </button>
                               )}
                             </div>

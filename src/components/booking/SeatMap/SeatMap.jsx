@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { getSeatMap } from "../../../services/flightService";
 import styles from "./SeatMap.module.css";
 import { useTranslation } from "react-i18next";
+import { LuChevronLeft } from "react-icons/lu";
 
 const AISLE_AFTER = { economy: 2, business: 1, first: 1 };
 
@@ -136,7 +137,7 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
   if (error || !seatData) return (
     <div className={styles.loadingWrap}>
       <p>{error || "Không có dữ liệu ghế"}</p>
-      <button className={styles.btnBack} onClick={onBack}>← Quay lại</button>
+      <button className={styles.btnBack} onClick={onBack}><LuChevronLeft size={18}/> Quay lại</button>
     </div>
   );
 
@@ -145,7 +146,7 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
 
       {/* ── Header ── */}
       <div className={styles.header}>
-        <button className={styles.btnBack} onClick={onBack}>←</button>
+        <button className={styles.btnBack} onClick={onBack}><LuChevronLeft size={18}/></button>
         <h3 className={styles.title}>{t("seatMap.title")}</h3>
         <span className={styles.classTag}>{seatClass}</span>
       </div>

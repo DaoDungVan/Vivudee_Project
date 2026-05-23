@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { LuCalendarDays } from "react-icons/lu";
+import { LuCalendarDays, LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import { getPriceCalendar } from "../../../services/flightService";
 import styles from "./PriceCalendar.module.css";
 
@@ -75,12 +75,12 @@ export default function PriceCalendar({ from, to, selectedDate, seatClass = "eco
           className={styles.navBtn}
           onClick={() => setOffset((o) => o - 1)}
           disabled={offset <= -30}
-        >←</button>
+        ><LuChevronLeft size={16}/></button>
         <button
           className={styles.navBtn}
           onClick={() => setOffset((o) => o + 1)}
           disabled={offset >= 30}
-        >→</button>
+        ><LuChevronRight size={16}/></button>
       </div>
 
       <div className={styles.grid}>

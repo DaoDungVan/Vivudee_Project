@@ -200,7 +200,7 @@
  "extraBaggage": "Hành lý thêm (mỗi người)",
  "noExtra": "Không thêm",
  "allPax": "tất cả hành khách",
- "continue": "Tiếp tục →",
+ "continue": "Tiếp tục",
  "total": "Tổng cộng",
  "adult": "Người lớn",
  "adults": "{{count}} Người lớn",
@@ -865,7 +865,7 @@
   "summaryFlight": "Vé bay ({{n}} người)",
   "summaryServices": "Dịch vụ đã chọn ({{count}})",
   "summaryTotal": "Tổng cộng",
-  "continueBtn": "Tiếp tục: Nhập thông tin →",
+  "continueBtn": "Tiếp tục: Nhập thông tin",
   "secure": "Thông tin được bảo mật"
  },
  "seatMap": {

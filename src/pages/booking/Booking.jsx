@@ -5,6 +5,7 @@ import Footer from "../../components/common/Footer/Footer";
 import { useTranslation } from "react-i18next";
 import { createBooking } from "../../services/bookingService";
 import styles from "./Booking.module.css";
+import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import planeIcon from "../../assets/icons/plane.png";
 import SeatMap from "../../components/booking/SeatMap/SeatMap";
 
@@ -237,7 +238,7 @@ const Booking = () => {
         <div className={styles.layout}>
           <div className={styles.left}>
             <div className={styles.pageTitleRow}>
-              <button className={styles.backBtn} onClick={() => navigate(-1)}>← {t("booking.back", "Quay lại")}</button>
+              <button className={styles.backBtn} onClick={() => navigate(-1)}><LuChevronLeft size={16}/> {t("booking.back", "Quay lại")}</button>
               <h2 className={styles.pageTitle}>{t("booking.title")}</h2>
             </div>
 
@@ -375,7 +376,7 @@ const Booking = () => {
                 <span className={styles.summaryTotal}>{fmt(totalPrice)}</span>
               </div>
               <button className={styles.submitBtn} onClick={handleGoToSeatMap} disabled={loading}>
-                {t("booking.continue") || "Tiếp tục →"}
+                {t("booking.continue") || "Tiếp tục"} <LuChevronRight size={16}/>
               </button>
               <p className={styles.secureNote}>{t("booking.secure")}</p>
             </div>
