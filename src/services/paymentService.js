@@ -7,17 +7,21 @@ const PAYMENT_API = axios.create({
 // Khởi tạo thanh toán — bước đầu tiên khi user bấm "Pay".
 // payload: { booking_id, email, phone, name, payment_method, voucher_code? }
 // Trả về thông tin giao dịch: payment_code, QR url (với BANK_QR) hoặc redirect url (với MoMo).
+// Backend mới trả về { success, data: {...} } — chuẩn hóa về { success, payment: {...} }
+// để Payment.jsx vẫn đọc được res.payment như cũ.
+const normalizePaymentResponse = (body) => ({
+  ...body,
+  payment: body.data ?? body.payment ?? null,
+});
+
 export const initPayment = async (payload) => {
   const res = await PAYMENT_API.post("/payments/init", payload);
-  return res.data; // { success: true, payment: { ... } }
+  return normalizePaymentResponse(res.data);
 };
 
-// Lấy trạng thái thanh toán theo mã.
-// Dùng để polling (kiểm tra mỗi vài giây xem đã thanh toán chưa).
-// Ví dụ: status = "PAID" → hiện màn hình thành công
 export const getPaymentByCode = async (paymentCode) => {
   const res = await PAYMENT_API.get(`/payments/${paymentCode}`);
-  return res.data;
+  return normalizePaymentResponse(res.data);
 };
 
 // Xác nhận thanh toán thủ công (dùng để test hoặc admin confirm).
