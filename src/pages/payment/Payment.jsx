@@ -6,6 +6,7 @@ import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import { initPayment, getPaymentByCode, cancelPayment, buildVietQRUrl } from "../../services/paymentService";
 import { getAvailableCoupons, getCouponErrorMessage, validateCoupon } from "../../services/couponService";
+import { getBookingAncillaries } from "../../services/ancillaryService";
 import styles from "./Payment.module.css";
 import { LuSmartphone, LuCreditCard } from "react-icons/lu";
 
@@ -85,6 +86,8 @@ const Payment = () => {
   const [couponApiError, setCouponApiError] = useState("");
   const [showCouponList, setShowCouponList] = useState(true);
 
+  const [ancillaryData, setAncillaryData]   = useState(null);
+
   const [paymentData, setPaymentData]       = useState(null);
   const [initLoading, setInitLoading]       = useState(false);
   const [initError, setInitError]           = useState("");
@@ -109,6 +112,16 @@ const Payment = () => {
   const finalAmount =
     paymentData?.payment?.final_amount ??
     Math.max((totalPrice || 0) - estimatedDiscountAmount, 0);
+
+  // ── Fetch ancillary line items ───────────────────────────
+  useEffect(() => {
+    if (!bookingCode) return;
+    let active = true;
+    getBookingAncillaries(bookingCode)
+      .then((res) => { if (active) setAncillaryData(res.data?.data || res.data || null); })
+      .catch(() => {});
+    return () => { active = false; };
+  }, [bookingCode]);
 
   // ── Held seat countdown ──────────────────────────────────
   useEffect(() => {
@@ -516,6 +529,29 @@ const Payment = () => {
                   <span>{fmt(bookingData.baggage.extra_baggage_total)}</span>
                 </div>
               )}
+
+              {(() => {
+                if (!ancillaryData?.by_passenger) return null;
+                // Flatten all services, group by type, sum total_price
+                const totals = {};
+                for (const pax of ancillaryData.by_passenger) {
+                  for (const svc of pax.services || []) {
+                    if (svc.status === "cancelled") continue;
+                    if (!totals[svc.service_type]) {
+                      totals[svc.service_type] = { name: svc.service_name, amount: 0 };
+                    }
+                    totals[svc.service_type].amount += Number(svc.total_price || 0);
+                  }
+                }
+                return Object.entries(totals).map(([type, { name, amount }]) =>
+                  amount > 0 ? (
+                    <div key={type} className={styles.invoiceRowSmall}>
+                      <span>{name}</span>
+                      <span>{fmt(amount)}</span>
+                    </div>
+                  ) : null
+                );
+              })()}
 
               {couponApplied && estimatedDiscountAmount > 0 && (
                 <div className={`${styles.invoiceRowSmall} ${styles.discountRow}`}>
