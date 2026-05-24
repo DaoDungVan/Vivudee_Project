@@ -5,7 +5,7 @@ import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import { useTranslation } from "react-i18next";
 import { getBookingByCode, getMyBookings, cancelBooking } from "../../services/bookingService";
-import { requestRefund } from "../../services/refundService";
+import { requestRefund, requestGuestRefund } from "../../services/refundService";
 import styles from "./Bookings.module.css";
 
 const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n) + " VND";
@@ -74,12 +74,13 @@ const Bookings = () => {
   const [trackerAlert,  setTrackerAlert]  = useState("");
 
   // Refund modal state
-  const [refundTarget,  setRefundTarget]  = useState(null);
-  const [refundType,    setRefundType]    = useState("full");
-  const [refundReason,  setRefundReason]  = useState("");
-  const [refundLoading, setRefundLoading] = useState(false);
-  const [refundError,   setRefundError]   = useState("");
-  const [refundSuccess, setRefundSuccess] = useState("");
+  const [refundTarget,      setRefundTarget]      = useState(null);
+  const [refundType,        setRefundType]        = useState("full");
+  const [refundReason,      setRefundReason]      = useState("");
+  const [guestRefundEmail,  setGuestRefundEmail]  = useState("");
+  const [refundLoading,     setRefundLoading]     = useState(false);
+  const [refundError,       setRefundError]       = useState("");
+  const [refundSuccess,     setRefundSuccess]     = useState("");
 
   const getStatusColor = (status) => {
     const map = {
@@ -173,6 +174,7 @@ const Bookings = () => {
     setRefundTarget(b);
     setRefundType("full");
     setRefundReason("");
+    setGuestRefundEmail("");
     setRefundError("");
     setRefundSuccess("");
   };
@@ -182,6 +184,10 @@ const Bookings = () => {
   const handleRefundSubmit = async () => {
     if (refundReason.trim().length < 10) {
       setRefundError(t("bookings.refundReasonError"));
+      return;
+    }
+    if (!isLoggedIn && !guestRefundEmail.trim()) {
+      setRefundError(t("bookings.refundEmailRequired", "Vui lòng nhập email xác thực"));
       return;
     }
     setRefundLoading(true);
@@ -198,14 +204,14 @@ const Bookings = () => {
         requestedItems = { legs: ["return"] };
       }
 
-      const res = await requestRefund(refundTarget.booking_code, {
-        refund_type:     backendType,
-        reason:          refundReason.trim(),
-        requested_items: requestedItems,
-      });
+      const payload = { refund_type: backendType, reason: refundReason.trim(), requested_items: requestedItems };
+      const res = isLoggedIn
+        ? await requestRefund(refundTarget.booking_code, payload)
+        : await requestGuestRefund(refundTarget.booking_code, guestRefundEmail.trim(), payload);
+
       const d = res.data?.data || res.data;
       setRefundSuccess(d?.refund_code || "Đã gửi yêu cầu thành công!");
-      fetchMyBookings();
+      if (isLoggedIn) fetchMyBookings();
     } catch (err) {
       setRefundError(err?.response?.data?.error || err?.response?.data?.message || "Gửi yêu cầu thất bại.");
     } finally {
@@ -540,6 +546,20 @@ const Bookings = () => {
               </div>
             ) : (
               <>
+                {!isLoggedIn && (
+                  <>
+                    <label className={styles.refundLabel}>{t("bookings.refundEmailLabel", "Email xác thực")} <span style={{color:"#ef4444"}}>*</span></label>
+                    <input
+                      type="email"
+                      className={styles.refundTextarea}
+                      style={{ height: "auto", padding: "10px 12px" }}
+                      placeholder={t("bookings.refundEmailPlaceholder", "Nhập email đã dùng khi đặt vé")}
+                      value={guestRefundEmail}
+                      onChange={(e) => { setGuestRefundEmail(e.target.value); setRefundError(""); }}
+                    />
+                  </>
+                )}
+
                 <label className={styles.refundLabel}>{t("bookings.refundTypeLabel")}</label>
                 {isRoundTrip(refundTarget) ? (
                   <select className={styles.refundSelect} value={refundType} onChange={(e) => setRefundType(e.target.value)}>
