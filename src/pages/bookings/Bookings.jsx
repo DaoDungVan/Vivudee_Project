@@ -525,7 +525,7 @@ const Bookings = () => {
                     <span className={styles.policyAmt}>
                       ≈ {new Intl.NumberFormat("vi-VN").format(
                         Math.round(
-                          (Number(refundTarget.final_amount) || Number(refundTarget.price?.final_amount) || Number(refundTarget.total_price) || Number(refundTarget.price?.total_price) || 0)
+                          (Number(refundTarget.price?.grand_total) || Number(refundTarget.final_amount) || Number(refundTarget.price?.final_amount) || Number(refundTarget.total_price) || Number(refundTarget.price?.total_price) || 0)
                           * (["partial_leg_outbound","partial_leg_return"].includes(refundType) ? 0.5 : 1)
                           * policy.pct / 100
                         )
