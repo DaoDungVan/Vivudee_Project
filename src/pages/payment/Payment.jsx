@@ -6,6 +6,7 @@ import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import { initPayment, getPaymentByCode, cancelPayment, buildVietQRUrl } from "../../services/paymentService";
 import { getAvailableCoupons, getCouponErrorMessage, validateCoupon } from "../../services/couponService";
+import { getBookingAncillaries } from "../../services/ancillaryService";
 import styles from "./Payment.module.css";
 import { LuSmartphone, LuCreditCard } from "react-icons/lu";
 
@@ -85,6 +86,7 @@ const Payment = () => {
   const [couponApiError, setCouponApiError] = useState("");
   const [showCouponList, setShowCouponList] = useState(true);
 
+  const [fetchedAncillaries, setFetchedAncillaries] = useState([]);
   const [paymentData, setPaymentData]       = useState(null);
   const [initLoading, setInitLoading]       = useState(false);
   const [initError, setInitError]           = useState("");
@@ -97,7 +99,7 @@ const Payment = () => {
   const [paid, setPaid]                     = useState(false);
 
   // ── Guard ────────────────────────────────────────────────
-  const { bookingData, selectedFlights, passengers, contact, totalPrice, ancillarySelections } = state || {};
+  const { bookingData, selectedFlights, passengers, contact, totalPrice } = state || {};
   const bookingId   = bookingData?.booking_id || bookingData?.id;
   const bookingCode = bookingData?.booking_code;
   const heldUntil   = bookingData?.held_until;
@@ -109,6 +111,26 @@ const Payment = () => {
   const finalAmount =
     paymentData?.payment?.final_amount ??
     Math.max((totalPrice || 0) - estimatedDiscountAmount, 0);
+
+  // ── Fetch ancillaries từ API khi bookingData không có ancillary_items ───────
+  useEffect(() => {
+    if (!bookingCode || (bookingData?.ancillary_items?.length > 0)) return;
+    let active = true;
+    getBookingAncillaries(bookingCode)
+      .then((res) => {
+        if (!active) return;
+        const data = res.data?.data || res.data;
+        const list = [];
+        for (const pax of data?.by_passenger || []) {
+          for (const svc of pax.services || []) {
+            list.push({ name: svc.service_name, subtotal: Number(svc.total_price || 0) });
+          }
+        }
+        setFetchedAncillaries(list);
+      })
+      .catch(() => {});
+    return () => { active = false; };
+  }, [bookingCode, bookingData]);
 
   // ── Held seat countdown ──────────────────────────────────
   useEffect(() => {
@@ -517,7 +539,7 @@ const Payment = () => {
                 </div>
               )}
 
-              {(ancillarySelections || []).map((svc, i) => (
+              {(bookingData?.ancillary_items?.length > 0 ? bookingData.ancillary_items : fetchedAncillaries).map((svc, i) => (
                 <div key={i} className={styles.invoiceRowSmall}>
                   <span>{svc.name}</span>
                   <span>{fmt(svc.subtotal ?? svc.price ?? 0)}</span>

@@ -140,9 +140,15 @@ const Bookings = () => {
   const handleContinuePayment = (data) => {
     navigate("/payment", {
       state: {
-        bookingData: { booking_id: data.booking_id || data.id, booking_code: data.booking_code, held_until: null },
+        bookingData: {
+          booking_id:    data.booking_id || data.id,
+          booking_code:  data.booking_code,
+          held_until:    data.held_until || null,
+          baggage:       data.baggage,
+          ancillary_items: [],
+        },
         contact:    data.contact,
-        totalPrice: data.price?.final_amount ?? data.price?.total_price ?? 0,
+        totalPrice: data.price?.grand_total ?? data.price?.total_price ?? 0,
         passengers: data.passengers?.list?.filter((p) => p.flight_type === "outbound")?.map((p) => ({ fullName: p.full_name })) || [],
       },
     });

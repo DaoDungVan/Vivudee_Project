@@ -82,8 +82,8 @@ export default function SeatMapPage() {
       };
 
       const res = await createBooking(payload);
-      const bookingData = res.data?.data;
-      navigate("/payment", { state: { bookingData, selectedFlights, passengers: paxList, contact, totalPrice: newTotal, ancillarySelections, ancillaryTotal } });
+      const bookingData = { ...res.data?.data, ancillary_items: ancillarySelections || [] };
+      navigate("/payment", { state: { bookingData, selectedFlights, passengers: paxList, contact, totalPrice: newTotal } });
     } catch (err) {
       setError(err.response?.data?.error || "Đặt chỗ thất bại");
       setLoading(false);

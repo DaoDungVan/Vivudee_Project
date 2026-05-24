@@ -190,7 +190,7 @@ const Booking = () => {
       };
 
       const res = await createBooking(payload);
-      const bookingData = res.data?.data;
+      const bookingData = { ...res.data?.data, ancillary_items: ancillarySelections || [] };
 
       navigate("/payment", {
         state: { bookingData, selectedFlights, passengers: paxList, contact, totalPrice },
