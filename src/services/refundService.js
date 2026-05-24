@@ -3,6 +3,9 @@ import API from "./axiosInstance";
 export const requestRefund  = (bookingCode, payload) =>
   API.post(`/bookings/${bookingCode}/refund`, payload);
 
+export const requestGuestRefund = (bookingCode, guestEmail, payload) =>
+  API.post("/refunds/guest", { bookingCode, guestEmail, ...payload });
+
 export const getMyRefunds   = (page = 1, limit = 10) =>
   API.get("/refunds/my", { params: { page, limit } });
 
