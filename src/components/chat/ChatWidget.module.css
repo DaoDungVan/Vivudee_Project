@@ -416,6 +416,33 @@
   justify-content: flex-end;
 }
 
+/* Wrapper không có bubble — dùng cho ảnh thuần và emoji thuần */
+.messageNaked {
+  width: fit-content;
+  max-width: calc(100% - 16px);
+  display: flex;
+  flex-direction: column;
+}
+
+.messageMine .messageNaked {
+  align-items: flex-end;
+}
+
+/* Emoji gửi thuần — không bubble, font lớn */
+.emojiMessage {
+  font-size: 34px;
+  line-height: 1.25;
+  display: block;
+}
+
+/* Bubble text đính kèm dưới ảnh (không có meta bên trong) */
+.bubbleAttached {
+  margin-top: 5px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  padding-top: 8px;
+}
+
 .messageBubble {
   position: relative;
   width: fit-content;

@@ -98,6 +98,12 @@ const getStoredUser = () => {
   }
 };
 
+const isEmojiOnlyContent = (text) => {
+  const t = String(text || "").trim();
+  if (!t || t.length > 10) return false;
+  return /^[\p{Emoji_Presentation}\p{Extended_Pictographic}️‍︎\s]+$/u.test(t);
+};
+
 const MESSAGE_COLLAPSE_CHAR_LIMIT = 280;
 const MESSAGE_COLLAPSE_LINE_LIMIT = 4;
 const MIN_PANEL_WIDTH = 320;
@@ -1029,20 +1035,71 @@ function ChatWidget() {
                       ? t("chat.senderAi")
                       : message.sender_name || t("chat.senderAdmin");
 
-                  return (
-                    <div
-                      key={message.id}
-                      className={`${styles.messageRow} ${isMine ? styles.messageMine : ""}`}
-                    >
-                      <div
-                        className={`${styles.messageBubble} ${
-                          isMine ? styles.bubbleMine : isAssistant ? styles.bubbleAi : styles.bubbleAdmin
-                        } ${message.pending ? styles.bubblePending : ""}`}
-                      >
-                        <div className={styles.messageMeta}>
-                          <span>{senderName}</span>
-                          <span>{formatMessageTime(message.created_at)}</span>
+                  const msgAttachments = getMessageAttachments(message);
+                  const hasText = !!String(message.content || "").trim();
+                  const hasOnlyVisual =
+                    msgAttachments.length > 0 && msgAttachments.every((a) => isVisualAttachment(a));
+                  const emojiOnly = !msgAttachments.length && isEmojiOnlyContent(message.content);
+
+                  const rowClass = `${styles.messageRow} ${isMine ? styles.messageMine : ""}`;
+                  const pendingClass = message.pending ? styles.bubblePending : "";
+                  const bubbleColorClass = isMine
+                    ? styles.bubbleMine
+                    : isAssistant
+                    ? styles.bubbleAi
+                    : styles.bubbleAdmin;
+
+                  const metaEl = (
+                    <div className={styles.messageMeta}>
+                      <span>{senderName}</span>
+                      <span>{formatMessageTime(message.created_at)}</span>
+                    </div>
+                  );
+
+                  // Ảnh thuần (không chữ, không file) → không bubble
+                  if (!hasText && hasOnlyVisual) {
+                    return (
+                      <div key={message.id} className={rowClass}>
+                        <div className={`${styles.messageNaked} ${pendingClass}`}>
+                          {metaEl}
+                          <MessageAttachments message={message} t={t} onMediaLoad={handleMediaLoad} />
                         </div>
+                      </div>
+                    );
+                  }
+
+                  // Emoji thuần → không bubble, font lớn
+                  if (emojiOnly) {
+                    return (
+                      <div key={message.id} className={rowClass}>
+                        <div className={`${styles.messageNaked} ${pendingClass}`}>
+                          {metaEl}
+                          <span className={styles.emojiMessage}>{message.content}</span>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Chữ + ảnh → ảnh không bubble, chữ trong bubble riêng
+                  if (hasText && hasOnlyVisual) {
+                    return (
+                      <div key={message.id} className={rowClass}>
+                        <div className={`${styles.messageNaked} ${pendingClass}`}>
+                          {metaEl}
+                          <MessageAttachments message={message} t={t} onMediaLoad={handleMediaLoad} />
+                          <div className={`${styles.messageBubble} ${bubbleColorClass} ${styles.bubbleAttached}`}>
+                            <ExpandableMessageText content={message.content} t={t} />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Mặc định: bubble đầy đủ
+                  return (
+                    <div key={message.id} className={rowClass}>
+                      <div className={`${styles.messageBubble} ${bubbleColorClass} ${pendingClass}`}>
+                        {metaEl}
                         <MessageAttachments message={message} t={t} onMediaLoad={handleMediaLoad} />
                         <ExpandableMessageText content={message.content} t={t} />
                       </div>
