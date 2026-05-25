@@ -84,12 +84,14 @@ const Bookings = () => {
 
   const getStatusColor = (status) => {
     const map = {
-      pending:   { bg: "#fff8e1", color: "#f39c12", label: t("bookings.status_pending") },
-      confirmed: { bg: "#e8f5e9", color: "#27ae60", label: t("bookings.status_confirmed") },
-      cancelled: { bg: "#fce4ec", color: "#e74c3c", label: t("bookings.status_cancelled") },
-      expired:   { bg: "#f5f5f5", color: "#999",    label: t("bookings.status_expired") },
+      pending:        { bg: "#fff8e1", color: "#f39c12", label: t("bookings.status_pending") },
+      confirmed:      { bg: "#e8f5e9", color: "#27ae60", label: t("bookings.status_confirmed") },
+      cancelled:      { bg: "#fce4ec", color: "#e74c3c", label: t("bookings.status_cancelled") },
+      expired:        { bg: "#f5f5f5", color: "#999",    label: t("bookings.status_expired") },
+      refund_pending: { bg: "#fff3e0", color: "#e67e22", label: t("bookings.refundPendingBadge") },
+      refunded:       { bg: "#e8f5e9", color: "#27ae60", label: t("bookings.refundedBadge") },
     };
-    return map[status?.toLowerCase()] || map.pending;
+    return map[status?.toLowerCase()] || { bg: "#f5f5f5", color: "#999", label: status || "—" };
   };
 
   const handleLookup = useCallback(async (code) => {
