@@ -878,6 +878,25 @@ function ChatWidget() {
     }
   };
 
+  const handleComposerPaste = useCallback(async (event) => {
+    const items = Array.from(event.clipboardData?.items || []);
+    const imageItems = items.filter((item) => item.kind === "file" && item.type.startsWith("image/"));
+    if (!imageItems.length) return;
+
+    event.preventDefault();
+    const files = imageItems.map((item) => item.getAsFile()).filter(Boolean);
+    if (!files.length) return;
+
+    try {
+      if (mode !== "support") openAdminChat();
+      const nextAttachments = await createAttachmentsFromFiles(files, attachments.length);
+      setAttachments((previous) => [...previous, ...nextAttachments]);
+      setError("");
+    } catch (pasteError) {
+      setError(pasteError?.message || t("chat.errSend"));
+    }
+  }, [mode, attachments.length, openAdminChat, t]);
+
   const handleMediaLoad = useCallback(() => {
     const element = messagesRef.current;
     if (!element) {
@@ -1137,6 +1156,7 @@ function ChatWidget() {
                 rows={1}
                 onChange={(event) => setDraft(event.target.value)}
                 onKeyDown={handleComposerKeyDown}
+                onPaste={handleComposerPaste}
                 placeholder={currentPlaceholder}
               />
 

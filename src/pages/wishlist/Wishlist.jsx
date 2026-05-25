@@ -51,12 +51,17 @@ export default function Wishlist() {
   };
 
   const handleBook = (item) => {
-    navigate("/flights", {
-      state: {
-        from: item.flight?.departure?.code || item.dep_code,
-        to:   item.flight?.arrival?.code   || item.arr_code,
-      },
-    });
+    const flight     = item.flight || item;
+    const from       = flight?.departure?.code || item.dep_code || "";
+    const to         = flight?.arrival?.code   || item.arr_code || "";
+    const seatClass  = item.seat_class || "economy";
+    const depTime    = flight?.departure_time;
+    const dateStr    = depTime
+      ? new Date(depTime).toISOString().slice(0, 10)
+      : new Date().toISOString().slice(0, 10);
+
+    const params = new URLSearchParams({ from, to, departureDate: dateStr, seatClass, adults: "1" });
+    navigate(`/flights?${params.toString()}`);
   };
 
   return (
