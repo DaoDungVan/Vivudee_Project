@@ -537,6 +537,20 @@
   color: #4ade80;
 }
 
+/* ── Secondary action row: Cancel + Refund side by side ── */
+.cardActionsRow {
+  display: flex;
+  gap: 6px;
+}
+
+.cardActionsRow .cancelBtn,
+.cardActionsRow .refundBtn {
+  flex: 1;
+  width: auto;
+  padding: 7px 6px;
+  font-size: 12px;
+}
+
 /* ── Refund ── */
 .refundBtn {
   width: 100%;

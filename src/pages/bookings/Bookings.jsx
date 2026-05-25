@@ -298,32 +298,32 @@ const Bookings = () => {
         <p className={styles.airborneNote}>{t("bookings.airborneNote")}</p>
       )}
 
-      {showCancel && b.status === "confirmed" && (
-        confirmCancel === b.booking_code ? (
-          <div className={styles.confirmRow}>
-            <span className={styles.confirmText}>{t("bookings.confirmCancel")}</span>
-            <button className={styles.confirmYes} disabled={cancelLoading === b.booking_code}
-              onClick={(e) => { e.stopPropagation(); handleCancel(b.booking_code); }}>
-              {cancelLoading === b.booking_code ? t("bookings.cancelling") : t("bookings.confirmYes")}
+      {showCancel && (b.status === "confirmed" || canRequestRefund(b)) && (
+        <div className={styles.cardActionsRow}>
+          {b.status === "confirmed" && (
+            confirmCancel === b.booking_code ? (
+              <div className={styles.confirmRow} style={{ flex: 1 }}>
+                <span className={styles.confirmText}>{t("bookings.confirmCancel")}</span>
+                <button className={styles.confirmYes} disabled={cancelLoading === b.booking_code}
+                  onClick={(e) => { e.stopPropagation(); handleCancel(b.booking_code); }}>
+                  {cancelLoading === b.booking_code ? t("bookings.cancelling") : t("bookings.confirmYes")}
+                </button>
+                <button className={styles.confirmNo} onClick={(e) => { e.stopPropagation(); setConfirmCancel(null); }}>
+                  {t("bookings.confirmNo")}
+                </button>
+              </div>
+            ) : (
+              <button className={styles.cancelBtn} onClick={(e) => { e.stopPropagation(); setConfirmCancel(b.booking_code); }}>
+                {t("bookings.cancelBtn")}
+              </button>
+            )
+          )}
+          {canRequestRefund(b) && (
+            <button className={styles.refundBtn} onClick={(e) => { e.stopPropagation(); openRefundModal(b); }}>
+              {t("bookings.refundBtn")}
             </button>
-            <button className={styles.confirmNo} onClick={(e) => { e.stopPropagation(); setConfirmCancel(null); }}>
-              {t("bookings.confirmNo")}
-            </button>
-          </div>
-        ) : (
-          <button className={styles.cancelBtn} onClick={(e) => { e.stopPropagation(); setConfirmCancel(b.booking_code); }}>
-            {t("bookings.cancelBtn")}
-          </button>
-        )
-      )}
-
-      {showCancel && canRequestRefund(b) && (
-        <button
-          className={styles.refundBtn}
-          onClick={(e) => { e.stopPropagation(); openRefundModal(b); }}
-        >
-          {t("bookings.refundBtn")}
-        </button>
+          )}
+        </div>
       )}
 
       {showCancel && ["refund_pending", "refunded"].includes(b.status) && (
