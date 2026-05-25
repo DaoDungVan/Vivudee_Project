@@ -84,14 +84,14 @@ const Bookings = () => {
 
   const getStatusColor = (status) => {
     const map = {
-      pending:        { bg: "#fff8e1", color: "#f39c12", label: t("bookings.status_pending") },
-      confirmed:      { bg: "#e8f5e9", color: "#27ae60", label: t("bookings.status_confirmed") },
-      cancelled:      { bg: "#fce4ec", color: "#e74c3c", label: t("bookings.status_cancelled") },
-      expired:        { bg: "#f5f5f5", color: "#999",    label: t("bookings.status_expired") },
-      refund_pending: { bg: "#fff3e0", color: "#7a15c8", label: t("bookings.refundPendingBadge") },
-      refunded:       { bg: "#e8f5e9", color: "#0f16e0", label: t("bookings.refundedBadge") },
+      pending:        { bg: "#fff8e1", color: "#d97706", label: t("bookings.status_pending") },   // amber
+      confirmed:      { bg: "#dcfce7", color: "#16a34a", label: t("bookings.status_confirmed") }, // green
+      cancelled:      { bg: "#fee2e2", color: "#dc2626", label: t("bookings.status_cancelled") }, // red
+      expired:        { bg: "#f1f5f9", color: "#64748b", label: t("bookings.status_expired") },   // slate
+      refund_pending: { bg: "#f3e8ff", color: "#7c3aed", label: t("bookings.refundPendingBadge") }, // violet
+      refunded:       { bg: "#e0f2fe", color: "#0369a1", label: t("bookings.refundedBadge") },      // sky blue
     };
-    return map[status?.toLowerCase()] || { bg: "#f5f5f5", color: "#999", label: status || "—" };
+    return map[status?.toLowerCase()] || { bg: "#f1f5f9", color: "#64748b", label: status || "—" };
   };
 
   const handleLookup = useCallback(async (code) => {
