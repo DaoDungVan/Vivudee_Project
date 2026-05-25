@@ -541,6 +541,7 @@
 .cardActionsRow {
   display: flex;
   gap: 6px;
+  flex-direction: row-reverse;
 }
 
 .cardActionsRow .cancelBtn,
