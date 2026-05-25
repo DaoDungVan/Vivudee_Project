@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { LuPlaneTakeoff, LuMail, LuPhone } from "react-icons/lu";
 import { useLocation, useNavigate } from "react-router-dom";
 import NavBar from "../../components/common/NavBar/Navbar";
@@ -122,6 +122,26 @@ const Bookings = () => {
       handleLookup(code.toUpperCase());
     }
   }, [location.search, handleLookup]);
+
+  const pollCodeRef = useRef(null);
+  useEffect(() => {
+    if (!lookupResult) return;
+    const code = lookupResult.booking_code;
+    pollCodeRef.current = code;
+    const id = setInterval(async () => {
+      try {
+        const res = await getBookingByCode(code);
+        const fresh = res.data?.data;
+        if (fresh && pollCodeRef.current === code) {
+          setLookupResult(prev => {
+            if (!prev || prev.status === fresh.status) return prev;
+            return { ...prev, status: fresh.status };
+          });
+        }
+      } catch { /* silent */ }
+    }, 12000);
+    return () => clearInterval(id);
+  }, [lookupResult?.booking_code]);
 
   useEffect(() => {
     if (tab === "my" && isLoggedIn) fetchMyBookings();
@@ -375,7 +395,7 @@ const Bookings = () => {
       <div className={styles.detailPrice}>
         <span>{t("bookings.totalPrice")}</span>
         <div className={styles.detailPriceRight}>
-          {data.price?.discount_amount > 0 && <span className={styles.detailOriginalPrice}>{fmt(data.price.total_price)}</span>}
+          {data.price?.discount_amount > 0 && <span className={styles.detailOriginalPrice}>{fmt(data.price.grand_total ?? data.price.total_price)}</span>}
           <span className={styles.detailPriceValue}>{fmt(data.price?.final_amount ?? data.price?.total_price ?? 0)}</span>
           {data.price?.discount_amount > 0 && <span className={styles.detailDiscountBadge}>−{fmt(data.price.discount_amount)}</span>}
         </div>
