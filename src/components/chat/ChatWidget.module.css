@@ -418,14 +418,19 @@
 
 /* Wrapper không có bubble — dùng cho ảnh thuần và emoji thuần */
 .messageNaked {
-  width: fit-content;
   max-width: calc(100% - 16px);
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
 }
 
 .messageMine .messageNaked {
   align-items: flex-end;
+}
+
+.messageNaked .imageAttachment {
+  max-width: 240px;
+  width: 100%;
 }
 
 /* Emoji gửi thuần — không bubble, font lớn */
