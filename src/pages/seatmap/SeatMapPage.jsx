@@ -23,10 +23,11 @@ export default function SeatMapPage() {
     first: t("seatMap.first"),
   };
 
-  const [loading, setLoading]       = useState(false);
-  const [error, setError]           = useState("");
-  const [allClassPrices, setAllClassPrices] = useState({});
-  const [panelOpen, setPanelOpen]   = useState(false);
+  const [loading, setLoading]         = useState(false);
+  const [error, setError]             = useState("");
+  const [allClassPrices, setAllClassPrices]       = useState({});
+  const [allClassRowCounts, setAllClassRowCounts] = useState({});
+  const [panelOpen, setPanelOpen]     = useState(false);
 
   if (!state?.bookingPayload) { navigate("/flights"); return null; }
 
@@ -41,15 +42,24 @@ export default function SeatMapPage() {
   useEffect(() => {
     if (!flight?.flight_id) return;
     const prices = {};
+    const rowCounts = {};
     Promise.allSettled(
       CLASS_ORDER.map(cls =>
         getSeatMap(flight.flight_id, cls).then(res => {
           const map = res.data?.data?.seat_map?.find(m => m.class === cls);
           if (map?.base_price) prices[cls] = Number(map.base_price);
+          if (map?.rows?.length) rowCounts[cls] = map.rows.length;
         })
       )
-    ).then(() => setAllClassPrices(prices));
+    ).then(() => {
+      setAllClassPrices(prices);
+      setAllClassRowCounts(rowCounts);
+    });
   }, [flight?.flight_id]);
+
+  const rowOffset = CLASS_ORDER
+    .slice(0, CLASS_ORDER.indexOf(activeClass))
+    .reduce((sum, cls) => sum + (allClassRowCounts[cls] || 0), 0);
 
   const basePrice      = allClassPrices[initClass]
     || (flight?.seat?.base_price ? Number(flight.seat.base_price) : 0)
@@ -103,6 +113,7 @@ export default function SeatMapPage() {
             passengers={paxList.map((p, i) => ({ id: i, fullName: p.fullName || `Hành khách ${i + 1}` }))}
             onConfirm={handleConfirm}
             onBack={() => navigate(-1)}
+            rowOffset={rowOffset}
           />
         </div>
 

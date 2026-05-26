@@ -34,6 +34,63 @@ function buildColOffsets(cols, aisleIdx) {
   return map;
 }
 
+/* ── Display seat number with row offset (e.g. "1A" + 20 → "21A") ── */
+const displaySeat = (seatNum, offset) => {
+  if (!offset || !seatNum) return seatNum;
+  const num = parseInt(seatNum, 10);
+  if (isNaN(num)) return seatNum;
+  return `${num + offset}${seatNum.replace(/^\d+/, "")}`;
+};
+
+/* ── Feature classification ── */
+const NEG_FEAT_RX = [
+  /^no /i, /restricted/i, /narrower/i, /close to/i,
+  /wing from/i, /tray table in/i, /chilly/i, /backache/i,
+  /draft/i, /galley/i, /lavatory/i, /noise/i,
+];
+const isPosFeat = f => !NEG_FEAT_RX.some(rx => rx.test(f));
+
+/* ── Seat spec SVG icons (side-profile, currentColor + --spec-arrow var) ── */
+const PitchIcon = () => (
+  <svg width="44" height="26" viewBox="0 0 44 26" fill="none" aria-hidden="true">
+    <rect x="0"    y="4"  width="5"   height="13" rx="1.5" fill="currentColor"/>
+    <rect x="0"    y="12" width="13"  height="5"  rx="1.5" fill="currentColor"/>
+    <rect x="1"    y="16" width="2.5" height="6"  rx="1"   fill="currentColor"/>
+    <rect x="9.5"  y="16" width="2.5" height="6"  rx="1"   fill="currentColor"/>
+    <line x1="15" y1="14" x2="29" y2="14" stroke="var(--spec-arrow)" strokeWidth="1.5" strokeDasharray="2.5 2"/>
+    <polygon points="16,11.5 13.5,14 16,16.5" fill="var(--spec-arrow)"/>
+    <polygon points="28,11.5 30.5,14 28,16.5"  fill="var(--spec-arrow)"/>
+    <rect x="31"   y="4"  width="5"   height="13" rx="1.5" fill="currentColor"/>
+    <rect x="31"   y="12" width="13"  height="5"  rx="1.5" fill="currentColor"/>
+    <rect x="32"   y="16" width="2.5" height="6"  rx="1"   fill="currentColor"/>
+    <rect x="40.5" y="16" width="2.5" height="6"  rx="1"   fill="currentColor"/>
+  </svg>
+);
+const WidthIcon = () => (
+  <svg width="34" height="26" viewBox="0 0 34 26" fill="none" aria-hidden="true">
+    <rect x="10"   y="4"  width="5"   height="13" rx="1.5" fill="currentColor"/>
+    <rect x="10"   y="12" width="13"  height="5"  rx="1.5" fill="currentColor"/>
+    <rect x="11"   y="16" width="2.5" height="6"  rx="1"   fill="currentColor"/>
+    <rect x="19.5" y="16" width="2.5" height="6"  rx="1"   fill="currentColor"/>
+    <line x1="1"  y1="14" x2="8"  y2="14" stroke="var(--spec-arrow)" strokeWidth="1.5"/>
+    <polygon points="2.5,11.5 0,14 2.5,16.5"      fill="var(--spec-arrow)"/>
+    <line x1="26" y1="14" x2="33" y2="14" stroke="var(--spec-arrow)" strokeWidth="1.5"/>
+    <polygon points="31.5,11.5 34,14 31.5,16.5"   fill="var(--spec-arrow)"/>
+  </svg>
+);
+const ReclineIcon = () => (
+  <svg width="34" height="26" viewBox="0 0 34 26" fill="none" aria-hidden="true">
+    <rect x="6"    y="14" width="15"  height="5"  rx="1.5" fill="currentColor"/>
+    <rect x="7"    y="18" width="2.5" height="6"  rx="1"   fill="currentColor"/>
+    <rect x="17.5" y="18" width="2.5" height="6"  rx="1"   fill="currentColor"/>
+    <rect x="6"    y="3"  width="5"   height="13" rx="1.5" fill="currentColor"
+      transform="rotate(-15 6 16)"/>
+    <path d="M22 13 Q27 10 27 5" stroke="var(--spec-arrow)" strokeWidth="1.5"
+      fill="none" strokeLinecap="round"/>
+    <polygon points="24.5,4.5 27,4 26.5,7" fill="var(--spec-arrow)"/>
+  </svg>
+);
+
 /* ── Adjacency helpers ─────────────────────────────────────────────────── */
 const colsAdjacent = (c1, c2, cols) => Math.abs(cols.indexOf(c1) - cols.indexOf(c2)) === 1;
 
@@ -51,7 +108,7 @@ const isAdjacentToAny = (seatNum, chosen, cols) => {
 /* ══════════════════════════════════════════════════════════════════════════
    Component
 ══════════════════════════════════════════════════════════════════════════ */
-export default function SeatMap({ flightId, seatClass = "economy", passengers = [], onConfirm, onBack }) {
+export default function SeatMap({ flightId, seatClass = "economy", passengers = [], onConfirm, onBack, rowOffset = 0 }) {
   const { t } = useTranslation();
   const [loading, setLoading]       = useState(true);
   const [seatData, setSeatData]     = useState(null);
@@ -159,7 +216,7 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
             onClick={e => { e.stopPropagation(); setActivePassenger(p.id); }}>
             <span className={styles.paxIdx}>{i+1}</span>
             {p.fullName || `Hành khách ${i+1}`}
-            {selections[p.id] && <span className={styles.paxSeat}>{selections[p.id]}</span>}
+            {selections[p.id] && <span className={styles.paxSeat}>{displaySeat(selections[p.id], rowOffset)}</span>}
           </button>
         ))}
       </div>
@@ -264,8 +321,8 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
               const rowY = ROW_Y0 + idx * ROW_DY;
               return (
                 <div key={row.row}>
-                  <span className={styles.rowNumL} style={{ top: rowY }}>{row.row}</span>
-                  <span className={styles.rowNumR} style={{ top: rowY }}>{row.row}</span>
+                  <span className={styles.rowNumL} style={{ top: rowY }}>{row.row + rowOffset}</span>
+                  <span className={styles.rowNumR} style={{ top: rowY }}>{row.row + rowOffset}</span>
 
                   {cols.map(col => {
                     const seat    = row.seats.find(s => s.column === col);
@@ -289,7 +346,7 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
                           hoverTimer.current = setTimeout(() => setHoverInfo(null), 120);
                         }}
                       >
-                        <span className={styles.seatNum}>{seat.seat_number}</span>
+                        <span className={styles.seatNum}>{displaySeat(seat.seat_number, rowOffset)}</span>
                       </button>
                     );
                   })}
@@ -325,7 +382,7 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
         <div className={styles.summary}>
           {passengers.map(p => (
             <span key={p.id} className={styles.sumItem}>
-              {p.fullName || "HK"}: <b>{selections[p.id] || "—"}</b>
+              {p.fullName || "HK"}: <b>{displaySeat(selections[p.id], rowOffset) || "—"}</b>
             </span>
           ))}
         </div>
@@ -345,32 +402,66 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
           onMouseEnter={() => clearTimeout(hoverTimer.current)}
           onMouseLeave={() => setHoverInfo(null)}
         >
-          <div className={styles.hoverTitle}>
-            {hoverInfo.seat.seat_number} · {seatClass.charAt(0).toUpperCase() + seatClass.slice(1)}
+          {/* Title */}
+          <div className={styles.hoverHead}>
+            <span className={styles.hoverSeatNum}>{displaySeat(hoverInfo.seat.seat_number, rowOffset)}</span>
+            <span className={styles.hoverClassLabel}>
+              {seatClass.charAt(0).toUpperCase() + seatClass.slice(1)}
+            </span>
           </div>
-          <div className={styles.hoverStatus}>
-            {hoverInfo.status === "occupied"
-              ? <span className={styles.hoverOcc}>✕ {t("seatMap.hoverOcc")}</span>
-              : hoverInfo.status === "mine"
-              ? <span className={styles.hoverMine}>✓ {t("seatMap.hoverMine")}</span>
-              : <span className={styles.hoverFree}>✓ {t("seatMap.hoverFree")}</span>}
-          </div>
+
+          {/* Occupied / selected status */}
+          {(hoverInfo.status === "occupied" || hoverInfo.status === "mine") && (
+            <div className={styles.hoverStatusRow}>
+              {hoverInfo.status === "occupied"
+                ? <span className={styles.hoverOcc}>✕ {t("seatMap.hoverOcc")}</span>
+                : <span className={styles.hoverMine}>✓ {t("seatMap.hoverMine")}</span>}
+            </div>
+          )}
+
+          {/* Exit row warning */}
           {exitRowNums.has(parseInt(hoverInfo.seat.seat_number)) && (
-            <div className={styles.hoverExitWarn}>
-              <span className={styles.hoverExitIcon}>⚠</span>
+            <div className={styles.hoverExitBand}>
+              <span>⚠</span>
               <span><b>{t("seatMap.exitRowTitle")}</b> — {t("seatMap.exitRowWarn")}</span>
             </div>
           )}
+
+          {/* Features */}
           {hoverInfo.seat.features?.length > 0 && (
-            <ul className={styles.hoverFeatures}>
-              {hoverInfo.seat.features.map((f, i) => <li key={i}>{f}</li>)}
+            <ul className={styles.hoverFeatList}>
+              {hoverInfo.seat.features.map((f, i) => {
+                const pos = isPosFeat(f);
+                return (
+                  <li key={i} className={styles.hoverFeatItem}>
+                    <span className={`${styles.hoverFeatIcon} ${pos ? styles.hoverFeatPos : styles.hoverFeatNeg}`}>
+                      {pos ? "✓" : "✕"}
+                    </span>
+                    <span>{f}</span>
+                  </li>
+                );
+              })}
             </ul>
           )}
+
+          {/* Specs */}
           {(hoverInfo.seat.pitch || hoverInfo.seat.width || hoverInfo.seat.recline) && (
-            <div className={styles.hoverSpecs}>
-              {hoverInfo.seat.pitch   && <span>Pitch: {hoverInfo.seat.pitch}</span>}
-              {hoverInfo.seat.width   && <span>Width: {hoverInfo.seat.width}</span>}
-              {hoverInfo.seat.recline && <span>Recline: {hoverInfo.seat.recline}</span>}
+            <div className={styles.hoverSpecsGrid}>
+              <div className={styles.hoverSpecCard}>
+                <PitchIcon />
+                <span className={styles.hoverSpecLabel}>Pitch</span>
+                <span className={styles.hoverSpecVal}>{hoverInfo.seat.pitch || "—"}</span>
+              </div>
+              <div className={styles.hoverSpecCard}>
+                <WidthIcon />
+                <span className={styles.hoverSpecLabel}>Width</span>
+                <span className={styles.hoverSpecVal}>{hoverInfo.seat.width || "—"}</span>
+              </div>
+              <div className={styles.hoverSpecCard}>
+                <ReclineIcon />
+                <span className={styles.hoverSpecLabel}>Recline</span>
+                <span className={styles.hoverSpecVal}>{hoverInfo.seat.recline || "—"}</span>
+              </div>
             </div>
           )}
         </div>
