@@ -2,18 +2,17 @@ import { useEffect, useState } from "react";
 import styles from "./HeroBanner.module.css";
 import SearchFlightForm from "../SearchFlightForm/SearchFlightForm";
 import { useTranslation } from "react-i18next";
+import hero1 from "../../../assets/images/herobanner/hero1.jpg";
+import hero2 from "../../../assets/images/herobanner/hero2.jpg";
+import hero3 from "../../../assets/images/herobanner/hero3.jpg";
+import hero4 from "../../../assets/images/herobanner/hero4.jpg";
+import hero5 from "../../../assets/images/herobanner/hero5.jpg";
+import hero6 from "../../../assets/images/herobanner/hero6.jpg";
+import hero7 from "../../../assets/images/herobanner/hero7.jpg";
+import hero8 from "../../../assets/images/herobanner/hero8.jpg";
+import hero9 from "../../../assets/images/herobanner/hero9.jpg";
 
-const SLIDE_IMAGES = [
-  "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1600&auto=format",
-  "https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=1600&auto=format",
-  "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=1600&auto=format",
-  "https://images.unsplash.com/photo-1530521954074-e64f6810b32d?q=80&w=1600&auto=format",
-  "https://images.unsplash.com/photo-1483450388369-9ed95738483c?q=80&w=1600&auto=format",
-  "https://images.unsplash.com/photo-1496568816309-51d7c20e3b21?q=80&w=1600&auto=format",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format",
-  "https://images.unsplash.com/photo-1564507592333-c60657eea523?q=80&w=1600&auto=format",
-  "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?q=80&w=1600&auto=format",
-];
+const SLIDE_IMAGES = [hero1, hero2, hero3, hero4, hero5, hero6, hero7, hero8, hero9];
 
 export default function HeroBanner() {
   const [index, setIndex] = useState(0);

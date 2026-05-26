@@ -866,7 +866,8 @@
   "summaryServices": "Dịch vụ đã chọn ({{count}})",
   "summaryTotal": "Tổng cộng",
   "continueBtn": "Tiếp tục: Nhập thông tin",
-  "secure": "Thông tin được bảo mật"
+  "secure": "Thông tin được bảo mật",
+  "wifiDisclaimer": "Wifi chỉ khả dụng khi cơ trưởng cho phép sau khi máy bay đạt độ cao an toàn. Tốc độ có thể thay đổi tùy điều kiện bay."
  },
  "seatMap": {
   "title": "Chọn ghế ngồi",

@@ -6,7 +6,10 @@ import planeIcon from "../../../assets/icons/plane.png";
 import { LuLuggage, LuBackpack, LuUser } from "react-icons/lu";
 import SeatMap from "../SeatMap/SeatMap";
 
-const buildBaggageOptions = (flight, t) => {
+const kgToDisplay = (kg, lang) =>
+  lang === "en" ? `${Math.round(kg * 2.20462)} lbs` : `${kg} kg`;
+
+const buildBaggageOptions = (flight, t, lang) => {
   const fixedKgs = [0, 5, 10, 20];
   const providedOptions = Array.isArray(flight?.seat?.extra_baggage_options)
     ? flight.seat.extra_baggage_options
@@ -19,14 +22,14 @@ const buildBaggageOptions = (flight, t) => {
 
     return fixedKgs.map((kg) => ({
       kg,
-      label: kg > 0 ? `+${kg} kg` : t("passengerForm.noExtra"),
+      label: kg > 0 ? `+${kgToDisplay(kg, lang)}` : t("passengerForm.noExtra"),
       price: optionMap.get(kg) || 0,
     }));
   }
 
   return fixedKgs.map((kg) => ({
     kg,
-    label: kg > 0 ? `+${kg} kg` : t("passengerForm.noExtra"),
+    label: kg > 0 ? `+${kgToDisplay(kg, lang)}` : t("passengerForm.noExtra"),
     price: 0,
   }));
 };
@@ -40,6 +43,7 @@ const FlightSummary = ({
   formatTime,
   fmt,
   t,
+  lang,
 }) => (
   <div className={styles.flightBox}>
     <p className={styles.boxLabel}>{label}</p>
@@ -82,8 +86,15 @@ const FlightSummary = ({
     </div>
 
     <div className={styles.includedBaggage}>
-      <LuLuggage size={13} style={{marginRight:4,verticalAlign:"middle"}}/>{t("passengerForm.checkedBag", { kg: flight.seat?.baggage_included_kg || 0 })} &nbsp;·&nbsp;
-      <LuBackpack size={13} style={{marginRight:4,verticalAlign:"middle"}}/>{t("passengerForm.cabinBag", { kg: flight.seat?.carry_on_kg || 7 })}
+      <LuLuggage size={13} style={{marginRight:4,verticalAlign:"middle"}}/>
+      {lang === "en"
+        ? t("passengerForm.checkedBagLbs", { lbs: Math.round((flight.seat?.baggage_included_kg || 0) * 2.20462) })
+        : t("passengerForm.checkedBag", { kg: flight.seat?.baggage_included_kg || 0 })}
+      &nbsp;·&nbsp;
+      <LuBackpack size={13} style={{marginRight:4,verticalAlign:"middle"}}/>
+      {lang === "en"
+        ? t("passengerForm.cabinBagLbs", { lbs: Math.round((flight.seat?.carry_on_kg || 7) * 2.20462) })
+        : t("passengerForm.cabinBag", { kg: flight.seat?.carry_on_kg || 7 })}
     </div>
 
     <div className={styles.baggageSection}>
@@ -108,7 +119,8 @@ const FlightSummary = ({
 
 const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language?.split("-")[0];
 
   const [baggageOutbound, setBaggageOutbound] = useState(0);
   const [baggageReturn, setBaggageReturn] = useState(0);
@@ -124,8 +136,8 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
     return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
   };
 
-  const outboundBaggageOptions = buildBaggageOptions(selectedFlights.outbound, t);
-  const returnBaggageOptions = buildBaggageOptions(selectedFlights.return, t);
+  const outboundBaggageOptions = buildBaggageOptions(selectedFlights.outbound, t, lang);
+  const returnBaggageOptions = buildBaggageOptions(selectedFlights.return, t, lang);
 
   const extraOutbound = outboundBaggageOptions.find((o) => o.kg === baggageOutbound)?.price || 0;
   const extraReturn = returnBaggageOptions.find((o) => o.kg === baggageReturn)?.price || 0;
@@ -169,6 +181,7 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
               formatTime={formatTime}
               fmt={fmt}
               t={t}
+              lang={lang}
             />
           )}
 
@@ -182,6 +195,7 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
               formatTime={formatTime}
               fmt={fmt}
               t={t}
+              lang={lang}
             />
           )}
         </div>

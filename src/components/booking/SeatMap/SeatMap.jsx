@@ -3,6 +3,7 @@ import { getSeatMap } from "../../../services/flightService";
 import styles from "./SeatMap.module.css";
 import { useTranslation } from "react-i18next";
 import { LuChevronLeft } from "react-icons/lu";
+import { IoManSharp, IoWoman } from "react-icons/io5";
 
 const AISLE_AFTER = { economy: 2, business: 1, first: 1 };
 
@@ -50,6 +51,21 @@ const NEG_FEAT_RX = [
 ];
 const isPosFeat = f => !NEG_FEAT_RX.some(rx => rx.test(f));
 
+/* ── Default specs per class (fallback when API doesn't return per-seat specs) ── */
+const CLASS_SPECS = {
+  economy:  { pitch: '30–31"', width: '17"',   recline: '3"'   },
+  business: { pitch: '38–60"', width: '20–22"', recline: '180°' },
+  first:    { pitch: '60–83"', width: '21–28"', recline: '180°' },
+};
+
+/* ── Exit row spec overrides (over-wing rows have more pitch, no recline) ── */
+const EXIT_ROW_SPECS = {
+  1:  { pitch: '34–36"', width: '17"', recline: '3"'  }, // front bulkhead
+  13: { pitch: '38"',    width: '17"', recline: '—'   }, // over-wing exit
+  14: { pitch: '38"',    width: '17"', recline: '—'   }, // over-wing exit
+  27: { pitch: '30–31"', width: '17"', recline: '3"'  }, // rear exit (normal pitch)
+};
+
 /* ── Seat spec SVG icons (side-profile, currentColor + --spec-arrow var) ── */
 const PitchIcon = () => (
   <svg width="44" height="26" viewBox="0 0 44 26" fill="none" aria-hidden="true">
@@ -89,6 +105,17 @@ const ReclineIcon = () => (
       fill="none" strokeLinecap="round"/>
     <polygon points="24.5,4.5 27,4 26.5,7" fill="var(--spec-arrow)"/>
   </svg>
+);
+
+/* ── Restroom icon wrapper ── */
+const RestroomIcon = () => (
+  <div className={styles.restroomIconBox}>
+    <span className={styles.restroomWcLabel}>WC</span>
+    <div className={styles.restroomIconRow}>
+      <IoManSharp size={44} />
+      <IoWoman size={44} />
+    </div>
+  </div>
 );
 
 /* ── Adjacency helpers ─────────────────────────────────────────────────── */
@@ -354,6 +381,26 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
               );
             })}
 
+            {/* ── Front restroom (before row 1) ── */}
+            {page === 0 && (
+              <div className={styles.restroomBanner} style={{ top: 1150 }}>
+                <RestroomIcon />
+              </div>
+            )}
+
+            {/* ── Rear restrooms (after last row) ── */}
+            {page >= totalPages - 1 && (
+              <>
+                <div className={styles.galleySep}
+                  style={{ top: ROW_Y0 + pageRows.length * ROW_DY + 40 }} />
+                <div className={styles.restroomBannerDual}
+                  style={{ top: ROW_Y0 + pageRows.length * ROW_DY + 60 }}>
+                  <RestroomIcon />
+                  <RestroomIcon />
+                </div>
+              </>
+            )}
+
           </div>{/* planeWrap */}
         </div>{/* plane */}
       </div>{/* scroll */}
@@ -427,43 +474,59 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
             </div>
           )}
 
-          {/* Features */}
-          {hoverInfo.seat.features?.length > 0 && (
-            <ul className={styles.hoverFeatList}>
-              {hoverInfo.seat.features.map((f, i) => {
-                const pos = isPosFeat(f);
-                return (
-                  <li key={i} className={styles.hoverFeatItem}>
-                    <span className={`${styles.hoverFeatIcon} ${pos ? styles.hoverFeatPos : styles.hoverFeatNeg}`}>
-                      {pos ? "✓" : "✕"}
-                    </span>
-                    <span>{f}</span>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+          {/* Features — exit rows auto-get Extra Legroom */}
+          {(() => {
+            const rowNum = parseInt(hoverInfo.seat.seat_number);
+            const base = hoverInfo.seat.features ? [...hoverInfo.seat.features] : [];
+            if (exitRowNums.has(rowNum) && !base.some(f => /legroom/i.test(f))) {
+              base.unshift("Extra Legroom");
+            }
+            const list = base.length > 0 ? base : ["Standard seat"];
+            return (
+              <ul className={styles.hoverFeatList}>
+                {list.map((f, i) => {
+                  const pos = isPosFeat(f);
+                  return (
+                    <li key={i} className={styles.hoverFeatItem}>
+                      <span className={`${styles.hoverFeatIcon} ${pos ? styles.hoverFeatPos : styles.hoverFeatNeg}`}>
+                        {pos ? "✓" : "✕"}
+                      </span>
+                      <span>{f}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            );
+          })()}
 
-          {/* Specs */}
-          {(hoverInfo.seat.pitch || hoverInfo.seat.width || hoverInfo.seat.recline) && (
-            <div className={styles.hoverSpecsGrid}>
-              <div className={styles.hoverSpecCard}>
-                <PitchIcon />
-                <span className={styles.hoverSpecLabel}>Pitch</span>
-                <span className={styles.hoverSpecVal}>{hoverInfo.seat.pitch || "—"}</span>
+          {/* Specs — exit rows override, then class defaults */}
+          {(() => {
+            const rowNum = parseInt(hoverInfo.seat.seat_number);
+            const exitOverride = seatClass === "economy" ? EXIT_ROW_SPECS[rowNum] : null;
+            const def = exitOverride || CLASS_SPECS[seatClass] || CLASS_SPECS.economy;
+            const pitch   = hoverInfo.seat.pitch   || def.pitch;
+            const width   = hoverInfo.seat.width   || def.width;
+            const recline = hoverInfo.seat.recline || def.recline;
+            return (
+              <div className={styles.hoverSpecsGrid}>
+                <div className={styles.hoverSpecCard}>
+                  <PitchIcon />
+                  <span className={styles.hoverSpecLabel}>Pitch</span>
+                  <span className={styles.hoverSpecVal}>{pitch}</span>
+                </div>
+                <div className={styles.hoverSpecCard}>
+                  <WidthIcon />
+                  <span className={styles.hoverSpecLabel}>Width</span>
+                  <span className={styles.hoverSpecVal}>{width}</span>
+                </div>
+                <div className={styles.hoverSpecCard}>
+                  <ReclineIcon />
+                  <span className={styles.hoverSpecLabel}>Recline</span>
+                  <span className={styles.hoverSpecVal}>{recline}</span>
+                </div>
               </div>
-              <div className={styles.hoverSpecCard}>
-                <WidthIcon />
-                <span className={styles.hoverSpecLabel}>Width</span>
-                <span className={styles.hoverSpecVal}>{hoverInfo.seat.width || "—"}</span>
-              </div>
-              <div className={styles.hoverSpecCard}>
-                <ReclineIcon />
-                <span className={styles.hoverSpecLabel}>Recline</span>
-                <span className={styles.hoverSpecVal}>{hoverInfo.seat.recline || "—"}</span>
-              </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
       )}
 

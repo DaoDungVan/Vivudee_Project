@@ -212,6 +212,8 @@
  "free": "Free",
  "checkedBag": "{{kg}}kg checked",
  "cabinBag": "{{kg}}kg cabin included",
+ "checkedBagLbs": "{{lbs}}lbs checked",
+ "cabinBagLbs": "{{lbs}}lbs cabin included",
  "includedBaggage": "{{kg}}kg checked · {{carryOn}}kg cabin included"
  },
  "profile": {
@@ -866,7 +868,8 @@
   "summaryServices": "Selected services ({{count}})",
   "summaryTotal": "Total",
   "continueBtn": "Continue: Passenger Details",
-  "secure": "Your information is secure"
+  "secure": "Your information is secure",
+  "wifiDisclaimer": "Wi-Fi is only available once the captain enables it after reaching a safe cruising altitude. Speed may vary depending on flight conditions."
  },
  "seatMap": {
   "title": "Select Your Seat",

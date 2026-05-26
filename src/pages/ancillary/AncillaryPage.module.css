@@ -85,6 +85,67 @@
   margin: 0;
 }
 
+/* ── Card expand button ── */
+.expandBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+  color: var(--text-secondary, #888);
+  transition: color 0.15s;
+}
+.expandBtn:hover { color: var(--primary-color, #2563eb); }
+.expandOpen {
+  transform: rotate(180deg);
+  transition: transform 0.25s ease;
+}
+
+/* ── Option image (shown when expanded) ── */
+.optImage {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+/* ── Detail bullet list (shown when expanded) ── */
+.optDetailList {
+  margin: 8px 0 0;
+  padding: 0 0 0 2px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.optDetailList li {
+  font-size: 11px;
+  color: var(--text-secondary, #666);
+  line-height: 1.45;
+  padding: 3px 0;
+  border-top: 1px solid var(--card-border, #f0f0f0);
+}
+
+/* ── Wifi disclaimer note ── */
+.wifiNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #92400e;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+[data-theme="dark"] .wifiNote {
+  background: rgba(251,191,36,0.08);
+  border-color: rgba(251,191,36,0.3);
+  color: #fbbf24;
+}
+
 /* ── Per-pax meal label ── */
 .paxMealBlock { margin-bottom: 16px; }
 .paxMealBlock:last-child { margin-bottom: 0; }
@@ -100,6 +161,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 10px;
+  align-items: start;
 }
 .optionCard {
   position: relative;
