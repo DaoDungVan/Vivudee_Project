@@ -16,6 +16,7 @@
 
 .legend { display:flex; gap:14px; padding:8px 16px; font-size:11px; color:var(--text-secondary); flex-shrink:0; background:var(--card-bg); border-bottom:1px solid var(--card-border); flex-wrap:wrap; align-items:center; }
 .legendHint { color:var(--text-muted); font-size:10px; }
+.prefNote { padding:7px 16px; font-size:12px; color:var(--primary-color, #0e81cd); background:rgba(14,129,205,0.07); border-bottom:1px solid var(--card-border); flex-shrink:0; }
 .dot  { display:inline-block; width:14px; height:12px; border-radius:3px 3px 2px 2px; margin-right:5px; vertical-align:middle; }
 .dFree { background:#3d6ec4; }
 .dOcc  { background:#c04848; }
@@ -163,9 +164,10 @@
    SEAT DESIGNS BY CLASS
    ════════════════════════════════════════════════ */
 
-.s_occupied { background: #c04848; cursor: not-allowed; }
-.s_other    { background: #2d8050; }
-.s_blocked  { background: #4a5468; opacity: .35; cursor: not-allowed; }
+.s_occupied   { background: #c04848; cursor: not-allowed; }
+.s_other      { background: #2d8050; }
+.s_blocked    { background: #4a5468; opacity: .35; cursor: not-allowed; }
+.s_restricted { background: #2a3040; opacity: .22; cursor: not-allowed; }
 
 /* ══ ECONOMY ══ */
 .s_free {

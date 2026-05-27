@@ -5,8 +5,17 @@ import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import { useTranslation } from "react-i18next";
 import { getBookingByCode, getMyBookings, cancelBooking } from "../../services/bookingService";
-import { requestRefund, requestGuestRefund } from "../../services/refundService";
+import { requestRefund, requestGuestRefund, requestRefundOTP, requestGuestRefundOTP, verifyRefundOTP } from "../../services/refundService";
 import styles from "./Bookings.module.css";
+
+const OTP_THRESHOLD = 5_000_000;
+
+const maskEmail = (email = "") => {
+  const [local, domain] = email.split("@");
+  if (!local || !domain) return email;
+  const masked = local.length <= 3 ? local[0] + "**" : local[0] + "***" + local[local.length - 1];
+  return masked + "@" + domain;
+};
 
 const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n) + " VND";
 
@@ -81,6 +90,14 @@ const Bookings = () => {
   const [refundLoading,     setRefundLoading]     = useState(false);
   const [refundError,       setRefundError]       = useState("");
   const [refundSuccess,     setRefundSuccess]     = useState("");
+
+  // OTP step state
+  const [otpStep,     setOtpStep]     = useState(false);
+  const [otpEmail,    setOtpEmail]    = useState("");
+  const [otpCode,     setOtpCode]     = useState("");
+  const [otpLoading,  setOtpLoading]  = useState(false);
+  const [otpError,    setOtpError]    = useState("");
+  const [otpSending,  setOtpSending]  = useState(false);
 
   const getStatusColor = (status) => {
     const map = {
@@ -207,30 +224,24 @@ const Bookings = () => {
     setRefundSuccess("");
   };
 
-  const closeRefundModal = () => setRefundTarget(null);
+  const closeRefundModal = () => {
+    setRefundTarget(null);
+    setOtpStep(false);
+    setOtpCode("");
+    setOtpError("");
+  };
 
-  const handleRefundSubmit = async () => {
-    if (refundReason.trim().length < 10) {
-      setRefundError(t("bookings.refundReasonError"));
-      return;
-    }
-    if (!isLoggedIn && !guestRefundEmail.trim()) {
-      setRefundError(t("bookings.refundEmailRequired", "Vui lòng nhập email xác thực"));
-      return;
-    }
-    setRefundLoading(true);
-    setRefundError("");
+  const getBookingAmount = (b) =>
+    Number(b?.price?.final_amount) || Number(b?.final_amount) ||
+    Number(b?.price?.grand_total)  || Number(b?.total_price) || 0;
+
+  const doSubmitRefund = async () => {
+    setRefundLoading(true); setRefundError("");
     try {
-      // Map UI refund type → backend format
       let backendType = refundType;
       let requestedItems = null;
-      if (refundType === "partial_leg_outbound") {
-        backendType = "partial_leg";
-        requestedItems = { legs: ["outbound"] };
-      } else if (refundType === "partial_leg_return") {
-        backendType = "partial_leg";
-        requestedItems = { legs: ["return"] };
-      }
+      if (refundType === "partial_leg_outbound") { backendType = "partial_leg"; requestedItems = { legs: ["outbound"] }; }
+      else if (refundType === "partial_leg_return") { backendType = "partial_leg"; requestedItems = { legs: ["return"] }; }
 
       const payload = { refund_type: backendType, reason: refundReason.trim(), requested_items: requestedItems };
       const res = isLoggedIn
@@ -239,11 +250,49 @@ const Bookings = () => {
 
       const d = res.data?.data || res.data;
       setRefundSuccess(d?.refund_code || "Đã gửi yêu cầu thành công!");
+      setOtpStep(false);
       if (isLoggedIn) fetchMyBookings();
     } catch (err) {
       setRefundError(err?.response?.data?.error || err?.response?.data?.message || "Gửi yêu cầu thất bại.");
-    } finally {
-      setRefundLoading(false);
+      setOtpStep(false);
+    } finally { setRefundLoading(false); }
+  };
+
+  const sendOTP = async () => {
+    setOtpSending(true); setRefundError(""); setOtpError("");
+    try {
+      const res = isLoggedIn
+        ? await requestRefundOTP(refundTarget.booking_code)
+        : await requestGuestRefundOTP(guestRefundEmail.trim(), refundTarget.booking_code);
+      setOtpEmail(res.data?.email || guestRefundEmail.trim());
+      setOtpStep(true);
+      setOtpCode("");
+    } catch (err) {
+      setRefundError(err?.response?.data?.error || "Không thể gửi mã OTP. Vui lòng thử lại.");
+    } finally { setOtpSending(false); }
+  };
+
+  const handleOTPSubmit = async () => {
+    if (!/^\d{6}$/.test(otpCode.trim())) { setOtpError("Mã OTP phải là 6 chữ số"); return; }
+    setOtpLoading(true); setOtpError("");
+    try {
+      const email = isLoggedIn ? otpEmail : guestRefundEmail.trim();
+      await verifyRefundOTP(email, otpCode.trim());
+      await doSubmitRefund();
+    } catch (err) {
+      setOtpError(err?.response?.data?.error || "Mã OTP không đúng hoặc đã hết hạn");
+    } finally { setOtpLoading(false); }
+  };
+
+  const handleRefundSubmit = async () => {
+    if (refundReason.trim().length < 10) { setRefundError(t("bookings.refundReasonError")); return; }
+    if (!isLoggedIn && !guestRefundEmail.trim()) { setRefundError(t("bookings.refundEmailRequired", "Vui lòng nhập email xác thực")); return; }
+
+    const amount = getBookingAmount(refundTarget);
+    if (amount >= OTP_THRESHOLD) {
+      await sendOTP();
+    } else {
+      await doSubmitRefund();
     }
   };
 
@@ -564,7 +613,44 @@ const Bookings = () => {
               );
             })()}
 
-            {refundSuccess ? (
+            {otpStep ? (
+              <div className={styles.otpStep}>
+                <div className={styles.otpIconWrap}>
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="4" width="20" height="16" rx="3"/>
+                    <polyline points="2,4 12,13 22,4"/>
+                  </svg>
+                </div>
+                <p className={styles.otpTitle}>Xác nhận bằng mã OTP</p>
+                <p className={styles.otpDesc}>
+                  Mã xác nhận gồm 6 chữ số đã được gửi đến email
+                </p>
+                <p className={styles.otpEmailDisplay}>{maskEmail(isLoggedIn ? otpEmail : guestRefundEmail)}</p>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  className={styles.otpInput}
+                  placeholder="● ● ● ● ● ●"
+                  maxLength={6}
+                  value={otpCode}
+                  onChange={(e) => { setOtpCode(e.target.value.replace(/\D/g, "")); setOtpError(""); }}
+                />
+                {otpError && <p className={styles.otpError}>{otpError}</p>}
+                <button className={styles.resendOtpBtn} onClick={sendOTP} disabled={otpSending}>
+                  {otpSending ? "Đang gửi..." : "Gửi lại mã"}
+                </button>
+                <div className={styles.refundActions}>
+                  <button className={styles.refundCancelModalBtn} onClick={() => setOtpStep(false)}>Quay lại</button>
+                  <button
+                    className={styles.refundSubmitBtn}
+                    onClick={handleOTPSubmit}
+                    disabled={otpLoading || otpCode.length !== 6}
+                  >
+                    {otpLoading ? "Đang xác nhận..." : "Xác nhận"}
+                  </button>
+                </div>
+              </div>
+            ) : refundSuccess ? (
               <div className={styles.refundSuccessBox}>
                 <p>{t("bookings.refundSuccessMsg")}</p>
                 <p className={styles.refundSuccessCode}>{t("bookings.refundSuccessCode")} <strong>{refundSuccess}</strong></p>

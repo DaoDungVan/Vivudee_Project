@@ -12,6 +12,9 @@
       "Read(//d/backend-log-function/src/services/**)",
       "Read(//d/backend-log-function/src/queries/**)",
       "Read(//d/backend-log-function/src/**)"
+    ],
+    "additionalDirectories": [
+      "G:\\Vivudee_Admin\\src\\api"
     ]
   }
 }

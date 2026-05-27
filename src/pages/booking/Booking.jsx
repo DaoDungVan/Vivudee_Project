@@ -40,6 +40,7 @@ const Booking = () => {
   const totalPrice = state?.totalPrice || 0;
   const ancillarySelections = state?.ancillarySelections || [];
   const ancillaryTotal = state?.ancillaryTotal || 0;
+  const seatPreference = state?.seatPreference || {};
   const adultCount = Number(passengers?.adults || 1);
   const childCount = Number(passengers?.children || 0);
   const paxCount = adultCount + childCount;
@@ -126,7 +127,7 @@ const Booking = () => {
     navigate("/seat-map", {
       state: {
         selectedFlights, paxList, contact, totalPrice, adultCount,
-        ancillarySelections, ancillaryTotal,
+        ancillarySelections, ancillaryTotal, seatPreference,
         bookingPayload: {
           outbound_flight_id: selectedFlights.outbound.flight_id,
           outbound_seat_class: selectedFlights.outbound.seat?.class || "economy",

@@ -7,6 +7,26 @@ import { IoManSharp, IoWoman } from "react-icons/io5";
 
 const AISLE_AFTER = { economy: 2, business: 1, first: 1 };
 
+const EXIT_ROW_NUMS = new Set([1, 13, 14, 27]);
+
+const getSeatPosition = (col, cols, aisleIdx) => {
+  const left  = cols.slice(0, aisleIdx + 1);
+  const right = cols.slice(aisleIdx + 1);
+  if (left.includes(col)) {
+    const i = left.indexOf(col);
+    if (i === 0)               return "window";
+    if (i === left.length - 1) return "aisle";
+    return "middle";
+  }
+  if (right.includes(col)) {
+    const i = right.indexOf(col);
+    if (i === 0)                return "aisle";
+    if (i === right.length - 1) return "window";
+    return "middle";
+  }
+  return null;
+};
+
 /* ── Seat coordinate system (same as seatmaps.com source) ─────────────────
    Wrapper: 880px wide, scaled down. Seats positioned with left:50% (=440px)
    + margin-left from center. Row y = 1440 + (rowNum-1) × 172 px.
@@ -135,7 +155,7 @@ const isAdjacentToAny = (seatNum, chosen, cols) => {
 /* ══════════════════════════════════════════════════════════════════════════
    Component
 ══════════════════════════════════════════════════════════════════════════ */
-export default function SeatMap({ flightId, seatClass = "economy", passengers = [], onConfirm, onBack, rowOffset = 0 }) {
+export default function SeatMap({ flightId, seatClass = "economy", passengers = [], onConfirm, onBack, rowOffset = 0, seatPreference = null }) {
   const { t } = useTranslation();
   const [loading, setLoading]       = useState(true);
   const [seatData, setSeatData]     = useState(null);
@@ -163,8 +183,16 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
   const aisleIdx = AISLE_AFTER[seatClass] ?? 2;
   const colOff   = buildColOffsets(cols, aisleIdx);
 
-  const getSeatStatus = (seatNum, occupied) => {
+  const getSeatStatus = (seatNum, occupied, col) => {
     if (occupied) return "occupied";
+    if (seatPreference) {
+      const rowNum = parseInt(seatNum, 10);
+      if (seatPreference === "extra_legroom") {
+        if (!EXIT_ROW_NUMS.has(rowNum)) return "restricted";
+      } else {
+        if (getSeatPosition(col, cols, aisleIdx) !== seatPreference) return "restricted";
+      }
+    }
     const owner = Object.entries(selections).find(([, s]) => s === seatNum);
     if (owner) return String(owner[0]) === String(activePassenger) ? "mine" : "other";
     if (passengers.length > 1 && !selections[activePassenger]) {
@@ -176,8 +204,8 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
 
   const handleSeatClick = (seat) => {
     if (seat.status === "occupied") return;
-    const status = getSeatStatus(seat.seat_number, false);
-    if (status === "blocked") return;
+    const status = getSeatStatus(seat.seat_number, false, seat.column);
+    if (status === "blocked" || status === "restricted") return;
     const takenBy = Object.entries(selections).find(([, s]) => s === seat.seat_number);
     if (takenBy && String(takenBy[0]) !== String(activePassenger)) return;
 
@@ -207,8 +235,6 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
   // Reset to page 0 when seatData changes
   useEffect(() => { setPage(0); }, [seatData]);
 
-  // Hàng ghế thoát hiểm: hàng sát cửa thoát hiểm (đầu, giữa, cuối máy bay)
-  const exitRowNums = new Set([1, 13, 14, 27]);
 
   const allSelected = passengers.every(p => selections[p.id]);
 
@@ -255,6 +281,15 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
         <span><i className={`${styles.dot} ${styles.dMine}`}/>{t("seatMap.mine")}</span>
         {passengers.length > 1 && <span className={styles.legendHint}>· {t("seatMap.adjacent")}</span>}
       </div>
+
+      {seatPreference && (
+        <div className={styles.prefNote}>
+          {t("seatMap.prefFilter", "Chỉ chọn được ghế phù hợp vị trí đã mua:")}
+          {" "}<strong>
+            {{ window: "Cửa sổ", aisle: "Lối đi", middle: "Giữa", extra_legroom: "Hàng lối thoát" }[seatPreference]}
+          </strong>
+        </div>
+      )}
 
       {/* ── Scrollable plane ── */}
       <div className={styles.scroll} ref={scrollRef}>
@@ -354,7 +389,7 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
                   {cols.map(col => {
                     const seat    = row.seats.find(s => s.column === col);
                     if (!seat) return null;
-                    const status  = getSeatStatus(seat.seat_number, seat.status === "occupied");
+                    const status  = getSeatStatus(seat.seat_number, seat.status === "occupied", col);
                     const colIdx  = cols.indexOf(col);
                     const side    = colIdx % 2 === 0 ? styles.seatR : styles.seatL;
                     return (
@@ -363,7 +398,7 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
                         style={{ top: rowY, marginLeft: `${colOff[col]}px` }}
                         data-seat={seat.seat_number}
                         onClick={e => { e.stopPropagation(); handleSeatClick(seat); }}
-                        disabled={status === "occupied" || status === "blocked"}
+                        disabled={status === "occupied" || status === "blocked" || status === "restricted"}
                         onMouseEnter={e => {
                           clearTimeout(hoverTimer.current);
                           const r = e.currentTarget.getBoundingClientRect();
@@ -467,7 +502,7 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
           )}
 
           {/* Exit row warning */}
-          {exitRowNums.has(parseInt(hoverInfo.seat.seat_number)) && (
+          {EXIT_ROW_NUMS.has(parseInt(hoverInfo.seat.seat_number)) && (
             <div className={styles.hoverExitBand}>
               <span>⚠</span>
               <span><b>{t("seatMap.exitRowTitle")}</b> — {t("seatMap.exitRowWarn")}</span>
@@ -478,7 +513,7 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
           {(() => {
             const rowNum = parseInt(hoverInfo.seat.seat_number);
             const base = hoverInfo.seat.features ? [...hoverInfo.seat.features] : [];
-            if (exitRowNums.has(rowNum) && !base.some(f => /legroom/i.test(f))) {
+            if (EXIT_ROW_NUMS.has(rowNum) && !base.some(f => /legroom/i.test(f))) {
               base.unshift("Extra Legroom");
             }
             const list = base.length > 0 ? base : ["Standard seat"];

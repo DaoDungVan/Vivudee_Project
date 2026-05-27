@@ -295,6 +295,124 @@
   margin-top: 2px;
 }
 
+/* SEAT TYPE SELECTION */
+.seatSection {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--card-border, #e5e7eb);
+}
+.seatTitle {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted, #888);
+  margin: 0 0 10px;
+}
+.seatCards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.seatCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 12px;
+  border: 1.5px solid var(--card-border, #e5e7eb);
+  border-radius: 10px;
+  background: var(--card-bg, #fff);
+  cursor: pointer;
+  min-width: 72px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.seatCard:hover {
+  border-color: var(--primary-color, #0e81cd);
+}
+.seatActive {
+  border-color: var(--primary-color, #0e81cd);
+  background: rgba(14, 129, 205, 0.07);
+}
+.seatPos {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-dark, #111);
+}
+.seatPrice {
+  font-size: 11px;
+  color: var(--primary-color, #0e81cd);
+  font-weight: 600;
+}
+.seatExitRow.seatActive {
+  border-color: var(--primary-color, #0e81cd);
+  background: rgba(14, 129, 205, 0.07);
+}
+.seatExitNote {
+  font-size: 10px;
+  color: #b45309;
+  font-weight: 600;
+  background: #fef3c7;
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-top: 1px;
+}
+[data-theme="dark"] .seatExitNote {
+  background: rgba(245,158,11,0.15);
+  color: #fbbf24;
+}
+
+/* SEAT DIAGRAM */
+.seatDiagram {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--bg-subtle, #f8fafc);
+  border-radius: 10px;
+  border: 1px solid var(--card-border, #e5e7eb);
+}
+.seatDiagramRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.seatDiagramCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  border: 1.5px solid var(--card-border, #e0e0e0);
+  background: var(--card-bg, #fff);
+  min-width: 38px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.seatDiagramActive {
+  border-color: var(--primary-color, #0e81cd);
+  background: rgba(14,129,205,0.09);
+}
+.seatDiagramLetter {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-dark, #111);
+}
+.seatDiagramLabel {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.seatDiagramAisle {
+  width: 18px;
+  height: 2px;
+  background: var(--card-border, #d1d5db);
+  border-radius: 1px;
+  margin: 0 4px;
+}
+
 /* FOOTER */
 .footer {
   padding: 18px 24px;

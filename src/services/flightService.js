@@ -56,3 +56,6 @@ export const getPriceCalendar    = (from, to, month, seat_class = "economy", adu
   axios.get(`${API}/price-calendar`, { params: { from, to, month, seat_class, adults } });
 export const getSeatMap          = (flightId, seat_class = "economy") =>
   axios.get(`${API}/${flightId}/seat-map`, { params: { seat_class } });
+
+export const getSeatPricing      = (flightId, seat_class = "economy") =>
+  axios.get(`${API}/${flightId}/seats/pricing`, { params: { seat_class } });

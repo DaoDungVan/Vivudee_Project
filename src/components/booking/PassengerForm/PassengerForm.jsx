@@ -1,13 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import styles from "./PassengerForm.module.css";
 import planeIcon from "../../../assets/icons/plane.png";
-import { LuLuggage, LuBackpack, LuUser } from "react-icons/lu";
-import SeatMap from "../SeatMap/SeatMap";
+import { LuLuggage, LuBackpack, LuUser, LuArmchair } from "react-icons/lu";
+import { getSeatPricing } from "../../../services/flightService";
 
 const kgToDisplay = (kg, lang) =>
   lang === "en" ? `${Math.round(kg * 2.20462)} lbs` : `${kg} kg`;
+
+const SEAT_POS_ORDER = ["window", "aisle", "middle", "extra_legroom"];
+
+const SEAT_POS_LABELS = {
+  window:        { vi: "Cửa sổ",    en: "Window" },
+  aisle:         { vi: "Lối đi",    en: "Aisle" },
+  middle:        { vi: "Giữa",      en: "Middle" },
+  extra_legroom: { vi: "Chỗ rộng",  en: "Extra Legroom" },
+};
 
 const buildBaggageOptions = (flight, t, lang) => {
   const fixedKgs = [0, 5, 10, 20];
@@ -19,7 +28,6 @@ const buildBaggageOptions = (flight, t, lang) => {
     const optionMap = new Map(
       providedOptions.map((option) => [Number(option?.kg || 0), Number(option?.price_per_person || 0)])
     );
-
     return fixedKgs.map((kg) => ({
       kg,
       label: kg > 0 ? `+${kgToDisplay(kg, lang)}` : t("passengerForm.noExtra"),
@@ -40,6 +48,10 @@ const FlightSummary = ({
   baggageKg,
   onBaggageChange,
   baggageOptions,
+  seatPricing,
+  seatType,
+  onSeatTypeChange,
+  paxCount,
   formatTime,
   fmt,
   t,
@@ -48,7 +60,6 @@ const FlightSummary = ({
   <div className={styles.flightBox}>
     <p className={styles.boxLabel}>{label}</p>
 
-    {/* Dòng 1: Airline + Price */}
     <div className={styles.flightRow}>
       <div className={styles.airlineInfo}>
         <img
@@ -68,7 +79,6 @@ const FlightSummary = ({
       </div>
     </div>
 
-    {/* Dòng 2: Timeline full width */}
     <div className={styles.timeline}>
       <div className={styles.timeBlock}>
         <span className={styles.time}>{formatTime(flight.departure?.time)}</span>
@@ -97,6 +107,7 @@ const FlightSummary = ({
         : t("passengerForm.cabinBag", { kg: flight.seat?.carry_on_kg || 7 })}
     </div>
 
+    {/* Extra baggage */}
     <div className={styles.baggageSection}>
       <p className={styles.baggageTitle}>{t("passengerForm.extraBaggage")}</p>
       <div className={styles.baggageCards}>
@@ -114,6 +125,92 @@ const FlightSummary = ({
         ))}
       </div>
     </div>
+
+    {/* Seat type selection — always show, pricing from API or default 0 */}
+    <div className={styles.seatSection}>
+      <p className={styles.seatTitle}>
+        <LuArmchair size={13} style={{marginRight:4,verticalAlign:"middle"}}/>
+        {lang === "en" ? "Seat Position" : "Vị trí ghế"}
+      </p>
+      <div className={styles.seatCards}>
+        {/* Random / no preference */}
+        <button
+          className={`${styles.seatCard} ${seatType === null ? styles.seatActive : ""}`}
+          onClick={() => onSeatTypeChange(null)}
+        >
+          <span className={styles.seatPos}>{lang === "en" ? "Random" : "Ngẫu nhiên"}</span>
+          <span className={styles.seatPrice}>{t("passengerForm.free")}</span>
+        </button>
+
+        {/* window / aisle / middle — always visible */}
+        {["window", "aisle", "middle"].map((pos) => {
+          const price = seatPricing?.[pos] ?? 0;
+          const posLabel = SEAT_POS_LABELS[pos]?.[lang] || SEAT_POS_LABELS[pos]?.vi || pos;
+          return (
+            <button
+              key={pos}
+              className={`${styles.seatCard} ${seatType === pos ? styles.seatActive : ""}`}
+              onClick={() => onSeatTypeChange(pos)}
+            >
+              <span className={styles.seatPos}>{posLabel}</span>
+              <span className={styles.seatPrice}>
+                {price === 0 ? t("passengerForm.free") : `+${fmt(price * paxCount)}`}
+              </span>
+            </button>
+          );
+        })}
+
+        {/* extra_legroom — chỉ hiện khi API trả về */}
+        {seatPricing?.extra_legroom !== undefined && (() => {
+          const price = seatPricing.extra_legroom;
+          return (
+            <button
+              className={`${styles.seatCard} ${seatType === "extra_legroom" ? styles.seatActive : ""} ${styles.seatExitRow}`}
+              onClick={() => onSeatTypeChange("extra_legroom")}
+            >
+              <span className={styles.seatPos}>{SEAT_POS_LABELS.extra_legroom?.[lang] || "Chỗ rộng"}</span>
+              <span className={styles.seatPrice}>
+                {price === 0 ? t("passengerForm.free") : `+${fmt(price * paxCount)}`}
+              </span>
+              <span className={styles.seatExitNote}>
+                {lang === "en" ? "Exit row only" : "Hàng lối thoát"}
+              </span>
+            </button>
+          );
+        })()}
+        </div>
+
+        {/* Seat layout diagram */}
+        <div className={styles.seatDiagram}>
+          <div className={styles.seatDiagramRow}>
+            {[
+              { letter: "A", pos: "window" },
+              { letter: "B", pos: "middle" },
+              { letter: "C", pos: "aisle" },
+            ].map(({ letter, pos }) => (
+              <div key={letter} className={`${styles.seatDiagramCell} ${seatType === pos ? styles.seatDiagramActive : ""}`}>
+                <span className={styles.seatDiagramLetter}>{letter}</span>
+                <span className={styles.seatDiagramLabel}>
+                  {SEAT_POS_LABELS[pos]?.[lang] || SEAT_POS_LABELS[pos]?.vi}
+                </span>
+              </div>
+            ))}
+            <div className={styles.seatDiagramAisle} />
+            {[
+              { letter: "D", pos: "aisle" },
+              { letter: "E", pos: "middle" },
+              { letter: "F", pos: "window" },
+            ].map(({ letter, pos }) => (
+              <div key={letter} className={`${styles.seatDiagramCell} ${seatType === pos ? styles.seatDiagramActive : ""}`}>
+                <span className={styles.seatDiagramLetter}>{letter}</span>
+                <span className={styles.seatDiagramLabel}>
+                  {SEAT_POS_LABELS[pos]?.[lang] || SEAT_POS_LABELS[pos]?.vi}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
   </div>
 );
 
@@ -123,7 +220,12 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
   const lang = i18n.language?.split("-")[0];
 
   const [baggageOutbound, setBaggageOutbound] = useState(0);
-  const [baggageReturn, setBaggageReturn] = useState(0);
+  const [baggageReturn,   setBaggageReturn]   = useState(0);
+
+  const [seatPricingOut, setSeatPricingOut] = useState(null);
+  const [seatPricingRet, setSeatPricingRet] = useState(null);
+  const [seatTypeOut,    setSeatTypeOut]    = useState(null);
+  const [seatTypeRet,    setSeatTypeRet]    = useState(null);
 
   const paxCount = Math.max(1, Number(passengers?.adults || 0) + Number(passengers?.children || 0));
 
@@ -136,22 +238,41 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
     return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
   };
 
-  const outboundBaggageOptions = buildBaggageOptions(selectedFlights.outbound, t, lang);
-  const returnBaggageOptions = buildBaggageOptions(selectedFlights.return, t, lang);
+  useEffect(() => {
+    const fetchPricing = async (flight, setter) => {
+      if (!flight) return;
+      const fid = flight.flight_id || flight.id;
+      const cls = (flight.seat?.class || "economy").toLowerCase();
+      if (!fid) return;
+      try {
+        const res = await getSeatPricing(fid, cls);
+        setter(res.data?.data?.pricing_rules || null);
+      } catch { setter(null); }
+    };
+    fetchPricing(selectedFlights.outbound, setSeatPricingOut);
+    fetchPricing(selectedFlights.return,   setSeatPricingRet);
+  }, []); // eslint-disable-line
 
-  const extraOutbound = outboundBaggageOptions.find((o) => o.kg === baggageOutbound)?.price || 0;
-  const extraReturn = returnBaggageOptions.find((o) => o.kg === baggageReturn)?.price || 0;
+  const outboundBaggageOptions = buildBaggageOptions(selectedFlights.outbound, t, lang);
+  const returnBaggageOptions   = buildBaggageOptions(selectedFlights.return,   t, lang);
+
+  const extraBagOut = outboundBaggageOptions.find((o) => o.kg === baggageOutbound)?.price || 0;
+  const extraBagRet = returnBaggageOptions.find((o)   => o.kg === baggageReturn)?.price   || 0;
+
+  const seatFeeOut = seatTypeOut && seatPricingOut ? (seatPricingOut[seatTypeOut] || 0) * paxCount : 0;
+  const seatFeeRet = seatTypeRet && seatPricingRet ? (seatPricingRet[seatTypeRet] || 0) * paxCount : 0;
 
   const totalPrice =
-    (selectedFlights.outbound?.seat?.total_price || 0) + extraOutbound * paxCount +
-    (selectedFlights.return?.seat?.total_price || 0) + extraReturn * paxCount;
+    (selectedFlights.outbound?.seat?.total_price || 0) + extraBagOut * paxCount + seatFeeOut +
+    (selectedFlights.return?.seat?.total_price  || 0) + extraBagRet * paxCount + seatFeeRet;
 
   const handleContinue = () => {
     navigate("/ancillary", {
       state: {
         selectedFlights,
         passengers,
-        baggage: { outbound: baggageOutbound, return: baggageReturn },
+        baggage:        { outbound: baggageOutbound, return: baggageReturn },
+        seatPreference: { outbound: seatTypeOut,     return: seatTypeRet  },
         totalPrice,
       },
     });
@@ -178,6 +299,10 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
               baggageKg={baggageOutbound}
               onBaggageChange={setBaggageOutbound}
               baggageOptions={outboundBaggageOptions}
+              seatPricing={seatPricingOut}
+              seatType={seatTypeOut}
+              onSeatTypeChange={setSeatTypeOut}
+              paxCount={paxCount}
               formatTime={formatTime}
               fmt={fmt}
               t={t}
@@ -192,6 +317,10 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
               baggageKg={baggageReturn}
               onBaggageChange={setBaggageReturn}
               baggageOptions={returnBaggageOptions}
+              seatPricing={seatPricingRet}
+              seatType={seatTypeRet}
+              onSeatTypeChange={setSeatTypeRet}
+              paxCount={paxCount}
               formatTime={formatTime}
               fmt={fmt}
               t={t}

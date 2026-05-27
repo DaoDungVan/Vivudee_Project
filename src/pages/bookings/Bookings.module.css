@@ -700,6 +700,79 @@
 .refundSubmitBtn:hover:not(:disabled) { opacity: 0.88; }
 .refundSubmitBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* ── OTP Step ── */
+.otpStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  text-align: center;
+}
+.otpIconWrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(37,99,235,0.10);
+  color: var(--primary-color, #2563eb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.otpTitle {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin: 0;
+}
+.otpDesc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+.otpEmailDisplay {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary-color, #2563eb);
+  margin: 0;
+  word-break: break-all;
+}
+.otpInput {
+  width: 100%;
+  max-width: 220px;
+  height: 54px;
+  border: 2px solid var(--input-border);
+  border-radius: 12px;
+  padding: 0 16px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 8px;
+  text-align: center;
+  background: var(--input-bg);
+  color: var(--input-text);
+  outline: none;
+  font-family: monospace;
+  transition: border-color 0.15s;
+}
+.otpInput:focus { border-color: var(--primary-color, #2563eb); }
+.otpError {
+  font-size: 12px;
+  color: #ef4444;
+  margin: 0;
+}
+.resendOtpBtn {
+  background: none;
+  border: none;
+  color: var(--primary-color, #2563eb);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+.resendOtpBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.otpStep .refundActions { width: 100%; }
+
 .refundSuccessBox {
   text-align: center;
   padding: 16px 0 8px;

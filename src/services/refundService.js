@@ -14,3 +14,12 @@ export const getRefundByCode = (refundCode) =>
 
 export const cancelRefund   = (refundCode, reason) =>
   API.delete(`/refunds/${refundCode}`, { data: { reason } });
+
+export const requestRefundOTP = (bookingCode) =>
+  API.post("/refunds/user/request-otp", { bookingCode });
+
+export const requestGuestRefundOTP = (email, bookingCode) =>
+  API.post("/refunds/guest/request-otp", { email, bookingCode });
+
+export const verifyRefundOTP = (email, code) =>
+  API.post("/refunds/guest/verify-otp", { email, code });

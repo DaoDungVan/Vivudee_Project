@@ -31,7 +31,7 @@ export default function SeatMapPage() {
 
   if (!state?.bookingPayload) { navigate("/flights"); return null; }
 
-  const { bookingPayload, selectedFlights, paxList, contact, totalPrice, adultCount, ancillarySelections, ancillaryTotal } = state;
+  const { bookingPayload, selectedFlights, paxList, contact, totalPrice, adultCount, ancillarySelections, ancillaryTotal, seatPreference } = state;
   const flight = selectedFlights?.outbound;
   const initClass = flight?.seat?.class?.toLowerCase() || "economy";
 
@@ -114,6 +114,7 @@ export default function SeatMapPage() {
             onConfirm={handleConfirm}
             onBack={() => navigate(-1)}
             rowOffset={rowOffset}
+            seatPreference={seatPreference?.outbound || null}
           />
         </div>
 
