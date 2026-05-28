@@ -676,12 +676,21 @@
 
 /* Print — chỉ in vùng boarding pass */
 @media print {
-  body > * { display: none !important; }
-  #print-area { display: block !important; }
+  body * { visibility: hidden; }
+  #print-area, #print-area * { visibility: visible; }
+  #print-area {
+    position: fixed;
+    inset: 0;
+    padding: 24px;
+    background: #fff;
+    overflow: visible;
+  }
   .bpCard {
     box-shadow: none !important;
     border: 1px solid #dbe4ff !important;
     page-break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
   .bpTopBar { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .bpQrWrap { background: #fff !important; }

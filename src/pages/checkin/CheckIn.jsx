@@ -305,14 +305,7 @@ export default function CheckIn() {
             </div>
 
             <div className={styles.boardingActions}>
-              <button className={styles.btnPrint} onClick={() => {
-                const el = document.getElementById("print-area");
-                const orig = document.body.innerHTML;
-                document.body.innerHTML = el.innerHTML;
-                window.print();
-                document.body.innerHTML = orig;
-                window.location.reload();
-              }}>
+              <button className={styles.btnPrint} onClick={() => window.print()}>
                 <LuPrinter size={16} /> In boarding pass
               </button>
               <button className={styles.btnBack} onClick={() => { setStep(STEP_LOOKUP); setBookingCode(""); setBoardingPasses([]); setStatusData(null); setEmailSentTo(""); }}>
