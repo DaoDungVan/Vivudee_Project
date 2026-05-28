@@ -9,7 +9,14 @@ const fmtShort = (n) => n >= 1e6 ? `${(n / 1e6).toFixed(1)}tr` : `${Math.round(n
 
 const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
   const [expanded, setExpanded] = useState(false);
+  const [priceVisible, setPriceVisible] = useState(false);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const delay = 700 + Math.random() * 500;
+    const timer = setTimeout(() => setPriceVisible(true), delay);
+    return () => clearTimeout(timer);
+  }, []);
   // Normalize seat class về lowercase để khớp backend
   const seatClass = (flight?.seat?.class || "economy").toLowerCase();
   const flightId  = flight?.flight_id || flight?.id;
@@ -88,12 +95,12 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
           </div>
           <div className={styles.info}>
             <h3>{flight?.airline?.name || t("flightCard.unknownAirline")}</h3>
-            {cheapestCalPrice && flight?.seat?.total_price <= cheapestCalPrice && (
+            {priceVisible && cheapestCalPrice && flight?.seat?.total_price <= cheapestCalPrice && (
               <span className={styles.bestPriceBadge}>
                 {t("flightCard.bestPrice")}
               </span>
             )}
-            {cheapestCalPrice && flight?.seat?.total_price > cheapestCalPrice && (
+            {priceVisible && cheapestCalPrice && flight?.seat?.total_price > cheapestCalPrice && (
               <span className={styles.cheaperBadge}>
                 <LuCalendarDays size={10} />
                 {t("flightCard.cheaperBadge", { amount: fmtShort(flight.seat.total_price - cheapestCalPrice) })}
@@ -115,8 +122,18 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
         {/* RIGHT */}
         <div className={styles.right}>
           <p className={styles.price}>
-            <span className={styles.amount}>{formatPrice(flight?.seat?.total_price || 0)}</span>
-            <span className={styles.per}>{t("flightCard.perCustomer")}</span>
+            {!priceVisible ? (
+              <span className={styles.priceShimmer} />
+            ) : (
+              <>
+                <span className={`${styles.amount} ${styles.priceReveal}`}>
+                  {formatPrice(flight?.seat?.total_price || 0)}
+                </span>
+                <span className={`${styles.per} ${styles.priceReveal}`}>
+                  {t("flightCard.perCustomer")}
+                </span>
+              </>
+            )}
           </p>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <button

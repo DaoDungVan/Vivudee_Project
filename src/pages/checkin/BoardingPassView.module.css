@@ -1,0 +1,354 @@
+/* Full screen states */
+.fullscreen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: #0f172a;
+  padding: 24px;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(255,255,255,0.15);
+  border-top-color: #60a5fa;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loadingText { color: #94a3b8; font-size: 14px; font-family: -apple-system, sans-serif; }
+.errorIcon   { color: #f87171; }
+.errorText   { color: #fca5a5; font-size: 15px; text-align: center; font-family: -apple-system, sans-serif; }
+.backLink    { color: #60a5fa; font-size: 14px; text-decoration: none; font-family: -apple-system, sans-serif; }
+
+/* Page layout */
+.page {
+  min-height: 100vh;
+  background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 0 40px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+/* Top bar */
+.topBar {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+}
+
+.topBack {
+  color: #94a3b8;
+  font-size: 13px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.topBack:hover { color: #e2e8f0; }
+
+.topTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e2e8f0;
+  letter-spacing: 0.5px;
+}
+
+.topActions { display: flex; gap: 8px; }
+
+.iconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.iconBtn:hover { background: rgba(255,255,255,0.15); color: #e2e8f0; }
+
+/* Card */
+.card {
+  width: calc(100% - 32px);
+  max-width: 400px;
+  background: #ffffff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+/* Airline header */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: linear-gradient(90deg, #1a56db, #2563eb);
+}
+
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.airline {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #bfdbfe;
+  text-transform: uppercase;
+}
+
+.flightNum {
+  font-size: 16px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+.bpLabel {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  color: rgba(255,255,255,0.7);
+  text-transform: uppercase;
+}
+
+/* Passenger */
+.passenger {
+  padding: 18px 20px 0;
+}
+
+.passengerLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 3px;
+}
+
+.passengerName {
+  font-size: 22px;
+  font-weight: 900;
+  color: #111827;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Route */
+.route {
+  display: flex;
+  align-items: center;
+  padding: 18px 20px;
+  gap: 8px;
+}
+
+.airport {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+.airportRight { align-items: flex-end; }
+
+.apCode {
+  font-size: 36px;
+  font-weight: 900;
+  color: #1a56db;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.apCity {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.apTime {
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+  margin-top: 6px;
+}
+
+.routeMid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.planeIcon { color: #2563eb; }
+
+.routeLine {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #dbeafe, transparent);
+}
+
+/* Date row */
+.dateRow {
+  display: flex;
+  padding: 0 20px 18px;
+  gap: 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.dateItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+.dateItem + .dateItem { border-left: 1px solid #f3f4f6; padding-left: 12px; }
+
+.metaLabel {
+  font-size: 9px;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.metaVal {
+  font-size: 13px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.metaValCode {
+  font-size: 12px;
+  font-weight: 800;
+  color: #1a56db;
+  font-family: monospace;
+  letter-spacing: 1px;
+}
+
+/* Tear line */
+.tearRow {
+  display: flex;
+  align-items: center;
+  margin: 0 -1px;
+}
+
+.tearCircleLeft,
+.tearCircleRight {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #0f172a, #1e1b4b);
+  flex-shrink: 0;
+}
+
+.tearDash {
+  flex: 1;
+  border-top: 2px dashed #e5e7eb;
+  margin: 0 4px;
+}
+
+/* Seat + Gate */
+.bigRow {
+  display: flex;
+  align-items: stretch;
+  padding: 18px 20px;
+}
+
+.bigItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.bigDivider {
+  width: 1px;
+  background: #f3f4f6;
+  margin: 0 16px;
+}
+
+.bigLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+
+.bigVal {
+  font-size: 52px;
+  font-weight: 900;
+  color: #111827;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+.bigValBlue { color: #1a56db; }
+
+/* Barcode */
+.barcodeWrap {
+  padding: 16px 20px 20px;
+  background: #f9fafb;
+  border-top: 1px solid #f3f4f6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.barcode {
+  display: flex;
+  align-items: flex-end;
+  height: 52px;
+  gap: 0;
+}
+
+.bar {
+  display: inline-block;
+  background: #111827;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+.barcodeCode {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  color: #374151;
+  font-family: monospace;
+  text-transform: uppercase;
+}
+
+/* Footer hint */
+.hint {
+  margin-top: 20px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  text-align: center;
+  padding: 0 24px;
+  line-height: 1.5;
+}
+
+/* Print */
+@media print {
+  .page { background: white; }
+  .topBar, .hint { display: none; }
+  .card { box-shadow: none; border: 1px solid #e5e7eb; }
+  .tearCircleLeft, .tearCircleRight { background: #e5e7eb; }
+}
