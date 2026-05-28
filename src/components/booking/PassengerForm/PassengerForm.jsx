@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import styles from "./PassengerForm.module.css";
 import planeIcon from "../../../assets/icons/plane.png";
-import { LuLuggage, LuBackpack, LuUser, LuArmchair } from "react-icons/lu";
+import { LuLuggage, LuBackpack, LuUser, LuArmchair, LuMapPin } from "react-icons/lu";
 import { getSeatPricing } from "../../../services/flightService";
+import SeatMap from "../SeatMap/SeatMap";
 
 const kgToDisplay = (kg, lang) =>
   lang === "en" ? `${Math.round(kg * 2.20462)} lbs` : `${kg} kg`;
@@ -42,6 +43,12 @@ const buildBaggageOptions = (flight, t, lang) => {
   }));
 };
 
+const getPickPrice = (pricing) => {
+  if (!pricing) return 0;
+  const vals = Object.values(pricing).filter(v => typeof v === "number" && v > 0);
+  return vals.length ? Math.max(...vals) + 50000 : 200000;
+};
+
 const FlightSummary = ({
   flight,
   label,
@@ -56,6 +63,8 @@ const FlightSummary = ({
   fmt,
   t,
   lang,
+  onOpenSeatMap,
+  pickedSeats,
 }) => (
   <div className={styles.flightBox}>
     <p className={styles.boxLabel}>{label}</p>
@@ -178,6 +187,24 @@ const FlightSummary = ({
             </button>
           );
         })()}
+
+        {/* Tự chọn ghế — luôn hiện, giá cao nhất */}
+        {(() => {
+          const pickPrice = getPickPrice(seatPricing);
+          return (
+            <button
+              className={`${styles.seatCard} ${styles.seatPickCard} ${seatType === "pick" ? styles.seatActive : ""}`}
+              onClick={() => { onSeatTypeChange("pick"); onOpenSeatMap(); }}
+            >
+              <LuMapPin size={13} className={styles.seatPickIcon} />
+              <span className={styles.seatPos}>{lang === "en" ? "Pick seat" : "Tự chọn ghế"}</span>
+              <span className={styles.seatPrice}>+{fmt(pickPrice * paxCount)}</span>
+              {pickedSeats?.length > 0 && (
+                <span className={styles.seatPickedBadge}>{pickedSeats.join(", ")}</span>
+              )}
+            </button>
+          );
+        })()}
         </div>
 
         {/* Seat layout diagram */}
@@ -226,6 +253,9 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
   const [seatPricingRet, setSeatPricingRet] = useState(null);
   const [seatTypeOut,    setSeatTypeOut]    = useState(null);
   const [seatTypeRet,    setSeatTypeRet]    = useState(null);
+  const [pickedSeatsOut, setPickedSeatsOut] = useState([]);
+  const [pickedSeatsRet, setPickedSeatsRet] = useState([]);
+  const [seatMapOpen,    setSeatMapOpen]    = useState(null); // null | "outbound" | "return"
 
   const paxCount = Math.max(1, Number(passengers?.adults || 0) + Number(passengers?.children || 0));
 
@@ -259,12 +289,25 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
   const extraBagOut = outboundBaggageOptions.find((o) => o.kg === baggageOutbound)?.price || 0;
   const extraBagRet = returnBaggageOptions.find((o)   => o.kg === baggageReturn)?.price   || 0;
 
-  const seatFeeOut = seatTypeOut && seatPricingOut ? (seatPricingOut[seatTypeOut] || 0) * paxCount : 0;
-  const seatFeeRet = seatTypeRet && seatPricingRet ? (seatPricingRet[seatTypeRet] || 0) * paxCount : 0;
+  const seatFeeOut = seatTypeOut === "pick"
+    ? getPickPrice(seatPricingOut) * paxCount
+    : (seatTypeOut && seatPricingOut ? (seatPricingOut[seatTypeOut] || 0) * paxCount : 0);
+  const seatFeeRet = seatTypeRet === "pick"
+    ? getPickPrice(seatPricingRet) * paxCount
+    : (seatTypeRet && seatPricingRet ? (seatPricingRet[seatTypeRet] || 0) * paxCount : 0);
 
   const totalPrice =
     (selectedFlights.outbound?.seat?.total_price || 0) + extraBagOut * paxCount + seatFeeOut +
     (selectedFlights.return?.seat?.total_price  || 0) + extraBagRet * paxCount + seatFeeRet;
+
+  const tempPassengers = Array.from({ length: paxCount }, (_, i) => ({ id: i, name: `Hành khách ${i + 1}` }));
+
+  const handleSeatMapConfirm = (selections) => {
+    const seats = Object.values(selections).filter(Boolean);
+    if (seatMapOpen === "outbound") { setPickedSeatsOut(seats); setSeatTypeOut("pick"); }
+    if (seatMapOpen === "return")   { setPickedSeatsRet(seats); setSeatTypeRet("pick"); }
+    setSeatMapOpen(null);
+  };
 
   const handleContinue = () => {
     navigate("/ancillary", {
@@ -273,6 +316,7 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
         passengers,
         baggage:        { outbound: baggageOutbound, return: baggageReturn },
         seatPreference: { outbound: seatTypeOut,     return: seatTypeRet  },
+        prePickedSeats: { outbound: pickedSeatsOut,  return: pickedSeatsRet },
         totalPrice,
       },
     });
@@ -307,6 +351,8 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
               fmt={fmt}
               t={t}
               lang={lang}
+              onOpenSeatMap={() => setSeatMapOpen("outbound")}
+              pickedSeats={pickedSeatsOut}
             />
           )}
 
@@ -325,6 +371,8 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
               fmt={fmt}
               t={t}
               lang={lang}
+              onOpenSeatMap={() => setSeatMapOpen("return")}
+              pickedSeats={pickedSeatsRet}
             />
           )}
         </div>
@@ -339,6 +387,29 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
           </button>
         </div>
       </div>
+
+      {/* SeatMap overlay */}
+      {seatMapOpen && (() => {
+        const flight = seatMapOpen === "outbound" ? selectedFlights.outbound : selectedFlights.return;
+        const flightId = flight?.flight_id || flight?.id;
+        const seatClass = (flight?.seat?.class || "economy").toLowerCase();
+        const initialSels = {};
+        const existing = seatMapOpen === "outbound" ? pickedSeatsOut : pickedSeatsRet;
+        existing.forEach((s, i) => { initialSels[i] = s; });
+        return (
+          <div className={styles.seatMapOverlay}>
+            <SeatMap
+              flightId={flightId}
+              seatClass={seatClass}
+              passengers={tempPassengers}
+              onConfirm={handleSeatMapConfirm}
+              onBack={() => setSeatMapOpen(null)}
+              seatPreference="pick"
+              initialSelections={initialSels}
+            />
+          </div>
+        );
+      })()}
     </div>
   );
 };

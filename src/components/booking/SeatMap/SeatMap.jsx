@@ -155,12 +155,13 @@ const isAdjacentToAny = (seatNum, chosen, cols) => {
 /* ══════════════════════════════════════════════════════════════════════════
    Component
 ══════════════════════════════════════════════════════════════════════════ */
-export default function SeatMap({ flightId, seatClass = "economy", passengers = [], onConfirm, onBack, rowOffset = 0, seatPreference = null }) {
+export default function SeatMap({ flightId, seatClass = "economy", passengers = [], onConfirm, onBack, rowOffset = 0, seatPreference = null, initialSelections = {} }) {
   const { t } = useTranslation();
+  const resolvedPreference = seatPreference === "pick" ? null : seatPreference;
   const [loading, setLoading]       = useState(true);
   const [seatData, setSeatData]     = useState(null);
   const [error, setError]           = useState("");
-  const [selections, setSelections] = useState({});
+  const [selections, setSelections] = useState(initialSelections);
   const [activePassenger, setActivePassenger] = useState(passengers[0]?.id ?? 0);
   const [hoverInfo, setHoverInfo]   = useState(null); // { seat, x, y }
   const hoverTimer = useRef(null);
@@ -185,12 +186,12 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
 
   const getSeatStatus = (seatNum, occupied, col) => {
     if (occupied) return "occupied";
-    if (seatPreference) {
+    if (resolvedPreference) {
       const rowNum = parseInt(seatNum, 10);
-      if (seatPreference === "extra_legroom") {
+      if (resolvedPreference === "extra_legroom") {
         if (!EXIT_ROW_NUMS.has(rowNum)) return "restricted";
       } else {
-        if (getSeatPosition(col, cols, aisleIdx) !== seatPreference) return "restricted";
+        if (getSeatPosition(col, cols, aisleIdx) !== resolvedPreference) return "restricted";
       }
     }
     const owner = Object.entries(selections).find(([, s]) => s === seatNum);
@@ -282,11 +283,11 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
         {passengers.length > 1 && <span className={styles.legendHint}>· {t("seatMap.adjacent")}</span>}
       </div>
 
-      {seatPreference && (
+      {resolvedPreference && (
         <div className={styles.prefNote}>
           {t("seatMap.prefFilter", "Chỉ chọn được ghế phù hợp vị trí đã mua:")}
           {" "}<strong>
-            {{ window: "Cửa sổ", aisle: "Lối đi", middle: "Giữa", extra_legroom: "Hàng lối thoát" }[seatPreference]}
+            {{ window: "Cửa sổ", aisle: "Lối đi", middle: "Giữa", extra_legroom: "Hàng lối thoát" }[resolvedPreference]}
           </strong>
         </div>
       )}
