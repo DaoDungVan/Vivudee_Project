@@ -31,7 +31,7 @@ export default function SeatMapPage() {
 
   if (!state?.bookingPayload) { navigate("/flights"); return null; }
 
-  const { bookingPayload, selectedFlights, paxList, contact, totalPrice, adultCount, ancillarySelections, ancillaryTotal, seatPreference, prePickedSeats } = state;
+  const { bookingPayload, selectedFlights, paxList, contact, totalPrice, adultCount, ancillarySelections, ancillaryTotal, seatPreference } = state;
   const flight = selectedFlights?.outbound;
   const initClass = flight?.seat?.class?.toLowerCase() || "economy";
 
@@ -115,12 +115,6 @@ export default function SeatMapPage() {
             onBack={() => navigate(-1)}
             rowOffset={rowOffset}
             seatPreference={seatPreference?.outbound || null}
-            initialSelections={(() => {
-              const seats = prePickedSeats?.outbound || [];
-              const sel = {};
-              seats.forEach((s, i) => { sel[i] = s; });
-              return sel;
-            })()}
           />
         </div>
 

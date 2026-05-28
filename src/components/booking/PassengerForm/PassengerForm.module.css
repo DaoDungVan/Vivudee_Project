@@ -19,7 +19,6 @@
   overflow: hidden;
   box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
   animation: slideFromRight 0.25s ease;
-  position: relative;
 }
 
 @keyframes slideFromRight {
@@ -361,61 +360,6 @@
 [data-theme="dark"] .seatExitNote {
   background: rgba(245,158,11,0.15);
   color: #fbbf24;
-}
-
-/* Pick seat card */
-.seatPickCard {
-  border-color: #7c3aed;
-  position: relative;
-}
-.seatPickCard:hover {
-  border-color: #6d28d9;
-  background: rgba(124,58,237,0.06);
-}
-.seatPickCard.seatActive {
-  border-color: #7c3aed;
-  background: rgba(124,58,237,0.10);
-}
-.seatPickIcon {
-  color: #7c3aed;
-}
-.seatPickedBadge {
-  font-size: 10px;
-  font-weight: 700;
-  color: #7c3aed;
-  background: rgba(124,58,237,0.12);
-  border-radius: 4px;
-  padding: 1px 5px;
-  margin-top: 1px;
-}
-[data-theme="dark"] .seatPickCard {
-  border-color: #a78bfa;
-}
-[data-theme="dark"] .seatPickCard:hover,
-[data-theme="dark"] .seatPickCard.seatActive {
-  background: rgba(167,139,250,0.12);
-}
-[data-theme="dark"] .seatPickIcon,
-[data-theme="dark"] .seatPickedBadge {
-  color: #a78bfa;
-}
-[data-theme="dark"] .seatPickedBadge {
-  background: rgba(167,139,250,0.15);
-}
-
-/* SeatMap overlay inside panel */
-.seatMapOverlay {
-  position: absolute;
-  inset: 0;
-  z-index: 10;
-  background: var(--bg, #fff);
-  border-radius: 16px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-[data-theme="dark"] .seatMapOverlay {
-  background: var(--bg, #0f172a);
 }
 
 /* SEAT DIAGRAM */
