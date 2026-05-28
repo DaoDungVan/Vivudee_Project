@@ -416,12 +416,30 @@
   padding: 10px 20px;
   background: linear-gradient(90deg, #1a56db, #2563eb);
 }
+.bpTopLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bpAirlineLogo {
+  height: 26px;
+  width: auto;
+  max-width: 90px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
 .bpTopAirline {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 1.5px;
   color: #bfdbfe;
   text-transform: uppercase;
+}
+.bpTopFlight {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
+  letter-spacing: 0.5px;
 }
 .bpTopLabel {
   font-size: 11px;
@@ -569,13 +587,18 @@
 }
 .bpGate { color: #1a56db; }
 
-/* QR code */
-.bpQr {
-  display: block;
-  border-radius: 8px;
+/* QR code — always white background so it's scannable in dark mode */
+.bpQrWrap {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 6px;
+  display: inline-block;
   border: 1px solid #dbe4ff;
 }
-[data-theme="dark"] .bpQr { border-color: #2d3a5e; filter: invert(1); }
+.bpQr {
+  display: block;
+  border-radius: 4px;
+}
 
 .bpCode {
   font-size: 10px;
@@ -651,10 +674,17 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Print */
+/* Print — chỉ in vùng boarding pass */
 @media print {
-  .backBtn, .boardingActions, .bpBarcode { display: none; }
-  .wrapper { padding: 0; }
+  body > * { display: none !important; }
+  #print-area { display: block !important; }
+  .bpCard {
+    box-shadow: none !important;
+    border: 1px solid #dbe4ff !important;
+    page-break-inside: avoid;
+  }
+  .bpTopBar { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .bpQrWrap { background: #fff !important; }
 }
 
 /* Mobile */

@@ -70,7 +70,10 @@ export default function BoardingPassView() {
         {/* Airline header */}
         <div className={styles.cardHeader}>
           <div className={styles.headerLeft}>
-            <span className={styles.airline}>VIVUDEE AIR</span>
+            {bp.airline_logo
+              ? <img src={bp.airline_logo} alt={bp.airline || "airline"} className={styles.airlineLogo} />
+              : <span className={styles.airline}>{bp.airline || "VIVUDEE AIR"}</span>
+            }
             <span className={styles.flightNum}>{bp.flight_number || ""}</span>
           </div>
           <span className={styles.bpLabel}>BOARDING PASS</span>
@@ -96,6 +99,7 @@ export default function BoardingPassView() {
           <div className={`${styles.airport} ${styles.airportRight}`}>
             <span className={styles.apCode}>{bp.arrival_airport || "---"}</span>
             <span className={styles.apCity}>{bp.arrival_city || ""}</span>
+            <span className={styles.apTime}>{bp.arrival_time || "--:--"}</span>
           </div>
         </div>
 

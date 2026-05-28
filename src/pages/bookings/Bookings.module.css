@@ -737,24 +737,30 @@
   margin: 0;
   word-break: break-all;
 }
-.otpInput {
-  width: 100%;
-  max-width: 220px;
+.otpBoxes {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.otpBox {
+  width: 44px;
   height: 54px;
   border: 2px solid var(--input-border);
-  border-radius: 12px;
-  padding: 0 16px;
-  font-size: 24px;
+  border-radius: 10px;
+  font-size: 22px;
   font-weight: 700;
-  letter-spacing: 8px;
   text-align: center;
   background: var(--input-bg);
   color: var(--input-text);
   outline: none;
   font-family: monospace;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  caret-color: var(--primary-color, #2563eb);
 }
-.otpInput:focus { border-color: var(--primary-color, #2563eb); }
+.otpBox:focus {
+  border-color: var(--primary-color, #2563eb);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+}
 .otpError {
   font-size: 12px;
   color: #ef4444;

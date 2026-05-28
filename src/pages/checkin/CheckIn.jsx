@@ -298,14 +298,21 @@ export default function CheckIn() {
               </div>
             )}
 
-            <div className={styles.boardingList}>
+            <div className={styles.boardingList} id="print-area">
               {boardingPasses.map((bp, i) => (
                 <BoardingPassCard key={i} bp={bp} />
               ))}
             </div>
 
             <div className={styles.boardingActions}>
-              <button className={styles.btnPrint} onClick={() => window.print()}>
+              <button className={styles.btnPrint} onClick={() => {
+                const el = document.getElementById("print-area");
+                const orig = document.body.innerHTML;
+                document.body.innerHTML = el.innerHTML;
+                window.print();
+                document.body.innerHTML = orig;
+                window.location.reload();
+              }}>
                 <LuPrinter size={16} /> In boarding pass
               </button>
               <button className={styles.btnBack} onClick={() => { setStep(STEP_LOOKUP); setBookingCode(""); setBoardingPasses([]); setStatusData(null); setEmailSentTo(""); }}>
@@ -330,7 +337,13 @@ function BoardingPassCard({ bp }) {
     <div className={styles.bpCard}>
       {/* Blue top bar */}
       <div className={styles.bpTopBar}>
-        <span className={styles.bpTopAirline}>VIVUDEE AIR &nbsp;·&nbsp; {bp?.flight_number || ""}</span>
+        <div className={styles.bpTopLeft}>
+          {bp?.airline_logo
+            ? <img src={bp.airline_logo} alt={bp?.airline || "airline"} className={styles.bpAirlineLogo} />
+            : <span className={styles.bpTopAirline}>{(bp?.airline || "VIVUDEE AIR").toUpperCase()}</span>
+          }
+          <span className={styles.bpTopFlight}>{bp?.flight_number || ""}</span>
+        </div>
         <span className={styles.bpTopLabel}>BOARDING PASS</span>
       </div>
 
@@ -350,6 +363,7 @@ function BoardingPassCard({ bp }) {
             <div className={`${styles.bpAp} ${styles.bpApRight}`}>
               <span className={styles.bpApCode}>{bp?.arrival_airport || "---"}</span>
               <span className={styles.bpApCity}>{bp?.arrival_city || ""}</span>
+              <span className={styles.bpApTime}>{bp?.arrival_time || "--:--"}</span>
             </div>
           </div>
 
@@ -383,13 +397,15 @@ function BoardingPassCard({ bp }) {
             </div>
           </div>
 
-          <img
-            src={qrUrl}
-            alt="QR Code"
-            className={styles.bpQr}
-            width={130}
-            height={130}
-          />
+          <div className={styles.bpQrWrap}>
+            <img
+              src={qrUrl}
+              alt="QR Code"
+              className={styles.bpQr}
+              width={130}
+              height={130}
+            />
+          </div>
           <div className={styles.bpCode}>{code}</div>
         </div>
       </div>

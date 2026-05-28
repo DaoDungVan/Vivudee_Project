@@ -94,7 +94,7 @@ const Bookings = () => {
   // OTP step state
   const [otpStep,     setOtpStep]     = useState(false);
   const [otpEmail,    setOtpEmail]    = useState("");
-  const [otpCode,     setOtpCode]     = useState("");
+  const [otpDigits,   setOtpDigits]   = useState(["", "", "", "", "", ""]);
   const [otpLoading,  setOtpLoading]  = useState(false);
   const [otpError,    setOtpError]    = useState("");
   const [otpSending,  setOtpSending]  = useState(false);
@@ -266,18 +266,36 @@ const Bookings = () => {
         : await requestGuestRefundOTP(guestRefundEmail.trim(), refundTarget.booking_code);
       setOtpEmail(res.data?.email || guestRefundEmail.trim());
       setOtpStep(true);
-      setOtpCode("");
+      setOtpDigits(["", "", "", "", "", ""]);
     } catch (err) {
       setRefundError(err?.response?.data?.error || "Không thể gửi mã OTP. Vui lòng thử lại.");
     } finally { setOtpSending(false); }
   };
 
+  const handleOtpDigitChange = (value, index) => {
+    if (!/^[0-9]?$/.test(value)) return;
+    const next = [...otpDigits];
+    next[index] = value;
+    setOtpDigits(next);
+    setOtpError("");
+    if (value && index < 5) {
+      document.getElementById(`otp-refund-${index + 1}`)?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (e, index) => {
+    if (e.key === "Backspace" && !otpDigits[index] && index > 0) {
+      document.getElementById(`otp-refund-${index - 1}`)?.focus();
+    }
+  };
+
   const handleOTPSubmit = async () => {
-    if (!/^\d{6}$/.test(otpCode.trim())) { setOtpError("Mã OTP phải là 6 chữ số"); return; }
+    const otpCode = otpDigits.join("");
+    if (!/^\d{6}$/.test(otpCode)) { setOtpError("Mã OTP phải là 6 chữ số"); return; }
     setOtpLoading(true); setOtpError("");
     try {
       const email = isLoggedIn ? otpEmail : guestRefundEmail.trim();
-      await verifyRefundOTP(email, otpCode.trim());
+      await verifyRefundOTP(email, otpCode);
       await doSubmitRefund();
     } catch (err) {
       setOtpError(err?.response?.data?.error || "Mã OTP không đúng hoặc đã hết hạn");
@@ -626,15 +644,22 @@ const Bookings = () => {
                   Mã xác nhận gồm 6 chữ số đã được gửi đến email
                 </p>
                 <p className={styles.otpEmailDisplay}>{maskEmail(isLoggedIn ? otpEmail : guestRefundEmail)}</p>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  className={styles.otpInput}
-                  placeholder="● ● ● ● ● ●"
-                  maxLength={6}
-                  value={otpCode}
-                  onChange={(e) => { setOtpCode(e.target.value.replace(/\D/g, "")); setOtpError(""); }}
-                />
+                <div className={styles.otpBoxes}>
+                  {otpDigits.map((digit, i) => (
+                    <input
+                      key={i}
+                      id={`otp-refund-${i}`}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      className={styles.otpBox}
+                      value={digit}
+                      onChange={(e) => handleOtpDigitChange(e.target.value, i)}
+                      onKeyDown={(e) => handleOtpKeyDown(e, i)}
+                      autoFocus={i === 0}
+                    />
+                  ))}
+                </div>
                 {otpError && <p className={styles.otpError}>{otpError}</p>}
                 <button className={styles.resendOtpBtn} onClick={sendOTP} disabled={otpSending}>
                   {otpSending ? "Đang gửi..." : "Gửi lại mã"}
@@ -644,7 +669,7 @@ const Bookings = () => {
                   <button
                     className={styles.refundSubmitBtn}
                     onClick={handleOTPSubmit}
-                    disabled={otpLoading || otpCode.length !== 6}
+                    disabled={otpLoading || otpDigits.join("").length !== 6}
                   >
                     {otpLoading ? "Đang xác nhận..." : "Xác nhận"}
                   </button>

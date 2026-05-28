@@ -101,7 +101,14 @@
 .headerLeft {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 3px;
+}
+.airlineLogo {
+  height: 28px;
+  width: auto;
+  max-width: 100px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
 }
 
 .airline {
