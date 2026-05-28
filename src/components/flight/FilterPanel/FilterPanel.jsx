@@ -103,7 +103,7 @@ const FilterPanel = ({ filters, setFilters, outboundFlights = [], returnFlights 
         </div>
         <input
           type="range" className={styles.range}
-          min={minPrice} max={maxPrice} step={50000} value={currentMax}
+          min={minPrice} max={maxPrice} step={1000} value={currentMax}
           onChange={(e) => setFilters((prev) => ({ ...prev, priceMax: Number(e.target.value) }))}
         />
       </div>
@@ -164,7 +164,7 @@ const FilterPanel = ({ filters, setFilters, outboundFlights = [], returnFlights 
         </div>
         <input
           type="range" className={styles.range}
-          min={0} max={maxDuration} step={30} value={currentDuration}
+          min={0} max={maxDuration} step={1} value={currentDuration}
           onChange={(e) => setFilters((prev) => ({ ...prev, durationMax: Number(e.target.value) }))}
         />
       </div>
