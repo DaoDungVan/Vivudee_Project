@@ -186,14 +186,19 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
 
   const getSeatStatus = (seatNum, occupied, col) => {
     if (occupied) return "occupied";
+    const rowNum = parseInt(seatNum, 10);
+    const isExitRow = EXIT_ROW_NUMS.has(rowNum);
     if (resolvedPreference) {
-      const rowNum = parseInt(seatNum, 10);
       if (resolvedPreference === "extra_legroom") {
-        if (!EXIT_ROW_NUMS.has(rowNum)) return "restricted";
+        // Chỉ exit row được chọn
+        if (!isExitRow) return "restricted";
       } else {
+        // window/aisle/middle: exit row bị chặn, chỉ đúng vị trí mới chọn được
+        if (isExitRow) return "restricted";
         if (getSeatPosition(col, cols, aisleIdx) !== resolvedPreference) return "restricted";
       }
     }
+    // resolvedPreference = null (Tự chọn ghế): tất cả ghế được chọn kể cả exit row
     const owner = Object.entries(selections).find(([, s]) => s === seatNum);
     if (owner) return String(owner[0]) === String(activePassenger) ? "mine" : "other";
     if (passengers.length > 1 && !selections[activePassenger]) {
