@@ -197,15 +197,21 @@ export default function LoyaltyTab() {
   if (loading) return <div className={styles.loading}>{t("loyalty.loading")}</div>;
   if (error)   return <div className={styles.errorMsg}>{error}</div>;
 
-  const tierName = membership?.tier_name || "member";
-  const tier     = getTierMeta(tierName);
-  const thres    = getTierThres(tierName);
-  const curPts   = membership?.tier_points ?? 0;
-  // Dùng next_tier từ API, fallback sang threshold cứng nếu API không trả
-  const nextPts  = membership?.next_tier?.required_points ?? thres.nextPts;
-  const nextName = membership?.next_tier?.name ?? thres.next;
-  const isMax    = !nextPts;
-  const progress = nextPts ? Math.min(100, Math.round((curPts / nextPts) * 100)) : 100;
+  const tierName   = membership?.tier_name || "member";
+  const tier       = getTierMeta(tierName);
+  const thres      = getTierThres(tierName);
+  const curPts     = membership?.tier_points ?? 0;
+  // Backend trả về points_needed (số điểm CÒN THIẾU), không phải ngưỡng tuyệt đối
+  const ptsNeeded  = membership?.next_tier?.points_needed ?? null;
+  const nextName   = membership?.next_tier?.name ?? thres.next;
+  const isMax      = !nextName;
+  // Ngưỡng tuyệt đối của tier tiếp theo = curPts + ptsNeeded (hoặc từ thres cứng)
+  const nextThres  = ptsNeeded != null ? curPts + ptsNeeded : (thres.nextPts ?? null);
+  // Ngưỡng của tier hiện tại (điểm tối thiểu để ở tier này)
+  const TIER_MIN   = { member: 0, silver: 5000, gold: 20000, platinum: 50000 };
+  const curMin     = TIER_MIN[tierName.toLowerCase()] ?? 0;
+  const range      = nextThres ? nextThres - curMin : 1;
+  const progress   = isMax ? 100 : Math.min(100, Math.max(0, Math.round(((curPts - curMin) / range) * 100)));
 
   const txSign = (type) => (type === "earn" ? "+" : "−");
   const txClass = (type) => {
@@ -270,9 +276,11 @@ export default function LoyaltyTab() {
         <p className={styles.progressNote}>
           {isMax
             ? t("loyalty.maxTier")
-            : nextName
-              ? t("loyalty.progressLeft", { amount: fmtPts(nextPts - curPts), tier: nextName })
-              : ""}
+            : ptsNeeded != null && ptsNeeded <= 0
+              ? `✓ Đủ điều kiện lên ${nextName} — đang chờ cập nhật hạng`
+              : nextName
+                ? t("loyalty.progressLeft", { amount: fmtPts(ptsNeeded ?? (nextThres - curPts)), tier: nextName })
+                : ""}
         </p>
       </div>
 
