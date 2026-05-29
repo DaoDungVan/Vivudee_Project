@@ -1,13 +1,14 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LuMail, LuPhone, LuMapPin } from "react-icons/lu";
+import { toast } from "react-toastify";
+import { LuMail, LuPhone, LuMapPin, LuSend } from "react-icons/lu";
 import { FaFacebook, FaInstagram, FaXTwitter, FaLinkedinIn } from "react-icons/fa6";
-import footerLogo from "../../../assets/images/LogoFooter.svg";
-import visa       from "../../../assets/images/payments/visa.png";
-import mastercard from "../../../assets/images/payments/mastercard.svg";
-import paypal     from "../../../assets/images/payments/paypal.png";
-import momo       from "../../../assets/images/payments/momo.png";
-import vietqr     from "../../../assets/images/payments/vietqr.png";
-import Newsletter from "../Newsletter/Newsletter";
+import footerLogo  from "../../../assets/images/LogoFooter.svg";
+import visaDark    from "../../../assets/images/payments/visa_dark.png";
+import mastercardDk from "../../../assets/images/payments/mastercard_dark.png";
+import paypalDark  from "../../../assets/images/payments/paypal_dark.png";
+import momoDark    from "../../../assets/images/payments/momo_dark.png";
+import vietqrDark  from "../../../assets/images/payments/vietqr_dark.png";
 import styles from "./Footer.module.css";
 
 const SOCIALS = [
@@ -18,31 +19,58 @@ const SOCIALS = [
 ];
 
 const PAYMENTS = [
-  { src: visa,       alt: "Visa"       },
-  { src: mastercard, alt: "Mastercard" },
-  { src: paypal,     alt: "PayPal"     },
-  { src: momo,       alt: "MoMo"       },
-  { src: vietqr,     alt: "VietQR"     },
+  { src: visaDark,     alt: "Visa"       },
+  { src: mastercardDk, alt: "Mastercard" },
+  { src: paypalDark,   alt: "PayPal"     },
+  { src: momoDark,     alt: "MoMo"       },
+  { src: vietqrDark,   alt: "VietQR"     },
 ];
 
 export default function Footer() {
   const { t } = useTranslation();
+  const [email, setEmail] = useState("");
+
+  const handleSubscribe = () => {
+    if (!email.trim()) { toast.error(t("newsletter.error")); return; }
+    toast.success(t("newsletter.success"));
+    setEmail("");
+  };
 
   return (
     <footer className={styles.footer}>
-      <div className={styles.newsletterWrap}>
-        <div className={styles.container}>
-          <Newsletter />
+
+      {/* ── Newsletter strip ── */}
+      <div className={styles.nlStrip}>
+        <div className={styles.nlInner}>
+          <div className={styles.nlText}>
+            <LuSend size={18} className={styles.nlIcon} />
+            <div>
+              <p className={styles.nlTitle}>{t("newsletter.title")}</p>
+              <p className={styles.nlDesc}>{t("newsletter.desc")}</p>
+            </div>
+          </div>
+          <div className={styles.nlForm}>
+            <input
+              type="email"
+              className={styles.nlInput}
+              placeholder={t("newsletter.placeholder")}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSubscribe()}
+            />
+            <button className={styles.nlBtn} onClick={handleSubscribe}>
+              {t("newsletter.btn")}
+            </button>
+          </div>
         </div>
       </div>
 
       <div className={styles.accentLine} />
 
       <div className={styles.container}>
-        {/* Main grid */}
-        <div className={styles.grid}>
 
-          {/* Brand column */}
+        {/* ── Main grid ── */}
+        <div className={styles.grid}>
           <div className={styles.brand}>
             <img src={footerLogo} alt="Vivudee" className={styles.logo} />
             <p className={styles.tagline}>Your Journey Starts Here</p>
@@ -58,7 +86,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Product */}
           <div className={styles.col}>
             <h4 className={styles.colTitle}>{t("footer.product")}</h4>
             <ul className={styles.colList}>
@@ -69,7 +96,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Support */}
           <div className={styles.col}>
             <h4 className={styles.colTitle}>{t("footer.support")}</h4>
             <ul className={styles.colList}>
@@ -80,20 +106,19 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Contact */}
           <div className={styles.col}>
             <h4 className={styles.colTitle}>{t("footer.contact")}</h4>
             <ul className={styles.contactList}>
-              <li><LuMail size={14} /><span>support@vivudee.com</span></li>
-              <li><LuPhone size={14} /><span>+84 123 456 789</span></li>
-              <li><LuMapPin size={14} /><span>Việt Nam</span></li>
+              <li><LuMail size={13} /><span>support@vivudee.com</span></li>
+              <li><LuPhone size={13} /><span>+84 123 456 789</span></li>
+              <li><LuMapPin size={13} /><span>Việt Nam</span></li>
             </ul>
           </div>
         </div>
 
         <div className={styles.divider} />
 
-        {/* Bottom bar */}
+        {/* ── Bottom bar ── */}
         <div className={styles.bottom}>
           <div className={styles.payments}>
             {PAYMENTS.map((p) => (
@@ -102,8 +127,9 @@ export default function Footer() {
               </div>
             ))}
           </div>
-          <p className={styles.copy}>© {new Date().getFullYear()} Vivudee · {t("footer.copyright", "Bảo lưu mọi quyền")}</p>
+          <p className={styles.copy}>© {new Date().getFullYear()} Vivudee · {t("footer.allRights", "Bảo lưu mọi quyền")}</p>
         </div>
+
       </div>
     </footer>
   );

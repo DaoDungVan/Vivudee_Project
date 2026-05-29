@@ -1,73 +1,139 @@
 .footer {
-  background: linear-gradient(180deg, #0d1f3c 0%, #07111f 100%);
-  position: relative;
+  background: linear-gradient(180deg, #0b1a30 0%, #060e1c 100%);
 }
 
-.newsletterWrap {
-  background: linear-gradient(180deg, #0d1f3c 0%, #0d1f3c 100%);
-  padding: 48px 0 0;
+/* ── Newsletter strip ───────────────────────────── */
+.nlStrip {
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 32px 0;
 }
 
+.nlInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.nlText {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.nlIcon {
+  color: #60a5fa;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.nlTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0 0 3px;
+}
+
+.nlDesc {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.nlForm {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.nlInput {
+  width: 260px;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.nlInput::placeholder { color: #475569; }
+.nlInput:focus { border-color: #3b82f6; }
+
+.nlBtn {
+  padding: 10px 22px;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+  white-space: nowrap;
+}
+.nlBtn:hover { background: #1d4ed8; transform: translateY(-1px); }
+
+/* ── Accent line ────────────────────────────────── */
 .accentLine {
-  height: 3px;
+  height: 2px;
   background: linear-gradient(90deg, #1a56db 0%, #818cf8 50%, #38bdf8 100%);
 }
 
+/* ── Container ──────────────────────────────────── */
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 60px 24px 40px;
+  padding: 48px 24px 36px;
 }
 
-/* ── Grid ─────────────────────────────────────────── */
+/* ── Grid ───────────────────────────────────────── */
 .grid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1.2fr;
   gap: 48px;
-  margin-bottom: 48px;
+  margin-bottom: 40px;
 }
 
-/* ── Brand ────────────────────────────────────────── */
-.logo {
-  width: 140px;
-  margin-bottom: 16px;
-}
+/* ── Brand ──────────────────────────────────────── */
+.logo { width: 130px; margin-bottom: 14px; }
 
 .tagline {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: #60a5fa;
   margin: 0 0 10px;
 }
 
 .desc {
-  font-size: 13.5px;
-  color: #94a3b8;
+  font-size: 13px;
+  color: #64748b;
   line-height: 1.7;
-  margin: 0 0 24px;
-  max-width: 280px;
+  margin: 0 0 22px;
+  max-width: 270px;
 }
 
-.socials {
-  display: flex;
-  gap: 10px;
-}
+.socials { display: flex; gap: 8px; }
 
 .socialBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 8px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.14);
-  color: #94a3b8;
-  font-size: 15px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #64748b;
+  font-size: 14px;
   text-decoration: none;
-  transition: all 0.2s;
+  transition: all 0.18s;
 }
 .socialBtn:hover {
   background: #2563eb;
@@ -76,7 +142,7 @@
   transform: translateY(-2px);
 }
 
-/* ── Columns ──────────────────────────────────────── */
+/* ── Columns ────────────────────────────────────── */
 .col { display: flex; flex-direction: column; }
 
 .colTitle {
@@ -85,7 +151,7 @@
   letter-spacing: 2px;
   text-transform: uppercase;
   color: #ffffff;
-  margin: 0 0 18px;
+  margin: 0 0 16px;
 }
 
 .colList {
@@ -94,47 +160,43 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 11px;
+  gap: 10px;
 }
 
 .colList a {
   font-size: 13.5px;
-  color: #94a3b8;
+  color: #64748b;
   text-decoration: none;
-  transition: color 0.18s, padding-left 0.18s;
+  transition: color 0.15s, padding-left 0.15s;
 }
-.colList a:hover {
-  color: #ffffff;
-  padding-left: 4px;
-}
+.colList a:hover { color: #e2e8f0; padding-left: 3px; }
 
-/* ── Contact list ─────────────────────────────────── */
+/* ── Contact ────────────────────────────────────── */
 .contactList {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
-
 .contactList li {
   display: flex;
   align-items: center;
   gap: 9px;
   font-size: 13.5px;
-  color: #94a3b8;
+  color: #64748b;
 }
 .contactList li svg { flex-shrink: 0; color: #60a5fa; }
 
-/* ── Divider ──────────────────────────────────────── */
+/* ── Divider ────────────────────────────────────── */
 .divider {
   height: 1px;
-  background: rgba(255,255,255,0.12);
-  margin-bottom: 28px;
+  background: rgba(255,255,255,0.10);
+  margin-bottom: 24px;
 }
 
-/* ── Bottom bar ───────────────────────────────────── */
+/* ── Bottom ─────────────────────────────────────── */
 .bottom {
   display: flex;
   align-items: center;
@@ -143,31 +205,26 @@
   gap: 16px;
 }
 
-.payments {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
+/* ── Payments (dark pill style) ─────────────────── */
+.payments { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
 .payCard {
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 6px 14px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 7px;
+  width: 64px;
   height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.15s, box-shadow 0.15s;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  transition: background 0.15s, border-color 0.15s;
 }
 .payCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  background: rgba(255,255,255,0.13);
+  border-color: rgba(255,255,255,0.22);
 }
-
 .payCard img {
-  height: 20px;
+  height: 18px;
   width: auto;
   max-width: 44px;
   object-fit: contain;
@@ -175,27 +232,25 @@
 
 .copy {
   font-size: 12.5px;
-  color: #475569;
+  color: #334155;
   margin: 0;
 }
 
-/* ── Responsive ───────────────────────────────────── */
+/* ── Responsive ─────────────────────────────────── */
 @media (max-width: 960px) {
-  .grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 36px;
-  }
+  .grid { grid-template-columns: 1fr 1fr; gap: 32px; }
   .brand { grid-column: 1 / -1; }
   .desc  { max-width: 100%; }
+  .nlInput { width: 200px; }
 }
 
-@media (max-width: 560px) {
-  .container { padding: 40px 20px 28px; }
-  .grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 28px;
-  }
-  .bottom { flex-direction: column; align-items: flex-start; }
+@media (max-width: 640px) {
+  .nlInner { flex-direction: column; align-items: stretch; }
+  .nlForm  { flex-direction: column; }
+  .nlInput { width: 100%; }
+  .nlBtn   { width: 100%; }
+  .grid    { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .bottom  { flex-direction: column; align-items: flex-start; }
 }
 
 @media (max-width: 380px) {
