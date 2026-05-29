@@ -19,6 +19,7 @@ import {
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import { getCheckinStatus, checkinAll, getBoardingPass } from "../../services/checkinService";
+import { useTheme } from "../../hooks/useTheme";
 import styles from "./CheckIn.module.css";
 
 const fmtDate = (iso) => {
@@ -321,6 +322,8 @@ export default function CheckIn() {
 }
 
 function BoardingPassCard({ bp }) {
+  const { isDark } = useTheme();
+  const logo = (isDark && bp?.airline_logo_dark) ? bp.airline_logo_dark : bp?.airline_logo;
   const code   = bp?.boarding_pass_code || "";
   const bpUrl  = `${window.location.origin}/checkin/bp/${code}`;
   const qrData = encodeURIComponent(bpUrl);
@@ -331,8 +334,8 @@ function BoardingPassCard({ bp }) {
       {/* Blue top bar */}
       <div className={styles.bpTopBar}>
         <div className={styles.bpTopLeft}>
-          {bp?.airline_logo
-            ? <img src={bp.airline_logo} alt={bp?.airline || "airline"} className={styles.bpAirlineLogo} />
+          {logo
+            ? <img src={logo} alt={bp?.airline || "airline"} className={styles.bpAirlineLogo} />
             : <span className={styles.bpTopAirline}>{(bp?.airline || "VIVUDEE AIR").toUpperCase()}</span>
           }
           <span className={styles.bpTopFlight}>{bp?.flight_number || ""}</span>

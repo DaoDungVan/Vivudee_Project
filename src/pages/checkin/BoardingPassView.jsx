@@ -70,8 +70,8 @@ export default function BoardingPassView() {
         {/* Airline header */}
         <div className={styles.cardHeader}>
           <div className={styles.headerLeft}>
-            {bp.airline_logo
-              ? <img src={bp.airline_logo} alt={bp.airline || "airline"} className={styles.airlineLogo} />
+            {(bp.airline_logo_dark || bp.airline_logo)
+              ? <img src={bp.airline_logo_dark || bp.airline_logo} alt={bp.airline || "airline"} className={styles.airlineLogo} />
               : <span className={styles.airline}>{bp.airline || "VIVUDEE AIR"}</span>
             }
             <span className={styles.flightNum}>{bp.flight_number || ""}</span>
