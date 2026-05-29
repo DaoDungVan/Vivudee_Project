@@ -43,6 +43,7 @@ const Booking = () => {
   const ancillarySelections = state?.ancillarySelections || [];
   const ancillaryTotal = state?.ancillaryTotal || 0;
   const seatPreference = state?.seatPreference || {};
+  const seatExtraFee   = Number(state?.seatExtraFee || 0);
   const adultCount = Number(passengers?.adults || 1);
   const childCount = Number(passengers?.children || 0);
   const paxCount = adultCount + childCount;
@@ -139,6 +140,7 @@ const Booking = () => {
           adults: adultCount, children: childCount, infants: 0,
           contact_name: paxList[0].fullName, contact_email: contact.email, contact_phone: contact.phone,
           passengers: passengerRecords, total_price: totalPrice,
+          seat_extra_fee: seatExtraFee,
           ancillary_options: ancillarySelections.map((a) => ({
             ancillary_option_id: a.id,
             quantity: a.quantity,

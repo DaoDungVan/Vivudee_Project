@@ -304,6 +304,7 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
         passengers,
         baggage:        { outbound: baggageOutbound, return: baggageReturn },
         seatPreference: { outbound: seatTypeOut,     return: seatTypeRet  },
+        seatExtraFee:   seatFeeOut + seatFeeRet,
         totalPrice,
       },
     });
