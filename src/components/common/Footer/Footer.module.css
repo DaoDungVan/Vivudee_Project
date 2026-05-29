@@ -1,11 +1,11 @@
 .footer {
-  background: #060d1f;
+  background: linear-gradient(180deg, #0d1f3c 0%, #07111f 100%);
   position: relative;
 }
 
 .accentLine {
-  height: 2px;
-  background: linear-gradient(90deg, #1a56db 0%, #6366f1 50%, #0ea5e9 100%);
+  height: 3px;
+  background: linear-gradient(90deg, #1a56db 0%, #818cf8 50%, #38bdf8 100%);
 }
 
 .container {
@@ -33,13 +33,13 @@
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: #3b82f6;
+  color: #60a5fa;
   margin: 0 0 10px;
 }
 
 .desc {
   font-size: 13.5px;
-  color: #64748b;
+  color: #94a3b8;
   line-height: 1.7;
   margin: 0 0 24px;
   max-width: 280px;
@@ -57,16 +57,16 @@
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
-  color: #64748b;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: #94a3b8;
   font-size: 15px;
   text-decoration: none;
   transition: all 0.2s;
 }
 .socialBtn:hover {
-  background: #1a56db;
-  border-color: #1a56db;
+  background: #2563eb;
+  border-color: #2563eb;
   color: #fff;
   transform: translateY(-2px);
 }
@@ -76,10 +76,10 @@
 
 .colTitle {
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
+  font-weight: 800;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  color: #e2e8f0;
+  color: #ffffff;
   margin: 0 0 18px;
 }
 
@@ -94,12 +94,13 @@
 
 .colList a {
   font-size: 13.5px;
-  color: #4b5a72;
+  color: #94a3b8;
   text-decoration: none;
-  transition: color 0.18s;
+  transition: color 0.18s, padding-left 0.18s;
 }
 .colList a:hover {
-  color: #e2e8f0;
+  color: #ffffff;
+  padding-left: 4px;
 }
 
 /* ── Contact list ─────────────────────────────────── */
@@ -117,14 +118,14 @@
   align-items: center;
   gap: 9px;
   font-size: 13.5px;
-  color: #4b5a72;
+  color: #94a3b8;
 }
-.contactList li svg { flex-shrink: 0; color: #3b82f6; }
+.contactList li svg { flex-shrink: 0; color: #60a5fa; }
 
 /* ── Divider ──────────────────────────────────────── */
 .divider {
   height: 1px;
-  background: rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.12);
   margin-bottom: 28px;
 }
 
@@ -145,29 +146,32 @@
 }
 
 .payCard {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
   border-radius: 8px;
-  padding: 6px 12px;
+  padding: 7px 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s;
+  transition: all 0.15s;
 }
-.payCard:hover { background: rgba(255,255,255,0.10); }
+.payCard:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.25);
+}
 
 .payCard img {
   height: 18px;
   width: auto;
   max-width: 40px;
   object-fit: contain;
-  filter: brightness(0) invert(0.7);
+  filter: brightness(0) invert(0.85);
 }
 .payCard:hover img { filter: brightness(0) invert(1); }
 
 .copy {
-  font-size: 12px;
-  color: #2d3a50;
+  font-size: 12.5px;
+  color: #64748b;
   margin: 0;
 }
 
