@@ -268,7 +268,7 @@ export default function LoyaltyTab() {
 
         <div className={styles.progressRow}>
           <span>{fmtPts(curPts)} {t("loyalty.tierPtsLabel")}</span>
-          {!isMax && nextPts && <span>{fmtPts(nextPts)} pts</span>}
+          {!isMax && nextThres && <span>{fmtPts(nextThres)} pts</span>}
         </div>
         <div className={styles.progressTrack}>
           <div className={styles.progressFill} style={{ width: `${progress}%` }} />
