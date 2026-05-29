@@ -3,6 +3,7 @@ import { useState } from "react";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import { useTranslation } from "react-i18next";
+import API from "../../services/axiosInstance";
 import styles from "./Contact.module.css";
 import { LuPhone, LuMail, LuMessageSquare, LuMapPin, LuCircleCheck } from "react-icons/lu";
 import { SiZalo } from "react-icons/si";
@@ -46,6 +47,7 @@ const Contact = () => {
   const [form, setForm]           = useState({ name: "", email: "", subject: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading]     = useState(false);
+  const [sendError, setSendError] = useState("");
   const [openFaq, setOpenFaq]     = useState(null);
 
   const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -53,13 +55,19 @@ const Contact = () => {
   const handleSubmit = async () => {
     if (!form.name || !form.email || !form.message) return;
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setLoading(false);
-    setSubmitted(true);
+    setSendError("");
+    try {
+      await API.post("/public/contact", form);
+      setSubmitted(true);
+    } catch (err) {
+      setSendError(err?.response?.data?.error || "Gửi thất bại. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const INFO_CARDS = [
-    { icon: <LuPhone size={20} />,         titleKey: "phone",    value: "0339 177 688",                 sub: "Mon – Sun: 7:00 – 22:00",  href: "tel:+840339177688" },
+    { icon: <LuPhone size={20} />,         titleKey: "phone",    value: "0339 177 688",                 sub: "Mon – Sun: 7:00 – 22:00",  href: "tel:+84339177688" },
     { icon: <LuMail size={20} />,          titleKey: "email",    value: "vivudee_support@gmail.com",    sub: "Response within 24 hours",  href: "mailto:daodungvan321@gmail.com" },
     { icon: <LuMessageSquare size={20} />, titleKey: "liveChat", value: "Chat with us",                 sub: "Average response in 5 min" },
     { icon: <LuMapPin size={20} />,        titleKey: "office",   value: "Ho Chi Minh City",             sub: "123 Nguyen Hue, District 1" },
@@ -136,6 +144,9 @@ const Contact = () => {
                     rows={6}
                   />
                 </div>
+                {sendError && (
+                  <p style={{color:"#ef4444",fontSize:"13px",margin:"0 0 8px"}}>{sendError}</p>
+                )}
                 <button
                   className={styles.submitBtn}
                   onClick={handleSubmit}
