@@ -59,8 +59,8 @@ const Contact = () => {
   };
 
   const INFO_CARDS = [
-    { icon: <LuPhone size={20} />,         titleKey: "phone",    value: "1900 6789",                    sub: "Mon – Sun: 7:00 – 22:00" },
-    { icon: <LuMail size={20} />,          titleKey: "email",    value: "nguyentuminhlong@gmail.com",    sub: "Response within 24 hours" },
+    { icon: <LuPhone size={20} />,         titleKey: "phone",    value: "0339 177 688",                 sub: "Mon – Sun: 7:00 – 22:00",  href: "tel:+840339177688" },
+    { icon: <LuMail size={20} />,          titleKey: "email",    value: "vivudee_support@gmail.com",    sub: "Response within 24 hours",  href: "mailto:daodungvan321@gmail.com" },
     { icon: <LuMessageSquare size={20} />, titleKey: "liveChat", value: "Chat with us",                 sub: "Average response in 5 min" },
     { icon: <LuMapPin size={20} />,        titleKey: "office",   value: "Ho Chi Minh City",             sub: "123 Nguyen Hue, District 1" },
   ];
@@ -80,7 +80,10 @@ const Contact = () => {
             <div key={item.titleKey} className={styles.infoCard}>
               <div className={styles.infoIcon}>{item.icon}</div>
               <p className={styles.infoTitle}>{t(`contact.${item.titleKey}`)}</p>
-              <p className={styles.infoValue}>{item.value}</p>
+              {item.href
+                ? <a href={item.href} className={styles.infoValue}>{item.value}</a>
+                : <p className={styles.infoValue}>{item.value}</p>
+              }
               <p className={styles.infoSub}>{item.sub}</p>
             </div>
           ))}

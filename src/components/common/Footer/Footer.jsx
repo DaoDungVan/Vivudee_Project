@@ -100,15 +100,15 @@ export default function Footer() {
               <li><a href="#">{t("footer.helpCenter")}</a></li>
               <li><a href="#">{t("footer.terms")}</a></li>
               <li><a href="#">{t("footer.privacy")}</a></li>
-              <li><a href="#">{t("footer.contactLink")}</a></li>
+              <li><a href="/contact">{t("footer.contactLink")}</a></li>
             </ul>
           </div>
 
           <div className={styles.col}>
             <h4 className={styles.colTitle}>{t("footer.contact")}</h4>
             <ul className={styles.contactList}>
-              <li><LuMail size={13} /><span>support@vivudee.com</span></li>
-              <li><LuPhone size={13} /><span>+84 123 456 789</span></li>
+              <li><LuMail size={13} /><a href="mailto:daodungvan321@gmail.com">vivudee_support@gmail.com</a></li>
+              <li><LuPhone size={13} /><a href="tel:+840339177688">0339 177 688</a></li>
               <li><LuMapPin size={13} /><span>Việt Nam</span></li>
             </ul>
           </div>

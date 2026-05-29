@@ -198,6 +198,12 @@
   color: #64748b;
 }
 .contactList li svg { flex-shrink: 0; color: #60a5fa; }
+.contactList a {
+  color: #64748b;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.contactList a:hover { color: #e2e8f0; }
 
 /* ── Divider ────────────────────────────────────── */
 .divider {

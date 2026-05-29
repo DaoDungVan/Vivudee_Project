@@ -56,7 +56,9 @@
   color: var(--text-dark);
   margin: 0 0 4px;
   overflow-wrap: anywhere;
+  text-decoration: none;
 }
+a.infoValue:hover { color: var(--primary-color, #2563eb); }
 .infoSub {
   font-size: 11px;
   color: var(--text-muted);
