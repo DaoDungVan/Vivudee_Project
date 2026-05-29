@@ -39,7 +39,7 @@ export default function PriceCalendar({ from, to, selectedDate, seatClass = "eco
       const res   = await getPriceCalendar(from, to, month, seatClass, adults);
       const rows  = res.data?.data || [];
       const map   = {};
-      rows.forEach((r) => { map[r.flight_date] = Number(r.min_price); });
+      rows.forEach((r) => { map[r.flight_date.slice(0, 10)] = Number(r.min_price); });
       setCalData((prev) => ({ ...prev, ...map }));
     } catch {
       // silent
