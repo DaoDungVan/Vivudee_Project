@@ -1,64 +1,36 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 import styles from "./Newsletter.module.css";
 
 export default function Newsletter() {
-
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
 
   const handleSubscribe = () => {
-
-    if (!email) {
-      toast.error("Please enter your email");
-      return;
-    }
-
-    toast.success("Subscribed successfully!");
-
-    // TODO:
-    // connect newsletter API later
-
+    if (!email) { toast.error(t("newsletter.error")); return; }
+    toast.success(t("newsletter.success"));
     setEmail("");
-
   };
 
   return (
-
     <div className={styles.newsletter}>
-
       <div className={styles.container}>
-
         <div className={styles.text}>
-
-          <h2>
-            Get Travel Deals
-          </h2>
-
-          <p>
-            Subscribe to receive our latest flight promotions and updates.
-          </p>
-
+          <h2>{t("newsletter.title")}</h2>
+          <p>{t("newsletter.desc")}</p>
         </div>
-
         <div className={styles.form}>
-
           <input
             type="email"
-            placeholder="Enter your email"
+            placeholder={t("newsletter.placeholder")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSubscribe()}
           />
-
-          <button onClick={handleSubscribe}>
-            Subscribe
-          </button>
-
+          <button onClick={handleSubscribe}>{t("newsletter.btn")}</button>
         </div>
-
       </div>
-
     </div>
-
   );
-
 }

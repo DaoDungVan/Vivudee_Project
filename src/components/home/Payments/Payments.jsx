@@ -1,4 +1,5 @@
 import { useTheme } from "../../../hooks/useTheme";
+import { useTranslation } from "react-i18next";
 import styles from "./Payments.module.css";
 
 import visa        from "../../../assets/images/payments/visa.png";
@@ -14,6 +15,7 @@ import vietqrDark  from "../../../assets/images/payments/vietqr_dark.png";
 
 export default function Payments() {
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   const payments = [
     { name: "Visa",       logo: visa,       logoDark: visaDark       },
@@ -26,7 +28,7 @@ export default function Payments() {
   return (
     <section className={styles.paymentsSection}>
       <div className={styles.container}>
-        <h2 className={styles.title}>Payment Methods</h2>
+        <h2 className={styles.title}>{t("paymentMethods.title")}</h2>
         <div className={styles.grid}>
           {payments.map((payment) => (
             <div key={payment.name} className={styles.card}>

@@ -7,6 +7,7 @@ import mastercard from "../../../assets/images/payments/mastercard.svg";
 import paypal     from "../../../assets/images/payments/paypal.png";
 import momo       from "../../../assets/images/payments/momo.png";
 import vietqr     from "../../../assets/images/payments/vietqr.png";
+import Newsletter from "../Newsletter/Newsletter";
 import styles from "./Footer.module.css";
 
 const SOCIALS = [
@@ -29,6 +30,12 @@ export default function Footer() {
 
   return (
     <footer className={styles.footer}>
+      <div className={styles.newsletterWrap}>
+        <div className={styles.container}>
+          <Newsletter />
+        </div>
+      </div>
+
       <div className={styles.accentLine} />
 
       <div className={styles.container}>
@@ -40,7 +47,7 @@ export default function Footer() {
             <img src={footerLogo} alt="Vivudee" className={styles.logo} />
             <p className={styles.tagline}>Your Journey Starts Here</p>
             <p className={styles.desc}>
-              Nền tảng đặt vé máy bay trực tuyến — nhanh, tin cậy, giá tốt nhất cho mọi hành trình.
+              {t("footer.desc", "Nền tảng đặt vé máy bay trực tuyến — nhanh, tin cậy, giá tốt nhất cho mọi hành trình.")}
             </p>
             <div className={styles.socials}>
               {SOCIALS.map((s) => (
@@ -53,12 +60,12 @@ export default function Footer() {
 
           {/* Product */}
           <div className={styles.col}>
-            <h4 className={styles.colTitle}>{t("footer.product", "Sản phẩm")}</h4>
+            <h4 className={styles.colTitle}>{t("footer.product")}</h4>
             <ul className={styles.colList}>
-              <li><a href="/flights">{t("footer.searchFlight", "Tìm chuyến bay")}</a></li>
-              <li><a href="/checkin">{t("footer.checkin", "Check-in online")}</a></li>
-              <li><a href="/bookings">{t("footer.myBookings", "Chuyến bay của tôi")}</a></li>
-              <li><a href="/transactions">{t("footer.transactions", "Lịch sử giao dịch")}</a></li>
+              <li><a href="/flights">{t("footer.searchFlight")}</a></li>
+              <li><a href="/checkin">{t("footer.checkin")}</a></li>
+              <li><a href="/bookings">{t("footer.myBookings")}</a></li>
+              <li><a href="/transactions">{t("footer.transactions")}</a></li>
             </ul>
           </div>
 
@@ -77,18 +84,9 @@ export default function Footer() {
           <div className={styles.col}>
             <h4 className={styles.colTitle}>{t("footer.contact")}</h4>
             <ul className={styles.contactList}>
-              <li>
-                <LuMail size={14} />
-                <span>support@vivudee.com</span>
-              </li>
-              <li>
-                <LuPhone size={14} />
-                <span>+84 123 456 789</span>
-              </li>
-              <li>
-                <LuMapPin size={14} />
-                <span>Việt Nam</span>
-              </li>
+              <li><LuMail size={14} /><span>support@vivudee.com</span></li>
+              <li><LuPhone size={14} /><span>+84 123 456 789</span></li>
+              <li><LuMapPin size={14} /><span>Việt Nam</span></li>
             </ul>
           </div>
         </div>
@@ -104,9 +102,7 @@ export default function Footer() {
               </div>
             ))}
           </div>
-          <p className={styles.copy}>
-            © {new Date().getFullYear()} Vivudee · {t("footer.copyright", "Bảo lưu mọi quyền")}
-          </p>
+          <p className={styles.copy}>© {new Date().getFullYear()} Vivudee · {t("footer.copyright", "Bảo lưu mọi quyền")}</p>
         </div>
       </div>
     </footer>

@@ -139,7 +139,28 @@
  "privacy": "Chính sách bảo mật",
  "contactLink": "Liên hệ",
  "copyright": "© 2026 Vivudee. Bảo lưu mọi quyền.",
- "legal": "Chính sách bảo mật | Điều khoản | Chính sách Cookie | Liên hệ."
+ "legal": "Chính sách bảo mật | Điều khoản | Chính sách Cookie | Liên hệ.",
+ "product": "Sản phẩm",
+ "searchFlight": "Tìm chuyến bay",
+ "checkin": "Check-in online",
+ "myBookings": "Chuyến bay của tôi",
+ "transactions": "Lịch sử giao dịch"
+ },
+ "popularAirlines": {
+   "title": "Hãng bay phổ biến",
+   "showAll": "Xem tất cả",
+   "showLess": "Thu gọn"
+ },
+ "paymentMethods": {
+   "title": "Phương thức thanh toán"
+ },
+ "newsletter": {
+   "title": "Ưu đãi du lịch",
+   "desc": "Đăng ký nhận các khuyến mãi chuyến bay mới nhất từ Vivudee.",
+   "placeholder": "Nhập email của bạn",
+   "btn": "Đăng ký",
+   "success": "Đăng ký thành công!",
+   "error": "Vui lòng nhập email"
  },
  "auth": {
  "loginTitle": "Chào mừng trở lại",

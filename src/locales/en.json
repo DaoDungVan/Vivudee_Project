@@ -139,7 +139,28 @@
  "privacy": "Privacy Policy",
  "contactLink": "Contact",
  "copyright": "© 2026 Vivudee. All rights reserved.",
- "legal": "Privacy Policy | Terms of Service | Cookie Policy | Contact Us."
+ "legal": "Privacy Policy | Terms of Service | Cookie Policy | Contact Us.",
+ "product": "Product",
+ "searchFlight": "Search Flights",
+ "checkin": "Online Check-in",
+ "myBookings": "My Bookings",
+ "transactions": "Transactions"
+ },
+ "popularAirlines": {
+   "title": "Popular Airlines",
+   "showAll": "Show All",
+   "showLess": "Show Less"
+ },
+ "paymentMethods": {
+   "title": "Payment Methods"
+ },
+ "newsletter": {
+   "title": "Get Travel Deals",
+   "desc": "Subscribe to receive our latest flight promotions and updates.",
+   "placeholder": "Enter your email",
+   "btn": "Subscribe",
+   "success": "Subscribed successfully!",
+   "error": "Please enter your email"
  },
  "auth": {
  "loginTitle": "Welcome back",

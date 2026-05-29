@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import styles from "./Airlines.module.css";
 import API from "../../../services/axiosInstance";
 import { useTheme } from "../../../hooks/useTheme";
+import { useTranslation } from "react-i18next";
 
 const INITIAL_VISIBLE = 6; // Hiện 6 card đầu
 
@@ -13,6 +14,7 @@ export default function Airlines() {
   const [airlines, setAirlines] = useState([]);
   const [showAll,  setShowAll]  = useState(false);
   const { isDark } = useTheme();
+  const { t } = useTranslation();
 
   useEffect(() => {
     API.get("/flights/airlines")
@@ -28,13 +30,13 @@ export default function Airlines() {
     <section className={styles.airlinesSection}>
       <div className={styles.container}>
         <div className={styles.sectionHead}>
-          <h2 className={styles.title}>Popular Airlines</h2>
+          <h2 className={styles.title}>{t("popularAirlines.title")}</h2>
           {airlines.length > INITIAL_VISIBLE && (
             <button
               className={styles.toggleBtn}
               onClick={() => setShowAll((prev) => !prev)}
             >
-              {showAll ? "Show Less ▲" : `Show All (${airlines.length}) ▼`}
+              {showAll ? `${t("popularAirlines.showLess")} ▲` : `${t("popularAirlines.showAll")} (${airlines.length}) ▼`}
             </button>
           )}
         </div>
