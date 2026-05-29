@@ -1,77 +1,112 @@
-import styles from "./Footer.module.css";
-import footerLogo from "../../../assets/images/LogoFooter.svg";
-import visa from "../../../assets/images/payments/visa.png";
-import mastercard from "../../../assets/images/payments/mastercard.svg";
-import paypal from "../../../assets/images/payments/paypal.png";
-import momo from "../../../assets/images/payments/momo.png";
-import vietqr from "../../../assets/images/payments/vietqr.png";
 import { useTranslation } from "react-i18next";
-import Newsletter from "../Newsletter/Newsletter";
+import { LuMail, LuPhone, LuMapPin } from "react-icons/lu";
+import { FaFacebook, FaInstagram, FaXTwitter, FaLinkedinIn } from "react-icons/fa6";
+import footerLogo from "../../../assets/images/LogoFooter.svg";
+import visa       from "../../../assets/images/payments/visa.png";
+import mastercard from "../../../assets/images/payments/mastercard.svg";
+import paypal     from "../../../assets/images/payments/paypal.png";
+import momo       from "../../../assets/images/payments/momo.png";
+import vietqr     from "../../../assets/images/payments/vietqr.png";
+import styles from "./Footer.module.css";
 
-const PAYMENT_LOGOS = [visa, mastercard, paypal, momo, vietqr];
+const SOCIALS = [
+  { icon: <FaFacebook />,   href: "#", label: "Facebook"  },
+  { icon: <FaInstagram />,  href: "#", label: "Instagram" },
+  { icon: <FaXTwitter />,   href: "#", label: "X"         },
+  { icon: <FaLinkedinIn />, href: "#", label: "LinkedIn"  },
+];
+
+const PAYMENTS = [
+  { src: visa,       alt: "Visa"       },
+  { src: mastercard, alt: "Mastercard" },
+  { src: paypal,     alt: "PayPal"     },
+  { src: momo,       alt: "MoMo"       },
+  { src: vietqr,     alt: "VietQR"     },
+];
 
 export default function Footer() {
   const { t } = useTranslation();
 
   return (
     <footer className={styles.footer}>
+      <div className={styles.accentLine} />
+
       <div className={styles.container}>
-        <Newsletter />
+        {/* Main grid */}
+        <div className={styles.grid}>
 
-        <div className={styles.footerInner}>
-          <div className={styles.grid}>
-            {/* BRAND */}
-            <div className={styles.brand}>
-              <img src={footerLogo} alt="Vivudee Logo" />
-              <h3>{t("footer.paymentPartners")}</h3>
-              <div className={styles.payPartner}>
-                {PAYMENT_LOGOS.map((logo, i) => (
-                  <div key={i} className={styles.sigleItem}>
-                    <div className={styles.icon}>
-                      <img src={logo} alt="Payment Partner" />
-                    </div>
-                  </div>
-                ))}
+          {/* Brand column */}
+          <div className={styles.brand}>
+            <img src={footerLogo} alt="Vivudee" className={styles.logo} />
+            <p className={styles.tagline}>Your Journey Starts Here</p>
+            <p className={styles.desc}>
+              Nền tảng đặt vé máy bay trực tuyến — nhanh, tin cậy, giá tốt nhất cho mọi hành trình.
+            </p>
+            <div className={styles.socials}>
+              {SOCIALS.map((s) => (
+                <a key={s.label} href={s.href} className={styles.socialBtn} aria-label={s.label}>
+                  {s.icon}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Product */}
+          <div className={styles.col}>
+            <h4 className={styles.colTitle}>{t("footer.product", "Sản phẩm")}</h4>
+            <ul className={styles.colList}>
+              <li><a href="/flights">{t("footer.searchFlight", "Tìm chuyến bay")}</a></li>
+              <li><a href="/checkin">{t("footer.checkin", "Check-in online")}</a></li>
+              <li><a href="/bookings">{t("footer.myBookings", "Chuyến bay của tôi")}</a></li>
+              <li><a href="/transactions">{t("footer.transactions", "Lịch sử giao dịch")}</a></li>
+            </ul>
+          </div>
+
+          {/* Support */}
+          <div className={styles.col}>
+            <h4 className={styles.colTitle}>{t("footer.support")}</h4>
+            <ul className={styles.colList}>
+              <li><a href="#">{t("footer.helpCenter")}</a></li>
+              <li><a href="#">{t("footer.terms")}</a></li>
+              <li><a href="#">{t("footer.privacy")}</a></li>
+              <li><a href="#">{t("footer.contactLink")}</a></li>
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div className={styles.col}>
+            <h4 className={styles.colTitle}>{t("footer.contact")}</h4>
+            <ul className={styles.contactList}>
+              <li>
+                <LuMail size={14} />
+                <span>support@vivudee.com</span>
+              </li>
+              <li>
+                <LuPhone size={14} />
+                <span>+84 123 456 789</span>
+              </li>
+              <li>
+                <LuMapPin size={14} />
+                <span>Việt Nam</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className={styles.divider} />
+
+        {/* Bottom bar */}
+        <div className={styles.bottom}>
+          <div className={styles.payments}>
+            {PAYMENTS.map((p) => (
+              <div key={p.alt} className={styles.payCard}>
+                <img src={p.src} alt={p.alt} />
               </div>
-            </div>
-
-            {/* COMPANY */}
-            <div className={styles.menufooter}>
-              <h3>{t("footer.company")}</h3>
-              <ul>
-                <li>{t("footer.aboutUs")}</li>
-                <li>{t("footer.careers")}</li>
-                <li>{t("footer.press")}</li>
-                <li>{t("footer.blog")}</li>
-              </ul>
-            </div>
-
-            {/* SUPPORT */}
-            <div className={styles.menufooter}>
-              <h3>{t("footer.support")}</h3>
-              <ul>
-                <li>{t("footer.helpCenter")}</li>
-                <li>{t("footer.terms")}</li>
-                <li>{t("footer.privacy")}</li>
-                <li>{t("footer.contactLink")}</li>
-              </ul>
-            </div>
-
-            {/* CONTACT */}
-            <div className={styles.menufooter}>
-              <h3>{t("footer.contact")}</h3>
-              <ul>
-                <li>Email: support@vivudee.com</li>
-                <li>Phone: +84 123 456 789</li>
-                <li>Vietnam</li>
-              </ul>
-            </div>
+            ))}
           </div>
-
-          <div className={styles.bottom}>
-            <p>{t("footer.copyright")}</p>
-            <span>{t("footer.legal")}</span>
-          </div>
+          <p className={styles.copy}>
+            © {new Date().getFullYear()} Vivudee · {t("footer.copyright", "Bảo lưu mọi quyền")}
+          </p>
         </div>
       </div>
     </footer>
