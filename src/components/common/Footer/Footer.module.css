@@ -1,87 +1,97 @@
 .footer {
-  background: linear-gradient(180deg, #0b1a30 0%, #060e1c 100%);
+  background: #080f1e;
 }
 
-/* ── Newsletter strip ───────────────────────────── */
+/* ── Newsletter block ───────────────────────────── */
 .nlStrip {
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  padding: 32px 0;
+  background: linear-gradient(135deg, #0d1f3c 0%, #0f2347 50%, #0d1f3c 100%);
+  padding: 64px 24px 56px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* subtle radial glow behind newsletter */
+.nlStrip::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 50% 0%, rgba(37,99,235,0.18) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .nlInner {
-  max-width: 1200px;
+  max-width: 600px;
   margin: 0 auto;
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 32px;
-  flex-wrap: wrap;
+  position: relative;
 }
 
 .nlText {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
+  margin-bottom: 28px;
 }
 
 .nlIcon {
   color: #60a5fa;
-  flex-shrink: 0;
-  margin-top: 3px;
+  margin-bottom: 14px;
 }
 
 .nlTitle {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 800;
   color: #f1f5f9;
-  margin: 0 0 3px;
+  margin: 0 0 10px;
+  letter-spacing: -0.3px;
 }
 
 .nlDesc {
-  font-size: 13px;
+  font-size: 14px;
   color: #64748b;
   margin: 0;
+  line-height: 1.6;
 }
 
 .nlForm {
   display: flex;
-  gap: 8px;
-  flex-shrink: 0;
+  gap: 10px;
+  max-width: 480px;
+  margin: 0 auto;
 }
 
 .nlInput {
-  width: 260px;
-  padding: 10px 16px;
+  flex: 1;
+  padding: 13px 18px;
   background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.14);
-  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 10px;
   color: #e2e8f0;
-  font-size: 13.5px;
+  font-size: 14px;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, background 0.15s;
 }
-.nlInput::placeholder { color: #475569; }
-.nlInput:focus { border-color: #3b82f6; }
+.nlInput::placeholder { color: #3d5068; }
+.nlInput:focus {
+  border-color: #3b82f6;
+  background: rgba(255,255,255,0.10);
+}
 
 .nlBtn {
-  padding: 10px 22px;
+  padding: 13px 26px;
   background: #2563eb;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   color: #fff;
-  font-size: 13.5px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
   transition: background 0.15s, transform 0.15s;
   white-space: nowrap;
 }
 .nlBtn:hover { background: #1d4ed8; transform: translateY(-1px); }
 
-/* ── Accent line ────────────────────────────────── */
+/* ── Accent line (bridges newsletter → footer) ── */
 .accentLine {
   height: 2px;
-  background: linear-gradient(90deg, #1a56db 0%, #818cf8 50%, #38bdf8 100%);
+  background: linear-gradient(90deg, transparent 0%, #1a56db 25%, #818cf8 50%, #38bdf8 75%, transparent 100%);
 }
 
 /* ── Container ──────────────────────────────────── */

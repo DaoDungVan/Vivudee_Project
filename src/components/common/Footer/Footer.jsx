@@ -39,15 +39,13 @@ export default function Footer() {
   return (
     <footer className={styles.footer}>
 
-      {/* ── Newsletter strip ── */}
+      {/* ── Newsletter block ── */}
       <div className={styles.nlStrip}>
         <div className={styles.nlInner}>
           <div className={styles.nlText}>
-            <LuSend size={18} className={styles.nlIcon} />
-            <div>
-              <p className={styles.nlTitle}>{t("newsletter.title")}</p>
-              <p className={styles.nlDesc}>{t("newsletter.desc")}</p>
-            </div>
+            <LuSend size={28} className={styles.nlIcon} />
+            <p className={styles.nlTitle}>{t("newsletter.title")}</p>
+            <p className={styles.nlDesc}>{t("newsletter.desc")}</p>
           </div>
           <div className={styles.nlForm}>
             <input
