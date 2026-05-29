@@ -7,7 +7,7 @@ import styles from "./LoyaltyTab.module.css";
 
 // Ngưỡng điểm để xác định tier tiếp theo khi API không trả next_tier
 const TIER_THRESHOLDS = {
-  member:   { next: "silver",   nextPts: 5000  },
+  bronze:   { next: "silver",   nextPts: 5000  },
   silver:   { next: "gold",     nextPts: 20000 },
   gold:     { next: "platinum", nextPts: 50000 },
   platinum: { next: null,       nextPts: null  },
@@ -110,14 +110,14 @@ const GemBadge = ({ tierKey, size = 56 }) => {
 };
 
 const TIER_META = {
-  member:   { labelKey: "loyalty.tierBronze",   css: styles.tierBronze,   abbr: "Đ",  gemKey: "member"   },
+  bronze:   { labelKey: "loyalty.tierBronze",   css: styles.tierBronze,   abbr: "Đ",  gemKey: "member"   },
   silver:   { labelKey: "loyalty.tierSilver",   css: styles.tierSilver,   abbr: "B",  gemKey: "silver"   },
   gold:     { labelKey: "loyalty.tierGold",     css: styles.tierGold,     abbr: "V",  gemKey: "gold"     },
   platinum: { labelKey: "loyalty.tierPlatinum", css: styles.tierPlatinum, abbr: "BK", gemKey: "platinum" },
 };
 
-const getTierMeta  = (name = "") => TIER_META[name.toLowerCase()] || TIER_META.member;
-const getTierThres = (name = "") => TIER_THRESHOLDS[name.toLowerCase()] || TIER_THRESHOLDS.member;
+const getTierMeta  = (name = "") => TIER_META[name.toLowerCase()] || TIER_META.bronze;
+const getTierThres = (name = "") => TIER_THRESHOLDS[name.toLowerCase()] || TIER_THRESHOLDS.bronze;
 
 const fmtPts = (n) => new Intl.NumberFormat("vi-VN").format(n ?? 0);
 const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString("vi-VN") : "—";
@@ -208,7 +208,7 @@ export default function LoyaltyTab() {
   // Ngưỡng tuyệt đối của tier tiếp theo = curPts + ptsNeeded (hoặc từ thres cứng)
   const nextThres  = ptsNeeded != null ? curPts + ptsNeeded : (thres.nextPts ?? null);
   // Ngưỡng của tier hiện tại (điểm tối thiểu để ở tier này)
-  const TIER_MIN   = { member: 0, silver: 5000, gold: 20000, platinum: 50000 };
+  const TIER_MIN   = { bronze: 0, silver: 5000, gold: 20000, platinum: 50000 };
   const curMin     = TIER_MIN[tierName.toLowerCase()] ?? 0;
   const range      = nextThres ? nextThres - curMin : 1;
   const progress   = isMax ? 100 : Math.min(100, Math.max(0, Math.round(((curPts - curMin) / range) * 100)));
