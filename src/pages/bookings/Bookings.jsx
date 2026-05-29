@@ -187,7 +187,7 @@ const Bookings = () => {
           ancillary_items: [],
         },
         contact:    data.contact,
-        totalPrice: data.price?.grand_total ?? data.price?.total_price ?? 0,
+        totalPrice: data.price?.total_price ?? 0,
         passengers: data.passengers?.list?.filter((p) => p.flight_type === "outbound")?.map((p) => ({ fullName: p.full_name })) || [],
       },
     });
@@ -233,7 +233,7 @@ const Bookings = () => {
 
   const getBookingAmount = (b) =>
     Number(b?.price?.final_amount) || Number(b?.final_amount) ||
-    Number(b?.price?.grand_total)  || Number(b?.total_price) || 0;
+    Number(b?.price?.total_price)  || Number(b?.total_price) || 0;
 
   const doSubmitRefund = async () => {
     setRefundLoading(true); setRefundError("");
@@ -352,7 +352,7 @@ const Bookings = () => {
       </div>
       <div className={styles.cardBottom}>
         <span className={styles.cardAirline}>{airName(b)}</span>
-        <span className={styles.cardPrice}>{fmt(b.final_amount ?? b.grand_total ?? b.total_price)}</span>
+        <span className={styles.cardPrice}>{fmt(b.final_amount ?? b.total_price)}</span>
       </div>
 
       {b.status !== "cancelled" && (
@@ -475,7 +475,7 @@ const Bookings = () => {
       <div className={styles.detailPrice}>
         <span>{t("bookings.totalPrice")}</span>
         <div className={styles.detailPriceRight}>
-          {data.price?.discount_amount > 0 && <span className={styles.detailOriginalPrice}>{fmt(data.price.grand_total ?? data.price.total_price)}</span>}
+          {data.price?.discount_amount > 0 && <span className={styles.detailOriginalPrice}>{fmt(data.price.total_price)}</span>}
           <span className={styles.detailPriceValue}>{fmt(data.price?.final_amount ?? data.price?.total_price ?? 0)}</span>
           {data.price?.discount_amount > 0 && <span className={styles.detailDiscountBadge}>−{fmt(data.price.discount_amount)}</span>}
         </div>
