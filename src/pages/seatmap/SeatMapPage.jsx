@@ -70,7 +70,18 @@ export default function SeatMapPage() {
   const priceDiff = activeTotalForClass - baseTotalForClass;
   const newTotal  = (Number(totalPrice) || 0) + priceDiff;
 
+  const EXIT_ROWS = new Set([1, 13, 14, 27]);
+
   const handleConfirm = async (seats) => {
+    // Validate: trẻ em không được ngồi ghế exit row
+    for (const [idxStr, seatNum] of Object.entries(seats)) {
+      const paxIdx = parseInt(idxStr);
+      const isChild = paxIdx >= adultCount;
+      if (isChild && seatNum && EXIT_ROWS.has(parseInt(seatNum))) {
+        setError(`Hành khách ${paxIdx + 1} là trẻ em — không được ngồi ghế gần cửa thoát hiểm (hàng ${parseInt(seatNum)}). Vui lòng chọn ghế khác.`);
+        return;
+      }
+    }
     setLoading(true);
     setError("");
     try {
@@ -133,7 +144,11 @@ export default function SeatMapPage() {
             <SeatMap
               flightId={flight?.flight_id}
               seatClass={activeClass}
-              passengers={paxList.map((p, i) => ({ id: i, fullName: p.fullName || `Hành khách ${i + 1}` }))}
+              passengers={paxList.map((p, i) => ({
+                id: i,
+                fullName: p.fullName || `Hành khách ${i + 1}`,
+                type: i < adultCount ? "adult" : "child",
+              }))}
               onConfirm={handleConfirm}
               onBack={() => navigate(-1)}
               rowOffset={rowOffset}

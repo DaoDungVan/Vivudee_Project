@@ -188,9 +188,17 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
     if (occupied) return "occupied";
     const rowNum = parseInt(seatNum, 10);
     const isExitRow = EXIT_ROW_NUMS.has(rowNum);
+
+    // Hành khách đang active có phải trẻ em không?
+    const activePax = passengers.find(p => String(p.id) === String(activePassenger));
+    const activeIsChild = activePax?.type === "child";
+
+    // Trẻ em không bao giờ được ngồi exit row
+    if (isExitRow && activeIsChild) return "restricted";
+
     if (resolvedPreference) {
       if (resolvedPreference === "extra_legroom") {
-        // Chỉ exit row được chọn
+        // Chỉ exit row được chọn (đã block trẻ em ở trên)
         if (!isExitRow) return "restricted";
       } else {
         // window/aisle/middle: exit row bị chặn, chỉ đúng vị trí mới chọn được
@@ -198,7 +206,7 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
         if (getSeatPosition(col, cols, aisleIdx) !== resolvedPreference) return "restricted";
       }
     }
-    // resolvedPreference = null (Tự chọn ghế): tất cả ghế được chọn kể cả exit row
+    // resolvedPreference = null (Tự chọn ghế): tất cả ghế được chọn kể cả exit row (trừ trẻ em đã xử lý trên)
     const owner = Object.entries(selections).find(([, s]) => s === seatNum);
     if (owner) return String(owner[0]) === String(activePassenger) ? "mine" : "other";
     if (passengers.length > 1 && !selections[activePassenger]) {
@@ -296,6 +304,14 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
           </strong>
         </div>
       )}
+      {(() => {
+        const ap = passengers.find(p => String(p.id) === String(activePassenger));
+        return ap?.type === "child" ? (
+          <div className={styles.prefNote} style={{ background: "rgba(245,158,11,0.12)", color: "#b45309" }}>
+            ⚠️ <strong>{ap.fullName}</strong> là trẻ em — không được chọn ghế hàng lối thoát hiểm
+          </div>
+        ) : null;
+      })()}
 
       {/* ── Scrollable plane ── */}
       <div className={styles.scroll} ref={scrollRef}>
