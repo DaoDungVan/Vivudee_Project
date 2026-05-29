@@ -352,7 +352,7 @@ const Bookings = () => {
       </div>
       <div className={styles.cardBottom}>
         <span className={styles.cardAirline}>{airName(b)}</span>
-        <span className={styles.cardPrice}>{fmt(b.final_amount ?? b.total_price)}</span>
+        <span className={styles.cardPrice}>{fmt(b.final_amount ?? b.grand_total ?? b.total_price)}</span>
       </div>
 
       {b.status !== "cancelled" && (
