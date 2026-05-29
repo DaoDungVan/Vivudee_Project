@@ -197,7 +197,7 @@ export default function LoyaltyTab() {
   if (loading) return <div className={styles.loading}>{t("loyalty.loading")}</div>;
   if (error)   return <div className={styles.errorMsg}>{error}</div>;
 
-  const tierName   = membership?.tier_name || "member";
+  const tierName   = membership?.tier || membership?.tier_name || "bronze";
   const tier       = getTierMeta(tierName);
   const thres      = getTierThres(tierName);
   const curPts     = membership?.tier_points ?? 0;
