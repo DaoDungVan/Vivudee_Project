@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../hooks/useTheme";
 import { createBooking } from "../../services/bookingService";
+import API from "../../services/axiosInstance";
 import styles from "./Booking.module.css";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import planeIcon from "../../assets/icons/plane.png";
@@ -60,6 +61,20 @@ const Booking = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
+  const [contactWarning, setContactWarning] = useState({ email: "", phone: "" });
+
+  const checkContact = useCallback(async (field, value) => {
+    if (!value?.trim()) return;
+    try {
+      const uid = JSON.parse(localStorage.getItem("user") || "null")?.id || 0;
+      const res = await API.post("/public/check-contact", { [field]: value.trim(), userId: uid });
+      const taken = res.data?.[`${field}_taken`];
+      setContactWarning(prev => ({
+        ...prev,
+        [field]: taken ? `${field === "email" ? "Email" : "Số điện thoại"} này đã được đăng ký bởi tài khoản khác` : ""
+      }));
+    } catch { /* ignore */ }
+  }, []);
   const [step, setStep] = useState("form"); // "form" | "seatmap"
   const [seatSelections, setSeatSelections] = useState({});
 
@@ -116,6 +131,10 @@ const Booking = () => {
       setErrors(errs);
       const firstKey = Object.keys(errs)[0];
       document.getElementById(firstKey)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (contactWarning.email || contactWarning.phone) {
+      document.getElementById("email")?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
     // Build payload sẵn để SeatMapPage dùng
@@ -259,11 +278,13 @@ const Booking = () => {
                     id="email"
                     type="email"
                     placeholder="email@example.com"
-                    className={`${styles.input} ${errors.email ? styles.inputError : ""}`}
+                    className={`${styles.input} ${errors.email || contactWarning.email ? styles.inputError : ""}`}
                     value={contact.email}
-                    onChange={(e) => setContact({ ...contact, email: e.target.value })}
+                    onChange={(e) => { setContact({ ...contact, email: e.target.value }); setContactWarning(w => ({...w, email: ""})); }}
+                    onBlur={(e) => checkContact("email", e.target.value)}
                   />
                   {errors.email && <span className={styles.errMsg}>{errors.email}</span>}
+                  {!errors.email && contactWarning.email && <span className={styles.errMsg}>{contactWarning.email}</span>}
                 </div>
                 <div className={styles.field}>
                   <label className={styles.label}>{t("booking.phone")}</label>
@@ -271,11 +292,13 @@ const Booking = () => {
                     id="phone"
                     type="tel"
                     placeholder="0901 234 567"
-                    className={`${styles.input} ${errors.phone ? styles.inputError : ""}`}
+                    className={`${styles.input} ${errors.phone || contactWarning.phone ? styles.inputError : ""}`}
                     value={contact.phone}
-                    onChange={(e) => setContact({ ...contact, phone: e.target.value })}
+                    onChange={(e) => { setContact({ ...contact, phone: e.target.value }); setContactWarning(w => ({...w, phone: ""})); }}
+                    onBlur={(e) => checkContact("phone", e.target.value)}
                   />
                   {errors.phone && <span className={styles.errMsg}>{errors.phone}</span>}
+                  {!errors.phone && contactWarning.phone && <span className={styles.errMsg}>{contactWarning.phone}</span>}
                 </div>
               </div>
             </div>
