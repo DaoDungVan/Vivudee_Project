@@ -318,18 +318,16 @@
   gap: 8px;
 }
 
-.barcode {
+.barcodeInner {
   display: flex;
-  align-items: flex-end;
-  height: 52px;
-  gap: 0;
+  justify-content: center;
+  width: 100%;
 }
 
-.bar {
-  display: inline-block;
-  background: #111827;
-  border-radius: 1px;
-  flex-shrink: 0;
+.barcodeInner svg {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
 }
 
 .barcodeCode {

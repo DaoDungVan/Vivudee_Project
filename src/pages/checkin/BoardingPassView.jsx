@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import JsBarcode from "jsbarcode";
 import { useParams } from "react-router-dom";
 import { LuPlaneTakeoff, LuShare2, LuPrinter, LuCircleAlert } from "react-icons/lu";
 import { getBoardingPass } from "../../services/checkinService";
@@ -155,24 +156,25 @@ export default function BoardingPassView() {
   );
 }
 
-// CSS barcode renderer (không cần thư viện ngoài)
 function Barcode({ value = "" }) {
-  const chars = (value + value + value).split(""); // lặp để đủ dài
-  const bars  = chars.slice(0, 60);
+  const svgRef = useRef(null);
+
+  useEffect(() => {
+    if (!svgRef.current || !value) return;
+    JsBarcode(svgRef.current, value, {
+      format:       "CODE128",
+      width:        2,
+      height:       60,
+      margin:       0,
+      displayValue: false,
+      background:   "transparent",
+      lineColor:    "#000",
+    });
+  }, [value]);
+
   return (
-    <div className={styles.barcode}>
-      {bars.map((ch, i) => {
-        const w = (ch.charCodeAt(0) % 3) + 1;
-        const h = 32 + (ch.charCodeAt(0) % 3) * 10;
-        const gap = (i % 4 === 0) ? 3 : 1;
-        return (
-          <span
-            key={i}
-            className={styles.bar}
-            style={{ width: w, height: h, marginRight: gap }}
-          />
-        );
-      })}
+    <div className={styles.barcodeInner}>
+      <svg ref={svgRef} />
     </div>
   );
 }
