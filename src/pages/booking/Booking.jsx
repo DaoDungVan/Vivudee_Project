@@ -62,19 +62,19 @@ const Booking = () => {
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
   const [contactWarning, setContactWarning] = useState({ email: "", phone: "" });
+  const isLoggedIn = !!localStorage.getItem("token");
 
   const checkContact = useCallback(async (field, value) => {
-    if (!value?.trim()) return;
+    if (!value?.trim() || isLoggedIn) return; // Đã đăng nhập thì không cần check (đã lock readonly)
     try {
-      const uid = JSON.parse(localStorage.getItem("user") || "null")?.id || 0;
-      const res = await API.post("/public/check-contact", { [field]: value.trim(), userId: uid });
+      const res = await API.post("/public/check-contact", { [field]: value.trim() });
       const taken = res.data?.[`${field}_taken`];
       setContactWarning(prev => ({
         ...prev,
-        [field]: taken ? `${field === "email" ? "Email" : "Số điện thoại"} này đã được đăng ký bởi tài khoản khác` : ""
+        [field]: taken ? `${field === "email" ? "Email" : "Số điện thoại"} này đã có tài khoản. Vui lòng đăng nhập hoặc dùng ${field === "email" ? "email" : "số"} khác.` : ""
       }));
     } catch { /* ignore */ }
-  }, []);
+  }, [isLoggedIn]);
   const [step, setStep] = useState("form"); // "form" | "seatmap"
   const [seatSelections, setSeatSelections] = useState({});
 
@@ -278,13 +278,15 @@ const Booking = () => {
                     id="email"
                     type="email"
                     placeholder="email@example.com"
-                    className={`${styles.input} ${errors.email || contactWarning.email ? styles.inputError : ""}`}
+                    className={`${styles.input} ${errors.email ? styles.inputError : ""} ${isLoggedIn ? styles.inputLocked : ""}`}
                     value={contact.email}
-                    onChange={(e) => { setContact({ ...contact, email: e.target.value }); setContactWarning(w => ({...w, email: ""})); }}
-                    onBlur={(e) => checkContact("email", e.target.value)}
+                    readOnly={isLoggedIn}
+                    onChange={isLoggedIn ? undefined : (e) => { setContact({ ...contact, email: e.target.value }); setContactWarning(w => ({...w, email: ""})); }}
+                    onBlur={isLoggedIn ? undefined : (e) => checkContact("email", e.target.value)}
                   />
+                  {isLoggedIn && <span className={styles.lockedHint}>Email được lấy từ tài khoản của bạn</span>}
                   {errors.email && <span className={styles.errMsg}>{errors.email}</span>}
-                  {!errors.email && contactWarning.email && <span className={styles.errMsg}>{contactWarning.email}</span>}
+                  {!isLoggedIn && !errors.email && contactWarning.email && <span className={styles.errMsg}>{contactWarning.email}</span>}
                 </div>
                 <div className={styles.field}>
                   <label className={styles.label}>{t("booking.phone")}</label>
@@ -292,13 +294,15 @@ const Booking = () => {
                     id="phone"
                     type="tel"
                     placeholder="0901 234 567"
-                    className={`${styles.input} ${errors.phone || contactWarning.phone ? styles.inputError : ""}`}
+                    className={`${styles.input} ${errors.phone ? styles.inputError : ""} ${isLoggedIn ? styles.inputLocked : ""}`}
                     value={contact.phone}
-                    onChange={(e) => { setContact({ ...contact, phone: e.target.value }); setContactWarning(w => ({...w, phone: ""})); }}
-                    onBlur={(e) => checkContact("phone", e.target.value)}
+                    readOnly={isLoggedIn}
+                    onChange={isLoggedIn ? undefined : (e) => { setContact({ ...contact, phone: e.target.value }); setContactWarning(w => ({...w, phone: ""})); }}
+                    onBlur={isLoggedIn ? undefined : (e) => checkContact("phone", e.target.value)}
                   />
+                  {isLoggedIn && <span className={styles.lockedHint}>Số điện thoại được lấy từ tài khoản của bạn</span>}
                   {errors.phone && <span className={styles.errMsg}>{errors.phone}</span>}
-                  {!errors.phone && contactWarning.phone && <span className={styles.errMsg}>{contactWarning.phone}</span>}
+                  {!isLoggedIn && !errors.phone && contactWarning.phone && <span className={styles.errMsg}>{contactWarning.phone}</span>}
                 </div>
               </div>
             </div>
