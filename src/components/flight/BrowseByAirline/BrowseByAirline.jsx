@@ -20,20 +20,31 @@ export default function BrowseByAirline() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getRecommendations("SGN", "HAN", 30)
-      .then((res) => {
-        const flights = res.data?.data || [];
-        // Group by airline
-        const map = {};
-        flights.forEach((f) => {
-          const key = f.airline?.code || f.airline?.name || "OTHER";
-          if (!map[key]) map[key] = { airline: f.airline, flights: [] };
-          if (map[key].flights.length < 5) map[key].flights.push(f);
-        });
-        setGroups(Object.values(map));
-      })
-      .catch(() => setGroups([]))
-      .finally(() => setLoading(false));
+    // Fetch nhiều tuyến song song để cover đa hãng
+    const ROUTES = [
+      ["SGN", "HAN"], ["SGN", "BKK"], ["SGN", "DAD"],
+      ["AUH", "CXR"], ["AUH", "SGN"],
+      ["BCN", "HKT"], ["BCN", "BKK"],
+      ["ATL", "HAN"], ["AMS", "SGN"],
+    ];
+    Promise.allSettled(
+      ROUTES.map(([from, to]) => getRecommendations(from, to, 5))
+    ).then((results) => {
+      const allFlights = results
+        .filter((r) => r.status === "fulfilled")
+        .flatMap((r) => r.value.data?.data || []);
+
+      const map = {};
+      allFlights.forEach((f) => {
+        const key = f.airline?.code || f.airline?.name || "OTHER";
+        if (!map[key]) map[key] = { airline: f.airline, flights: [] };
+        // Chỉ lấy 5 chuyến/hãng, tránh trùng tuyến
+        const routes = new Set(map[key].flights.map(x => `${x.departure?.code}-${x.arrival?.code}`));
+        const route = `${f.departure?.code}-${f.arrival?.code}`;
+        if (map[key].flights.length < 5 && !routes.has(route)) map[key].flights.push(f);
+      });
+      setGroups(Object.values(map));
+    }).finally(() => setLoading(false));
   }, []);
 
   const handleSelect = (f) => {
