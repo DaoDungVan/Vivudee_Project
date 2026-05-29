@@ -67,7 +67,7 @@ const Contact = () => {
   };
 
   const INFO_CARDS = [
-    { icon: <LuPhone size={20} />,         titleKey: "phone",    value: "0339 177 688",                 sub: "Mon – Sun: 7:00 – 22:00",  href: "tel:+84339177688" },
+    { icon: <LuPhone size={20} />,         titleKey: "phone",    value: "+84 339 177 688",                 sub: "Mon – Sun: 7:00 – 22:00",  href: "tel:+84339177688" },
     { icon: <LuMail size={20} />,          titleKey: "email",    value: "vivudee_support@gmail.com",    sub: "Response within 24 hours",  href: "mailto:daodungvan321@gmail.com" },
     { icon: <LuMessageSquare size={20} />, titleKey: "liveChat", value: "Chat with us",                 sub: "Average response in 5 min" },
     { icon: <LuMapPin size={20} />,        titleKey: "office",   value: "Ho Chi Minh City",             sub: "123 Nguyen Hue, District 1" },

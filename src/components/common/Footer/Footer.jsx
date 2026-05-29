@@ -73,7 +73,7 @@ export default function Footer() {
             <img src={footerLogo} alt="Vivudee" className={styles.logo} />
             <p className={styles.tagline}>Your Journey Starts Here</p>
             <p className={styles.desc}>
-              {t("footer.desc", "Nền tảng đặt vé máy bay trực tuyến — nhanh, tin cậy, giá tốt nhất cho mọi hành trình.")}
+              {t("footer.desc")}
             </p>
             <div className={styles.socials}>
               {SOCIALS.map((s) => (
@@ -108,7 +108,7 @@ export default function Footer() {
             <h4 className={styles.colTitle}>{t("footer.contact")}</h4>
             <ul className={styles.contactList}>
               <li><LuMail size={13} /><a href="mailto:daodungvan321@gmail.com">vivudee_support@gmail.com</a></li>
-              <li><LuPhone size={13} /><a href="tel:+84339177688">0339 177 688</a></li>
+              <li><LuPhone size={13} /><a href="tel:+84339177688">+84 339 177 688</a></li>
               <li><LuMapPin size={13} /><span>Việt Nam</span></li>
             </ul>
           </div>
