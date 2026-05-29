@@ -8,7 +8,7 @@ import { getBookingByCode, getMyBookings, cancelBooking } from "../../services/b
 import { requestRefund, requestGuestRefund, requestRefundOTP, requestGuestRefundOTP, verifyRefundOTP } from "../../services/refundService";
 import styles from "./Bookings.module.css";
 
-const OTP_THRESHOLD = 5_000_000;
+// Mọi refund đều yêu cầu OTP
 
 const maskEmail = (email = "") => {
   const [local, domain] = email.split("@");
@@ -317,12 +317,7 @@ const Bookings = () => {
     if (refundReason.trim().length < 10) { setRefundError(t("bookings.refundReasonError")); return; }
     if (!isLoggedIn && !guestRefundEmail.trim()) { setRefundError(t("bookings.refundEmailRequired", "Vui lòng nhập email xác thực")); return; }
 
-    const amount = getBookingAmount(refundTarget);
-    if (amount >= OTP_THRESHOLD) {
-      await sendOTP();
-    } else {
-      await doSubmitRefund();
-    }
+    await sendOTP();
   };
 
   const StatusBadge = ({ status }) => {
