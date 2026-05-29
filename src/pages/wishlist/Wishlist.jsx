@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTheme } from "../../hooks/useTheme";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import NavBar from "../../components/common/NavBar/Navbar";
@@ -18,8 +19,9 @@ const fmtTime = (iso) => {
 };
 
 export default function Wishlist() {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { t }      = useTranslation();
+  const navigate   = useNavigate();
+  const { isDark } = useTheme();
   const [items, setItems]     = useState([]);
   const [loading, setLoading] = useState(true);
   const [source, setSource]   = useState("server");
@@ -108,7 +110,7 @@ export default function Wishlist() {
               const arrTime   = flight?.arrival_time     || flight?.arrival?.time;
               const price     = flight?.base_price       || flight?.seat?.total_price;
               const airline   = flight?.airline?.name    || "—";
-              const logoUrl   = flight?.airline?.logo_url;
+              const logoUrl   = (isDark && flight?.airline?.logo_dark) ? flight.airline.logo_dark : flight?.airline?.logo_url;
 
               return (
                 <div key={key} className={styles.card}>

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import styles from "./PassengerForm.module.css";
 import planeIcon from "../../../assets/icons/plane.png";
 import { LuLuggage, LuBackpack, LuUser, LuArmchair } from "react-icons/lu";
+import { useTheme } from "../../../hooks/useTheme";
 import { getSeatPricing } from "../../../services/flightService";
 
 const kgToDisplay = (kg, lang) =>
@@ -62,14 +63,16 @@ const FlightSummary = ({
   fmt,
   t,
   lang,
-}) => (
+}) => {
+  const { isDark } = useTheme();
+  return (
   <div className={styles.flightBox}>
     <p className={styles.boxLabel}>{label}</p>
 
     <div className={styles.flightRow}>
       <div className={styles.airlineInfo}>
         <img
-          src={flight.airline?.logo_url || planeIcon}
+          src={(isDark && flight.airline?.logo_dark) ? flight.airline.logo_dark : (flight.airline?.logo_url || planeIcon)}
           alt={flight.airline?.name}
           className={styles.airlineLogo}
           onError={(e) => { e.target.src = planeIcon; }}
@@ -235,7 +238,8 @@ const FlightSummary = ({
         </div>
       </div>
   </div>
-);
+  );
+};
 
 const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
   const navigate = useNavigate();

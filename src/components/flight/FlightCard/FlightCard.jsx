@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import styles from "./FlightCard.module.css";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "../../../hooks/useTheme";
 import planeIcon from "../../../assets/icons/plane.png";
 import { LuCalendarDays, LuLuggage, LuBackpack, LuPlus, LuHeart } from "react-icons/lu";
 import { addToWishlist, removeFromWishlist, isCachedInWishlist } from "../../../services/wishlistService";
@@ -11,6 +12,8 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
   const [expanded, setExpanded] = useState(false);
   const [priceVisible, setPriceVisible] = useState(false);
   const { t } = useTranslation();
+  const { isDark } = useTheme();
+  const airlineLogo = (isDark && flight?.airline?.logo_dark) ? flight.airline.logo_dark : (flight?.airline?.logo_url || planeIcon);
 
   useEffect(() => {
     const delay = 700 + Math.random() * 500;
@@ -88,7 +91,7 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
         <div className={styles.left}>
           <div className={styles.logoWrapper}>
             <img
-              src={flight?.airline?.logo_url || planeIcon}
+              src={airlineLogo}
               alt={flight?.airline?.name || "airline"}
               onError={(e) => { e.target.onerror = null; e.target.src = planeIcon; }}
             />

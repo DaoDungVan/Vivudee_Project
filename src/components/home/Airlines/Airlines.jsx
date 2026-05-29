@@ -5,12 +5,14 @@
 import { useEffect, useState } from "react";
 import styles from "./Airlines.module.css";
 import API from "../../../services/axiosInstance";
+import { useTheme } from "../../../hooks/useTheme";
 
 const INITIAL_VISIBLE = 6; // Hiện 6 card đầu
 
 export default function Airlines() {
   const [airlines, setAirlines] = useState([]);
   const [showAll,  setShowAll]  = useState(false);
+  const { isDark } = useTheme();
 
   useEffect(() => {
     API.get("/flights/airlines")
@@ -40,9 +42,9 @@ export default function Airlines() {
         <div className={styles.grid}>
           {visible.map((airline) => (
             <div key={airline.id} className={styles.card}>
-              {airline.logo_url ? (
+              {(airline.logo_url || airline.logo_dark) ? (
                 <img
-                  src={airline.logo_url}
+                  src={(isDark && airline.logo_dark) ? airline.logo_dark : airline.logo_url}
                   alt={airline.name}
                   loading="lazy"
                   onError={(e) => {
@@ -53,7 +55,7 @@ export default function Airlines() {
               ) : null}
               <span
                 className={styles.fallbackName}
-                style={{ display: airline.logo_url ? "none" : "flex" }}
+                style={{ display: (airline.logo_url || airline.logo_dark) ? "none" : "flex" }}
               >
                 {airline.name}
               </span>

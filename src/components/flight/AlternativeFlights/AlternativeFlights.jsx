@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "../../../hooks/useTheme";
 import { getAlternatives } from "../../../services/flightService";
 import planeIcon from "../../../assets/icons/plane.png";
 import styles from "./AlternativeFlights.module.css";
@@ -12,7 +13,8 @@ const fmtTime = (iso) => {
 };
 
 export default function AlternativeFlights({ selectedFlight, seatClass = "economy", adults = 1, onSelect }) {
-  const { t }     = useTranslation();
+  const { t }      = useTranslation();
+  const { isDark } = useTheme();
   const [alts, setAlts] = useState([]);
 
   useEffect(() => {
@@ -44,7 +46,7 @@ export default function AlternativeFlights({ selectedFlight, seatClass = "econom
           return (
             <div key={f.flight_id} className={styles.card}>
               <img
-                src={f.airline?.logo_url || planeIcon}
+                src={(isDark && f.airline?.logo_dark) ? f.airline.logo_dark : (f.airline?.logo_url || planeIcon)}
                 alt={f.airline?.name}
                 className={styles.logo}
                 onError={(e) => { e.target.src = planeIcon; }}

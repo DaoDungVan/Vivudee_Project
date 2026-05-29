@@ -1,5 +1,6 @@
 // src/pages/transactions/Transactions.jsx
 import { useState, useEffect, useCallback } from "react";
+import { useTheme } from "../../hooks/useTheme";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
@@ -51,6 +52,7 @@ const fmtDate = (iso) => {
 const Transactions = () => {
   const navigate    = useNavigate();
   const { t }       = useTranslation();
+  const { isDark }  = useTheme();
   const [transactions, setTransactions] = useState([]);
   const [loading,   setLoading]   = useState(true);
   const [error,     setError]     = useState("");
@@ -267,7 +269,7 @@ const Transactions = () => {
                                   {/* Row 1: Airline */}
                                   <div className={styles.bpAirlineRow}>
                                     <img
-                                      src={flight.airline?.logo_url || planeIcon}
+                                      src={(isDark && flight.airline?.logo_dark) ? flight.airline.logo_dark : (flight.airline?.logo_url || planeIcon)}
                                       alt={flight.airline?.name}
                                       className={styles.bpLogo}
                                       onError={e => { e.target.src = planeIcon; }}

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "../../hooks/useTheme";
 import { createBooking } from "../../services/bookingService";
 import styles from "./Booking.module.css";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
@@ -30,9 +31,10 @@ const calcAge = (dob) => {
 const emptyPassenger = () => ({ fullName: "", dob: "", gender: "", idNumber: "" });
 
 const Booking = () => {
-  const navigate = useNavigate();
-  const { state } = useLocation();
-  const { t } = useTranslation();
+  const navigate   = useNavigate();
+  const { state }  = useLocation();
+  const { t }      = useTranslation();
+  const { isDark } = useTheme();
 
   const selectedFlights = state?.selectedFlights || null;
   const passengers = state?.passengers || {};
@@ -208,7 +210,7 @@ const Booking = () => {
       <p className={styles.summaryLabel}>{label}</p>
       <div className={styles.summaryRow}>
         <img
-          src={flight.airline?.logo_url || planeIcon}
+          src={(isDark && flight.airline?.logo_dark) ? flight.airline.logo_dark : (flight.airline?.logo_url || planeIcon)}
           alt={flight.airline?.name}
           className={styles.summaryLogo}
           onError={(e) => { e.target.src = planeIcon; }}

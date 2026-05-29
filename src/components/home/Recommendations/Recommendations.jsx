@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "../../../hooks/useTheme";
 import { getRecommendations } from "../../../services/flightService";
 import planeIcon from "../../../assets/icons/plane.png";
 import styles from "./Recommendations.module.css";
@@ -13,10 +14,11 @@ const fmtTime = (iso) => {
 };
 
 export default function Recommendations({ from = "SGN", to = "HAN" }) {
-  const navigate  = useNavigate();
-  const { t }     = useTranslation();
-  const sliderRef = useRef(null);
-  const drag      = useRef({ down: false, startX: 0, scrollLeft: 0 });
+  const navigate   = useNavigate();
+  const { t }      = useTranslation();
+  const { isDark } = useTheme();
+  const sliderRef  = useRef(null);
+  const drag       = useRef({ down: false, startX: 0, scrollLeft: 0 });
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -67,7 +69,7 @@ export default function Recommendations({ from = "SGN", to = "HAN" }) {
                 <div key={f.flight_id} className={styles.card}>
                   <div className={styles.cardTop}>
                     <img
-                      src={f.airline?.logo_url || planeIcon}
+                      src={(isDark && f.airline?.logo_dark) ? f.airline.logo_dark : (f.airline?.logo_url || planeIcon)}
                       alt={f.airline?.name}
                       className={styles.logo}
                       onError={(e) => { e.target.src = planeIcon; }}

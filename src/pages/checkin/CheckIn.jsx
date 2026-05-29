@@ -127,8 +127,8 @@ export default function CheckIn() {
 
   const hasReturn = statusData?.passengers?.some(p => p.return_seat);
   const passengers = statusData?.passengers || [];
-  const checkedInCount = passengers.filter(p => p.checked_in).length;
-  const allCheckedIn = passengers.length > 0 && checkedInCount === passengers.filter(p => p.type !== "infant").length;
+  const nonInfants = passengers.filter(p => p.type !== "infant");
+  const allCheckedIn = nonInfants.length > 0 && nonInfants.every(p => p.checked_in);
 
   return (
     <>

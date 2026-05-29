@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "../../../hooks/useTheme";
 import { getRecommendations } from "../../../services/flightService";
 import planeIcon from "../../../assets/icons/plane.png";
 import styles from "./RecommendationBar.module.css";
@@ -8,8 +9,9 @@ import styles from "./RecommendationBar.module.css";
 const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n ?? 0) + " ₫";
 
 export default function RecommendationBar({ from, to }) {
-  const navigate = useNavigate();
-  const { t }    = useTranslation();
+  const navigate   = useNavigate();
+  const { t }      = useTranslation();
+  const { isDark } = useTheme();
   const [flights, setFlights] = useState([]);
 
   useEffect(() => {
@@ -33,7 +35,7 @@ export default function RecommendationBar({ from, to }) {
         {flights.map((f) => (
           <div key={f.flight_id} className={styles.card} onClick={() => handlePick(f)}>
             <img
-              src={f.airline?.logo_url || planeIcon}
+              src={(isDark && f.airline?.logo_dark) ? f.airline.logo_dark : (f.airline?.logo_url || planeIcon)}
               alt={f.airline?.name}
               className={styles.logo}
               onError={(e) => { e.target.src = planeIcon; }}

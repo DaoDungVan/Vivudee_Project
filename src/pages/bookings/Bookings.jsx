@@ -289,6 +289,17 @@ const Bookings = () => {
     }
   };
 
+  const handleOtpPaste = (e) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (!pasted) return;
+    const next = [...otpDigits];
+    pasted.split("").forEach((ch, i) => { next[i] = ch; });
+    setOtpDigits(next);
+    setOtpError("");
+    document.getElementById(`otp-refund-${Math.min(pasted.length, 5)}`)?.focus();
+  };
+
   const handleOTPSubmit = async () => {
     const otpCode = otpDigits.join("");
     if (!/^\d{6}$/.test(otpCode)) { setOtpError("Mã OTP phải là 6 chữ số"); return; }
@@ -656,6 +667,7 @@ const Bookings = () => {
                       value={digit}
                       onChange={(e) => handleOtpDigitChange(e.target.value, i)}
                       onKeyDown={(e) => handleOtpKeyDown(e, i)}
+                      onPaste={i === 0 ? handleOtpPaste : undefined}
                       autoFocus={i === 0}
                     />
                   ))}
