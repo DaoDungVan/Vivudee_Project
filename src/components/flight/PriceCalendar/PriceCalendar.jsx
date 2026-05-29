@@ -40,12 +40,17 @@ export default function PriceCalendar({ from, to, selectedDate, seatClass = "eco
       const rows  = res.data?.data || [];
       const map   = {};
       rows.forEach((r) => { map[r.flight_date.slice(0, 10)] = Number(r.min_price); });
-      setCalData((prev) => ({ ...prev, ...map }));
+      setCalData((prev) => ({ ...prev, ...map })); // merge để giữ data các tháng khác nhau khi navigate
     } catch {
       // silent
     } finally {
       setLoading(false);
     }
+  }, [from, to, seatClass, adults]);
+
+  // Xóa data cũ khi route hoặc hạng ghế thay đổi — tránh hiển thị giá sai class
+  useEffect(() => {
+    setCalData({});
   }, [from, to, seatClass, adults]);
 
   useEffect(() => {
