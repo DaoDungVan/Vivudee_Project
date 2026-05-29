@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import NavBar from "../../components/common/NavBar/Navbar";
 import styles from "./SeatMapPage.module.css";
 import { useTranslation } from "react-i18next";
-import { LuPlane, LuArmchair, LuCircleDollarSign, LuCheck } from "react-icons/lu";
+import { LuPlane, LuArmchair, LuCircleDollarSign, LuCheck, LuShuffle } from "react-icons/lu";
 
 const CLASS_ORDER = ["economy", "business", "first"];
 
@@ -107,15 +107,39 @@ export default function SeatMapPage() {
       <div className={styles.body}>
         {/* ── Seat map (left) ── */}
         <div className={styles.mapCol}>
-          <SeatMap
-            flightId={flight?.flight_id}
-            seatClass={activeClass}
-            passengers={paxList.map((p, i) => ({ id: i, fullName: p.fullName || `Hành khách ${i + 1}` }))}
-            onConfirm={handleConfirm}
-            onBack={() => navigate(-1)}
-            rowOffset={rowOffset}
-            seatPreference={seatPreference?.outbound || null}
-          />
+          {seatPreference?.outbound === null ? (
+            /* Ngẫu nhiên — không cần chọn ghế */
+            <div className={styles.randomWrap}>
+              <LuShuffle size={48} className={styles.randomIcon} />
+              <h2 className={styles.randomTitle}>{t("seatMap.randomTitle", "Ghế ngẫu nhiên")}</h2>
+              <p className={styles.randomDesc}>
+                {t("seatMap.randomDesc", "Bạn đã chọn ghế ngẫu nhiên. Hãng bay sẽ tự động phân bổ ghế khi làm thủ tục check-in.")}
+              </p>
+              <div className={styles.randomActions}>
+                <button className={styles.randomBack} onClick={() => navigate(-1)}>
+                  ← {t("seatMap.back", "Quay lại")}
+                </button>
+                <button
+                  className={styles.randomConfirm}
+                  onClick={() => handleConfirm({})}
+                  disabled={loading}
+                >
+                  {loading ? t("seatMap.booking", "Đang đặt chỗ...") : t("seatMap.confirmRandom", "Xác nhận & Đặt chỗ")}
+                </button>
+              </div>
+              {error && <p className={styles.randomError}>{error}</p>}
+            </div>
+          ) : (
+            <SeatMap
+              flightId={flight?.flight_id}
+              seatClass={activeClass}
+              passengers={paxList.map((p, i) => ({ id: i, fullName: p.fullName || `Hành khách ${i + 1}` }))}
+              onConfirm={handleConfirm}
+              onBack={() => navigate(-1)}
+              rowOffset={rowOffset}
+              seatPreference={seatPreference?.outbound || null}
+            />
+          )}
         </div>
 
         {/* ── Info panel (right / mobile bottom drawer) ── */}

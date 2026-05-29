@@ -15,6 +15,59 @@
   flex-direction: column;
 }
 
+/* ── Random seat screen ── */
+.randomWrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 48px 32px;
+  text-align: center;
+}
+.randomIcon { color: var(--primary-color, #2563eb); opacity: 0.7; }
+.randomTitle {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin: 0;
+}
+.randomDesc {
+  font-size: 14px;
+  color: var(--text-muted);
+  max-width: 420px;
+  line-height: 1.7;
+  margin: 0;
+}
+.randomActions { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; justify-content: center; }
+.randomBack {
+  padding: 11px 22px;
+  border: 1.5px solid var(--card-border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-dark);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.randomBack:hover { background: var(--bg-subtle); }
+.randomConfirm {
+  padding: 11px 28px;
+  border: none;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.randomConfirm:hover { background: #1d4ed8; }
+.randomConfirm:disabled { opacity: 0.6; cursor: not-allowed; }
+.randomError { font-size: 13px; color: #ef4444; margin: 0; }
+
 /* ── Right: info panel ── */
 .panel {
   width: 280px;
