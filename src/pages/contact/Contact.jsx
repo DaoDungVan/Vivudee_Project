@@ -57,7 +57,7 @@ const Contact = () => {
     setLoading(true);
     setSendError("");
     try {
-      await API.post("/public/contact", form);
+      await API.post("/contact", form);
       setSubmitted(true);
     } catch (err) {
       setSendError(err?.response?.data?.error || "Gửi thất bại. Vui lòng thử lại.");
