@@ -11,7 +11,7 @@
 .title{
   font-size:28px;
   font-weight:700;
-  margin-bottom:30px;
+  margin-bottom:0;
 }
 
 .error {
@@ -22,6 +22,32 @@
 
 /* GRID SCROLL */
 
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.navBtns { display: flex; gap: 8px; }
+
+.navBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-dark);
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.navBtn:hover:not(:disabled) { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+.navBtn:disabled { opacity: 0.3; cursor: default; }
+
 .grid{
   display:flex;
   gap:20px;
@@ -30,20 +56,11 @@
   margin: -10px -4px -6px;
   scroll-behavior:smooth;
   cursor:grab;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
-
-.grid:active{
-  cursor:grabbing;
-}
-
-.grid::-webkit-scrollbar{
-  height:6px;
-}
-
-.grid::-webkit-scrollbar-thumb{
-  background: var(--divider);
-  border-radius:10px;
-}
+.grid:active{ cursor:grabbing; }
+.grid::-webkit-scrollbar{ display: none; }
 
 /* CARD */
 

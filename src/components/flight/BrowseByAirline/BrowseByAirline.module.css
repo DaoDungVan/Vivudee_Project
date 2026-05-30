@@ -67,6 +67,50 @@
 .flightRow::-webkit-scrollbar { height: 4px; }
 .flightRow::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 4px; }
 
+/* Grid layout khi expand */
+.flightGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  padding: 6px 0 14px;
+}
+
+/* Toggle button */
+.toggleBtnWrap {
+  margin-top: 8px;
+}
+.toggleBtn {
+  display: inline-flex;
+  width: auto;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--card-border);
+  background: var(--bg-muted);
+  color: var(--primary-color);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.toggleBtn:hover {
+  background: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-color);
+}
+
+/* Flight count badge */
+.flightCount {
+  margin-left: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--bg-muted);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 1px 7px;
+}
+
 /* ── Flight mini card ── */
 .flightCard {
   min-width: 200px;

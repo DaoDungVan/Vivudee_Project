@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../../hooks/useTheme";
-import { getRecommendations } from "../../../services/flightService";
+import { getRecommendations, getBrowseFlights } from "../../../services/flightService";
 import planeIcon from "../../../assets/icons/plane.png";
 import styles from "./Recommendations.module.css";
 
@@ -13,30 +13,53 @@ const fmtTime = (iso) => {
   return match ? `${match[1]}:${match[2]}` : "--:--";
 };
 
+const SCROLL_BY = 320;
+
 export default function Recommendations({ from = "SGN", to = "HAN" }) {
   const navigate   = useNavigate();
   const { t }      = useTranslation();
   const { isDark } = useTheme();
   const sliderRef  = useRef(null);
   const drag       = useRef({ down: false, startX: 0, scrollLeft: 0 });
-  const [flights, setFlights] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [flights,  setFlights]  = useState([]);
+  const [loading,  setLoading]  = useState(true);
+  const [canLeft,  setCanLeft]  = useState(false);
+  const [canRight, setCanRight] = useState(false);
 
   useEffect(() => {
     let active = true;
     getRecommendations(from, to, 8)
       .then((res) => {
         if (!active) return;
-        setFlights(res.data?.data || []);
+        const data = res.data?.data || [];
+        if (data.length > 0) { setFlights(data); return; }
+        return getBrowseFlights(8).then((r) => {
+          if (!active) return;
+          setFlights(r.data?.data || []);
+        });
       })
       .catch(() => {})
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [from, to]);
 
+  const updateArrows = () => {
+    const el = sliderRef.current;
+    if (!el) return;
+    setCanLeft(el.scrollLeft > 0);
+    setCanRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 2);
+  };
+
+  useEffect(() => { updateArrows(); }, [flights]);
+
+  const scroll = (dir) => {
+    sliderRef.current?.scrollBy({ left: dir * SCROLL_BY, behavior: "smooth" });
+    setTimeout(updateArrows, 350);
+  };
+
   const onDown  = (e) => { drag.current = { down: true, startX: e.pageX - sliderRef.current.offsetLeft, scrollLeft: sliderRef.current.scrollLeft }; };
   const onLeave = ()  => { drag.current.down = false; };
-  const onUp    = ()  => { drag.current.down = false; };
+  const onUp    = ()  => { drag.current.down = false; updateArrows(); };
   const onMove  = (e) => {
     if (!drag.current.down) return;
     e.preventDefault();
@@ -54,7 +77,15 @@ export default function Recommendations({ from = "SGN", to = "HAN" }) {
   return (
     <section className={styles.section}>
       <div className={styles.container}>
-        <h2 className={styles.title}>{t("recommendations.title")}</h2>
+        {/* Tiêu đề + nút điều hướng cùng hàng */}
+        <div className={styles.header}>
+          <h2 className={styles.title}>{t("recommendations.title")}</h2>
+          <div className={styles.navBtns}>
+            <button className={styles.navBtn} disabled={!canLeft}  onClick={() => scroll(-1)}>‹</button>
+            <button className={styles.navBtn} disabled={!canRight} onClick={() => scroll(1)}>›</button>
+          </div>
+        </div>
+
         <div
           className={styles.grid}
           ref={sliderRef}
@@ -62,6 +93,7 @@ export default function Recommendations({ from = "SGN", to = "HAN" }) {
           onMouseLeave={onLeave}
           onMouseUp={onUp}
           onMouseMove={onMove}
+          onScroll={updateArrows}
         >
           {loading
             ? Array.from({ length: 4 }).map((_, i) => <div key={i} className={`${styles.skCard} ${styles.skeleton}`} />)

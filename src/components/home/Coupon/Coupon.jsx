@@ -5,11 +5,15 @@ import planeIcon from "../../../assets/icons/plane.png";
 import { getCouponErrorMessage, getHomeCoupons } from "../../../services/couponService";
 import { useTranslation } from "react-i18next";
 
+const SCROLL_BY = 320;
+
 export default function Coupon() {
   const sliderRef = useRef(null);
-  const dragRef = useRef({ isDown: false, startX: 0, scrollLeft: 0 });
-  const [coupons, setCoupons] = useState([]);
-  const [error, setError] = useState("");
+  const dragRef   = useRef({ isDown: false, startX: 0, scrollLeft: 0 });
+  const [coupons,  setCoupons]  = useState([]);
+  const [error,    setError]    = useState("");
+  const [canLeft,  setCanLeft]  = useState(false);
+  const [canRight, setCanRight] = useState(false);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -21,20 +25,32 @@ export default function Coupon() {
       });
   }, []);
 
+  const updateArrows = () => {
+    const el = sliderRef.current;
+    if (!el) return;
+    setCanLeft(el.scrollLeft > 0);
+    setCanRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 2);
+  };
+
+  useEffect(() => { updateArrows(); }, [coupons]);
+
+  const scroll = (dir) => {
+    sliderRef.current?.scrollBy({ left: dir * SCROLL_BY, behavior: "smooth" });
+    setTimeout(updateArrows, 350);
+  };
+
   const copyCode = (code) => {
     navigator.clipboard.writeText(code);
     toast.success(t("couponHome.copied", { code }));
   };
 
-  const handleMouseDown = (e) => {
+  const handleMouseDown  = (e) => {
     if (!sliderRef.current) return;
-    dragRef.current.isDown = true;
-    dragRef.current.startX = e.pageX - sliderRef.current.offsetLeft;
-    dragRef.current.scrollLeft = sliderRef.current.scrollLeft;
+    dragRef.current = { isDown: true, startX: e.pageX - sliderRef.current.offsetLeft, scrollLeft: sliderRef.current.scrollLeft };
   };
   const handleMouseLeave = () => { dragRef.current.isDown = false; };
-  const handleMouseUp = () => { dragRef.current.isDown = false; };
-  const handleMouseMove = (e) => {
+  const handleMouseUp    = () => { dragRef.current.isDown = false; updateArrows(); };
+  const handleMouseMove  = (e) => {
     if (!sliderRef.current || !dragRef.current.isDown) return;
     e.preventDefault();
     const x = e.pageX - sliderRef.current.offsetLeft;
@@ -44,7 +60,15 @@ export default function Coupon() {
   return (
     <section className={styles.couponSection}>
       <div className={styles.container}>
-        <h2 className={styles.title}>{t("couponHome.title")}</h2>
+        {/* Tiêu đề + nút điều hướng cùng hàng */}
+        <div className={styles.header}>
+          <h2 className={styles.title}>{t("couponHome.title")}</h2>
+          <div className={styles.navBtns}>
+            <button className={styles.navBtn} disabled={!canLeft}  onClick={() => scroll(-1)}>‹</button>
+            <button className={styles.navBtn} disabled={!canRight} onClick={() => scroll(1)}>›</button>
+          </div>
+        </div>
+
         {error && <p className={styles.error}>{error}</p>}
         <div
           className={styles.grid}
@@ -53,6 +77,7 @@ export default function Coupon() {
           onMouseLeave={handleMouseLeave}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
+          onScroll={updateArrows}
         >
           {coupons.map((coupon, index) => (
             <div key={coupon.id || coupon.code || index} className={styles.card}>
