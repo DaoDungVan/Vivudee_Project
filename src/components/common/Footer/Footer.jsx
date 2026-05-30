@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
+import axios from "axios";
+
+const API_BASE = "https://backend-log-function-2.onrender.com/api/public";
 import { LuMail, LuPhone, LuMapPin, LuSend } from "react-icons/lu";
 import { FaFacebook, FaInstagram, FaXTwitter, FaLinkedinIn } from "react-icons/fa6";
 import footerLogo  from "../../../assets/images/LogoFooter.svg";
@@ -30,10 +33,23 @@ export default function Footer() {
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
 
-  const handleSubscribe = () => {
+  const [subscribing, setSubscribing] = useState(false);
+
+  const handleSubscribe = async () => {
     if (!email.trim()) { toast.error(t("newsletter.error")); return; }
-    toast.success(t("newsletter.success"));
-    setEmail("");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      toast.error("Email không hợp lệ"); return;
+    }
+    setSubscribing(true);
+    try {
+      await axios.post(`${API_BASE}/newsletter/subscribe`, { email: email.trim() });
+      toast.success(t("newsletter.success"));
+      setEmail("");
+    } catch (err) {
+      toast.error(err?.response?.data?.error || "Đăng ký thất bại. Vui lòng thử lại.");
+    } finally {
+      setSubscribing(false);
+    }
   };
 
   return (
@@ -56,7 +72,7 @@ export default function Footer() {
               onChange={(e) => setEmail(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSubscribe()}
             />
-            <button className={styles.nlBtn} onClick={handleSubscribe}>
+            <button className={styles.nlBtn} onClick={handleSubscribe} disabled={subscribing}>
               {t("newsletter.btn")}
             </button>
           </div>
