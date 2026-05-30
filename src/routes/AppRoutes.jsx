@@ -8,6 +8,7 @@ function ChatWidgetConditional() {
   return HIDE_CHAT.some(p => pathname.startsWith(p)) ? null : <ChatWidget />;
 }
 import Home from "../pages/home/Home";
+import Unsubscribe from "../pages/newsletter/Unsubscribe";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 import AuthCallback from "../pages/auth/AuthCallback";
@@ -65,6 +66,7 @@ function AppRoutes() {
         <Route path="/seat-map" element={<SeatMapPage />} />
         <Route path="/checkin" element={<CheckIn />} />
         <Route path="/checkin/bp/:code" element={<BoardingPassView />} />
+        <Route path="/newsletter/unsubscribe" element={<Unsubscribe />} />
       </Routes>
       <ChatWidgetConditional />
     </BrowserRouter>
