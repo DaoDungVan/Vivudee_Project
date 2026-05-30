@@ -126,6 +126,7 @@ const Booking = () => {
 
   // Bước 1: validate → navigate sang trang seat map
   const handleGoToSeatMap = async () => {
+    if (loading) return; // chặn double-click
     const errs = validate();
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
@@ -134,11 +135,12 @@ const Booking = () => {
       return;
     }
 
-    // Force check ngay tại đây thay vì dùng contactWarning có thể bị stale
-    if (!isLoggedIn) {
-      let emailTaken = false;
-      let phoneTaken = false;
-      try {
+    // Lock nút ngay, check email trước khi cho qua
+    setLoading(true);
+    try {
+      if (!isLoggedIn) {
+        let emailTaken = false;
+        let phoneTaken = false;
         if (contact.email.trim()) {
           const r = await API.post("/public/check-contact", { email: contact.email.trim() });
           emailTaken = !!r.data?.email_taken;
@@ -147,16 +149,19 @@ const Booking = () => {
           const r = await API.post("/public/check-contact", { phone: contact.phone.trim() });
           phoneTaken = !!r.data?.phone_taken;
         }
-      } catch { /* ignore */ }
-
-      if (emailTaken || phoneTaken) {
-        setContactWarning({
-          email: emailTaken ? "Email này đã có tài khoản. Vui lòng đăng nhập hoặc dùng email khác." : "",
-          phone: phoneTaken ? "Số điện thoại này đã có tài khoản. Vui lòng đăng nhập hoặc dùng số khác." : "",
-        });
-        document.getElementById("email")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
+        if (emailTaken || phoneTaken) {
+          setContactWarning({
+            email: emailTaken ? "Email này đã có tài khoản. Vui lòng đăng nhập hoặc dùng email khác." : "",
+            phone: phoneTaken ? "Số điện thoại này đã có tài khoản. Vui lòng đăng nhập hoặc dùng số khác." : "",
+          });
+          document.getElementById("email")?.scrollIntoView({ behavior: "smooth", block: "center" });
+          return; // finally sẽ setLoading(false)
+        }
       }
+    } catch {
+      // Nếu API check lỗi → vẫn cho qua (không block user vì lỗi mạng)
+    } finally {
+      setLoading(false);
     }
     // Build payload sẵn để SeatMapPage dùng
     const isRoundTrip = !!selectedFlights.return;
