@@ -140,19 +140,14 @@ const Booking = () => {
     try {
       if (!isLoggedIn) {
         let emailTaken = false;
-        let phoneTaken = false;
         if (contact.email.trim()) {
           const r = await API.post("/public/check-contact", { email: contact.email.trim() });
           emailTaken = !!r.data?.email_taken;
         }
-        if (contact.phone.trim()) {
-          const r = await API.post("/public/check-contact", { phone: contact.phone.trim() });
-          phoneTaken = !!r.data?.phone_taken;
-        }
-        if (emailTaken || phoneTaken) {
+        if (emailTaken) {
           setContactWarning({
-            email: emailTaken ? "Email này đã có tài khoản. Vui lòng đăng nhập hoặc dùng email khác." : "",
-            phone: phoneTaken ? "Số điện thoại này đã có tài khoản. Vui lòng đăng nhập hoặc dùng số khác." : "",
+            email: "Email này đã có tài khoản. Vui lòng đăng nhập hoặc dùng email khác.",
+            phone: "",
           });
           document.getElementById("email")?.scrollIntoView({ behavior: "smooth", block: "center" });
           return; // finally sẽ setLoading(false)
@@ -324,11 +319,10 @@ const Booking = () => {
                     value={contact.phone}
                     readOnly={isLoggedIn}
                     onChange={isLoggedIn ? undefined : (e) => { setContact({ ...contact, phone: e.target.value }); setContactWarning(w => ({...w, phone: ""})); }}
-                    onBlur={isLoggedIn ? undefined : (e) => checkContact("phone", e.target.value)}
+                    onBlur={undefined}
                   />
                   {isLoggedIn && <span className={styles.lockedHint}>Số điện thoại được lấy từ tài khoản của bạn</span>}
                   {errors.phone && <span className={styles.errMsg}>{errors.phone}</span>}
-                  {!isLoggedIn && !errors.phone && contactWarning.phone && <span className={styles.errMsg}>{contactWarning.phone}</span>}
                 </div>
               </div>
             </div>
