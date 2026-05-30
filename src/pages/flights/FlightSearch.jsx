@@ -255,8 +255,14 @@ const FlightSearch = () => {
                 seatClass={seatClass || "economy"}
                 adults={Number(adults || 1)}
                 onCalendarLoad={(calMap) => {
-                  const prices = Object.values(calMap).filter(Boolean);
-                  if (prices.length) setCheapestCalPrice(Math.min(...prices));
+                  // Chỉ lấy min của các ngày KHÁC ngày đang chọn
+                  // để badge "Đổi ngày tiết kiệm X" so đúng với ngày rẻ hơn
+                  const otherPrices = Object.entries(calMap)
+                    .filter(([date]) => date !== departureDate)
+                    .map(([, price]) => price)
+                    .filter(Boolean);
+                  if (otherPrices.length) setCheapestCalPrice(Math.min(...otherPrices));
+                  else setCheapestCalPrice(null);
                 }}
               />
             )}
