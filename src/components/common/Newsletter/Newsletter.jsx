@@ -1,16 +1,33 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
+import axios from "axios";
 import styles from "./Newsletter.module.css";
+
+const API_BASE = "https://backend-log-function-2.onrender.com/api/public";
 
 export default function Newsletter() {
   const { t } = useTranslation();
-  const [email, setEmail] = useState("");
+  const [email,   setEmail]   = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubscribe = () => {
-    if (!email) { toast.error(t("newsletter.error")); return; }
-    toast.success(t("newsletter.success"));
-    setEmail("");
+  const handleSubscribe = async () => {
+    if (!email.trim()) { toast.error(t("newsletter.error")); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      toast.error("Email không hợp lệ");
+      return;
+    }
+    setLoading(true);
+    try {
+      await axios.post(`${API_BASE}/newsletter/subscribe`, { email: email.trim() });
+      toast.success(t("newsletter.success"));
+      setEmail("");
+    } catch (err) {
+      const msg = err?.response?.data?.error;
+      toast.error(msg || "Đăng ký thất bại. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -25,10 +42,13 @@ export default function Newsletter() {
             type="email"
             placeholder={t("newsletter.placeholder")}
             value={email}
+            disabled={loading}
             onChange={(e) => setEmail(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSubscribe()}
+            onKeyDown={(e) => e.key === "Enter" && !loading && handleSubscribe()}
           />
-          <button onClick={handleSubscribe}>{t("newsletter.btn")}</button>
+          <button onClick={handleSubscribe} disabled={loading}>
+            {loading ? "Đang đăng ký..." : t("newsletter.btn")}
+          </button>
         </div>
       </div>
     </div>
