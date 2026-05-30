@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import axios from "axios";
 import styles from "./Newsletter.module.css";
 
-const API_BASE = "https://backend-log-function-2.onrender.com/api/public";
+const API_BASE = "https://backend-log-function-2.onrender.com/api";
 
 export default function Newsletter() {
   const { t } = useTranslation();

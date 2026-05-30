@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import axios from "axios";
 
-const API_BASE = "https://backend-log-function-2.onrender.com/api/public";
+const API_BASE = "https://backend-log-function-2.onrender.com/api";
 import { LuMail, LuPhone, LuMapPin, LuSend } from "react-icons/lu";
 import { FaFacebook, FaInstagram, FaXTwitter, FaLinkedinIn } from "react-icons/fa6";
 import footerLogo  from "../../../assets/images/LogoFooter.svg";
