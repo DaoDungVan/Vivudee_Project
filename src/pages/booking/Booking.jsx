@@ -119,6 +119,7 @@ const Booking = () => {
     });
     if (!contact.email.trim()) errs.email = t("booking.required");
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) errs.email = t("booking.emailInvalid");
+    else if (!isLoggedIn && contactWarning.email) errs.email = contactWarning.email;
     if (!contact.phone.trim()) errs.phone = t("booking.required");
     else if (!/^[0-9]{9,11}$/.test(contact.phone.trim().replace(/\s/g, ""))) errs.phone = t("booking.phoneErr");
     return errs;
@@ -154,7 +155,10 @@ const Booking = () => {
         }
       }
     } catch {
-      // Nếu API check lỗi → vẫn cho qua (không block user vì lỗi mạng)
+      if (!isLoggedIn && contactWarning.email) {
+        document.getElementById("email")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
     } finally {
       setLoading(false);
     }
