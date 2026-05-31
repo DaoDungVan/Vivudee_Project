@@ -98,19 +98,22 @@ const getOptDetails = (type, name = "", lang = "vi") => {
   }
 
   if (type === "insurance") {
+    // Thứ tự cả hai gói: y tế → hành lý → tai nạn → hỗ trợ 24/7 → hủy chuyến → trễ chuyến → hồi hương
     if (n.includes("toàn diện") || n.includes("cao cấp") || n.includes("premium")) return en ? [
       "Emergency medical cover: up to 50,000,000 VND",
-      "Unavoidable trip cancellation: up to 5,000,000 VND",
       "Lost or damaged baggage: up to 2,000,000 VND",
-      "Flight delay over 4 hours: 500,000 VND compensation",
+      "Personal accident insurance throughout your journey",
       "24/7 global emergency medical assistance",
+      "Unavoidable trip cancellation: up to 5,000,000 VND",
+      "Flight delay over 4 hours: 500,000 VND compensation",
       "Repatriation costs in emergency situations",
     ] : [
       "Bảo hiểm y tế khẩn cấp: đến 50.000.000 VND",
-      "Hoàn/hủy chuyến không thể tránh: đến 5.000.000 VND",
       "Hành lý thất lạc hoặc hư hỏng: đến 2.000.000 VND",
-      "Chuyến bay trễ trên 4 tiếng: bồi thường 500.000 VND",
+      "Bảo hiểm tai nạn cá nhân trong suốt hành trình",
       "Hỗ trợ y tế khẩn cấp 24/7 toàn cầu",
+      "Hoàn/hủy chuyến không thể tránh: đến 5.000.000 VND",
+      "Chuyến bay trễ trên 4 tiếng: bồi thường 500.000 VND",
       "Chi phí hồi hương trong trường hợp khẩn cấp",
     ];
     return en ? [
@@ -119,42 +122,47 @@ const getOptDetails = (type, name = "", lang = "vi") => {
       "Personal accident insurance throughout your journey",
       "24/7 emergency helpline",
       "Excludes: voluntary trip cancellation",
+      "Excludes: flight delay compensation",
     ] : [
       "Chi phí y tế khẩn cấp: đến 5.000.000 VND",
       "Hành lý thất lạc/chậm trễ: đến 500.000 VND",
       "Bảo hiểm tai nạn cá nhân trong suốt hành trình",
       "Đường dây hỗ trợ khẩn cấp 24/7",
       "Không bao gồm: hoàn/hủy chuyến tự nguyện",
+      "Không bao gồm: bồi thường khi trễ chuyến",
     ];
   }
 
   if (type === "wifi") {
+    // Thứ tự cả ba gói: tốc độ → phù hợp → streaming → thiết bị → dung lượng → SSL
     if (n.includes("không giới hạn") || n.includes("unlimited")) return en ? [
       "Maximum speed: up to 20 Mbps",
+      "Suitable for: work, online meetings and entertainment",
       "Supports HD streaming and high-quality video calls",
       "Unlimited device connections",
-      "Ideal for work and online meetings",
+      "Unlimited data — valid for the entire flight",
       "SSL-secured connection",
-      "Available throughout the entire flight",
     ] : [
       "Tốc độ cao nhất: lên đến 20 Mbps",
+      "Phù hợp: làm việc, họp trực tuyến, giải trí trực tuyến",
       "Hỗ trợ streaming HD, video call chất lượng cao",
       "Kết nối không giới hạn số thiết bị",
-      "Lý tưởng cho làm việc, họp trực tuyến",
+      "Dung lượng không giới hạn — dùng trọn hành trình",
       "Kết nối bảo mật SSL",
-      "Khả dụng trong toàn bộ hành trình bay",
     ];
     if (n.includes("nâng cao") || n.includes("cao cấp") || n.includes("1gb")) return en ? [
       "Average speed: 5–10 Mbps",
+      "Suitable for: email, social media and comfortable browsing",
       "Supports SD streaming and basic video calls",
       "Up to 2 devices connected simultaneously",
-      "Comfortable for email, social media and web browsing",
+      "Data allowance: 1 GB (sufficient for the whole flight)",
       "SSL-secured connection",
     ] : [
       "Tốc độ trung bình: 5–10 Mbps",
+      "Phù hợp: email, mạng xã hội, duyệt web thoải mái",
       "Hỗ trợ streaming SD, video call cơ bản",
       "Kết nối tối đa 2 thiết bị cùng lúc",
-      "Email, mạng xã hội, duyệt web thoải mái",
+      "Dung lượng: 1 GB (đủ dùng cho cả chuyến bay)",
       "Kết nối bảo mật SSL",
     ];
     return en ? [
@@ -163,12 +171,14 @@ const getOptDetails = (type, name = "", lang = "vi") => {
       "Not recommended for: video streaming or video calls",
       "Single device connection",
       "Data allowance: 200 MB (auto-disconnects when used up)",
+      "SSL-secured connection",
     ] : [
       "Tốc độ cơ bản: 1–3 Mbps",
       "Phù hợp: chat, email, duyệt web nhẹ",
       "Không khuyến khích: streaming video, video call",
       "Kết nối 1 thiết bị",
       "Dung lượng: 200 MB (tự động ngắt khi hết)",
+      "Kết nối bảo mật SSL",
     ];
   }
 
