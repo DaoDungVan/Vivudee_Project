@@ -67,7 +67,7 @@ const Booking = () => {
   const checkEmailContact = useCallback(async (value) => {
     if (!value?.trim() || isLoggedIn) return;
     try {
-      const res = await API.post("/public/check-contact", { email: value.trim() });
+      const res = await API.post("/check-contact", { email: value.trim() });
       setContactWarning(prev => ({
         ...prev,
         email: res.data?.email_taken
@@ -141,7 +141,7 @@ const Booking = () => {
       setLoading(true);
       let blocked = false;
       try {
-        const r = await API.post("/public/check-contact", { email: contact.email.trim() });
+        const r = await API.post("/check-contact", { email: contact.email.trim() });
         if (r.data?.email_taken) {
           blocked = true;
           const msg = "Email này đã được đăng ký. Vui lòng đăng nhập hoặc dùng email khác.";
