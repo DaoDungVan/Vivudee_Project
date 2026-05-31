@@ -61,17 +61,18 @@ const Booking = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
-  const [contactWarning, setContactWarning] = useState({ email: "", phone: "" });
+  const [contactWarning, setContactWarning] = useState({ email: "" });
   const isLoggedIn = !!localStorage.getItem("token");
 
-  const checkContact = useCallback(async (field, value) => {
-    if (!value?.trim() || isLoggedIn) return; // Đã đăng nhập thì không cần check (đã lock readonly)
+  const checkEmailContact = useCallback(async (value) => {
+    if (!value?.trim() || isLoggedIn) return;
     try {
-      const res = await API.post("/public/check-contact", { [field]: value.trim() });
-      const taken = res.data?.[`${field}_taken`];
+      const res = await API.post("/public/check-contact", { email: value.trim() });
       setContactWarning(prev => ({
         ...prev,
-        [field]: taken ? `${field === "email" ? "Email" : "Số điện thoại"} này đã có tài khoản. Vui lòng đăng nhập hoặc dùng ${field === "email" ? "email" : "số"} khác.` : ""
+        email: res.data?.email_taken
+          ? "Email này đã được đăng ký. Vui lòng đăng nhập hoặc dùng email khác."
+          : ""
       }));
     } catch { /* ignore */ }
   }, [isLoggedIn]);
@@ -136,31 +137,28 @@ const Booking = () => {
       return;
     }
 
-    // Lock nút ngay, check email trước khi cho qua
-    setLoading(true);
-    try {
-      if (!isLoggedIn) {
-        let emailTaken = false;
-        if (contact.email.trim()) {
-          const r = await API.post("/public/check-contact", { email: contact.email.trim() });
-          emailTaken = !!r.data?.email_taken;
-        }
-        if (emailTaken) {
-          setContactWarning({
-            email: "Email này đã có tài khoản. Vui lòng đăng nhập hoặc dùng email khác.",
-            phone: "",
-          });
+    if (!isLoggedIn) {
+      setLoading(true);
+      let blocked = false;
+      try {
+        const r = await API.post("/public/check-contact", { email: contact.email.trim() });
+        if (r.data?.email_taken) {
+          blocked = true;
+          const msg = "Email này đã được đăng ký. Vui lòng đăng nhập hoặc dùng email khác.";
+          setErrors((prev) => ({ ...prev, email: msg }));
+          setContactWarning((prev) => ({ ...prev, email: msg }));
           document.getElementById("email")?.scrollIntoView({ behavior: "smooth", block: "center" });
-          return; // finally sẽ setLoading(false)
         }
-      }
-    } catch {
-      if (!isLoggedIn && contactWarning.email) {
+      } catch {
+        blocked = true;
+        const msg = "Email này đã được đăng ký. Vui lòng đăng nhập hoặc dùng email khác.";
+        setErrors((prev) => ({ ...prev, email: msg }));
+        setContactWarning((prev) => ({ ...prev, email: msg }));
         document.getElementById("email")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
+      if (blocked) return;
     }
     // Build payload sẵn để SeatMapPage dùng
     const isRoundTrip = !!selectedFlights.return;
@@ -307,7 +305,7 @@ const Booking = () => {
                     value={contact.email}
                     readOnly={isLoggedIn}
                     onChange={isLoggedIn ? undefined : (e) => { setContact({ ...contact, email: e.target.value }); setContactWarning(w => ({...w, email: ""})); }}
-                    onBlur={isLoggedIn ? undefined : (e) => checkContact("email", e.target.value)}
+                    onBlur={isLoggedIn ? undefined : (e) => checkEmailContact(e.target.value)}
                   />
                   {isLoggedIn && <span className={styles.lockedHint}>Email được lấy từ tài khoản của bạn</span>}
                   {errors.email && <span className={styles.errMsg}>{errors.email}</span>}
@@ -322,8 +320,7 @@ const Booking = () => {
                     className={`${styles.input} ${errors.phone ? styles.inputError : ""} ${isLoggedIn ? styles.inputLocked : ""}`}
                     value={contact.phone}
                     readOnly={isLoggedIn}
-                    onChange={isLoggedIn ? undefined : (e) => { setContact({ ...contact, phone: e.target.value }); setContactWarning(w => ({...w, phone: ""})); }}
-                    onBlur={undefined}
+                    onChange={isLoggedIn ? undefined : (e) => setContact({ ...contact, phone: e.target.value })}
                   />
                   {isLoggedIn && <span className={styles.lockedHint}>Số điện thoại được lấy từ tài khoản của bạn</span>}
                   {errors.phone && <span className={styles.errMsg}>{errors.phone}</span>}
