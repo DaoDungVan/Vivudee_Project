@@ -151,9 +151,7 @@ const Booking = () => {
         }
       } catch {
         blocked = true;
-        const msg = "Email này đã được đăng ký. Vui lòng đăng nhập hoặc dùng email khác.";
-        setErrors((prev) => ({ ...prev, email: msg }));
-        setContactWarning((prev) => ({ ...prev, email: msg }));
+        setErrors((prev) => ({ ...prev, email: "Không thể kiểm tra email. Vui lòng thử lại." }));
         document.getElementById("email")?.scrollIntoView({ behavior: "smooth", block: "center" });
       } finally {
         setLoading(false);
