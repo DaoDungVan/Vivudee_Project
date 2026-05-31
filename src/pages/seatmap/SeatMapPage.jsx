@@ -178,7 +178,7 @@ export default function SeatMapPage() {
             <div className={styles.infoRow}>
               <span>Khởi hành</span>
               <b>{(flight?.departure?.time || flight?.departure_time)
-                ? new Date(flight.departure?.time || flight.departure_time).toLocaleString("vi-VN", { dateStyle: "short", timeStyle: "short" })
+                ? new Date(flight.departure?.time || flight.departure_time).toLocaleString("vi-VN", { dateStyle: "short", timeStyle: "short", timeZone: "UTC" })
                 : "—"}</b>
             </div>
             <div className={styles.infoRow}><span>{t("seatMap.passengers")}</span><b>{t("seatMap.paxCount", { n: paxCount })}</b></div>

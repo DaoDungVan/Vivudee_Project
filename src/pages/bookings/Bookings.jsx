@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { LuPlaneTakeoff, LuMail, LuPhone } from "react-icons/lu";
+import { LuPlaneTakeoff, LuMail, LuPhone, LuCopy, LuCalendarDays, LuUndo2, LuUser, LuLuggage } from "react-icons/lu";
 import { useLocation, useNavigate } from "react-router-dom";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
@@ -22,12 +22,12 @@ const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n) + " VND";
 const formatTime = (iso) => {
   if (!iso) return "--:--";
   const d = new Date(iso);
-  return isNaN(d) ? "--:--" : d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+  return isNaN(d) ? "--:--" : d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" });
 };
 
 const formatDate = (iso) => {
   if (!iso) return "";
-  return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" });
 };
 
 // Normalize booking — hỗ trợ cả flat (my bookings) lẫn nested (lookup)
@@ -209,6 +209,29 @@ const Bookings = () => {
     const dt = depTime(b);
     if (!dt) return false;
     return (new Date(dt) - Date.now()) / 3600000 >= 12;
+  };
+
+  const canDateChange = (b) => {
+    if (b.status !== "confirmed") return false;
+    const dt = depTime(b);
+    if (!dt) return false;
+    // Cho phép đổi ngày khi còn >= 24h trước giờ bay
+    return (new Date(dt) - Date.now()) / 3600000 >= 24;
+  };
+
+  const handleCancelLookup = async (code) => {
+    if (!window.confirm("Bạn có chắc muốn hủy đặt chỗ này không?")) return;
+    setCancelLoading(code);
+    setCancelError("");
+    try {
+      await cancelBooking(code);
+      const res = await getBookingByCode(code);
+      setLookupResult(res.data?.data);
+    } catch (err) {
+      setCancelError(err.response?.data?.error || t("bookings.cancelFailed"));
+    } finally {
+      setCancelLoading(null);
+    }
   };
 
   // Kiểm tra có phải round-trip không
@@ -393,6 +416,11 @@ const Bookings = () => {
               </button>
             )
           )}
+          {canDateChange(b) && (
+            <button className={styles.dateChangeBtn} onClick={(e) => { e.stopPropagation(); navigate("/date-change", { state: { booking: b, bookingCode: b.booking_code } }); }}>
+              Đổi ngày bay
+            </button>
+          )}
           {canRequestRefund(b) && (
             <button className={styles.refundBtn} onClick={(e) => { e.stopPropagation(); openRefundModal(b); }}>
               {t("bookings.refundBtn")}
@@ -409,120 +437,226 @@ const Bookings = () => {
     </div>
   );
 
-  const LookupDetail = ({ data }) => (
+  const LookupDetail = ({ data }) => {
+    const outbound = data.outbound_flight;
+    const returnFl = data.return_flight;
+    const fStatus  = flightStatus(outbound);
+    const isRound  = !!returnFl || data.trip_type === "round_trip";
+
+    // Dùng giờ từ outbound_flight (đúng local time) thay vì departure_time flat (UTC lệch)
+    const detailDepTime = outbound?.departure?.time || depTime(data);
+    const hoursLeft = detailDepTime ? (new Date(detailDepTime) - Date.now()) / 3_600_000 : 0;
+    const detailCanRefund     = data.status === "confirmed" && hoursLeft >= 12;
+    const detailCanDateChange = data.status === "confirmed" && hoursLeft >= 24;
+
+    const durLabel = (flight) => {
+      const mins = flight?.duration_minutes;
+      if (!mins) return null;
+      return `${Math.floor(mins / 60)}h${mins % 60 > 0 ? ` ${mins % 60}m` : ""}`;
+    };
+
+    const FlightCard = ({ flight, label }) => (
+      <div className={styles.flightDetailCard}>
+        <div className={styles.flightDetailTop}>
+          <span className={styles.flightDetailLabel}>{label}</span>
+          <div className={styles.flightDetailMeta}>
+            <span className={styles.flightDetailAirline}>{flight?.airline?.name}</span>
+            <span className={styles.flightDetailDot}>·</span>
+            <span className={styles.flightDetailNum}>{flight?.flight_number}</span>
+            <span className={`${styles.seatClassBadge} ${styles[`seat_${flight?.seat_class?.toLowerCase()}`] || ""}`}>
+              {flight?.seat_class}
+            </span>
+          </div>
+        </div>
+        <div className={styles.routeViz}>
+          <div className={styles.routePoint}>
+            <span className={styles.routeCode}>{flight?.departure?.code}</span>
+            <span className={styles.routeTime}>{formatTime(flight?.departure?.time)}</span>
+            <span className={styles.routeDate}>{formatDate(flight?.departure?.time)}</span>
+          </div>
+          <div className={styles.routeLine}>
+            <div className={styles.routeDash} />
+            <LuPlaneTakeoff size={17} className={styles.routePlane} />
+            <div className={styles.routeDash} />
+          </div>
+          <div className={`${styles.routePoint} ${styles.routePointRight}`}>
+            <span className={styles.routeCode}>{flight?.arrival?.code}</span>
+            <span className={styles.routeTime}>{formatTime(flight?.arrival?.time)}</span>
+            <span className={styles.routeDate}>{formatDate(flight?.arrival?.time)}</span>
+          </div>
+        </div>
+        {durLabel(flight) && (
+          <p className={styles.flightDuration}>Bay thẳng · {durLabel(flight)}</p>
+        )}
+      </div>
+    );
+
+    return (
     <div className={styles.detailCard}>
-      <div className={styles.detailHeader}>
+
+      {/* ── Header ── */}
+      <div className={styles.detailHeaderNew}>
         <div>
           <p className={styles.detailCodeLabel}>{t("bookings.bookingCode")}</p>
-          <p className={styles.detailCode}>{data.booking_code}</p>
+          <div className={styles.detailCodeRow}>
+            <h2 className={styles.detailCode}>{data.booking_code}</h2>
+            <button
+              className={styles.copyBtn}
+              title="Sao chép"
+              onClick={() => navigator.clipboard?.writeText(data.booking_code)}
+            >
+              <LuCopy size={14} />
+            </button>
+          </div>
+          <div className={styles.detailMetaRow}>
+            <span>Đặt ngày {formatDate(data.created_at)}</span>
+            <span className={styles.metaDot}>·</span>
+            <span>{isRound ? "Khứ hồi" : "Một chiều"}</span>
+          </div>
         </div>
         <StatusBadge status={data.status} />
       </div>
 
-      <div className={styles.detailFlight}>
-        <p className={styles.detailFlightLabel}>{t("bookings.outboundFlight")}</p>
-        <div className={styles.detailFlightRow}>
-          <div>
-            <p className={styles.detailAirline}>{data.outbound_flight?.airline?.name}</p>
-            <p className={styles.detailFlightNum}>{data.outbound_flight?.flight_number} · {data.outbound_flight?.seat_class}</p>
-          </div>
-          <div className={styles.detailTimes}>
-            <span>{data.outbound_flight?.departure?.code} {formatTime(data.outbound_flight?.departure?.time)}</span>
-            <span className={styles.detailArrow}>→</span>
-            <span>{data.outbound_flight?.arrival?.code} {formatTime(data.outbound_flight?.arrival?.time)}</span>
-          </div>
-          <p className={styles.detailFlightDate}>{formatDate(data.outbound_flight?.departure?.time)}</p>
-        </div>
-      </div>
+      <div className={styles.detailDivider} />
 
-      {data.return_flight && (
-        <div className={styles.detailFlight}>
-          <p className={styles.detailFlightLabel}>{t("bookings.returnFlight")}</p>
-          <div className={styles.detailFlightRow}>
-            <div>
-              <p className={styles.detailAirline}>{data.return_flight?.airline?.name}</p>
-              <p className={styles.detailFlightNum}>{data.return_flight?.flight_number} · {data.return_flight?.seat_class}</p>
-            </div>
-            <div className={styles.detailTimes}>
-              <span>{data.return_flight?.departure?.code} {formatTime(data.return_flight?.departure?.time)}</span>
-              <span className={styles.detailArrow}>→</span>
-              <span>{data.return_flight?.arrival?.code} {formatTime(data.return_flight?.arrival?.time)}</span>
-            </div>
-            <p className={styles.detailFlightDate}>{formatDate(data.return_flight?.departure?.time)}</p>
-          </div>
-        </div>
-      )}
+      {/* ── Flights ── */}
+      <FlightCard flight={outbound} label="Chuyến đi" />
+      {returnFl && <FlightCard flight={returnFl} label="Chuyến về" />}
 
-      <div className={styles.detailSection}>
-        <p className={styles.detailSectionTitle}>{t("bookings.passengersSection")}</p>
+      <div className={styles.detailDivider} />
+
+      {/* ── Passengers ── */}
+      <div className={styles.detailSection2}>
+        <p className={styles.detailSectionTitle2}>
+          <LuUser size={13} style={{ marginRight: 6, verticalAlign: "middle" }} />
+          Hành khách
+        </p>
         {data.passengers?.list?.filter((p) => p.flight_type === "outbound").map((p, i) => (
-          <div key={i} className={styles.detailPaxRow}>
-            <span>{p.full_name}</span>
-            <span className={styles.detailPaxMeta}>
-              {p.passenger_type === "child" ? t("bookings.childLabel") : p.passenger_type === "infant" ? t("bookings.infantLabel") : t("bookings.adultLabel")}
-              &nbsp;·&nbsp;{t("bookings.seat", { number: p.seat_number || t("bookings.tbaSeat") })}
-            </span>
-            {p.extra_baggage_kg > 0 && <span className={styles.detailBaggage}>+{p.extra_baggage_kg}kg</span>}
+          <div key={i} className={styles.paxRow2}>
+            <div className={styles.paxLeft}>
+              <span className={styles.paxName}>{p.full_name}</span>
+              <span className={`${styles.paxTypeBadge} ${p.passenger_type === "child" ? styles.paxChild : styles.paxAdult}`}>
+                {p.passenger_type === "child" ? "Trẻ em" : p.passenger_type === "infant" ? "Trẻ sơ sinh" : "Người lớn"}
+              </span>
+            </div>
+            <div className={styles.paxRight}>
+              {p.seat_number && (
+                <span className={styles.paxSeat}>Ghế {p.seat_number}</span>
+              )}
+              {p.extra_baggage_kg > 0 && (
+                <span className={styles.paxBaggage}>
+                  <LuLuggage size={11} /> +{p.extra_baggage_kg}kg
+                </span>
+              )}
+            </div>
           </div>
         ))}
       </div>
 
-      <div className={styles.detailPrice}>
-        <span>{t("bookings.totalPrice")}</span>
-        <div className={styles.detailPriceRight}>
-          {data.price?.discount_amount > 0 && <span className={styles.detailOriginalPrice}>{fmt(data.price.total_price)}</span>}
-          <span className={styles.detailPriceValue}>{fmt(data.price?.final_amount ?? data.price?.total_price ?? 0)}</span>
-          {data.price?.discount_amount > 0 && <span className={styles.detailDiscountBadge}>−{fmt(data.price.discount_amount)}</span>}
+      <div className={styles.detailDivider} />
+
+      {/* ── Price breakdown ── */}
+      <div className={styles.detailSection2}>
+        <p className={styles.detailSectionTitle2}>Chi tiết giá</p>
+        <div className={styles.priceRow}>
+          <span>Giá vé</span>
+          <span>{fmt(data.price?.total_price ?? data.total_price ?? 0)}</span>
+        </div>
+        {data.price?.discount_amount > 0 && (
+          <div className={`${styles.priceRow} ${styles.priceDiscount}`}>
+            <span>Giảm giá coupon</span>
+            <span>− {fmt(data.price.discount_amount)}</span>
+          </div>
+        )}
+        <div className={styles.priceTotalRow}>
+          <span>Tổng cộng</span>
+          <span className={styles.priceTotalValue}>{fmt(data.price?.final_amount ?? data.price?.total_price ?? 0)}</span>
         </div>
       </div>
 
-      <div className={styles.detailContact}>
-        <p><LuMail size={14} style={{marginRight:6,verticalAlign:"middle"}} />{data.contact?.email}</p>
-        {data.contact?.phone && <p><LuPhone size={14} style={{marginRight:6,verticalAlign:"middle"}} />{data.contact?.phone}</p>}
+      <div className={styles.detailDivider} />
+
+      {/* ── Contact ── */}
+      <div className={styles.contactRow}>
+        <div className={styles.contactItem}>
+          <LuMail size={14} />
+          <span>{data.contact?.email}</span>
+        </div>
+        {data.contact?.phone && (
+          <div className={styles.contactItem}>
+            <LuPhone size={14} />
+            <span>{data.contact?.phone}</span>
+          </div>
+        )}
       </div>
 
-      {data.status === "pending" && (
-        <button className={styles.continuePayBtn} onClick={() => handleContinuePayment(data)}>
-          {t("bookings.continuePayment")}
-        </button>
-      )}
+      {/* ── Actions ── */}
+      <div className={styles.actionsSection}>
+        {data.status === "pending" && (
+          <button className={styles.actionContinuePay} onClick={() => handleContinuePayment(data)}>
+            {t("bookings.continuePayment")}
+          </button>
+        )}
 
-      {data.status !== "cancelled" && (
-        <button
-          className={`${styles.trackBtn} ${flightStatus(data.outbound_flight) === "landed" ? styles.trackBtnLanded : ""}`}
-          style={{ marginTop: 12 }}
-          onClick={() => {
-            if (flightStatus(data.outbound_flight) === "landed") {
-              setTrackerAlert("Chuyến bay đã hạ cánh. Hành trình đã hoàn thành.");
-              setTimeout(() => setTrackerAlert(""), 4000);
-            } else {
-              const fid = data.outbound_flight?.flight_id ?? data.outbound_flight?.id ?? data.outbound_flight?.flightId;
-              navigate(`/tracker/${fid}`, { state: { booking: data } });
-            }
-          }}
-        >
-          {flightStatus(data.outbound_flight) === "airborne" && <span className={styles.trackDot} />}
-          {flightStatus(data.outbound_flight) === "landed" ? "Chuyến bay đã hạ cánh" : "Theo dõi chuyến bay"}
-        </button>
-      )}
+        {data.status !== "cancelled" && (
+          <button
+            className={`${styles.actionTrack} ${fStatus === "landed" ? styles.actionLanded : ""}`}
+            onClick={() => {
+              if (fStatus === "landed") {
+                setTrackerAlert("Chuyến bay đã hạ cánh. Hành trình đã hoàn thành.");
+                setTimeout(() => setTrackerAlert(""), 4000);
+              } else {
+                const fid = outbound?.flight_id ?? outbound?.id ?? outbound?.flightId;
+                navigate(`/tracker/${fid}`, { state: { booking: data } });
+              }
+            }}
+          >
+            {fStatus === "airborne" && <span className={styles.trackDot} />}
+            <LuPlaneTakeoff size={15} />
+            {fStatus === "landed" ? "Chuyến bay đã hạ cánh" : "Theo dõi chuyến bay"}
+          </button>
+        )}
 
-      {canRequestRefund(data) && (
-        <button
-          className={styles.refundBtn}
-          style={{ marginTop: 10 }}
-          onClick={() => openRefundModal(data)}
-        >
-          {t("bookings.refundBtn")}
-        </button>
-      )}
+        {(detailCanDateChange || detailCanRefund || data.status === "confirmed") && (
+          <div className={styles.actionsGrid}>
+            {detailCanDateChange && (
+              <button
+                className={styles.actionDateChange}
+                onClick={() => navigate("/date-change", { state: { booking: data, bookingCode: data.booking_code } })}
+              >
+                <LuCalendarDays size={15} />
+                Đổi ngày bay
+              </button>
+            )}
+            {detailCanRefund && (
+              <button className={styles.actionRefund} onClick={() => openRefundModal(data)}>
+                {t("bookings.refundBtn")}
+              </button>
+            )}
+            {data.status === "confirmed" && (
+              <button
+                className={styles.actionCancel}
+                disabled={cancelLoading === data.booking_code}
+                onClick={() => handleCancelLookup(data.booking_code)}
+              >
+                {cancelLoading === data.booking_code ? t("bookings.cancelling") : t("bookings.cancelBtn")}
+              </button>
+            )}
+          </div>
+        )}
 
-      {["refund_pending", "refunded"].includes(data.status) && (
-        <span className={styles.refundPendingBadge} style={{ display: "block", marginTop: 10 }}>
-          {data.status === "refund_pending" ? t("bookings.refundPendingBadge") : t("bookings.refundedBadge")}
-        </span>
-      )}
+        {cancelError && <p className={styles.actionCancelErr}>{cancelError}</p>}
+
+        {["refund_pending", "refunded"].includes(data.status) && (
+          <div className={styles.refundStatusBanner}>
+            {data.status === "refund_pending" ? "⏳ Yêu cầu hoàn vé đang xử lý" : "✓ Đã hoàn vé thành công"}
+          </div>
+        )}
+      </div>
+
     </div>
-  );
+    );
+  };
 
   const filterOptions = [
     { id: "all",       label: t("bookings.filterAll") },

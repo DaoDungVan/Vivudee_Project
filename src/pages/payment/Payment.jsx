@@ -21,12 +21,12 @@ const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n) + " ₫";
 const formatTime = (iso) => {
   if (!iso) return "--:--";
   const d = new Date(iso);
-  return isNaN(d) ? "--:--" : d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+  return isNaN(d) ? "--:--" : d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" });
 };
 
 const formatDate = (iso) => {
   if (!iso) return "";
-  return new Date(iso).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+  return new Date(iso).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" });
 };
 
 const formatCountdown = (expiresAt) => {

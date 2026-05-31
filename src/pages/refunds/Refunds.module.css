@@ -60,6 +60,35 @@
 [data-theme="dark"] .statusRejected   { background: rgba(220,38,38,0.15);  border-color: rgba(252,165,165,0.3); color: #f87171; }
 [data-theme="dark"] .statusProcessing { background: rgba(124,58,237,0.15); border-color: rgba(196,181,253,0.3); color: #a78bfa; }
 
+.autoBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border-radius: 20px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+[data-theme="dark"] .autoBadge {
+  background: rgba(29,78,216,0.15);
+  border-color: rgba(147,197,253,0.3);
+  color: #60a5fa;
+}
+
+.autoNote {
+  font-size: 11px;
+  color: #2563eb;
+  margin: 4px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+[data-theme="dark"] .autoNote { color: #60a5fa; }
+
 .bookingInfo {
   font-size: 13px;
   color: var(--text-secondary);

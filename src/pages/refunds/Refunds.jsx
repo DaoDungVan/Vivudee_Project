@@ -6,9 +6,15 @@ import Footer from "../../components/common/Footer/Footer";
 import { getMyRefunds, cancelRefund } from "../../services/refundService";
 import styles from "./Refunds.module.css";
 import { LuUndo2 } from "react-icons/lu";
+import { FaBolt } from "react-icons/fa";
 
 const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n ?? 0) + " ₫";
 const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString("vi-VN") : "—";
+
+const AUTO_REFUND_THRESHOLD = 1_000_000;
+const isAutoApproved = (r) =>
+  r.status === "approved" &&
+  parseFloat(r.net_refund_amount ?? r.refund_amount ?? 0) < AUTO_REFUND_THRESHOLD;
 
 const STATUS_CSS = {
   pending: styles.statusPending, approved: styles.statusApproved,
@@ -80,17 +86,29 @@ export default function Refunds() {
                 const typeLabel = r.refund_type === "full" ? t("refunds.typeFull")
                   : r.refund_type === "partial_leg" ? t("refunds.typeLeg")
                   : r.refund_type === "partial_passenger" ? t("refunds.typePassenger") : "";
+                const auto = isAutoApproved(r);
                 return (
                   <div key={r.refund_code || r.id} className={styles.card}>
                     <div className={styles.cardLeft}>
                       <div className={styles.cardTop}>
                         <span className={styles.refundCode}>{r.refund_code}</span>
                         <span className={`${styles.statusBadge} ${statusCss}`}>{t(statusKey, { defaultValue: r.status })}</span>
+                        {auto && (
+                          <span className={styles.autoBadge}>
+                            <FaBolt size={10} /> Tự động
+                          </span>
+                        )}
                       </div>
                       <p className={styles.bookingInfo}>
                         {t("refunds.bookingCodeLabel")}: <strong>{r.booking_code}</strong>
                         {typeLabel && ` · ${typeLabel}`}
                       </p>
+                      {auto && (
+                        <p className={styles.autoNote}>
+                          <FaBolt size={11} />
+                          Hoàn tiền được duyệt tự động do số tiền dưới {fmt(AUTO_REFUND_THRESHOLD)}
+                        </p>
+                      )}
                       {r.reason && <p className={styles.meta}>{t("refunds.reasonLabel")}: {r.reason}</p>}
                       <p className={styles.meta}>{t("refunds.createdAt")}: {fmtDate(r.created_at)}</p>
                       {r.admin_notes && <p className={styles.meta}>{t("refunds.adminNotes")}: {r.admin_notes}</p>}

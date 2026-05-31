@@ -568,6 +568,17 @@
 .refundBtn:hover { background: #0e81cd; color: #fff; }
 [data-theme="dark"] .refundBtn { background: rgba(14,129,205,0.12); }
 
+.dateChangeBtn {
+  width: 100%; padding: 8px 14px;
+  background: #f0fdf4; border: 1px solid #86efac;
+  color: #16a34a; border-radius: 10px;
+  font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all 0.15s;
+}
+.dateChangeBtn:hover { background: #16a34a; color: #fff; }
+[data-theme="dark"] .dateChangeBtn { background: rgba(22,163,74,0.12); }
+.cardActionsRow .dateChangeBtn { flex: 1; width: auto; padding: 7px 6px; }
+
 .refundPendingBadge {
   display: block;
   text-align: center;
@@ -798,4 +809,373 @@
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+}
+
+/* ══════════════════════════════════════
+   REDESIGNED LOOKUP DETAIL
+══════════════════════════════════════ */
+
+/* Header */
+.detailHeaderNew {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.detailCodeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 6px;
+}
+.copyBtn {
+  background: none;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  padding: 4px 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  transition: all 0.15s;
+}
+.copyBtn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+.detailMetaRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.metaDot { opacity: 0.4; }
+
+/* Divider */
+.detailDivider {
+  height: 1px;
+  background: var(--card-border);
+  margin: 20px 0;
+  opacity: 0.6;
+}
+
+/* Flight card */
+.flightDetailCard {
+  background: var(--bg-muted);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+}
+.flightDetailCard:last-of-type { margin-bottom: 0; }
+
+.flightDetailTop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.flightDetailLabel {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--primary-color);
+  background: rgba(14,129,205,0.1);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+.flightDetailMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.flightDetailAirline { font-size: 13px; font-weight: 700; color: var(--text-dark); }
+.flightDetailDot     { color: var(--text-muted); font-size: 12px; }
+.flightDetailNum     { font-size: 13px; color: var(--text-muted); }
+.seatClassBadge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: capitalize;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-secondary);
+}
+.seat_business { background: rgba(234,179,8,0.1); border-color: rgba(234,179,8,0.4); color: #ca8a04; }
+.seat_first    { background: rgba(124,58,237,0.1); border-color: rgba(124,58,237,0.4); color: #7c3aed; }
+[data-theme="dark"] .seat_business { color: #fbbf24; }
+[data-theme="dark"] .seat_first    { color: #a78bfa; }
+
+/* Route visualization */
+.routeViz {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.routePoint {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.routePointRight { align-items: flex-end; }
+.routeCode {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--text-dark);
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+.routeTime { font-size: 16px; font-weight: 700; color: var(--text-dark); }
+.routeDate { font-size: 11px; color: var(--text-muted); }
+.routeLine {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  min-width: 80px;
+}
+.routeDash {
+  flex: 1;
+  height: 1.5px;
+  background: var(--card-border);
+}
+.routePlane {
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+.flightDuration {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 10px 0 0;
+  text-align: center;
+}
+
+/* Passengers */
+.detailSection2 { margin: 0; }
+.detailSectionTitle2 {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+}
+.paxRow2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--card-border);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.paxRow2:last-child { border-bottom: none; padding-bottom: 0; }
+.paxLeft  { display: flex; align-items: center; gap: 8px; }
+.paxRight { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.paxName  { font-size: 14px; font-weight: 600; color: var(--text-dark); }
+.paxTypeBadge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+.paxAdult { background: rgba(14,129,205,0.1); color: #0e81cd; }
+.paxChild { background: rgba(234,179,8,0.1); color: #ca8a04; }
+[data-theme="dark"] .paxAdult { color: #60a5fa; }
+[data-theme="dark"] .paxChild { color: #fbbf24; }
+.paxSeat {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-muted);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+.paxBaggage {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary-color);
+  background: rgba(14,129,205,0.08);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* Price */
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding: 5px 0;
+}
+.priceDiscount { color: #16a34a; }
+[data-theme="dark"] .priceDiscount { color: #4ade80; }
+.priceTotalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0 0;
+  margin-top: 6px;
+  border-top: 1px dashed var(--card-border);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+.priceTotalValue {
+  font-size: 24px;
+  font-weight: 900;
+  color: #e74c3c;
+  font-family: monospace;
+}
+
+/* Contact */
+.contactRow {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Actions */
+.actionsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+.actionTrack {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, #0e81cd, #0a6aaa);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+.actionTrack:hover { opacity: 0.88; }
+.actionLanded { background: linear-gradient(135deg, #95a5a6, #7f8c8d) !important; }
+.actionContinuePay {
+  width: 100%;
+  padding: 13px;
+  background: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fcd34d;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.actionContinuePay:hover { background: #f59e0b; color: #fff; }
+[data-theme="dark"] .actionContinuePay { background: rgba(245,158,11,0.12); }
+
+.actionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+.actionDateChange {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px;
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #86efac;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.actionDateChange:hover { background: #16a34a; color: #fff; }
+[data-theme="dark"] .actionDateChange { background: rgba(22,163,74,0.12); }
+
+.actionRefund {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px;
+  background: #f0f9ff;
+  color: #0e81cd;
+  border: 1px solid #93c5fd;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.actionRefund:hover { background: #0e81cd; color: #fff; }
+[data-theme="dark"] .actionRefund { background: rgba(14,129,205,0.12); }
+
+.refundStatusBanner {
+  text-align: center;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #fef9c3;
+  color: #ca8a04;
+  border: 1px solid #fde68a;
+}
+[data-theme="dark"] .refundStatusBanner { background: rgba(202,138,4,0.12); border-color: rgba(253,230,138,0.3); color: #fbbf24; }
+
+.actionCancel {
+  width: 100%;
+  padding: 11px;
+  background: none;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.actionCancel:hover:not(:disabled) { background: #dc2626; color: #fff; border-color: #dc2626; }
+.actionCancel:disabled { opacity: 0.5; cursor: not-allowed; }
+[data-theme="dark"] .actionCancel { border-color: rgba(252,165,165,0.3); }
+
+.actionCancelErr {
+  font-size: 12px;
+  color: #dc2626;
+  margin: 0;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .actionsGrid { grid-template-columns: 1fr; }
+  .routeCode   { font-size: 22px; }
+  .routeTime   { font-size: 14px; }
 }

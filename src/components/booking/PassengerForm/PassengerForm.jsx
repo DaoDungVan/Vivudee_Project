@@ -262,7 +262,7 @@ const PassengerForm = ({ selectedFlights, passengers, onClose }) => {
     if (!iso) return "--:--";
     const d = new Date(iso);
     if (isNaN(d)) return "--:--";
-    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" });
   };
 
   useEffect(() => {

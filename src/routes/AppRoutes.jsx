@@ -33,6 +33,7 @@ import SeatMapPage from "../pages/seatmap/SeatMapPage";
 import AncillaryPage from "../pages/ancillary/AncillaryPage";
 import CheckIn from "../pages/checkin/CheckIn";
 import BoardingPassView from "../pages/checkin/BoardingPassView";
+import DateChange from "../pages/dateChange/DateChange";
 
 // Định nghĩa tất cả các đường dẫn (URL) của app và component tương ứng.
 // Khi user truy cập URL nào → React render component đó.
@@ -66,6 +67,7 @@ function AppRoutes() {
         <Route path="/seat-map" element={<SeatMapPage />} />
         <Route path="/checkin" element={<CheckIn />} />
         <Route path="/checkin/bp/:code" element={<BoardingPassView />} />
+        <Route path="/date-change" element={<DateChange />} />
         <Route path="/newsletter/unsubscribe" element={<Unsubscribe />} />
       </Routes>
       <ChatWidgetConditional />
