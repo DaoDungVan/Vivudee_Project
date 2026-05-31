@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import { LuEye, LuEyeOff, LuUser, LuShield, LuAward, LuPlaneTakeoff, LuCreditCard, LuTicket, LuUndo2 } from "react-icons/lu";
+import { FcGoogle } from "react-icons/fc";
 import API from "../../services/axiosInstance";
 import { forgotPassword, resetPassword } from "../../services/authService";
 import { getMembership } from "../../services/loyaltyService";
@@ -524,11 +525,20 @@ const Profile = () => {
                 <div className={styles.securityItem}>
                   <div>
                     <p className={styles.securityLabel}>Password</p>
-                    <p className={styles.securitySub}>••••••••</p>
+                    {user?.auth_provider && user.auth_provider !== "email" ? (
+                      <p className={styles.securitySub}>
+                        Tài khoản đăng nhập qua {user.auth_provider === "google" ? "Google" : user.auth_provider}
+                        . Quản lý mật khẩu trong tài khoản {user.auth_provider === "google" ? "Google" : "mạng xã hội"} của bạn.
+                      </p>
+                    ) : (
+                      <p className={styles.securitySub}>••••••••</p>
+                    )}
                   </div>
-                  <button className={styles.changeBtn} onClick={openChangePw}>
-                    Change Password
-                  </button>
+                  {(!user?.auth_provider || user.auth_provider === "email") && (
+                    <button className={styles.changeBtn} onClick={openChangePw}>
+                      Change Password
+                    </button>
+                  )}
                 </div>
                 <div className={styles.securityItem}>
                   <div>
@@ -537,6 +547,18 @@ const Profile = () => {
                   </div>
                   <span className={styles.verifiedBadge}>✓ Verified</span>
                 </div>
+                {user?.auth_provider && user.auth_provider !== "email" && (
+                  <div className={styles.securityItem}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <FcGoogle size={22} />
+                      <div>
+                        <p className={styles.securityLabel}>Liên kết tài khoản</p>
+                        <p className={styles.securitySub}>Đang liên kết với {user.auth_provider === "google" ? "Google" : user.auth_provider}</p>
+                      </div>
+                    </div>
+                    <span className={styles.verifiedBadge}>✓ Đã liên kết</span>
+                  </div>
+                )}
               </div>
             )}
           </div>
