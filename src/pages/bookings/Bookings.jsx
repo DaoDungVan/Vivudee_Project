@@ -840,17 +840,16 @@ const Bookings = () => {
                   </>
                 )}
 
-                <label className={styles.refundLabel}>{t("bookings.refundTypeLabel")}</label>
-                {isRoundTrip(refundTarget) ? (
-                  <select className={styles.refundSelect} value={refundType} onChange={(e) => setRefundType(e.target.value)}>
-                    <option value="full">{t("bookings.refundTypeRoundFull")}</option>
-                    <option value="partial_leg_outbound">{t("bookings.refundTypeOutbound")}</option>
-                    <option value="partial_leg_return">{t("bookings.refundTypeReturn")}</option>
-                  </select>
-                ) : (
-                  <select className={styles.refundSelect} value={refundType} onChange={(e) => setRefundType(e.target.value)}>
-                    <option value="full">{t("bookings.refundTypeFull")}</option>
-                  </select>
+                {/* Chỉ hiện chọn loại hoàn khi khứ hồi — một chiều tự động là "full" */}
+                {isRoundTrip(refundTarget) && (
+                  <>
+                    <label className={styles.refundLabel}>Chọn chuyến muốn hoàn</label>
+                    <select className={styles.refundSelect} value={refundType} onChange={(e) => setRefundType(e.target.value)}>
+                      <option value="full">Hoàn toàn bộ (cả 2 chiều)</option>
+                      <option value="partial_leg_outbound">Chỉ hoàn chuyến đi</option>
+                      <option value="partial_leg_return">Chỉ hoàn chuyến về</option>
+                    </select>
+                  </>
                 )}
 
                 <label className={styles.refundLabel}>{t("bookings.refundReasonLabel")} <span style={{color:"#ef4444"}}>*</span></label>
