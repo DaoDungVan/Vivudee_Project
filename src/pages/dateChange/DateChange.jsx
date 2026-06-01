@@ -59,6 +59,7 @@ export default function DateChange() {
 
   const handleSearch = async () => {
     if (!searchDate) { setSearchErr("Vui lòng chọn ngày bay mới"); return; }
+    if (!depCode || !arrCode) { setSearchErr("Không xác định được route chuyến bay. Vui lòng quay lại."); return; }
     setSearching(true); setSearchErr(""); setFlights([]); setSelectedFlight(null);
     try {
       const res = await API.get("/flights/search", {
@@ -72,7 +73,10 @@ export default function DateChange() {
           seat_class: seatClass,
         },
       });
-      const list = res.data?.data?.outbound || res.data?.outbound || [];
+      const data = res.data?.data;
+      const list = Array.isArray(data)
+        ? data
+        : (data?.outbound_flights || data?.outbound || []);
       if (list.length === 0) setSearchErr("Không tìm thấy chuyến bay nào cho ngày này");
       setFlights(list);
     } catch {
