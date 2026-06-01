@@ -133,7 +133,6 @@ export default function DateChange() {
   const handleConfirmOTP = async () => {
     const otp = otpDigits.join("");
     if (otp.length !== 6) { setOtpErr("Vui lòng nhập đủ 6 chữ số"); return; }
-    if (!contactEmail.trim()) { setOtpErr("Vui lòng nhập email liên hệ"); return; }
     setOtpLoading(true); setOtpErr("");
     try {
       const res = await confirmDateChangeOTP(contactEmail.trim(), otp, requestCode);
@@ -285,19 +284,6 @@ export default function DateChange() {
               Vui lòng kiểm tra hòm thư và nhập mã bên dưới.
             </p>
             <p className={styles.otpCode}>Mã yêu cầu: <strong>{requestCode}</strong></p>
-
-            {!booking?.contact?.email && (
-              <div className={styles.emailField}>
-                <label className={styles.fieldLabel}>Email liên hệ</label>
-                <input
-                  type="email"
-                  className={styles.input}
-                  placeholder="Nhập email bạn đã dùng khi đặt vé"
-                  value={contactEmail}
-                  onChange={(e) => { setContactEmail(e.target.value); setOtpErr(""); }}
-                />
-              </div>
-            )}
 
             <div className={styles.otpInputs}>
               {otpDigits.map((d, i) => (
