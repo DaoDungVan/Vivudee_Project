@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../hooks/useTheme";
@@ -27,10 +27,7 @@ export default function AirlinePage() {
   const { t }       = useTranslation();
   const { isDark }  = useTheme();
 
-  // Scroll to top khi vào trang
-  useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, [code]);
-
-  const [airline,  setAirline]  = useState(null);
+const [airline,  setAirline]  = useState(null);
   const [flights,  setFlights]  = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [seatClass, setSeatClass] = useState("economy");

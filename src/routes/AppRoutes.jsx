@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import ChatWidget from "../components/chat/ChatWidget";
 
 const HIDE_CHAT = ["/auth/callback", "/auth/", "/payment/momo", "/payment/payos", "/payment/paypal", "/booking", "/ancillary"];
@@ -6,6 +7,13 @@ const HIDE_CHAT = ["/auth/callback", "/auth/", "/payment/momo", "/payment/payos"
 function ChatWidgetConditional() {
   const { pathname } = useLocation();
   return HIDE_CHAT.some(p => pathname.startsWith(p)) ? null : <ChatWidget />;
+}
+
+// Scroll lên đầu mỗi khi chuyển route
+function RouteScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, [pathname]);
+  return null;
 }
 import Home from "../pages/home/Home";
 import Unsubscribe from "../pages/newsletter/Unsubscribe";
@@ -41,6 +49,7 @@ import AirlinePage from "../pages/airline/AirlinePage";
 function AppRoutes() {
   return (
     <BrowserRouter>
+      <RouteScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
