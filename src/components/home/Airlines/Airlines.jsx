@@ -3,6 +3,7 @@
 // tránh load nhiều ảnh gây chậm trang
 
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./Airlines.module.css";
 import API from "../../../services/axiosInstance";
 import { useTheme } from "../../../hooks/useTheme";
@@ -13,8 +14,9 @@ const INITIAL_VISIBLE = 6; // Hiện 6 card đầu
 export default function Airlines() {
   const [airlines, setAirlines] = useState([]);
   const [showAll,  setShowAll]  = useState(false);
-  const { isDark } = useTheme();
-  const { t } = useTranslation();
+  const { isDark }  = useTheme();
+  const { t }       = useTranslation();
+  const navigate    = useNavigate();
 
   useEffect(() => {
     API.get("/flights/airlines")
@@ -43,7 +45,7 @@ export default function Airlines() {
 
         <div className={styles.grid}>
           {visible.map((airline) => (
-            <div key={airline.id} className={styles.card}>
+            <div key={airline.id} className={styles.card} onClick={() => navigate(`/airlines/${airline.code}`)} style={{ cursor: "pointer" }}>
               {(airline.logo_url || airline.logo_dark) ? (
                 <img
                   src={(isDark && airline.logo_dark) ? airline.logo_dark : airline.logo_url}
