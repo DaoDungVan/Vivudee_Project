@@ -58,12 +58,7 @@
   box-shadow: 0 0 0 3px rgba(14,129,205,0.15);
 }
 
-.cellCheaper { background: #dcfce7; }
-.cellPricier { background: #fee2e2; }
-.cellPast    { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
-
-[data-theme="dark"] .cellCheaper { background: rgba(22,163,74,0.15); }
-[data-theme="dark"] .cellPricier { background: rgba(220,38,38,0.12); }
+.cellPast { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
 
 .dayLabel {
   font-size: 10px;
@@ -89,8 +84,8 @@
   margin-top: 4px;
   color: var(--text-secondary);
 }
-.cellCheaper .cellPrice { color: #16a34a; }
-.cellPricier .cellPrice { color: #dc2626; }
+.cellPriceGreen { color: #16a34a !important; }
+.cellPriceRed   { color: #dc2626 !important; }
 .cellSelected .cellPrice { color: var(--primary-color); }
 
 .noPrice { font-size: 9px; color: var(--text-muted); margin-top: 4px; }

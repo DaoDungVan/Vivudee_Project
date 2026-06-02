@@ -30,21 +30,21 @@ const heatColor = (ratio) => {
 
 // Màu xanh → vàng → đỏ, rực trên cả light và dark mode
 const getHeatColor = (price, minP, maxP) => {
-  if (!price || minP === maxP) return null; // null = dùng CSS default
+  if (!price || minP === maxP) return null;
   const ratio = (price - minP) / (maxP - minP);
 
   if (ratio <= 0.33) {
-    // Xanh lá rực — rẻ nhất
+    // Xanh lá nhạt — rẻ nhất
     const mix = ratio / 0.33;
-    return `rgba(${Math.round(34 + mix * 100)}, ${Math.round(197 - mix * 40)}, 94, 0.75)`;
+    return `rgba(${Math.round(34 + mix * 100)}, ${Math.round(197 - mix * 40)}, 94, 0.28)`;
   } else if (ratio <= 0.66) {
-    // Vàng cam — trung bình
+    // Vàng cam nhạt — trung bình
     const mix = (ratio - 0.33) / 0.33;
-    return `rgba(${Math.round(134 + mix * 117)}, ${Math.round(157 + mix * 34)}, ${Math.round(94 - mix * 80)}, 0.75)`;
+    return `rgba(${Math.round(134 + mix * 117)}, ${Math.round(157 + mix * 34)}, ${Math.round(94 - mix * 80)}, 0.30)`;
   } else {
-    // Đỏ cam — đắt nhất
+    // Đỏ cam nhạt — đắt nhất
     const mix = (ratio - 0.66) / 0.34;
-    return `rgba(${Math.round(251 - mix * 12)}, ${Math.round(191 - mix * 123)}, ${Math.round(14 - mix * 14)}, 0.78)`;
+    return `rgba(${Math.round(251 - mix * 12)}, ${Math.round(191 - mix * 123)}, ${Math.round(14 - mix * 14)}, 0.32)`;
   }
 };
 
@@ -162,7 +162,7 @@ export default function HeatCalendar({ from, to, selectedDate, seatClass = "econ
             const isPast   = dateStr < today;
             const isSel    = dateStr === selectedDate;
             const bgColor  = !isPast ? getHeatColor(price, minP, maxP) : null;
-            const darkText = !!bgColor;
+            const darkText = false; // nền nhạt nên dùng màu chữ mặc định
 
             return (
               <div
@@ -174,7 +174,7 @@ export default function HeatCalendar({ from, to, selectedDate, seatClass = "econ
               >
                 <span className={styles.cellNum} style={darkText ? { color: "rgba(0,0,0,0.82)" } : {}}>{dateStr.slice(-2)}</span>
                 {price
-                  ? <span className={styles.cellPrice} style={{ color: "rgba(0,0,0,0.7)" }}>{fmtShort(price)}</span>
+                  ? <span className={styles.cellPrice}>{fmtShort(price)}</span>
                   : !isPast && <span className={styles.cellNoPrice}>—</span>}
               </div>
             );

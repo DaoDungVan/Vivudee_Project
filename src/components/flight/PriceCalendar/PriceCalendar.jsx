@@ -107,14 +107,14 @@ export default function PriceCalendar({ from, to, selectedDate, seatClass = "eco
               return (
                 <div
                   key={day}
-                  className={`${styles.cell} ${isToday ? styles.cellSelected : ""} ${isPast ? styles.cellPast : ""} ${!isToday && !isPast && cheaper ? styles.cellCheaper : ""} ${!isToday && !isPast && pricier ? styles.cellPricier : ""}`}
+                  className={`${styles.cell} ${isToday ? styles.cellSelected : ""} ${isPast ? styles.cellPast : ""}`}
                   onClick={() => !isToday && !isPast && goToDate(day)}
                   style={{ cursor: isToday || isPast ? "default" : "pointer" }}
                 >
                   <p className={styles.dayLabel}>{DAY_LABELS[d.getDay()]}</p>
                   <p className={styles.dateNum}>{d.getDate()}/{d.getMonth() + 1}</p>
                   {price
-                    ? <p className={styles.cellPrice}>{fmtShort(price)}</p>
+                    ? <p className={`${styles.cellPrice} ${cheaper ? styles.cellPriceGreen : pricier ? styles.cellPriceRed : ""}`}>{fmtShort(price)}</p>
                     : <p className={styles.noPrice}>—</p>}
                   {!isToday && diff !== null && (
                     <p className={`${styles.diffLabel} ${pricier ? styles.diffPricier : ""}`}>
