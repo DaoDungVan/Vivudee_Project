@@ -92,6 +92,17 @@ const FlightSearch = () => {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
 
+  // Preselect flight khi navigate từ AirlinePage
+  useEffect(() => {
+    const pre = location.state?.preselectFlight;
+    if (pre) {
+      setSelectedOutbound(pre);
+      setShowBooking(true);
+      // Xóa state để tránh reopen mỗi lần re-render
+      window.history.replaceState({}, '', location.pathname + location.search);
+    }
+  }, []); // eslint-disable-line
+
   const from = query.get("from");
   const to = query.get("to");
   const departureDate = query.get("departureDate");

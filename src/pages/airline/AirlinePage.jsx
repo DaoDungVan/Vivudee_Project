@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../hooks/useTheme";
@@ -10,7 +10,7 @@ import planeIcon from "../../assets/icons/plane.png";
 import styles from "./AirlinePage.module.css";
 import { LuPlaneTakeoff, LuChevronLeft, LuSearch } from "react-icons/lu";
 
-const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n ?? 0) + " ₫";
+const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n ?? 0) + " VND";
 const fmtTime = (iso) => {
   if (!iso) return "--:--";
   const d = new Date(iso);
@@ -26,6 +26,9 @@ export default function AirlinePage() {
   const navigate    = useNavigate();
   const { t }       = useTranslation();
   const { isDark }  = useTheme();
+
+  // Scroll to top khi vào trang
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, [code]);
 
   const [airline,  setAirline]  = useState(null);
   const [flights,  setFlights]  = useState([]);
@@ -73,7 +76,10 @@ export default function AirlinePage() {
 
   const handleBook = (f) => {
     const date = f.departure?.time ? String(f.departure.time).slice(0, 10) : new Date().toISOString().slice(0, 10);
-    navigate(`/flights?from=${f.departure?.code}&to=${f.arrival?.code}&departureDate=${date}&adults=1&children=0&seatClass=${seatClass}&tripType=one-way`);
+    navigate(
+      `/flights?from=${f.departure?.code}&to=${f.arrival?.code}&departureDate=${date}&adults=1&children=0&seatClass=${seatClass}&tripType=one-way`,
+      { state: { preselectFlight: f } }
+    );
   };
 
   const logoSrc = isDark && airline?.logo_dark ? airline.logo_dark : (airline?.logo_url || planeIcon);
