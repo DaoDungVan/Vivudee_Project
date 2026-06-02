@@ -53,7 +53,8 @@ export default function BrowseByAirline() {
     const date = f.departure?.time ? f.departure.time.slice(0, 10) : today();
     navigate(
       `/flights?from=${f.departure?.code}&to=${f.arrival?.code}` +
-      `&departureDate=${date}&adults=1&children=0&seatClass=economy&tripType=one-way`
+      `&departureDate=${date}&adults=1&children=0&seatClass=economy&tripType=one-way`,
+      { state: { preselectFlight: f } }
     );
   };
 

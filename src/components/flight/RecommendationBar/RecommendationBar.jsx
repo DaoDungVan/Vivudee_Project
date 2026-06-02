@@ -25,7 +25,10 @@ export default function RecommendationBar({ from, to }) {
 
   const handlePick = (f) => {
     const date = f.departure?.time ? f.departure.time.slice(0, 10) : new Date().toISOString().slice(0, 10);
-    navigate(`/flights?from=${f.departure?.code}&to=${f.arrival?.code}&departureDate=${date}&adults=1&children=0&seatClass=economy&tripType=one-way`);
+    navigate(
+      `/flights?from=${f.departure?.code}&to=${f.arrival?.code}&departureDate=${date}&adults=1&children=0&seatClass=economy&tripType=one-way`,
+      { state: { preselectFlight: f } }
+    );
   };
 
   return (
