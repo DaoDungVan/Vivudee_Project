@@ -77,9 +77,16 @@ const Bookings = () => {
   const [lookupError,   setLookupError]   = useState("");
   const [lookupLoading, setLookupLoading] = useState(false);
 
-  const [myBookings, setMyBookings] = useState([]);
-  const [myFilter,   setMyFilter]   = useState("all");
-  const [myLoading,  setMyLoading]  = useState(false);
+  const [myBookings,   setMyBookings]   = useState([]);
+  const [myFilter,     setMyFilter]     = useState("all");
+  const [myLoading,    setMyLoading]    = useState(false);
+  const [myPage,       setMyPage]       = useState(1);
+  const [mySearch,     setMySearch]     = useState("");
+  const MY_PAGE_SIZE = 10;
+
+  // Modal chi tiết
+  const [detailModal,        setDetailModal]        = useState(null); // data
+  const [detailModalLoading, setDetailModalLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(null);
   const [cancelError,   setCancelError]   = useState("");
   const [confirmCancel, setConfirmCancel] = useState(null);
@@ -351,20 +358,25 @@ const Bookings = () => {
     return <span className={styles.statusBadge} style={{ background: s.bg, color: s.color }}>{s.label || status}</span>;
   };
 
+  // ── Modal mở chi tiết booking ──
+  const openDetailModal = async (code) => {
+    setDetailModalLoading(true);
+    setDetailModal("loading");
+    try {
+      const res = await getBookingByCode(code);
+      setDetailModal(res.data?.data || null);
+    } catch {
+      setDetailModal(null);
+    } finally {
+      setDetailModalLoading(false);
+    }
+  };
+
   // ── List row cho My Bookings ──
   const BookingListRow = ({ b }) => {
     const airborne = isAirborne(b);
     return (
-      <div
-        className={`${styles.listRow} ${airborne ? styles.listRowAirborne : ""}`}
-        onClick={() => {
-          setLookupCode(b.booking_code);
-          setTab("lookup");
-          sessionStorage.setItem("bookings_tab", "lookup");
-          handleLookup(b.booking_code);
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }}
-      >
+      <div className={`${styles.listRow} ${airborne ? styles.listRowAirborne : ""}`}>
         <div className={styles.listRowLeft}>
           <div className={styles.listRowCode}>
             {b.booking_code}
@@ -381,7 +393,10 @@ const Bookings = () => {
         <div className={styles.listRowRight}>
           <StatusBadge status={b.status} />
           <span className={styles.listPrice}>{fmt(b.final_amount ?? b.total_price)}</span>
-          <span className={styles.listViewBtn}>Xem chi tiết</span>
+          <button
+            className={styles.listViewBtn}
+            onClick={() => openDetailModal(b.booking_code)}
+          >Xem chi tiết</button>
         </div>
       </div>
     );
@@ -756,12 +771,21 @@ const Bookings = () => {
                   {t("bookings.refundHistoryBtn")}
                 </button>
               </div>
-              <div className={styles.filterRow}>
-                {filterOptions.map((f) => (
-                  <button key={f.id} className={`${styles.filterBtn} ${myFilter === f.id ? styles.filterActive : ""}`} onClick={() => setMyFilter(f.id)}>
-                    {f.label}
-                  </button>
-                ))}
+              <div className={styles.myToolbar}>
+                <input
+                  className={styles.mySearchInput}
+                  type="text"
+                  placeholder="Tìm mã đặt chỗ, hãng bay, điểm đến..."
+                  value={mySearch}
+                  onChange={(e) => { setMySearch(e.target.value); setMyPage(1); }}
+                />
+                <div className={styles.filterRow} style={{ margin: 0 }}>
+                  {filterOptions.map((f) => (
+                    <button key={f.id} className={`${styles.filterBtn} ${myFilter === f.id ? styles.filterActive : ""}`} onClick={() => { setMyFilter(f.id); setMyPage(1); }}>
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
               </div>
               {myLoading ? (
                 <p className={styles.loading}>{t("bookings.loading")}</p>
@@ -770,16 +794,54 @@ const Bookings = () => {
                   <p>{t("bookings.noBookingsFound")}</p>
                   <button onClick={() => navigate("/flights")}>{t("bookings.searchFlights")}</button>
                 </div>
-              ) : (
-                <div className={styles.bookingList}>
-                  {myBookings.map((b) => <BookingListRow key={b.booking_id} b={b} />)}
-                </div>
-              )}
+              ) : (() => {
+                const q = mySearch.trim().toLowerCase();
+                const filtered = q
+                  ? myBookings.filter(b =>
+                      b.booking_code?.toLowerCase().includes(q) ||
+                      depCode(b)?.toLowerCase().includes(q) ||
+                      arrCode(b)?.toLowerCase().includes(q) ||
+                      airName(b)?.toLowerCase().includes(q)
+                    )
+                  : myBookings;
+                const totalPages = Math.ceil(filtered.length / MY_PAGE_SIZE);
+                const paged = filtered.slice((myPage - 1) * MY_PAGE_SIZE, myPage * MY_PAGE_SIZE);
+                return (
+                  <>
+                    <div className={styles.bookingList}>
+                      {paged.length === 0
+                        ? <p className={styles.loading}>Không tìm thấy đặt chỗ nào</p>
+                        : paged.map((b) => <BookingListRow key={b.booking_id} b={b} />)
+                      }
+                    </div>
+                    {totalPages > 1 && (
+                      <div className={styles.myPagination}>
+                        <button className={styles.myPageBtn} disabled={myPage <= 1} onClick={() => setMyPage(p => p - 1)}>‹</button>
+                        <span className={styles.myPageInfo}>{myPage} / {totalPages}</span>
+                        <button className={styles.myPageBtn} disabled={myPage >= totalPages} onClick={() => setMyPage(p => p + 1)}>›</button>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           )}
         </div>
       </main>
       <Footer />
+
+      {/* BOOKING DETAIL MODAL */}
+      {(detailModal || detailModalLoading) && (
+        <div className={styles.detailModalOverlay} onClick={(e) => { if (e.target === e.currentTarget) setDetailModal(null); }}>
+          <div className={styles.detailModalBox}>
+            <button className={styles.detailModalClose} onClick={() => setDetailModal(null)}>✕</button>
+            {detailModalLoading || detailModal === "loading"
+              ? <div style={{ textAlign: "center", padding: 40, color: "var(--text-muted)" }}>Đang tải...</div>
+              : detailModal && <LookupDetail data={detailModal} />
+            }
+          </div>
+        </div>
+      )}
 
       {/* REFUND MODAL */}
       {refundTarget && (
