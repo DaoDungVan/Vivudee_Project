@@ -14,45 +14,6 @@ const fmtShort = (n) => {
   return n >= 1e6 ? `${(n/1e6).toFixed(1)}tr` : `${Math.round(n/1000)}k`;
 };
 
-// Interpolate màu từ xanh → vàng → đỏ theo ratio 0..1
-const heatColor = (ratio) => {
-  if (ratio <= 0.5) {
-    const r = Math.round(ratio * 2 * 251);
-    const g = Math.round(200 - ratio * 2 * 5);
-    return `rgb(${r},${g},60)`;
-  } else {
-    const r2 = (ratio - 0.5) * 2;
-    const r = Math.round(251 - r2 * 20);
-    const g = Math.round(190 - r2 * 146);
-    return `rgb(${r},${g},60)`;
-  }
-};
-
-// Màu xanh → vàng → đỏ, rực trên cả light và dark mode
-const getHeatColor = (price, minP, maxP) => {
-  if (!price || minP === maxP) return null;
-  const ratio = (price - minP) / (maxP - minP);
-
-  if (ratio <= 0.33) {
-    // Xanh lá nhạt — rẻ nhất
-    const mix = ratio / 0.33;
-    return `rgba(${Math.round(34 + mix * 100)}, ${Math.round(197 - mix * 40)}, 94, 0.28)`;
-  } else if (ratio <= 0.66) {
-    // Vàng cam nhạt — trung bình
-    const mix = (ratio - 0.33) / 0.33;
-    return `rgba(${Math.round(134 + mix * 117)}, ${Math.round(157 + mix * 34)}, ${Math.round(94 - mix * 80)}, 0.30)`;
-  } else {
-    // Đỏ cam nhạt — đắt nhất
-    const mix = (ratio - 0.66) / 0.34;
-    return `rgba(${Math.round(251 - mix * 12)}, ${Math.round(191 - mix * 123)}, ${Math.round(14 - mix * 14)}, 0.32)`;
-  }
-};
-
-// Màu chữ tương phản với nền
-const getTextColor = (bgColor) => {
-  if (!bgColor) return undefined;
-  return "rgba(0,0,0,0.82)";
-};
 
 export default function HeatCalendar({ from, to, selectedDate, seatClass = "economy", adults = 1 }) {
   const navigate   = useNavigate();
@@ -158,23 +119,30 @@ export default function HeatCalendar({ from, to, selectedDate, seatClass = "econ
           {cells.map((dateStr, idx) => {
             if (!dateStr) return <div key={`e-${idx}`} className={`${styles.cell} ${styles.cellEmpty}`} />;
 
-            const price    = calData[dateStr];
-            const isPast   = dateStr < today;
-            const isSel    = dateStr === selectedDate;
-            const bgColor  = !isPast ? getHeatColor(price, minP, maxP) : null;
-            const darkText = false; // nền nhạt nên dùng màu chữ mặc định
+            const price  = calData[dateStr];
+            const isPast = dateStr < today;
+            const isSel  = dateStr === selectedDate;
+
+            const getBg = () => {
+              if (!price || minP === maxP || isPast) return undefined;
+              const ratio = (price - minP) / (maxP - minP);
+              if (ratio <= 0.33) return { bg: "rgba(34,197,94,0.13)",  text: "#16a34a" };  // xanh mint nhẹ
+              if (ratio <= 0.66) return { bg: "rgba(234,179,8,0.13)",  text: "#ca8a04" };  // vàng nhạt
+              return               { bg: "rgba(239,68,68,0.13)",  text: "#dc2626" };        // đỏ nhạt
+            };
+            const colorSet = getBg();
 
             return (
               <div
                 key={dateStr}
-                className={`${styles.cell} ${isPast ? styles.cellPast : ""} ${isSel ? styles.cellSelected : ""} ${!price && !isPast ? styles.cellNoData : ""}`}
-                style={bgColor ? { background: bgColor } : {}}
+                className={`${styles.cell} ${isPast ? styles.cellPast : ""} ${isSel ? styles.cellSelected : ""}`}
+                style={colorSet ? { background: colorSet.bg } : {}}
                 onClick={() => !isPast && goToDate(dateStr)}
                 title={price ? `${new Intl.NumberFormat("vi-VN").format(price)} VND` : ""}
               >
-                <span className={styles.cellNum} style={darkText ? { color: "rgba(0,0,0,0.82)" } : {}}>{dateStr.slice(-2)}</span>
+                <span className={styles.cellNum}>{dateStr.slice(-2)}</span>
                 {price
-                  ? <span className={styles.cellPrice}>{fmtShort(price)}</span>
+                  ? <span className={styles.cellPrice} style={{ color: colorSet?.text }}>{fmtShort(price)}</span>
                   : !isPast && <span className={styles.cellNoPrice}>—</span>}
               </div>
             );

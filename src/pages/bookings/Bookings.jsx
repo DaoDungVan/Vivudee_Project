@@ -77,12 +77,9 @@ const Bookings = () => {
   const [lookupError,   setLookupError]   = useState("");
   const [lookupLoading, setLookupLoading] = useState(false);
 
-  const [myBookings,      setMyBookings]      = useState([]);
-  const [myFilter,        setMyFilter]        = useState("all");
-  const [myLoading,       setMyLoading]       = useState(false);
-  const [mySelectedCode,  setMySelectedCode]  = useState(null);
-  const [myDetail,        setMyDetail]        = useState(null);
-  const [myDetailLoading, setMyDetailLoading] = useState(false);
+  const [myBookings, setMyBookings] = useState([]);
+  const [myFilter,   setMyFilter]   = useState("all");
+  const [myLoading,  setMyLoading]  = useState(false);
   const [cancelLoading, setCancelLoading] = useState(null);
   const [cancelError,   setCancelError]   = useState("");
   const [confirmCancel, setConfirmCancel] = useState(null);
@@ -357,24 +354,16 @@ const Bookings = () => {
   // ── List row cho My Bookings ──
   const BookingListRow = ({ b }) => {
     const airborne = isAirborne(b);
-    const isSelected = mySelectedCode === b.booking_code;
-
-    const handleRowClick = async () => {
-      if (isSelected) { setMySelectedCode(null); setMyDetail(null); return; }
-      setMySelectedCode(b.booking_code);
-      setMyDetail(null);
-      setMyDetailLoading(true);
-      try {
-        const res = await getBookingByCode(b.booking_code);
-        setMyDetail(res.data?.data);
-      } catch { setMyDetail(null); }
-      finally { setMyDetailLoading(false); }
-    };
-
     return (
       <div
-        className={`${styles.listRow} ${airborne ? styles.listRowAirborne : ""} ${isSelected ? styles.listRowSelected : ""}`}
-        onClick={handleRowClick}
+        className={`${styles.listRow} ${airborne ? styles.listRowAirborne : ""}`}
+        onClick={() => {
+          setLookupCode(b.booking_code);
+          setTab("lookup");
+          sessionStorage.setItem("bookings_tab", "lookup");
+          handleLookup(b.booking_code);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
       >
         <div className={styles.listRowLeft}>
           <div className={styles.listRowCode}>
@@ -392,7 +381,7 @@ const Bookings = () => {
         <div className={styles.listRowRight}>
           <StatusBadge status={b.status} />
           <span className={styles.listPrice}>{fmt(b.final_amount ?? b.total_price)}</span>
-          <span className={styles.listViewBtn}>{isSelected ? "Thu gọn" : "Xem chi tiết"}</span>
+          <span className={styles.listViewBtn}>Xem chi tiết</span>
         </div>
       </div>
     );
@@ -782,19 +771,9 @@ const Bookings = () => {
                   <button onClick={() => navigate("/flights")}>{t("bookings.searchFlights")}</button>
                 </div>
               ) : (
-                <>
-                  <div className={styles.bookingList}>
-                    {myBookings.map((b) => <BookingListRow key={b.booking_id} b={b} />)}
-                  </div>
-                  {myDetailLoading && (
-                    <div className={styles.loading} style={{ marginTop: 12 }}>Đang tải chi tiết...</div>
-                  )}
-                  {myDetail && !myDetailLoading && (
-                    <div style={{ marginTop: 12 }}>
-                      <LookupDetail data={myDetail} />
-                    </div>
-                  )}
-                </>
+                <div className={styles.bookingList}>
+                  {myBookings.map((b) => <BookingListRow key={b.booking_id} b={b} />)}
+                </div>
               )}
             </div>
           )}

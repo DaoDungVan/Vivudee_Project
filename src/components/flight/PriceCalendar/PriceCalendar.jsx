@@ -70,7 +70,7 @@ export default function PriceCalendar({ from, to, selectedDate, seatClass = "eco
   const selectedPrice = calData[selectedDate];
 
   const goToDate = (dateStr) => {
-    if (dateStr <= today) return; // Không cho chọn ngày quá khứ
+    if (dateStr < today) return; // Không cho chọn ngày quá khứ (hôm nay vẫn cho chọn)
     const params = new URLSearchParams(window.location.search);
     params.set("departureDate", dateStr);
     navigate(`/flights?${params.toString()}`);
@@ -98,7 +98,7 @@ export default function PriceCalendar({ from, to, selectedDate, seatClass = "eco
           : days.map((day) => {
               const price    = calData[day];
               const isToday  = day === selectedDate;
-              const isPast   = day < today;
+              const isPast   = day < today; // hôm nay (===) không bị coi là past
               const diff     = price && selectedPrice ? price - selectedPrice : null;
               const cheaper  = diff !== null && diff < 0;
               const pricier  = diff !== null && diff > 0;
