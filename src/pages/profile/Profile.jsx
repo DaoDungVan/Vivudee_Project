@@ -103,7 +103,7 @@ const Profile = () => {
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [success, setSuccess]   = useState("");
   const [error, setError]       = useState("");
-  const [activeTab, setActiveTab] = useState("info");
+  const [activeTab, setActiveTab] = useState(() => sessionStorage.getItem("profile_tab") || "info");
   const [tierName, setTierName] = useState("");
 
   // ── Change Password Modal ──
@@ -416,7 +416,7 @@ const Profile = () => {
                 <button
                   key={item.id}
                   className={`${styles.sideNavBtn} ${activeTab === item.id ? styles.sideNavActive : ""}`}
-                  onClick={() => setActiveTab(item.id)}
+                  onClick={() => { setActiveTab(item.id); sessionStorage.setItem("profile_tab", item.id); }}
                 >
                   <span>{item.icon}</span> {item.label}
                 </button>

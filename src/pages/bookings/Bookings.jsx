@@ -68,7 +68,10 @@ const Bookings = () => {
   const { t }      = useTranslation();
   const isLoggedIn = !!localStorage.getItem("token");
 
-  const [tab,           setTab]           = useState("lookup");
+  const [tab, setTab] = useState(() => {
+    if (!isLoggedIn) return "lookup";
+    return sessionStorage.getItem("bookings_tab") || "lookup";
+  });
   const [lookupCode,    setLookupCode]    = useState("");
   const [lookupResult,  setLookupResult]  = useState(null);
   const [lookupError,   setLookupError]   = useState("");
@@ -346,6 +349,37 @@ const Bookings = () => {
   const StatusBadge = ({ status }) => {
     const s = getStatusColor(status);
     return <span className={styles.statusBadge} style={{ background: s.bg, color: s.color }}>{s.label || status}</span>;
+  };
+
+  // ── List row cho My Bookings (gọn hơn BookingCard grid) ──
+  const BookingListRow = ({ b }) => {
+    const airborne = isAirborne(b);
+    const completed = isCompleted(b);
+    return (
+      <div
+        className={`${styles.listRow} ${airborne ? styles.listRowAirborne : ""}`}
+        onClick={() => { setLookupCode(b.booking_code); setTab("lookup"); sessionStorage.setItem("bookings_tab", "lookup"); handleLookup(b.booking_code); }}
+      >
+        <div className={styles.listRowLeft}>
+          <div className={styles.listRowCode}>
+            {b.booking_code}
+            {airborne && <span className={styles.trackDot} style={{ marginLeft: 6 }} />}
+          </div>
+          <div className={styles.listRowRoute}>
+            <strong>{depCode(b)}</strong>
+            <span className={styles.listArrow}>→</span>
+            <strong>{arrCode(b)}</strong>
+            <span className={styles.listMeta}>{formatTime(depTime(b))} · {formatDate(depTime(b))}</span>
+          </div>
+          <div className={styles.listRowAirline}>{airName(b)}</div>
+        </div>
+        <div className={styles.listRowRight}>
+          <StatusBadge status={b.status} />
+          <span className={styles.listPrice}>{fmt(b.final_amount ?? b.total_price)}</span>
+          <span className={styles.listViewBtn}>Xem chi tiết →</span>
+        </div>
+      </div>
+    );
   };
 
   const BookingCard = ({ b, showCancel }) => (
@@ -679,11 +713,11 @@ const Bookings = () => {
           )}
 
           <div className={styles.tabs}>
-            <button className={`${styles.tab} ${tab === "lookup" ? styles.tabActive : ""}`} onClick={() => setTab("lookup")}>
+            <button className={`${styles.tab} ${tab === "lookup" ? styles.tabActive : ""}`} onClick={() => { setTab("lookup"); sessionStorage.setItem("bookings_tab", "lookup"); }}>
               {t("bookings.lookupByCode")}
             </button>
             {isLoggedIn && (
-              <button className={`${styles.tab} ${tab === "my" ? styles.tabActive : ""}`} onClick={() => setTab("my")}>
+              <button className={`${styles.tab} ${tab === "my" ? styles.tabActive : ""}`} onClick={() => { setTab("my"); sessionStorage.setItem("bookings_tab", "my"); }}>
                 {t("bookings.myBookings")}
               </button>
             )}
@@ -732,8 +766,8 @@ const Bookings = () => {
                   <button onClick={() => navigate("/flights")}>{t("bookings.searchFlights")}</button>
                 </div>
               ) : (
-                <div className={styles.bookingGrid}>
-                  {myBookings.map((b) => <BookingCard key={b.booking_id} b={b} showCancel />)}
+                <div className={styles.bookingList}>
+                  {myBookings.map((b) => <BookingListRow key={b.booking_id} b={b} />)}
                 </div>
               )}
             </div>

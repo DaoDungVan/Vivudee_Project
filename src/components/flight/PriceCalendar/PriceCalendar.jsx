@@ -60,13 +60,17 @@ export default function PriceCalendar({ from, to, selectedDate, seatClass = "eco
   if (!from || !to || !selectedDate) return null;
 
   // Tạo mảng 5 ngày: center = selectedDate + offset
+  const today      = new Date().toISOString().slice(0, 10);
   const centerDate = addDay(selectedDate, offset);
-  const days = Array.from({ length: 5 }, (_, i) => addDay(centerDate, i - WINDOW));
+  const days       = Array.from({ length: 5 }, (_, i) => addDay(centerDate, i - WINDOW));
+
+  // Không cho scroll trái khi ngày đầu tiên <= hôm nay
+  const canGoLeft  = days[0] > today;
 
   const selectedPrice = calData[selectedDate];
 
   const goToDate = (dateStr) => {
-    // Dùng window.location.search để luôn lấy params hiện tại
+    if (dateStr <= today) return; // Không cho chọn ngày quá khứ
     const params = new URLSearchParams(window.location.search);
     params.set("departureDate", dateStr);
     navigate(`/flights?${params.toString()}`);
@@ -79,7 +83,7 @@ export default function PriceCalendar({ from, to, selectedDate, seatClass = "eco
         <button
           className={styles.navBtn}
           onClick={() => setOffset((o) => o - 1)}
-          disabled={offset <= -30}
+          disabled={!canGoLeft}
         ><LuChevronLeft size={16}/></button>
         <button
           className={styles.navBtn}
@@ -92,19 +96,20 @@ export default function PriceCalendar({ from, to, selectedDate, seatClass = "eco
         {loading
           ? Array.from({ length: 5 }).map((_, i) => <div key={i} className={styles.skCell} />)
           : days.map((day) => {
-              const price   = calData[day];
-              const isToday = day === selectedDate;
-              const diff    = price && selectedPrice ? price - selectedPrice : null;
-              const cheaper = diff !== null && diff < 0;
-              const pricier = diff !== null && diff > 0;
-              const d       = new Date(day + "T00:00:00");
+              const price    = calData[day];
+              const isToday  = day === selectedDate;
+              const isPast   = day < today;
+              const diff     = price && selectedPrice ? price - selectedPrice : null;
+              const cheaper  = diff !== null && diff < 0;
+              const pricier  = diff !== null && diff > 0;
+              const d        = new Date(day + "T00:00:00");
 
               return (
                 <div
                   key={day}
-                  className={`${styles.cell} ${isToday ? styles.cellSelected : ""} ${!isToday && cheaper ? styles.cellCheaper : ""} ${!isToday && pricier ? styles.cellPricier : ""}`}
-                  onClick={() => !isToday && goToDate(day)}
-                  style={{ cursor: isToday ? "default" : "pointer" }}
+                  className={`${styles.cell} ${isToday ? styles.cellSelected : ""} ${isPast ? styles.cellPast : ""} ${!isToday && !isPast && cheaper ? styles.cellCheaper : ""} ${!isToday && !isPast && pricier ? styles.cellPricier : ""}`}
+                  onClick={() => !isToday && !isPast && goToDate(day)}
+                  style={{ cursor: isToday || isPast ? "default" : "pointer" }}
                 >
                   <p className={styles.dayLabel}>{DAY_LABELS[d.getDay()]}</p>
                   <p className={styles.dateNum}>{d.getDate()}/{d.getMonth() + 1}</p>

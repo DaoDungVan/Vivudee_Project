@@ -18,7 +18,7 @@ import {
   LuMoon,
   LuHeart,
 } from "react-icons/lu";
-import { getLocalWishlist, isCachedInWishlist } from "../../../services/wishlistService";
+import { getLocalWishlist, isCachedInWishlist, initWishlistCache } from "../../../services/wishlistService";
 import { useTheme } from "../../../hooks/useTheme";
 import { useTranslation } from "react-i18next";
 
@@ -120,6 +120,11 @@ function NavBar() {
     };
 
     updateWishlistCount();
+
+    // Refresh cache từ server khi mount để tránh badge đếm sai do cache cũ
+    if (localStorage.getItem("token")) {
+      initWishlistCache().then(updateWishlistCount).catch(() => {});
+    }
 
     const handleStorageChange = () => {
       try {

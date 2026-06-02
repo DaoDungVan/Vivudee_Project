@@ -75,7 +75,7 @@ export default function HeatCalendar({ from, to, selectedDate, seatClass = "econ
       const res  = await getPriceCalendar(from, to, m, seatClass, adults);
       const rows = res.data?.data || [];
       const map  = {};
-      rows.forEach(r => { map[r.flight_date] = Number(r.min_price); });
+      rows.forEach(r => { map[String(r.flight_date).slice(0, 10)] = Number(r.min_price); });
       setCalData(prev => ({ ...prev, ...map }));
     } catch { /* silent */ }
     finally { setLoading(false); }

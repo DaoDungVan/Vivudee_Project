@@ -107,6 +107,7 @@ const Booking = () => {
         const age = calcAge(p.dob);
         if (!isChild && age < 14) errs[`${i}_dob`] = t("booking.adultAgeErr");
         if (isChild && age >= 14) errs[`${i}_dob`] = t("booking.childAgeErr");
+        if (isChild && age < 2) errs[`${i}_dob`] = "Trẻ em phải từ 2 tuổi trở lên. Trẻ dưới 2 tuổi là trẻ sơ sinh (infant), vui lòng liên hệ hãng bay.";
       }
       if (!p.gender) errs[`${i}_gender`] = t("booking.required");
       if (!p.idNumber.trim()) {

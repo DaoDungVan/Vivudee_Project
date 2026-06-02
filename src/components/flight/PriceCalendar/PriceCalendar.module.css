@@ -60,6 +60,7 @@
 
 .cellCheaper { background: #dcfce7; }
 .cellPricier { background: #fee2e2; }
+.cellPast    { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
 
 [data-theme="dark"] .cellCheaper { background: rgba(22,163,74,0.15); }
 [data-theme="dark"] .cellPricier { background: rgba(220,38,38,0.12); }

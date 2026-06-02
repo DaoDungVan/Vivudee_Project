@@ -324,6 +324,51 @@
   gap: 16px;
 }
 
+/* ── List view cho My Bookings ── */
+.bookingList { display: flex; flex-direction: column; gap: 8px; }
+
+.listRow {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  transition: box-shadow 0.15s, border-color 0.15s;
+  flex-wrap: wrap;
+}
+.listRow:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.10); border-color: var(--primary-color); }
+.listRowAirborne { border-color: #0e81cd !important; }
+
+.listRowLeft  { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.listRowRight { display: flex; align-items: center; gap: 12px; flex-shrink: 0; flex-wrap: wrap; }
+
+.listRowCode {
+  font-size: 13px; font-weight: 800; letter-spacing: 1px;
+  color: var(--primary-color); display: flex; align-items: center;
+}
+.listRowRoute {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 16px; font-weight: 700; color: var(--text-dark);
+}
+.listArrow  { color: var(--text-muted); font-size: 13px; }
+.listMeta   { font-size: 12px; color: var(--text-muted); font-weight: 400; }
+.listRowAirline { font-size: 12px; color: var(--text-secondary); }
+
+.listPrice  { font-size: 15px; font-weight: 800; color: #e74c3c; }
+.listViewBtn {
+  font-size: 12px; color: var(--primary-color); font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .listRowRight { width: 100%; justify-content: space-between; }
+  .listViewBtn  { display: none; }
+}
+
 .bookingCard {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
