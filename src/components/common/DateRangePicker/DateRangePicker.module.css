@@ -1,0 +1,180 @@
+/* ── Container ───────────────────────────────────────── */
+.picker {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  width: fit-content;
+  min-width: 620px;
+  user-select: none;
+}
+
+/* ── Two-month layout ────────────────────────────────── */
+.calendars {
+  display: flex;
+  gap: 0;
+  padding: 24px 28px 16px;
+}
+
+.monthCol {
+  flex: 1;
+  min-width: 260px;
+}
+
+.sep {
+  width: 1px;
+  background: var(--divider-muted);
+  margin: 0 24px;
+  flex-shrink: 0;
+}
+
+/* ── Month header ────────────────────────────────────── */
+.monthHeader {
+  display: grid;
+  grid-template-columns: 32px 1fr 32px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.monthTitle {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.navBtn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.navBtn:hover {
+  background: var(--bg-muted);
+  color: var(--text-dark);
+}
+
+/* ── Day headers ─────────────────────────────────────── */
+.dayRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 6px;
+}
+
+.dayHead {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 4px 0;
+}
+
+/* ── Days grid ───────────────────────────────────────── */
+.daysGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 2px;
+}
+
+.empty { /* placeholder for empty cells */ }
+
+/* ── Each day cell ───────────────────────────────────── */
+.day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  cursor: pointer;
+  position: relative;
+}
+
+.day:hover:not(.dayPast) .dayInner {
+  background: var(--bg-muted);
+}
+
+.dayPast {
+  opacity: 0.3;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ── Inner circle ────────────────────────────────────── */
+.dayInner {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-dark);
+  transition: background 0.15s;
+  position: relative;
+  z-index: 1;
+}
+
+/* Today: ring */
+.todayInner {
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+/* Selected: filled */
+.selInner {
+  background: var(--primary-color) !important;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(14, 129, 205, 0.4);
+}
+
+/* ── Range background ────────────────────────────────── */
+.inRange {
+  background: rgba(14, 129, 205, 0.1);
+}
+.inRange .dayInner:hover {
+  background: rgba(14, 129, 205, 0.2);
+}
+
+/* Left edge: only right half of cell is colored */
+.edgeLeft {
+  background: linear-gradient(to right, transparent 50%, rgba(14, 129, 205, 0.1) 50%);
+}
+
+/* Right edge: only left half of cell is colored */
+.edgeRight {
+  background: linear-gradient(to left, transparent 50%, rgba(14, 129, 205, 0.1) 50%);
+}
+
+/* ── Footer ──────────────────────────────────────────── */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px 20px;
+  border-top: 1px solid var(--divider-muted);
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 700px) {
+  .picker { min-width: 0; width: calc(100vw - 32px); }
+  .calendars { flex-direction: column; padding: 16px 16px 8px; }
+  .sep { width: 100%; height: 1px; margin: 12px 0; }
+  .monthCol { min-width: 0; }
+}

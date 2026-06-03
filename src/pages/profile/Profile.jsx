@@ -1,6 +1,7 @@
 // src/pages/profile/Profile.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import DateDropdownPicker from "../../components/common/DateDropdownPicker/DateDropdownPicker";
 import { useTranslation } from "react-i18next";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
@@ -484,8 +485,14 @@ const Profile = () => {
                     <input name="phone" value={form.phone} onChange={handleChange} placeholder="0901234567" />
                   </div>
                   <div className={styles.formGroup}>
-                    <label>Date of Birth <span style={{ fontSize: "11px", fontWeight: 400, color: "var(--text-muted)" }}>(dd/mm/yyyy)</span></label>
-                    <input name="date_of_birth" type="date" value={form.date_of_birth} onChange={handleChange} />
+                    <label>Date of Birth</label>
+                    <DateDropdownPicker
+                      value={form.date_of_birth}
+                      onChange={(dateStr) => handleChange({ target: { name: "date_of_birth", value: dateStr } })}
+                      lang="en"
+                      maxYear={new Date().getFullYear()}
+                      minYear={new Date().getFullYear() - 120}
+                    />
                   </div>
                   <div className={styles.formGroup}>
                     <label>Gender</label>

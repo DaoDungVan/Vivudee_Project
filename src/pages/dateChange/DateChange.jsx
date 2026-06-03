@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import API from "../../services/axiosInstance";
 import { requestDateChange, confirmDateChangeOTP } from "../../services/dateChangeService";
+import DateRangePicker from "../../components/common/DateRangePicker/DateRangePicker";
 import styles from "./DateChange.module.css";
 import { LuPlane, LuCalendar, LuChevronRight, LuChevronLeft, LuCheck } from "react-icons/lu";
 
@@ -26,6 +27,12 @@ export default function DateChange() {
   const bookingCode = booking?.booking_code || state?.bookingCode;
 
   const [step, setStep] = useState(1); // 1: chọn chuyến | 2: nhập OTP | 3: kết quả
+
+  // Calendar
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [calendarPos,  setCalendarPos]  = useState({ top: 0, left: 0 });
+  const dateFieldRef  = useRef(null);
+  const calendarRef   = useRef(null);
 
   // Step 1 — tìm chuyến
   const [searchDate,   setSearchDate]   = useState("");
@@ -56,6 +63,33 @@ export default function DateChange() {
   useEffect(() => {
     if (!bookingCode) navigate("/bookings");
   }, [bookingCode, navigate]);
+
+  useEffect(() => {
+    const handler = (e) => {
+      const inField    = dateFieldRef.current?.contains(e.target);
+      const inCalendar = calendarRef.current?.contains(e.target);
+      if (!inField && !inCalendar) setShowCalendar(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const openCalendar = () => {
+    if (dateFieldRef.current) {
+      const r = dateFieldRef.current.getBoundingClientRect();
+      setCalendarPos({
+        top:  r.bottom + window.scrollY + 8,
+        left: Math.min(r.left + window.scrollX, window.innerWidth - 644),
+      });
+    }
+    setShowCalendar(true);
+  };
+
+  const toDisplayDate = (iso) => {
+    if (!iso) return "";
+    const [y, m, d] = iso.split("-");
+    return `${d}/${m}/${y}`;
+  };
 
   const handleSearch = async () => {
     if (!searchDate) { setSearchErr("Vui lòng chọn ngày bay mới"); return; }
@@ -192,13 +226,33 @@ export default function DateChange() {
               <div className={styles.searchRow}>
                 <div className={styles.fieldWrap}>
                   <label className={styles.fieldLabel}><LuCalendar size={13} /> Ngày bay mới</label>
-                  <input
-                    type="date"
-                    className={styles.input}
-                    value={searchDate}
-                    min={new Date().toISOString().split("T")[0]}
-                    onChange={(e) => { setSearchDate(e.target.value); setSearchErr(""); }}
-                  />
+                  <div
+                    ref={dateFieldRef}
+                    className={`${styles.input} ${styles.dateTrigger}`}
+                    onClick={openCalendar}
+                  >
+                    <LuCalendar size={14} className={styles.dateIcon} />
+                    <span className={searchDate ? "" : styles.datePlaceholder}>
+                      {toDisplayDate(searchDate) || "Chọn ngày"}
+                    </span>
+                  </div>
+                  {showCalendar && (
+                    <div
+                      ref={calendarRef}
+                      className={styles.calendarPopup}
+                      style={{ top: calendarPos.top, left: calendarPos.left }}
+                    >
+                      <DateRangePicker
+                        startDate={searchDate || null}
+                        endDate={null}
+                        tripType="oneway"
+                        minDate={new Date().toISOString().split("T")[0]}
+                        lang="vi"
+                        onChange={(start) => { setSearchDate(start); setSearchErr(""); }}
+                        onClose={() => setShowCalendar(false)}
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className={styles.fieldWrap}>
                   <label className={styles.fieldLabel}>Hạng ghế</label>

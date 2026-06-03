@@ -64,6 +64,27 @@
   width: 100%; box-sizing: border-box;
 }
 .input:focus { border-color: var(--primary-color); }
+
+.dateTrigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.dateTrigger:hover { border-color: var(--primary-color); }
+.dateIcon { color: var(--text-muted); flex-shrink: 0; }
+.datePlaceholder { color: var(--text-muted); }
+
+.calendarPopup {
+  position: fixed;
+  z-index: 9999;
+  animation: popIn 0.18s ease;
+}
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .searchBtn {
   background: var(--primary-color); color: #fff;
   border: none; border-radius: 8px; padding: 9px 20px;

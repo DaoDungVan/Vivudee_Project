@@ -3,8 +3,9 @@ import { getAirports } from "../../../services/airportService";
 import styles from "./SearchFlightForm.module.css";
 import swapIcon from "../../../assets/icons/swap.png";
 import { useNavigate } from "react-router-dom";
-import { LuSearch } from "react-icons/lu";
+import { LuSearch, LuArrowRight, LuArrowLeftRight, LuCalendar } from "react-icons/lu";
 import { useTranslation } from "react-i18next";
+import DateRangePicker from "../../common/DateRangePicker/DateRangePicker";
 
 const getAirportLabel = (airportList, code) => {
   if (!code) return "";
@@ -13,8 +14,19 @@ const getAirportLabel = (airportList, code) => {
 };
 
 export default function SearchFlightForm({ initialData }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [tripType, setTripType] = useState(initialData?.tripType || "oneway");
+  const tripTypeRef = useRef(null);
+  const [indicator, setIndicator] = useState({ left: 4, width: 0, height: 32 });
+
+  useEffect(() => {
+    const container = tripTypeRef.current;
+    if (!container) return;
+    const idx = tripType === "oneway" ? 0 : 1;
+    const btn = container.querySelectorAll("button")[idx];
+    if (!btn) return;
+    setIndicator({ left: btn.offsetLeft, width: btn.offsetWidth, height: btn.offsetHeight });
+  }, [tripType]);
   const [airports, setAirports] = useState([]);
   const [airportResults, setAirportResults] = useState([]);
   const [from, setFrom] = useState(initialData?.from || "");
@@ -36,9 +48,11 @@ export default function SearchFlightForm({ initialData }) {
   });
 
   const [showPassenger, setShowPassenger] = useState(false);
-  const passengerRef = useRef(null);
-  const departureDateRef = useRef(null);
-  const returnDateRef = useRef(null);
+  const [showCalendar,  setShowCalendar]  = useState(false);
+  const [calendarPos,   setCalendarPos]   = useState({ top: 0, left: 0 });
+  const passengerRef    = useRef(null);
+  const calendarRef     = useRef(null); // popup ref
+  const dateFieldsRef   = useRef(null); // trigger ref
 
   const toDisplayDate = (isoDate) => {
     if (!isoDate) return "";
@@ -82,9 +96,13 @@ export default function SearchFlightForm({ initialData }) {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (passengerRef.current && !passengerRef.current.contains(event.target)) setShowPassenger(false);
-      if (airportRef.current && !airportRef.current.contains(event.target)) setActiveInput(null);
-      if (seatClassRef.current && !seatClassRef.current.contains(event.target)) setShowSeatClass(false);
+      if (passengerRef.current  && !passengerRef.current.contains(event.target))  setShowPassenger(false);
+      if (airportRef.current    && !airportRef.current.contains(event.target))    setActiveInput(null);
+      if (seatClassRef.current  && !seatClassRef.current.contains(event.target))  setShowSeatClass(false);
+      // Đóng calendar nếu click ra ngoài cả trigger lẫn popup
+      const inTrigger = dateFieldsRef.current?.contains(event.target);
+      const inPopup   = calendarRef.current?.contains(event.target);
+      if (!inTrigger && !inPopup) setShowCalendar(false);
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -172,6 +190,17 @@ export default function SearchFlightForm({ initialData }) {
 
   const today = toLocalDateStr(new Date());
 
+  const openCalendar = () => {
+    if (dateFieldsRef.current) {
+      const rect = dateFieldsRef.current.getBoundingClientRect();
+      setCalendarPos({
+        top:  rect.bottom + window.scrollY + 8,
+        left: Math.min(rect.left + window.scrollX, window.innerWidth - 644),
+      });
+    }
+    setShowCalendar(true);
+  };
+
   const passengerDisplay = (() => {
     const a = passengers.adult;
     const c = passengers.child;
@@ -183,11 +212,17 @@ export default function SearchFlightForm({ initialData }) {
   return (
     <div className={styles.formCard}>
       <div className={styles.topRow}>
-        <div className={styles.tripType}>
+        <div className={styles.tripType} ref={tripTypeRef}>
+          <span
+            className={styles.tripIndicator}
+            style={{ left: indicator.left, width: indicator.width, height: indicator.height }}
+          />
           <button className={tripType === "oneway" ? styles.active : ""} onClick={() => setTripType("oneway")}>
+            <LuArrowRight size={14} />
             {t("search.oneWay")}
           </button>
           <button className={tripType === "roundtrip" ? styles.active : ""} onClick={() => setTripType("roundtrip")}>
+            <LuArrowLeftRight size={14} />
             {t("search.roundTrip")}
           </button>
         </div>
@@ -291,49 +326,56 @@ export default function SearchFlightForm({ initialData }) {
           )}
         </div>
 
-        <div className={styles.field}>
-          <label>{t("search.departureDate")}</label>
-          <div className={styles.dateWrapper}>
-            <input
-              type="text"
-              value={toDisplayDate(departureDate)}
-              readOnly
-              onClick={() => departureDateRef.current?.showPicker?.()}
-              className={styles.dateDisplay}
-            />
-            <input
-              ref={departureDateRef}
-              type="date"
-              value={departureDate}
-              min={today}
-              onChange={(e) => { setDepartureDate(e.target.value); setSearchError(""); }}
-              className={styles.dateHidden}
-            />
-          </div>
-        </div>
-
-        {tripType === "roundtrip" && (
-          <div className={styles.field}>
-            <label>{t("search.returnDate")}</label>
-            <div className={styles.dateWrapper}>
-              <input
-                type="text"
-                value={toDisplayDate(returnDate)}
-                readOnly
-                onClick={() => returnDateRef.current?.showPicker?.()}
-                className={styles.dateDisplay}
-              />
-              <input
-                ref={returnDateRef}
-                type="date"
-                value={returnDate}
-                min={departureDate || today}
-                onChange={(e) => { setReturnDate(e.target.value); setSearchError(""); }}
-                className={styles.dateHidden}
-              />
+        {/* Date fields — click mở calendar */}
+        <div className={styles.dateFields} ref={dateFieldsRef}>
+          <div
+            className={`${styles.field} ${styles.dateField}`}
+            onClick={openCalendar}
+          >
+            <label>{t("search.departureDate")}</label>
+            <div className={styles.dateFakeInput}>
+              <LuCalendar size={14} className={styles.dateIcon} />
+              <span>{toDisplayDate(departureDate) || "dd/mm/yyyy"}</span>
             </div>
           </div>
-        )}
+
+          {tripType === "roundtrip" && (
+            <div
+              className={`${styles.field} ${styles.dateField}`}
+              onClick={openCalendar}
+            >
+              <label>{t("search.returnDate")}</label>
+              <div className={styles.dateFakeInput}>
+                <LuCalendar size={14} className={styles.dateIcon} />
+                <span className={returnDate ? "" : styles.datePlaceholder}>
+                  {toDisplayDate(returnDate) || (t("search.addReturn") || "Thêm ngày về")}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {showCalendar && (
+            <div
+              className={styles.calendarPopup}
+              ref={calendarRef}
+              style={{ top: calendarPos.top, left: calendarPos.left }}
+            >
+              <DateRangePicker
+                startDate={departureDate}
+                endDate={tripType === "roundtrip" ? returnDate : null}
+                tripType={tripType}
+                minDate={today}
+                lang={i18n.language === "vi" ? "vi" : "en"}
+                onChange={(start, end) => {
+                  if (start) { setDepartureDate(start); setSearchError(""); }
+                  if (end)   { setReturnDate(end); setSearchError(""); }
+                  else       { setReturnDate(""); }
+                }}
+                onClose={() => setShowCalendar(false)}
+              />
+            </div>
+          )}
+        </div>
 
         <button className={styles.searchBtn} onClick={handleSearch} type="button">
           <LuSearch size={16} />

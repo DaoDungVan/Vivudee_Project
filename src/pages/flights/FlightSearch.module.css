@@ -21,6 +21,14 @@
 
 .filterColumn {
   min-width: 0;
+  position: sticky;
+  top: 110px;
+  align-self: start;
+  height: fit-content;
+  max-height: calc(100vh - 130px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--card-border) transparent;
 }
 
 .filterToggleRow {
@@ -225,6 +233,9 @@
 
   .filterColumn {
     display: none;
+    position: static;
+    max-height: none;
+    overflow: visible;
   }
 
   .filterColumnOpen {

@@ -21,30 +21,51 @@
 }
 
 .tripType {
+  position: relative;
   display: flex;
-  gap: 10px;
+  background: var(--bg-muted);
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.tripIndicator {
+  position: absolute;
+  top: 4px;
+  border-radius: 999px;
+  background: var(--primary-color);
+  box-shadow: 0 2px 12px rgba(14, 129, 205, 0.4);
+  transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .tripType button {
-  padding: 8px 18px;
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
   border: none;
-  border-radius: 20px;
+  border-radius: 999px;
   font-family: "Roboto", sans-serif;
   font-weight: 600;
   font-size: 13px;
-  background-color: var(--secondary-color);
+  background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: color 0.2s;
 }
 
-.tripType button:hover {
-  background-color: #b8e7ff;
+.tripType button:hover:not(.active) {
+  color: var(--text-primary);
 }
 
 .active {
-  color: #075fe3 !important;
-  background-color: #c8e8ff !important;
+  color: #fff !important;
 }
 
 .options {
@@ -300,23 +321,55 @@
   transform: translateY(-1px);
 }
 
-/* Date wrapper */
-.dateWrapper {
+/* ── Date fields + calendar popup ───────────────────── */
+.dateFields {
   position: relative;
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex: 2 1 300px;
+  z-index: 20;
 }
 
-.dateDisplay {
+.dateField {
   cursor: pointer;
+  flex: 1 1 140px;
+  min-width: 130px;
 }
 
-.dateHidden {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  width: 0;
-  height: 0;
-  top: 0;
-  left: 0;
+.dateFakeInput {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--input-border);
+  background: var(--input-bg);
+  font-size: 14px;
+  color: var(--input-text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+.dateFakeInput:hover   { border-color: #aacfee; }
+.dateField:focus-within .dateFakeInput,
+.dateFakeInput:focus   {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(14, 129, 205, 0.12);
+}
+
+.dateIcon { color: var(--text-muted); flex-shrink: 0; }
+
+.datePlaceholder { color: var(--text-muted); }
+
+.calendarPopup {
+  position: fixed;
+  z-index: 9999;
+  animation: popIn 0.18s ease;
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* Inline error */

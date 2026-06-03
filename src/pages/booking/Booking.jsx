@@ -10,6 +10,7 @@ import styles from "./Booking.module.css";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import planeIcon from "../../assets/icons/plane.png";
 import SeatMap from "../../components/booking/SeatMap/SeatMap";
+import DateDropdownPicker from "../../components/common/DateDropdownPicker/DateDropdownPicker";
 
 const fmt = (n) => `${new Intl.NumberFormat("vi-VN").format(n)} VND`;
 
@@ -359,14 +360,14 @@ const Booking = () => {
                     <div className={styles.field}>
                       <label className={styles.label}>
                         {t("booking.dob")} <span className={styles.required}>*</span>
-                        <span className={styles.formatHint}> (dd/mm/yyyy)</span>
                       </label>
-                      <input
-                        id={`${idx}_dob`}
-                        type="date"
-                        className={`${styles.input} ${errors[`${idx}_dob`] ? styles.inputError : ""}`}
+                      <DateDropdownPicker
                         value={pax.dob}
-                        onChange={(e) => updatePax(idx, "dob", e.target.value)}
+                        onChange={(dateStr) => updatePax(idx, "dob", dateStr)}
+                        hasError={!!errors[`${idx}_dob`]}
+                        lang="vi"
+                        maxYear={new Date().getFullYear()}
+                        minYear={new Date().getFullYear() - 120}
                       />
                       {errors[`${idx}_dob`] && <span className={styles.errMsg}>{errors[`${idx}_dob`]}</span>}
                     </div>
