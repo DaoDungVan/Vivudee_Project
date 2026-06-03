@@ -69,11 +69,14 @@ const applyFilters = (flights, filters) => {
 
 const FlightSearch = () => {
   const { t } = useTranslation();
-  const [outboundFlights, setOutboundFlights] = useState([]);
-  const [returnFlights, setReturnFlights] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // useLocation phải khai báo TRƯỚC khi dùng trong useState initializer
+  const location = useLocation();
+  const query    = new URLSearchParams(location.search);
 
-  // Khởi tạo trực tiếp từ navigation state — không cần effect, không có timing issue
+  const [outboundFlights, setOutboundFlights] = useState([]);
+  const [returnFlights,   setReturnFlights]   = useState([]);
+  const [loading,         setLoading]         = useState(true);
+
   const [selectedOutbound, setSelectedOutbound] = useState(() => location.state?.preselectFlight || null);
   const [selectedReturn,   setSelectedReturn]   = useState(null);
 
@@ -89,9 +92,6 @@ const FlightSearch = () => {
     durationMax: null,
     sortPrice: null,
   });
-
-  const location = useLocation();
-  const query = new URLSearchParams(location.search);
 
   const from = query.get("from");
   const to = query.get("to");
