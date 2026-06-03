@@ -69,7 +69,10 @@ export default function Recommendations({ from = "SGN", to = "HAN" }) {
 
   const handleView = (f) => {
     const date = f.departure?.time ? f.departure.time.slice(0, 10) : new Date().toISOString().slice(0, 10);
-    navigate(`/flights?from=${f.departure?.code || from}&to=${f.arrival?.code || to}&departureDate=${date}&adults=1&children=0&seatClass=economy&tripType=one-way`);
+    navigate(
+      `/flights?from=${f.departure?.code || from}&to=${f.arrival?.code || to}&departureDate=${date}&adults=1&children=0&seatClass=economy&tripType=one-way`,
+      { state: { preselectFlight: f } }
+    );
   };
 
   if (!loading && flights.length === 0) return null;

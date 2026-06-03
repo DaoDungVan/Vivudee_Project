@@ -171,6 +171,15 @@ const FlightSearch = () => {
     else if (isRoundTrip && selectedOutbound && selectedReturn) setShowBooking(true);
   }, [selectedOutbound, selectedReturn, isRoundTrip]);
 
+  // Khi navigate từ /flights (no params) sang /flights?from=... cùng preselectFlight,
+  // component không remount nên useState initializer không chạy lại — dùng location.key
+  useEffect(() => {
+    if (location.state?.preselectFlight) {
+      setSelectedOutbound(location.state.preselectFlight);
+      setShowBooking(true);
+    }
+  }, [location.key]);
+
   const [cheapestCalPrice, setCheapestCalPrice] = useState(null);
   const [showHeatCal, setShowHeatCal]           = useState(false);
   const [comboResults, setComboResults]         = useState(null);
