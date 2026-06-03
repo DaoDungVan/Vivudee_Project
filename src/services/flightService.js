@@ -52,6 +52,7 @@ export const getFlightPosition   = (flightId)                     => axiosInstan
 export const getRecommendations  = (from, to, limit = 6)           => axios.get(`${API}/recommendations`, { params: { from, to, limit } });
 export const getBrowseFlights    = (limit = 40)                     => axios.get(`${API}/browse`, { params: { limit } });
 export const getAirlineFlights   = (airlineCode, seatClass = 'economy') => axios.get(`${API}/by-airline/${airlineCode}`, { params: { seat_class: seatClass } });
+export const getMixedFlights     = (params) => axios.get(`${API}/mixed-search`, { params });
 export const getAlternatives     = (flight_id, seat_class = "economy", adults = 1) =>
   axios.get(`${API}/alternatives`, { params: { flight_id, seat_class, adults } });
 export const getPriceCalendar    = (from, to, month, seat_class = "economy", adults = 1) =>

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import API from "../../services/axiosInstance";
-import { requestDateChange, confirmDateChangeOTP } from "../../services/dateChangeService";
+import { requestDateChange, confirmDateChangeOTP, createDateChangePayment } from "../../services/dateChangeService";
 import DateRangePicker from "../../components/common/DateRangePicker/DateRangePicker";
 import styles from "./DateChange.module.css";
 import { LuPlane, LuCalendar, LuChevronRight, LuChevronLeft, LuCheck } from "react-icons/lu";
@@ -54,6 +54,13 @@ export default function DateChange() {
 
   // Step 3 — kết quả
   const [result, setResult] = useState(null);
+
+  // Step 4 — payment (khi price_difference > 0)
+  const [priceDiff,      setPriceDiff]      = useState(0);
+  const [payMethod,      setPayMethod]      = useState("BANK_QR");
+  const [payLoading,     setPayLoading]     = useState(false);
+  const [payErr,         setPayErr]         = useState("");
+  const [payData,        setPayData]        = useState(null); // instruction từ server
 
   // Route từ booking hiện tại
   const depCode = booking?.outbound_flight?.departure?.code || booking?.dep_code || "";
@@ -170,8 +177,15 @@ export default function DateChange() {
     setOtpLoading(true); setOtpErr("");
     try {
       const res = await confirmDateChangeOTP(contactEmail.trim(), otp, requestCode);
-      setResult(res.data);
-      setStep(3);
+      const d = res.data;
+      if (d?.status === "pending_payment") {
+        // Cần thanh toán phụ phí trước
+        setPriceDiff(d.price_difference || 0);
+        setStep(4);
+      } else {
+        setResult(d);
+        setStep(3);
+      }
     } catch (err) {
       setOtpErr(err?.response?.data?.error || "Mã OTP không đúng hoặc đã hết hạn");
     } finally {
@@ -196,13 +210,13 @@ export default function DateChange() {
         </div>
 
         <div className={styles.steps}>
-          {["Chọn chuyến mới", "Xác nhận OTP", "Hoàn tất"].map((label, i) => (
+          {["Chọn chuyến mới", "Xác nhận OTP", "Thanh toán phụ phí", "Hoàn tất"].map((label, i) => (
             <div key={i} className={`${styles.stepItem} ${step === i + 1 ? styles.stepActive : step > i + 1 ? styles.stepDone : ""}`}>
               <div className={styles.stepCircle}>
                 {step > i + 1 ? <LuCheck size={14} /> : i + 1}
               </div>
               <span className={styles.stepLabel}>{label}</span>
-              {i < 2 && <div className={styles.stepLine} />}
+              {i < 3 && <div className={styles.stepLine} />}
             </div>
           ))}
         </div>
@@ -373,6 +387,97 @@ export default function DateChange() {
                 gửi lại yêu cầu
               </button>
             </p>
+          </div>
+        )}
+
+        {/* ── STEP 4: Thanh toán phụ phí ── */}
+        {step === 4 && (
+          <div className={styles.otpBox}>
+            <div className={styles.otpIcon} style={{ color: "#f59e0b" }}>
+              <LuPlane size={36} />
+            </div>
+            <h2 className={styles.otpTitle}>Thanh toán phụ phí đổi ngày</h2>
+            <p className={styles.otpDesc}>
+              Chuyến mới có giá cao hơn chuyến cũ. Vui lòng thanh toán phần chênh lệch để hoàn tất.
+            </p>
+            <div style={{ fontSize: 28, fontWeight: 900, color: "#e74c3c", margin: "8px 0" }}>
+              {fmt(priceDiff)}
+            </div>
+            <p className={styles.otpCode}>Mã yêu cầu: <strong>{requestCode}</strong></p>
+
+            {/* Chọn phương thức */}
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", margin: "8px 0" }}>
+              {[
+                { key: "BANK_QR", label: "💳 Chuyển khoản QR" },
+                { key: "MOMO",    label: "🟣 MoMo" },
+                { key: "PAYPAL",  label: "🔵 PayPal" },
+              ].map(({ key, label }) => (
+                <button
+                  key={key}
+                  onClick={() => setPayMethod(key)}
+                  className={styles.submitBtn}
+                  style={{
+                    background: payMethod === key ? "var(--primary-color)" : "var(--bg-muted)",
+                    color: payMethod === key ? "#fff" : "var(--text-secondary)",
+                    border: `2px solid ${payMethod === key ? "var(--primary-color)" : "var(--card-border)"}`,
+                    padding: "9px 18px", fontSize: 13,
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {payErr && <p style={{ color: "#ef4444", fontSize: 13 }}>{payErr}</p>}
+
+            {payData && (
+              <div style={{ background: "var(--bg-muted)", borderRadius: 12, padding: "14px 18px", textAlign: "left", width: "100%", maxWidth: 420 }}>
+                {payData.instruction?.qr_payload && (
+                  <div style={{ textAlign: "center", marginBottom: 10 }}>
+                    <img src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(payData.instruction.qr_payload)}&size=180x180`} alt="QR" style={{ borderRadius: 8 }} />
+                  </div>
+                )}
+                {payData.instruction?.transfer_content && (
+                  <p style={{ fontSize: 13, margin: "4px 0" }}>
+                    Nội dung CK: <strong style={{ fontFamily: "monospace" }}>{payData.instruction.transfer_content}</strong>
+                  </p>
+                )}
+                {payData.instruction?.payment_url && (
+                  <a href={payData.instruction.payment_url} target="_blank" rel="noreferrer"
+                    style={{ display: "block", textAlign: "center", marginTop: 10, padding: "10px", background: "var(--primary-color)", color: "#fff", borderRadius: 8, fontWeight: 700, fontSize: 14, textDecoration: "none" }}>
+                    Thanh toán ngay →
+                  </a>
+                )}
+                <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 8, textAlign: "center" }}>
+                  Sau khi thanh toán thành công, yêu cầu đổi ngày sẽ được xử lý tự động.
+                </p>
+              </div>
+            )}
+
+            <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+              <button className={styles.submitBtn}
+                style={{ background: "var(--bg-muted)", color: "var(--text-secondary)", border: "1px solid var(--card-border)" }}
+                onClick={() => setStep(2)}>
+                ← Quay lại
+              </button>
+              <button
+                className={styles.submitBtn}
+                disabled={payLoading}
+                onClick={async () => {
+                  setPayLoading(true); setPayErr(""); setPayData(null);
+                  try {
+                    const res = await createDateChangePayment(requestCode, payMethod);
+                    setPayData(res.data?.data || res.data);
+                  } catch (err) {
+                    setPayErr(err?.response?.data?.error || "Không thể tạo thanh toán. Vui lòng thử lại.");
+                  } finally {
+                    setPayLoading(false);
+                  }
+                }}
+              >
+                {payLoading ? "Đang xử lý..." : "Tạo thanh toán"}
+              </button>
+            </div>
           </div>
         )}
 

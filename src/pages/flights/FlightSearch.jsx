@@ -12,7 +12,7 @@ import styles from "./FlightSearch.module.css";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { searchFlights } from "../../services/flightService";
+import { searchFlights, getMixedFlights } from "../../services/flightService";
 
 import SearchFlightForm from "../../components/home/SearchFlightForm/SearchFlightForm";
 import FilterPanel from "../../components/flight/FilterPanel/FilterPanel";
@@ -142,6 +142,26 @@ const FlightSearch = () => {
       }
     };
     fetchFlights();
+
+    // AS-113: Fetch mixed-airline combos song song
+    if (hasSearchParams) {
+      setComboLoading(true);
+      setComboResults(null);
+      getMixedFlights({
+        from, to,
+        outbound_date: departureDate,
+        return_date: returnDate || undefined,
+        adults: adults || 1,
+        children: children || 0,
+        seat_class: seatClass || 'economy',
+        max_stops: 2,
+        limit: 15,
+        sort_by: 'recommended',
+      })
+        .then(res => setComboResults(res.data))
+        .catch(() => setComboResults(null))
+        .finally(() => setComboLoading(false));
+    }
   }, [from, to, departureDate, returnDate, tripType, adults, children, seatClass, hasSearchParams]);
 
   const handleSelectOutbound = (flight) => {
@@ -163,6 +183,9 @@ const FlightSearch = () => {
 
   const [cheapestCalPrice, setCheapestCalPrice] = useState(null);
   const [showHeatCal, setShowHeatCal]           = useState(false);
+  const [comboResults, setComboResults]         = useState(null);
+  const [comboLoading, setComboLoading]         = useState(false);
+  const [showCombo, setShowCombo]               = useState(false);
 
   const filteredOutbound = applyFilters(outboundFlights, filters);
   const filteredReturn = applyFilters(returnFlights, filters);
@@ -213,23 +236,32 @@ const FlightSearch = () => {
                       {t("flightSearch.flights")} <strong>{from}</strong> → <strong>{to}</strong>
                     </h2>
 
-                    {isRoundTrip && (
-                      <div className={styles.tabs}>
-                        <button
-                          className={`${styles.tabBtn} ${step === "outbound" ? styles.activeTab : ""}`}
-                          onClick={() => setStep("outbound")}
-                        >
+                    <div className={styles.tabs}>
+                      {isRoundTrip && (<>
+                        <button className={`${styles.tabBtn} ${step === "outbound" && !showCombo ? styles.activeTab : ""}`} onClick={() => { setStep("outbound"); setShowCombo(false); }}>
                           {t("flightSearch.outboundShort")}
                         </button>
-                        <button
-                          className={`${styles.tabBtn} ${step === "return" ? styles.activeTab : ""}`}
-                          onClick={() => setStep("return")}
-                          disabled={!selectedOutbound}
-                        >
+                        <button className={`${styles.tabBtn} ${step === "return" && !showCombo ? styles.activeTab : ""}`} onClick={() => { setStep("return"); setShowCombo(false); }} disabled={!selectedOutbound}>
                           {t("flightSearch.returnShort")}
                         </button>
-                      </div>
-                    )}
+                      </>)}
+                      {/* AS-113: Tab đa hãng */}
+                      {(comboResults || comboLoading) && (
+                        <button
+                          className={`${styles.tabBtn} ${showCombo ? styles.activeTab : ""} ${styles.comboTab}`}
+                          onClick={() => setShowCombo(p => !p)}
+                        >
+                          ✈ Đa hãng
+                          {comboLoading && " ..."}
+                          {!comboLoading && comboResults && (() => {
+                            const n = isRoundTrip
+                              ? (comboResults.roundtrip_combinations?.length || 0)
+                              : (comboResults.one_way_options?.filter(o => o.legs?.length > 1).length || 0);
+                            return n > 0 ? ` (${n})` : "";
+                          })()}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </>
               )}
@@ -283,6 +315,86 @@ const FlightSearch = () => {
                 <BrowseByAirline />
               ) : loading ? (
                 <p className={styles.loading}>{t("flightSearch.loadingFlights")}</p>
+              ) : showCombo ? (
+                /* AS-113: Mixed airline combo results */
+                <div className={styles.comboWrapper}>
+                  {comboLoading ? (
+                    <p className={styles.loading}>Đang tìm hành trình đa hãng...</p>
+                  ) : (() => {
+                    const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n ?? 0) + " VND";
+                    const fmtT = (iso) => { if (!iso) return "--:--"; const d = new Date(iso); return isNaN(d) ? "--:--" : d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" }); };
+                    const combos = isRoundTrip
+                      ? (comboResults?.roundtrip_combinations || [])
+                      : (comboResults?.one_way_options?.filter(o => (o.legs?.length || 0) > 1) || []);
+
+                    if (!combos.length) return <p className={styles.note}>Không tìm thấy hành trình đa hãng phù hợp</p>;
+
+                    return combos.map((combo, idx) => {
+                      const isRT = !!combo.outbound;
+                      const legs = isRT ? null : combo.legs;
+                      return (
+                        <div key={idx} className={styles.comboCard}>
+                          {isRT ? (
+                            <>
+                              {/* Round-trip combo */}
+                              {[{ label: "Chiều đi", data: combo.outbound }, { label: "Chiều về", data: combo.return }].map(({ label, data }) => (
+                                <div key={label} className={styles.comboLeg}>
+                                  <span className={styles.comboLegLabel}>{label}</span>
+                                  {(data.legs || [data]).map((leg, li) => (
+                                    <div key={li} className={styles.comboLegRow}>
+                                      <span className={styles.comboAirline}>{leg.airline?.name || leg.airline?.code}</span>
+                                      <span className={styles.comboRoute}>{leg.departure?.code} → {leg.arrival?.code}</span>
+                                      <span className={styles.comboTime}>{fmtT(leg.departure?.time)} – {fmtT(leg.arrival?.time)}</span>
+                                      <span className={styles.comboPrice}>{fmt(leg.seat?.total_price)}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              ))}
+                            </>
+                          ) : (
+                            /* One-way multi-leg */
+                            legs.map((leg, li) => (
+                              <div key={li} className={styles.comboLeg}>
+                                <span className={styles.comboLegLabel}>Chặng {li + 1}</span>
+                                <div className={styles.comboLegRow}>
+                                  <span className={styles.comboAirline}>{leg.airline?.name || leg.airline?.code}</span>
+                                  <span className={styles.comboRoute}>{leg.departure?.code} → {leg.arrival?.code}</span>
+                                  <span className={styles.comboTime}>{fmtT(leg.departure?.time)} – {fmtT(leg.arrival?.time)}</span>
+                                  <span className={styles.comboPrice}>{fmt(leg.seat?.total_price)}</span>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                          <div className={styles.comboFooter}>
+                            <div>
+                              <span className={styles.comboAirlines}>{(combo.airlines || []).join(" + ")}</span>
+                              {combo.stops_outbound !== undefined && <span className={styles.comboStops}>{combo.stops_outbound + (combo.stops_return || 0)} điểm dừng</span>}
+                            </div>
+                            <div className={styles.comboFooterRight}>
+                              <span className={styles.comboTotal}>{fmt(combo.total_price)}</span>
+                              <button
+                                className={styles.comboSelectBtn}
+                                onClick={() => {
+                                  if (isRT) {
+                                    const obFlight = combo.outbound.legs?.[0] || combo.outbound;
+                                    const rtFlight = combo.return.legs?.[0] || combo.return;
+                                    setSelectedOutbound(obFlight);
+                                    setSelectedReturn(rtFlight);
+                                    setShowBooking(true);
+                                  } else {
+                                    setSelectedOutbound(legs[0]);
+                                    setShowBooking(true);
+                                  }
+                                  setShowCombo(false);
+                                }}
+                              >Chọn combo này</button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
               ) : (
                 <div className={styles.sliderWrapper}>
                   <div className={`${styles.slider} ${step === "return" ? styles.slideLeft : ""}`}>

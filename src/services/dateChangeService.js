@@ -14,3 +14,12 @@ export const getDateChangeDetail = (requestCode) =>
 
 export const cancelDateChange = (requestCode) =>
   API.delete(`/date-changes/${requestCode}`);
+
+export const createDateChangePayment = (requestCode, paymentMethod) =>
+  API.post(`/date-changes/${requestCode}/payment`, { payment_method: paymentMethod });
+
+export const getDateChangePaymentStatus = (requestCode) =>
+  API.get(`/date-changes/${requestCode}/payment`);
+
+export const cancelDateChangePayment = (requestCode) =>
+  API.delete(`/date-changes/${requestCode}/payment`);
