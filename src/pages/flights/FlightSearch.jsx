@@ -92,16 +92,17 @@ const FlightSearch = () => {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
 
-  // Preselect flight khi navigate từ AirlinePage
+  // Preselect flight khi navigate từ BrowseByAirline / AirlinePage / RecommendationBar
+  const didPreselect = useRef(false);
   useEffect(() => {
+    if (didPreselect.current) return;
     const pre = location.state?.preselectFlight;
     if (pre) {
+      didPreselect.current = true;
       setSelectedOutbound(pre);
       setShowBooking(true);
-      // Xóa state để tránh reopen mỗi lần re-render
-      window.history.replaceState({}, '', location.pathname + location.search);
     }
-  }, []); // eslint-disable-line
+  }); // chạy sau mỗi render cho tới khi preselect
 
   const from = query.get("from");
   const to = query.get("to");
