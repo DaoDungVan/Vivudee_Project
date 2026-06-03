@@ -9,7 +9,7 @@ import HeatCalendar from "../../components/flight/HeatCalendar/HeatCalendar";
 import { LuCalendarDays, LuPlaneTakeoff, LuPlaneLanding } from "react-icons/lu";
 import styles from "./FlightSearch.module.css";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { searchFlights, getMixedFlights } from "../../services/flightService";
