@@ -9,7 +9,7 @@ import HeatCalendar from "../../components/flight/HeatCalendar/HeatCalendar";
 import { LuCalendarDays, LuPlaneTakeoff, LuPlaneLanding } from "react-icons/lu";
 import styles from "./FlightSearch.module.css";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { searchFlights, getMixedFlights } from "../../services/flightService";
@@ -73,11 +73,12 @@ const FlightSearch = () => {
   const [returnFlights, setReturnFlights] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [selectedOutbound, setSelectedOutbound] = useState(null);
-  const [selectedReturn, setSelectedReturn] = useState(null);
+  // Khởi tạo trực tiếp từ navigation state — không cần effect, không có timing issue
+  const [selectedOutbound, setSelectedOutbound] = useState(() => location.state?.preselectFlight || null);
+  const [selectedReturn,   setSelectedReturn]   = useState(null);
 
-  const [step, setStep] = useState("outbound");
-  const [showBooking, setShowBooking] = useState(false);
+  const [step,        setStep]        = useState("outbound");
+  const [showBooking, setShowBooking] = useState(() => !!location.state?.preselectFlight);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const [filters, setFilters] = useState({
@@ -91,18 +92,6 @@ const FlightSearch = () => {
 
   const location = useLocation();
   const query = new URLSearchParams(location.search);
-
-  // Preselect flight khi navigate từ BrowseByAirline / AirlinePage / RecommendationBar
-  const didPreselect = useRef(false);
-  useEffect(() => {
-    if (didPreselect.current) return;
-    const pre = location.state?.preselectFlight;
-    if (pre) {
-      didPreselect.current = true;
-      setSelectedOutbound(pre);
-      setShowBooking(true);
-    }
-  }); // chạy sau mỗi render cho tới khi preselect
 
   const from = query.get("from");
   const to = query.get("to");
