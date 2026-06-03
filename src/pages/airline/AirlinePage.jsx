@@ -8,7 +8,7 @@ import { getAirlineFlights } from "../../services/flightService";
 import API from "../../services/axiosInstance";
 import planeIcon from "../../assets/icons/plane.png";
 import styles from "./AirlinePage.module.css";
-import { LuPlaneTakeoff, LuChevronLeft, LuSearch, LuSlidersHorizontal } from "react-icons/lu";
+import { LuPlaneTakeoff, LuChevronLeft, LuSearch, LuSlidersHorizontal, LuChevronDown, LuChevronRight } from "react-icons/lu";
 
 const TIME_SLOTS = [
   { label: "00:00 – 06:00", value: "0-6" },
@@ -60,6 +60,7 @@ export default function AirlinePage() {
   const [search,     setSearch]     = useState("");
   const [filters,    setFilters]    = useState(INIT_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
     API.get("/flights/airlines")
@@ -317,23 +318,80 @@ export default function AirlinePage() {
                       <span className={styles.routeCount}>{g.flights.length} chuyến</span>
                     </div>
                     <div className={styles.flightList}>
-                      {g.flights.map(f => (
-                        <div key={f.flight_id} className={styles.flightCard} onClick={() => handleBook(f)}>
-                          <div className={styles.flightLeft}>
-                            <span className={styles.flightNum}>{f.flight_number}</span>
-                            <span className={styles.flightTime}>
-                              {fmtTime(f.departure?.time)} → {fmtTime(f.arrival?.time)}
-                            </span>
-                            <span className={styles.flightDate}>{fmtDate(f.departure?.time)}</span>
+                      {g.flights.map(f => {
+                        const isExp = expandedId === f.flight_id;
+                        return (
+                          <div key={f.flight_id} className={`${styles.flightItem} ${isExp ? styles.flightItemOpen : ""}`}>
+                            {/* Row summary — click để toggle */}
+                            <div
+                              className={styles.flightCard}
+                              onClick={() => setExpandedId(isExp ? null : f.flight_id)}
+                            >
+                              <div className={styles.flightLeft}>
+                                <span className={styles.flightNum}>{f.flight_number}</span>
+                                <span className={styles.flightTime}>
+                                  {fmtTime(f.departure?.time)} → {fmtTime(f.arrival?.time)}
+                                </span>
+                                <span className={styles.flightDate}>{fmtDate(f.departure?.time)}</span>
+                              </div>
+                              <div className={styles.flightRight}>
+                                <span className={styles.flightDuration}>{f.duration_label}</span>
+                                <span className={styles.flightSeats}>{f.seat?.available_seats ?? "?"} ghế</span>
+                                <span className={styles.flightPrice}>{fmt(f.seat?.total_price)}</span>
+                                <LuChevronDown size={16} className={`${styles.chevron} ${isExp ? styles.chevronOpen : ""}`} />
+                              </div>
+                            </div>
+
+                            {/* Detail panel */}
+                            {isExp && (
+                              <div className={styles.flightDetail}>
+                                <div className={styles.detailRoute}>
+                                  <div className={styles.detailPort}>
+                                    <span className={styles.detailTime}>{fmtTime(f.departure?.time)}</span>
+                                    <span className={styles.detailCode}>{f.departure?.code}</span>
+                                    <span className={styles.detailCity}>{f.departure?.name || f.departure?.city}</span>
+                                  </div>
+                                  <div className={styles.detailMid}>
+                                    <span className={styles.detailDur}>{f.duration_label}</span>
+                                    <div className={styles.detailLine}>
+                                      <span className={styles.detailDot} />
+                                      <span className={styles.detailTrack} />
+                                      <LuPlaneTakeoff size={14} className={styles.detailPlane} />
+                                      <span className={styles.detailTrack} />
+                                      <span className={styles.detailDot} />
+                                    </div>
+                                    <span className={styles.detailDirect}>Bay thẳng</span>
+                                  </div>
+                                  <div className={`${styles.detailPort} ${styles.detailPortRight}`}>
+                                    <span className={styles.detailTime}>{fmtTime(f.arrival?.time)}</span>
+                                    <span className={styles.detailCode}>{f.arrival?.code}</span>
+                                    <span className={styles.detailCity}>{f.arrival?.name || f.arrival?.city}</span>
+                                  </div>
+                                </div>
+
+                                <div className={styles.detailMeta}>
+                                  <span className={styles.detailBadge}>Hạng: {f.seat?.class || seatClass}</span>
+                                  <span className={styles.detailBadge}>{f.seat?.available_seats ?? "?"} ghế trống</span>
+                                  <span className={styles.detailBadge}>23 kg ký gửi · 7 kg xách tay</span>
+                                </div>
+
+                                <div className={styles.detailFooter}>
+                                  <div className={styles.detailPriceWrap}>
+                                    <span className={styles.detailPriceLabel}>Tổng giá</span>
+                                    <span className={styles.detailPrice}>{fmt(f.seat?.total_price)}</span>
+                                  </div>
+                                  <button
+                                    className={styles.bookBtn}
+                                    onClick={e => { e.stopPropagation(); handleBook(f); }}
+                                  >
+                                    Chọn chuyến này
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </div>
-                          <div className={styles.flightRight}>
-                            <span className={styles.flightDuration}>{f.duration_label}</span>
-                            <span className={styles.flightSeats}>{f.seat?.available_seats ?? "?"} ghế</span>
-                            <span className={styles.flightPrice}>{fmt(f.seat?.total_price)}</span>
-                            <button className={styles.bookBtn} onClick={e => { e.stopPropagation(); handleBook(f); }}>Chọn</button>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 ))}

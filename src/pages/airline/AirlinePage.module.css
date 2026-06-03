@@ -170,13 +170,23 @@
 
 .flightList { display: flex; flex-direction: column; }
 
+/* wrapper bao gồm cả row + detail */
+.flightItem { border-bottom: 1px solid var(--card-border); }
+.flightItem:last-child { border-bottom: none; }
+.flightItemOpen { background: var(--bg-muted); }
+
 .flightCard {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 20px; border-bottom: 1px solid var(--card-border);
+  padding: 14px 20px;
   cursor: pointer; transition: background 0.15s; gap: 16px; flex-wrap: wrap;
 }
-.flightCard:last-child { border-bottom: none; }
-.flightCard:hover { background: var(--bg-muted); }
+.flightCard:hover { background: rgba(14,129,205,0.04); }
+.flightItemOpen .flightCard { border-bottom: 1px solid var(--card-border); }
+
+.chevron {
+  color: var(--text-muted); transition: transform 0.25s; flex-shrink: 0;
+}
+.chevronOpen { transform: rotate(180deg); color: var(--primary-color); }
 
 .flightLeft { display: flex; align-items: center; gap: 16px; flex: 1; flex-wrap: wrap; }
 .flightNum { font-size: 13px; font-weight: 700; color: var(--primary-color); font-family: monospace; }
@@ -190,11 +200,62 @@
 
 .bookBtn {
   background: var(--primary-color); color: #fff;
-  border: none; border-radius: 8px; padding: 7px 16px;
-  font-size: 13px; font-weight: 700; cursor: pointer;
+  border: none; border-radius: 10px; padding: 10px 22px;
+  font-size: 14px; font-weight: 700; cursor: pointer;
   transition: opacity 0.15s; white-space: nowrap;
 }
 .bookBtn:hover { opacity: 0.85; }
+
+/* ── Detail panel ────────────────────────────────────────── */
+.flightDetail {
+  padding: 20px 24px 24px;
+  display: flex; flex-direction: column; gap: 18px;
+}
+
+.detailRoute {
+  display: flex; align-items: center; gap: 12px;
+}
+
+.detailPort {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 90px;
+}
+.detailPortRight { align-items: flex-end; }
+
+.detailTime { font-size: 22px; font-weight: 800; color: var(--text-dark); }
+.detailCode { font-size: 13px; font-weight: 700; color: var(--primary-color); }
+.detailCity { font-size: 11px; color: var(--text-muted); }
+
+.detailMid {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.detailDur { font-size: 11px; color: var(--text-muted); }
+.detailLine {
+  width: 100%; display: flex; align-items: center; gap: 4px;
+}
+.detailDot {
+  width: 7px; height: 7px; border-radius: 50%;
+  border: 2px solid var(--primary-color); flex-shrink: 0;
+}
+.detailTrack { flex: 1; height: 1px; background: var(--primary-color); opacity: 0.5; }
+.detailPlane { color: var(--primary-color); }
+.detailDirect { font-size: 10px; color: #27ae60; font-weight: 600; }
+
+.detailMeta {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.detailBadge {
+  font-size: 11px; color: var(--text-secondary);
+  background: var(--bg-muted); border: 1px solid var(--card-border);
+  border-radius: 6px; padding: 4px 10px;
+}
+
+.detailFooter {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 14px; border-top: 1px solid var(--card-border);
+}
+.detailPriceWrap { display: flex; flex-direction: column; gap: 2px; }
+.detailPriceLabel { font-size: 11px; color: var(--text-muted); }
+.detailPrice { font-size: 22px; font-weight: 800; color: #e74c3c; font-family: monospace; }
 
 /* ── Responsive ──────────────────────────────────────── */
 @media (max-width: 768px) {
