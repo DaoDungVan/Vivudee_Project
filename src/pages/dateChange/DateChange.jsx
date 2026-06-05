@@ -60,7 +60,8 @@ export default function DateChange() {
   const [payMethod,      setPayMethod]      = useState("BANK_QR");
   const [payLoading,     setPayLoading]     = useState(false);
   const [payErr,         setPayErr]         = useState("");
-  const [payData,        setPayData]        = useState(null); // instruction từ server
+  const [payData,        setPayData]        = useState(null);
+  const [redirecting,    setRedirecting]    = useState(false);
 
   // Route từ booking hiện tại
   const depCode = booking?.outbound_flight?.departure?.code || booking?.dep_code || "";
@@ -393,6 +394,13 @@ export default function DateChange() {
         {/* ── STEP 4: Thanh toán phụ phí ── */}
         {step === 4 && (
           <div className={styles.otpBox}>
+            {redirecting && (
+              <div className={styles.redirectOverlay}>
+                <div className={styles.spinner} />
+                <p>Đang chuyển đến cổng thanh toán...</p>
+              </div>
+            )}
+
             <div className={styles.otpIcon} style={{ color: "#f59e0b" }}>
               <LuPlane size={36} />
             </div>
@@ -400,74 +408,94 @@ export default function DateChange() {
             <p className={styles.otpDesc}>
               Chuyến mới có giá cao hơn chuyến cũ. Vui lòng thanh toán phần chênh lệch để hoàn tất.
             </p>
-            <div style={{ fontSize: 28, fontWeight: 900, color: "#e74c3c", margin: "8px 0" }}>
-              {fmt(priceDiff)}
-            </div>
+            <div className={styles.priceDiff}>{fmt(priceDiff)}</div>
             <p className={styles.otpCode}>Mã yêu cầu: <strong>{requestCode}</strong></p>
 
             {/* Chọn phương thức */}
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", margin: "8px 0" }}>
+            <div className={styles.payMethods}>
               {[
-                { key: "BANK_QR", label: "💳 Chuyển khoản QR" },
-                { key: "MOMO",    label: "🟣 MoMo" },
-                { key: "PAYPAL",  label: "🔵 PayPal" },
+                { key: "BANK_QR", label: "Chuyển khoản QR" },
+                { key: "MOMO",    label: "MoMo" },
+                { key: "PAYPAL",  label: "PayPal" },
               ].map(({ key, label }) => (
                 <button
                   key={key}
-                  onClick={() => setPayMethod(key)}
-                  className={styles.submitBtn}
-                  style={{
-                    background: payMethod === key ? "var(--primary-color)" : "var(--bg-muted)",
-                    color: payMethod === key ? "#fff" : "var(--text-secondary)",
-                    border: `2px solid ${payMethod === key ? "var(--primary-color)" : "var(--card-border)"}`,
-                    padding: "9px 18px", fontSize: 13,
-                  }}
+                  onClick={() => { setPayMethod(key); setPayData(null); setPayErr(""); }}
+                  className={`${styles.payMethodBtn} ${payMethod === key ? styles.payMethodActive : ""}`}
                 >
                   {label}
                 </button>
               ))}
             </div>
 
-            {payErr && <p style={{ color: "#ef4444", fontSize: 13 }}>{payErr}</p>}
+            {payErr && <p className={styles.errMsg}>{payErr}</p>}
 
-            {payData && (
-              <div style={{ background: "var(--bg-muted)", borderRadius: 12, padding: "14px 18px", textAlign: "left", width: "100%", maxWidth: 420 }}>
-                {payData.instruction?.qr_payload && (
-                  <div style={{ textAlign: "center", marginBottom: 10 }}>
-                    <img src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(payData.instruction.qr_payload)}&size=180x180`} alt="QR" style={{ borderRadius: 8 }} />
+            {/* Hiển thị QR sau khi tạo thanh toán BANK_QR */}
+            {payData && payMethod === "BANK_QR" && (
+              <div className={styles.qrBox}>
+                {(payData.instruction?.qr_url || payData.instruction?.qr_payload) && (
+                  <img
+                    src={payData.instruction.qr_url || `https://img.vietqr.io/image/${payData.instruction.bank_code || "ICB"}-${payData.instruction.bank_account}-compact2.png?amount=${priceDiff}&addInfo=${encodeURIComponent(payData.instruction.transfer_content || requestCode)}`}
+                    alt="QR"
+                    className={styles.qrImg}
+                  />
+                )}
+                {payData.instruction?.bank_name && (
+                  <div className={styles.bankInfo}>
+                    <p><span>Ngân hàng:</span> <strong>{payData.instruction.bank_name}</strong></p>
+                    <p><span>Số TK:</span> <strong>{payData.instruction.bank_account}</strong></p>
+                    <p><span>Chủ TK:</span> <strong>{payData.instruction.account_name}</strong></p>
+                    <p><span>Nội dung CK:</span> <strong className={styles.mono}>{payData.instruction.transfer_content || requestCode}</strong></p>
+                    <p><span>Số tiền:</span> <strong className={styles.redText}>{fmt(priceDiff)}</strong></p>
                   </div>
                 )}
-                {payData.instruction?.transfer_content && (
-                  <p style={{ fontSize: 13, margin: "4px 0" }}>
-                    Nội dung CK: <strong style={{ fontFamily: "monospace" }}>{payData.instruction.transfer_content}</strong>
-                  </p>
-                )}
-                {payData.instruction?.payment_url && (
-                  <a href={payData.instruction.payment_url} target="_blank" rel="noreferrer"
-                    style={{ display: "block", textAlign: "center", marginTop: 10, padding: "10px", background: "var(--primary-color)", color: "#fff", borderRadius: 8, fontWeight: 700, fontSize: 14, textDecoration: "none" }}>
-                    Thanh toán ngay →
-                  </a>
-                )}
-                <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 8, textAlign: "center" }}>
-                  Sau khi thanh toán thành công, yêu cầu đổi ngày sẽ được xử lý tự động.
-                </p>
+                <p className={styles.qrNote}>Sau khi chuyển khoản, yêu cầu đổi ngày sẽ được xử lý tự động.</p>
               </div>
             )}
 
-            <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
-              <button className={styles.submitBtn}
-                style={{ background: "var(--bg-muted)", color: "var(--text-secondary)", border: "1px solid var(--card-border)" }}
-                onClick={() => setStep(2)}>
+            <div className={styles.payActions}>
+              <button
+                className={styles.backBtn2}
+                onClick={() => setStep(2)}
+              >
                 ← Quay lại
               </button>
               <button
                 className={styles.submitBtn}
-                disabled={payLoading}
+                disabled={payLoading || redirecting}
                 onClick={async () => {
                   setPayLoading(true); setPayErr(""); setPayData(null);
                   try {
                     const res = await createDateChangePayment(requestCode, payMethod);
-                    setPayData(res.data?.data || res.data);
+                    const data = res.data?.data || res.data;
+                    const instr = data?.instruction || {};
+
+                    // MoMo → redirect
+                    const momoUrl = instr.pay_url || instr.payUrl || instr.redirect_url;
+                    if (payMethod === "MOMO" && momoUrl) {
+                      setRedirecting(true);
+                      window.location.href = momoUrl;
+                      return;
+                    }
+
+                    // PayOS/Bank QR → redirect nếu có checkout_url
+                    const payosUrl = instr.checkout_url || instr.redirect_url;
+                    if (payMethod === "BANK_QR" && instr.type === "PAYOS_CHECKOUT" && payosUrl) {
+                      setRedirecting(true);
+                      window.location.href = payosUrl;
+                      return;
+                    }
+
+                    // PayPal → redirect
+                    const paypalUrl = instr.approve_url || instr.redirect_url;
+                    if (payMethod === "PAYPAL" && paypalUrl) {
+                      setRedirecting(true);
+                      window.location.href = paypalUrl;
+                      return;
+                    }
+
+                    // BANK_QR không có checkout_url → hiển thị QR tĩnh
+                    setPayData(data);
                   } catch (err) {
                     setPayErr(err?.response?.data?.error || "Không thể tạo thanh toán. Vui lòng thử lại.");
                   } finally {

@@ -192,6 +192,65 @@
 .resultTitle { font-size: 22px; font-weight: 800; color: var(--text-dark); margin: 0; }
 .resultDesc  { font-size: 14px; color: var(--text-secondary); max-width: 420px; margin: 0; }
 
+/* Payment step 4 */
+.priceDiff {
+  font-size: 30px; font-weight: 900; color: #e74c3c; margin: 4px 0;
+}
+
+.payMethods {
+  display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 4px 0;
+}
+.payMethodBtn {
+  padding: 9px 20px; border-radius: 10px;
+  border: 2px solid var(--card-border);
+  background: var(--bg-muted); color: var(--text-secondary);
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: all 0.18s;
+}
+.payMethodBtn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+.payMethodActive {
+  border-color: var(--primary-color);
+  background: rgba(14,129,205,0.1);
+  color: var(--primary-color);
+}
+
+.payActions {
+  display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; justify-content: center;
+}
+.backBtn2 {
+  padding: 12px 20px; border-radius: 10px;
+  border: 1px solid var(--card-border);
+  background: var(--bg-muted); color: var(--text-secondary);
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: all 0.15s;
+}
+.backBtn2:hover { border-color: var(--primary-color); color: var(--primary-color); }
+
+.qrBox {
+  background: var(--bg-muted); border-radius: 14px;
+  padding: 18px 20px; width: 100%; max-width: 380px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.qrImg { width: 180px; height: 180px; border-radius: 10px; }
+.bankInfo { width: 100%; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.bankInfo p { display: flex; justify-content: space-between; margin: 0; }
+.bankInfo span { color: var(--text-muted); }
+.mono { font-family: monospace; font-weight: 700; color: var(--text-dark); }
+.redText { color: #e74c3c; }
+.qrNote { font-size: 11px; color: var(--text-muted); text-align: center; }
+
+.redirectOverlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px; z-index: 9999; color: #fff; font-size: 16px; font-weight: 600;
+}
+.spinner {
+  width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3);
+  border-top-color: #fff; border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
 @media (max-width: 600px) {
   .searchRow { flex-direction: column; }
   .submitBtn { align-self: stretch; justify-content: center; }
