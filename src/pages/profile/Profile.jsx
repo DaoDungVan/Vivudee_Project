@@ -87,7 +87,7 @@ const resizeAvatarFile = async (file) => {
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { t }    = useTranslation();
+  const { t, i18n } = useTranslation();
   const [user, setUser] = useState(() => {
     try { return JSON.parse(localStorage.getItem("user") || "null"); } catch { return null; }
   });
@@ -489,7 +489,7 @@ const Profile = () => {
                     <DateDropdownPicker
                       value={form.date_of_birth}
                       onChange={(dateStr) => handleChange({ target: { name: "date_of_birth", value: dateStr } })}
-                      lang="en"
+                      lang={i18n.language === "vi" ? "vi" : "en"}
                       maxYear={new Date().getFullYear()}
                       minYear={new Date().getFullYear() - 120}
                     />

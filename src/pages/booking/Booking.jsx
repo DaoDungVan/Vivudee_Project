@@ -35,7 +35,7 @@ const emptyPassenger = () => ({ fullName: "", dob: "", gender: "", idNumber: "" 
 const Booking = () => {
   const navigate   = useNavigate();
   const { state }  = useLocation();
-  const { t }      = useTranslation();
+  const { t, i18n } = useTranslation();
   const { isDark } = useTheme();
 
   const selectedFlights = state?.selectedFlights || null;
@@ -365,7 +365,7 @@ const Booking = () => {
                         value={pax.dob}
                         onChange={(dateStr) => updatePax(idx, "dob", dateStr)}
                         hasError={!!errors[`${idx}_dob`]}
-                        lang="vi"
+                        lang={i18n.language === "vi" ? "vi" : "en"}
                         maxYear={new Date().getFullYear()}
                         minYear={new Date().getFullYear() - 120}
                       />
