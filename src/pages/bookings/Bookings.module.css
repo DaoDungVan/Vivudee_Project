@@ -1126,6 +1126,8 @@
 }
 .priceDiscount { color: #16a34a; }
 [data-theme="dark"] .priceDiscount { color: #4ade80; }
+.priceSurcharge { color: #f59e0b; font-weight: 600; }
+[data-theme="dark"] .priceSurcharge { color: #fbbf24; }
 .priceTotalRow {
   display: flex;
   justify-content: space-between;

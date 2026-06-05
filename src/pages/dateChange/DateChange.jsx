@@ -102,6 +102,7 @@ export default function DateChange() {
   const handleSearch = async () => {
     if (!searchDate) { setSearchErr("Vui lòng chọn ngày bay mới"); return; }
     if (!depCode || !arrCode) { setSearchErr("Không xác định được route chuyến bay. Vui lòng quay lại."); return; }
+    setShowCalendar(false);
     setSearching(true); setSearchErr(""); setFlights([]); setSelectedFlight(null);
     try {
       const res = await API.get("/flights/search", {
@@ -131,6 +132,7 @@ export default function DateChange() {
   const handleSubmitRequest = async () => {
     if (!selectedFlight) { setSubmitErr("Vui lòng chọn chuyến bay mới"); return; }
     if (reason.trim().length < 10) { setSubmitErr("Lý do phải có ít nhất 10 ký tự"); return; }
+    setShowCalendar(false);
     setSubmitLoading(true); setSubmitErr("");
     try {
       const res = await requestDateChange(bookingCode, {

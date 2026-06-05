@@ -117,6 +117,7 @@ const Bookings = () => {
       expired:        { bg: "#f1f5f9", color: "#64748b", label: t("bookings.status_expired") },   // slate
       refund_pending: { bg: "#f3e8ff", color: "#7c3aed", label: t("bookings.refundPendingBadge") }, // violet
       refunded:       { bg: "#e0f2fe", color: "#0369a1", label: t("bookings.refundedBadge") },      // sky blue
+      date_changed:   { bg: "#fef3c7", color: "#b45309", label: "Đã đổi ngày" },                   // amber-dark
     };
     return map[status?.toLowerCase()] || { bg: "#f1f5f9", color: "#64748b", label: status || "—" };
   };
@@ -215,6 +216,7 @@ const Bookings = () => {
   };
 
   const canRequestRefund = (b) => {
+    if (b.status === "date_changed") return false;
     if (b.status !== "confirmed") return false;
     const dt = depTime(b);
     if (!dt) return false;
@@ -222,6 +224,7 @@ const Bookings = () => {
   };
 
   const canDateChange = (b) => {
+    if (b.status === "date_changed") return false;
     if (b.status !== "confirmed") return false;
     const dt = depTime(b);
     if (!dt) return false;
@@ -612,20 +615,55 @@ const Bookings = () => {
       {/* ── Price breakdown ── */}
       <div className={styles.detailSection2}>
         <p className={styles.detailSectionTitle2}>Chi tiết giá</p>
-        <div className={styles.priceRow}>
-          <span>Giá vé</span>
-          <span>{fmt(data.price?.total_price ?? data.total_price ?? 0)}</span>
-        </div>
-        {data.price?.discount_amount > 0 && (
-          <div className={`${styles.priceRow} ${styles.priceDiscount}`}>
-            <span>Giảm giá coupon</span>
-            <span>− {fmt(data.price.discount_amount)}</span>
-          </div>
-        )}
-        <div className={styles.priceTotalRow}>
-          <span>Tổng cộng</span>
-          <span className={styles.priceTotalValue}>{fmt(data.price?.final_amount ?? data.price?.total_price ?? 0)}</span>
-        </div>
+        {(() => {
+          const dc = data.date_change;
+          const ticketPrice = Number(data.price?.total_price ?? data.total_price ?? 0);
+          const finalAmount = Number(data.price?.final_amount ?? data.price?.total_price ?? data.total_price ?? 0);
+          const discountAmt = Number(data.price?.discount_amount) || 0;
+
+          // Booking đã đổi ngày → show breakdown rõ ràng
+          if (dc) {
+            const originalPrice = Number(dc.original_price || 0);
+            const surcharge     = Number(dc.surcharge || 0);
+            const newTotal      = originalPrice + surcharge;
+            return (
+              <>
+                <div className={styles.priceRow}>
+                  <span>Giá vé gốc ({dc.old_seat_class})</span>
+                  <span>{fmt(originalPrice)}</span>
+                </div>
+                <div className={`${styles.priceRow} ${styles.priceSurcharge}`}>
+                  <span>Phụ phí đổi ngày → {dc.new_seat_class}</span>
+                  <span>+ {fmt(surcharge)}</span>
+                </div>
+                <div className={styles.priceTotalRow}>
+                  <span>Tổng đã thanh toán</span>
+                  <span className={styles.priceTotalValue}>{fmt(newTotal)}</span>
+                </div>
+              </>
+            );
+          }
+
+          // Booking bình thường
+          return (
+            <>
+              <div className={styles.priceRow}>
+                <span>Giá vé</span>
+                <span>{fmt(ticketPrice)}</span>
+              </div>
+              {discountAmt > 0 && (
+                <div className={`${styles.priceRow} ${styles.priceDiscount}`}>
+                  <span>Giảm giá coupon</span>
+                  <span>− {fmt(discountAmt)}</span>
+                </div>
+              )}
+              <div className={styles.priceTotalRow}>
+                <span>Tổng cộng</span>
+                <span className={styles.priceTotalValue}>{fmt(finalAmount || ticketPrice)}</span>
+              </div>
+            </>
+          );
+        })()}
       </div>
 
       <div className={styles.detailDivider} />
@@ -652,7 +690,7 @@ const Bookings = () => {
           </button>
         )}
 
-        {data.status !== "cancelled" && (
+        {data.status !== "cancelled" && data.status !== "date_changed" && (
           <button
             className={`${styles.actionTrack} ${fStatus === "landed" ? styles.actionLanded : ""}`}
             onClick={() => {
