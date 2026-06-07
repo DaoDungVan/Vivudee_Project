@@ -137,7 +137,9 @@ export const getCouponErrorMessage = (error, fallbackMessage) => {
 // Nếu API lỗi hoặc trả về rỗng → dùng danh sách fallback hardcode.
 export const getHomeCoupons = async () => {
   try {
-    const res = await API.get("/coupons");
+    // Dùng /coupons/available — đã lọc hết hạn, hết lượt, welcome_only...
+    // (trước đây dùng /coupons nên hiện cả coupon hết hạn/hết lượt như 100PHANTRAM, WELCOME60K)
+    const res = await API.get("/coupons/available");
     const coupons = mapCoupons(res.data);
     return coupons.length > 0
       ? coupons
