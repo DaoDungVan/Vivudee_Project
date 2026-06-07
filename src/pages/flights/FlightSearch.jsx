@@ -22,7 +22,9 @@ const getHour = (isoTime) => {
   if (!isoTime) return null;
   const d = new Date(isoTime);
   if (isNaN(d)) return null;
-  return d.getHours();
+  // Dùng giờ UTC để khớp với cách FlightCard hiển thị giờ (lấy trực tiếp từ chuỗi ISO,
+  // không quy đổi theo múi giờ trình duyệt) — tránh lệch giờ khi lọc theo khung giờ
+  return d.getUTCHours();
 };
 
 const getDurationMinutes = (label) => {

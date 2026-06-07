@@ -25,6 +25,13 @@ const INIT_FILTERS = {
 };
 
 const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n ?? 0) + " VND";
+// Lấy ngày hôm nay theo local time — KHÔNG dùng toISOString (quy đổi UTC sẽ lùi 1 ngày
+// trong khoảng 00:00-06:59 giờ VN vì lệch UTC+7)
+const todayLocal = () => {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
 const fmtTime = (iso) => {
   if (!iso) return "--:--";
   const d = new Date(iso);
@@ -145,7 +152,7 @@ export default function AirlinePage() {
     (filters.sortPrice ? 1 : 0);
 
   const handleBook = (f) => {
-    const date = f.departure?.time ? String(f.departure.time).slice(0, 10) : new Date().toISOString().slice(0, 10);
+    const date = f.departure?.time ? String(f.departure.time).slice(0, 10) : todayLocal();
     navigate(
       `/flights?from=${f.departure?.code}&to=${f.arrival?.code}&departureDate=${date}&adults=1&children=0&seatClass=${seatClass}&tripType=one-way`,
       { state: { preselectFlight: f } }

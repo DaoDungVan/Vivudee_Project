@@ -18,6 +18,13 @@ const fmtDate = (iso) => {
   if (!iso) return "";
   return new Date(iso).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" });
 };
+// Lấy ngày hôm nay theo local time — KHÔNG dùng toISOString (quy đổi UTC sẽ lùi 1 ngày
+// trong khoảng 00:00-06:59 giờ VN vì lệch UTC+7)
+const todayLocalStr = () => {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
 
 export default function DateChange() {
   const { state } = useLocation();
@@ -263,7 +270,7 @@ export default function DateChange() {
                         startDate={searchDate || null}
                         endDate={null}
                         tripType="oneway"
-                        minDate={new Date().toISOString().split("T")[0]}
+                        minDate={todayLocalStr()}
                         lang="vi"
                         onChange={(start) => { setSearchDate(start); setSearchErr(""); }}
                         onClose={() => setShowCalendar(false)}

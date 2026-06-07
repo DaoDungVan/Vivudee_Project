@@ -8,7 +8,12 @@ import styles from "./PriceCalendar.module.css";
 const DAY_LABELS = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
 const fmtShort   = (n) => n >= 1e6 ? `${(n / 1e6).toFixed(1)}tr` : `${Math.round(n / 1000)}k`;
 
-const toKey  = (d) => d.toISOString().slice(0, 10);
+// Lấy ngày theo local time (KHÔNG dùng toISOString — sẽ quy đổi sang UTC
+// và lệch lùi 1 ngày với múi giờ UTC+7 như Việt Nam)
+const toKey  = (d) => {
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
 const addDay = (dateStr, n) => {
   const d = new Date(dateStr + "T00:00:00");
   d.setDate(d.getDate() + n);
@@ -60,7 +65,7 @@ export default function PriceCalendar({ from, to, selectedDate, seatClass = "eco
   if (!from || !to || !selectedDate) return null;
 
   // Tạo mảng 5 ngày: center = selectedDate + offset
-  const today      = new Date().toISOString().slice(0, 10);
+  const today      = toKey(new Date());
   const centerDate = addDay(selectedDate, offset);
   const days       = Array.from({ length: 5 }, (_, i) => addDay(centerDate, i - WINDOW));
 

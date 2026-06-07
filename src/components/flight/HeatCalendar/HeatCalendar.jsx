@@ -14,6 +14,13 @@ const fmtShort = (n) => {
   return n >= 1e6 ? `${(n/1e6).toFixed(1)}tr` : `${Math.round(n/1000)}k`;
 };
 
+// Lấy ngày/tháng hôm nay theo local time — KHÔNG dùng toISOString (quy đổi UTC sẽ
+// lùi 1 ngày trong khoảng 00:00-06:59 giờ VN vì lệch UTC+7)
+const todayLocal = () => {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
 
 export default function HeatCalendar({ from, to, selectedDate, seatClass = "economy", adults = 1 }) {
   const navigate   = useNavigate();
@@ -22,7 +29,7 @@ export default function HeatCalendar({ from, to, selectedDate, seatClass = "econ
 
   const initMonth = () => {
     if (selectedDate) return selectedDate.slice(0, 7);
-    return new Date().toISOString().slice(0, 7);
+    return todayLocal().slice(0, 7);
   };
 
   const [month,   setMonth]   = useState(initMonth);
@@ -81,7 +88,7 @@ export default function HeatCalendar({ from, to, selectedDate, seatClass = "econ
     navigate(`/flights?${params.toString()}`);
   };
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayLocal();
   const weekDays = isVI ? WEEK_DAYS_VI : WEEK_DAYS_EN;
   const monthName = `${isVI ? MONTHS_VI[m-1] : MONTHS_EN[m-1]} ${y}`;
 

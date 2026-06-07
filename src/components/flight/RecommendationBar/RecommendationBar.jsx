@@ -7,6 +7,13 @@ import planeIcon from "../../../assets/icons/plane.png";
 import styles from "./RecommendationBar.module.css";
 
 const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n ?? 0) + " ₫";
+// Lấy ngày hôm nay theo local time — KHÔNG dùng toISOString (quy đổi UTC sẽ lùi 1 ngày
+// trong khoảng 00:00-06:59 giờ VN vì lệch UTC+7)
+const todayLocal = () => {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
 
 export default function RecommendationBar({ from, to }) {
   const navigate   = useNavigate();
@@ -24,7 +31,7 @@ export default function RecommendationBar({ from, to }) {
   if (flights.length === 0) return null;
 
   const handlePick = (f) => {
-    const date = f.departure?.time ? f.departure.time.slice(0, 10) : new Date().toISOString().slice(0, 10);
+    const date = f.departure?.time ? f.departure.time.slice(0, 10) : todayLocal();
     navigate(
       `/flights?from=${f.departure?.code}&to=${f.arrival?.code}&departureDate=${date}&adults=1&children=0&seatClass=economy&tripType=one-way`,
       { state: { preselectFlight: f } }

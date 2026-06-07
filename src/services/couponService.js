@@ -147,22 +147,14 @@ export const getHomeCoupons = async () => {
   }
 };
 
-// Lấy danh sách coupon user có thể dùng (trang Payment).
-// Thử /coupons/available trước; nếu rỗng hoặc lỗi → thử /coupons.
-// Hai endpoint vì một số backend chỉ có /coupons, không có /coupons/available.
+// Lấy danh sách coupon user có thể dùng (trang Payment / My Coupons).
+// CHỈ dùng /coupons/available — endpoint này đã lọc theo điều kiện riêng của user
+// (hết hạn, hết lượt, welcome_only, giới hạn theo từng người...).
+// Không fallback sang /coupons khi rỗng — nếu không sẽ hiện lại các coupon
+// user không đủ điều kiện dùng (đã hết lượt, hết hạn, không phải user mới...).
 export const getAvailableCoupons = async () => {
-  try {
-    const res = await API.get("/coupons/available");
-    const list = mapCoupons(res.data);
-    if (list.length > 0) return list;
-    // /coupons/available trả về rỗng → fallback sang /coupons
-    const fallback = await API.get("/coupons");
-    return mapCoupons(fallback.data);
-  } catch {
-    // /coupons/available chưa có hoặc lỗi → thử /coupons
-    const fallback = await API.get("/coupons");
-    return mapCoupons(fallback.data);
-  }
+  const res = await API.get("/coupons/available");
+  return mapCoupons(res.data);
 };
 
 // Kiểm tra mã coupon user nhập vào có hợp lệ không.

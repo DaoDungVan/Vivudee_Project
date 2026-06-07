@@ -13,7 +13,13 @@ const fmtTime = (iso) => {
   const m = String(iso).match(/(\d{2}):(\d{2})/);
   return m ? `${m[1]}:${m[2]}` : "--:--";
 };
-const today = () => new Date().toISOString().slice(0, 10);
+// Lấy ngày hôm nay theo local time — KHÔNG dùng toISOString (quy đổi UTC sẽ lùi 1 ngày
+// trong khoảng 00:00-06:59 giờ VN vì lệch UTC+7)
+const today = () => {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
 
 export default function BrowseByAirline() {
   const navigate   = useNavigate();
