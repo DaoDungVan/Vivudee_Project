@@ -193,9 +193,12 @@ export default function SearchFlightForm({ initialData }) {
   const openCalendar = () => {
     if (dateFieldsRef.current) {
       const rect = dateFieldsRef.current.getBoundingClientRect();
+      // .calendarPopup dùng position: fixed → toạ độ phải tính theo viewport
+      // (KHÔNG cộng window.scrollX/scrollY, vì rect đã là toạ độ viewport sẵn rồi —
+      // cộng thêm scroll sẽ làm popup bị đẩy lệch xuống dưới màn hình khi cuộn trang)
       setCalendarPos({
-        top:  rect.bottom + window.scrollY + 8,
-        left: Math.min(rect.left + window.scrollX, window.innerWidth - 644),
+        top:  rect.bottom + 8,
+        left: Math.min(rect.left, window.innerWidth - 644),
       });
     }
     setShowCalendar(true);
