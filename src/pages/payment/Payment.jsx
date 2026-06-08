@@ -598,40 +598,37 @@ const Payment = () => {
                       showCouponList &&
                       availableCoupons.length > 0 && (
                         <div className={styles.couponListBox}>
-                          {availableCoupons.map((coupon) => {
-                            const minOrderAmount = Number(coupon.min_order_amount) || 0;
-                            const minOrderMet =
-                              minOrderAmount <= 0 || Number(totalPrice || 0) >= minOrderAmount;
+                          {availableCoupons
+                            .filter((coupon) => {
+                              const minOrderAmount = Number(coupon.min_order_amount) || 0;
+                              return minOrderAmount <= 0 || Number(totalPrice || 0) >= minOrderAmount;
+                            })
+                            .map((coupon) => {
+                              const minOrderAmount = Number(coupon.min_order_amount) || 0;
 
-                            return (
-                              <div
-                                key={coupon.id || coupon.code}
-                                className={`${styles.couponListItem} ${!minOrderMet ? styles.couponListItemDisabled : ""}`}
-                              >
-                                <div className={styles.couponListLeft}>
-                                  <span className={styles.couponListCode}>{coupon.code}</span>
-                                  <span className={styles.couponListDesc}>
-                                    {coupon.discount || coupon.description}
-                                  </span>
-                                  {minOrderAmount > 0 && (
-                                    <span
-                                      className={`${styles.couponListMin} ${!minOrderMet ? styles.couponListMinNotMet : ""}`}
-                                    >
-                                      Min order: {fmt(minOrderAmount)}
+                              return (
+                                <div key={coupon.id || coupon.code} className={styles.couponListItem}>
+                                  <div className={styles.couponListLeft}>
+                                    <span className={styles.couponListCode}>{coupon.code}</span>
+                                    <span className={styles.couponListDesc}>
+                                      {coupon.discount || coupon.description}
                                     </span>
-                                  )}
+                                    {minOrderAmount > 0 && (
+                                      <span className={styles.couponListMin}>
+                                        Min order: {fmt(minOrderAmount)}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <button
+                                    type="button"
+                                    className={styles.couponListUseBtn}
+                                    onClick={() => applyCouponSelection(coupon)}
+                                  >
+                                    Use now
+                                  </button>
                                 </div>
-                                <button
-                                  type="button"
-                                  className={`${styles.couponListUseBtn} ${!minOrderMet ? styles.couponListUseBtnDisabled : ""}`}
-                                  onClick={() => applyCouponSelection(coupon)}
-                                  disabled={!minOrderMet}
-                                >
-                                  Use now
-                                </button>
-                              </div>
-                            );
-                          })}
+                              );
+                            })}
                         </div>
                       )
                     )}
