@@ -146,6 +146,7 @@ export default function DateChange() {
         new_flight_id: selectedFlight.flight_id || selectedFlight.id,
         new_seat_class: seatClass,
         reason: reason.trim(),
+        flight_leg: "outbound",
       });
       const d = res.data?.data || res.data;
       setRequestCode(d?.request_code || "");
