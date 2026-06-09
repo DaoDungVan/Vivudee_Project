@@ -645,12 +645,22 @@ const Bookings = () => {
           }
 
           // Booking bình thường
+          const ancTotal = Number(data.price?.ancillary_total) || 0;
+          const passengers = Number(data.price?.passengers_count ?? data.passengers?.list?.length ?? 1);
+          const baseTicket = Number(data.price?.base_price) || 0;
+          const ticketOnly = baseTicket > 0 ? baseTicket * passengers : ticketPrice;
           return (
             <>
               <div className={styles.priceRow}>
-                <span>Giá vé</span>
-                <span>{fmt(ticketPrice)}</span>
+                <span>Giá vé{passengers > 1 ? ` (${passengers} khách)` : ''}</span>
+                <span>{fmt(ticketOnly)}</span>
               </div>
+              {ancTotal > 0 && (
+                <div className={styles.priceRow}>
+                  <span>Hành lý & dịch vụ</span>
+                  <span>{fmt(ancTotal)}</span>
+                </div>
+              )}
               {discountAmt > 0 && (
                 <div className={`${styles.priceRow} ${styles.priceDiscount}`}>
                   <span>Giảm giá coupon</span>

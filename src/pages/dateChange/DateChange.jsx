@@ -92,9 +92,10 @@ export default function DateChange() {
   const openCalendar = () => {
     if (dateFieldRef.current) {
       const r = dateFieldRef.current.getBoundingClientRect();
+      // position: fixed → toạ độ viewport trực tiếp, KHÔNG cộng scrollY/X
       setCalendarPos({
-        top:  r.bottom + window.scrollY + 8,
-        left: Math.min(r.left + window.scrollX, window.innerWidth - 644),
+        top:  r.bottom + 8,
+        left: Math.min(r.left, window.innerWidth - 644),
       });
     }
     setShowCalendar(true);
