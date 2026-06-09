@@ -616,48 +616,84 @@ const Bookings = () => {
       <div className={styles.detailSection2}>
         <p className={styles.detailSectionTitle2}>Chi tiết giá</p>
         {(() => {
-          const dc = data.date_change;
-          const ticketPrice = Number(data.price?.total_price ?? data.total_price ?? 0);
-          const finalAmount = Number(data.price?.final_amount ?? data.price?.total_price ?? data.total_price ?? 0);
-          const discountAmt = Number(data.price?.discount_amount) || 0;
+          const dc          = data.date_change;
+          const pr          = data.price || {};
+          const basePrice   = Number(pr.base_price)      || 0;
+          const baggageTotal= Number(pr.baggage_total)   || 0;
+          const ancTotal    = Number(pr.ancillary_total) || 0;
+          const grandTotal  = Number(pr.grand_total)     || (Number(pr.total_price || 0) + ancTotal);
+          const finalAmount = Number(pr.final_amount)    || grandTotal;
+          const discountAmt = Number(pr.discount_amount) || 0;
+          const numPax      = (Number(data.passengers?.adults) || 1) + (Number(data.passengers?.children) || 0);
+          const seatClass   = data.outbound_flight?.seat_class || 'economy';
 
-          // Booking đã đổi ngày → show breakdown rõ ràng
-          if (dc) {
-            const originalPrice = Number(dc.original_price || 0);
-            const surcharge     = Number(dc.surcharge || 0);
-            const newTotal      = originalPrice + surcharge;
+          // Khi booking đã được duyệt đổi ngày → dc object có dữ liệu
+          if (dc && Number(dc.original_price) > 0) {
+            const origPrice  = Number(dc.original_price);
+            const surcharge  = Number(dc.surcharge) || 0;
+            const dcAncTotal = ancTotal; // dịch vụ còn hiệu lực sau đổi ngày
+            const dcTotal    = origPrice + surcharge + dcAncTotal - discountAmt;
             return (
               <>
                 <div className={styles.priceRow}>
-                  <span>Giá vé gốc ({dc.old_seat_class})</span>
-                  <span>{fmt(originalPrice)}</span>
+                  <span>Giá vé gốc ({dc.old_seat_class} → {dc.new_seat_class})</span>
+                  <span>{fmt(origPrice)}</span>
                 </div>
-                <div className={`${styles.priceRow} ${styles.priceSurcharge}`}>
-                  <span>Phụ phí đổi ngày → {dc.new_seat_class}</span>
-                  <span>+ {fmt(surcharge)}</span>
-                </div>
+                {surcharge > 0 && (
+                  <div className={`${styles.priceRow} ${styles.priceSurcharge}`}>
+                    <span>Phụ phí đổi ngày</span>
+                    <span>+ {fmt(surcharge)}</span>
+                  </div>
+                )}
+                {surcharge < 0 && (
+                  <div className={`${styles.priceRow} ${styles.priceDiscount}`}>
+                    <span>Hoàn chênh lệch đổi ngày</span>
+                    <span>− {fmt(Math.abs(surcharge))}</span>
+                  </div>
+                )}
+                {dcAncTotal > 0 && (
+                  <div className={styles.priceRow}>
+                    <span>Dịch vụ bổ sung</span>
+                    <span>{fmt(dcAncTotal)}</span>
+                  </div>
+                )}
+                {discountAmt > 0 && (
+                  <div className={`${styles.priceRow} ${styles.priceDiscount}`}>
+                    <span>Giảm giá coupon</span>
+                    <span>− {fmt(discountAmt)}</span>
+                  </div>
+                )}
                 <div className={styles.priceTotalRow}>
                   <span>Tổng đã thanh toán</span>
-                  <span className={styles.priceTotalValue}>{fmt(newTotal)}</span>
+                  <span className={styles.priceTotalValue}>{fmt(dcTotal)}</span>
                 </div>
               </>
             );
           }
 
-          // Booking bình thường
-          const ancTotal = Number(data.price?.ancillary_total) || 0;
-          const passengers = Number(data.price?.passengers_count ?? data.passengers?.list?.length ?? 1);
-          const baseTicket = Number(data.price?.base_price) || 0;
-          const ticketOnly = baseTicket > 0 ? baseTicket * passengers : ticketPrice;
+          // Booking bình thường — từng dòng cộng lại = tổng
+          // Phụ phí đổi ngày (nếu có, chưa approve) = final_amount − grand_total
+          const pendingDcSurcharge = Math.max(0, finalAmount - grandTotal + discountAmt);
+          // Lấy thông tin hành lý extra từ danh sách hành khách để hiển thị rõ
+          const paxWithBaggage = (data.passengers?.list || []).filter(p => p.extra_baggage_kg > 0);
+          const baggageLabel = paxWithBaggage.length > 0
+            ? `Hành lý ký gửi (+${paxWithBaggage[0].extra_baggage_kg}kg${paxWithBaggage.length > 1 ? ` × ${paxWithBaggage.length}` : ''})`
+            : 'Hành lý ký gửi';
           return (
             <>
               <div className={styles.priceRow}>
-                <span>Giá vé{passengers > 1 ? ` (${passengers} khách)` : ''}</span>
-                <span>{fmt(ticketOnly)}</span>
+                <span>Giá vé {seatClass}{numPax > 1 ? ` × ${numPax} khách` : ''}</span>
+                <span>{fmt(basePrice > 0 ? basePrice * numPax : grandTotal - baggageTotal - ancTotal + discountAmt)}</span>
               </div>
+              {baggageTotal > 0 && (
+                <div className={styles.priceRow}>
+                  <span>{baggageLabel}</span>
+                  <span>{fmt(baggageTotal)}</span>
+                </div>
+              )}
               {ancTotal > 0 && (
                 <div className={styles.priceRow}>
-                  <span>Hành lý & dịch vụ</span>
+                  <span>Dịch vụ bổ sung</span>
                   <span>{fmt(ancTotal)}</span>
                 </div>
               )}
@@ -667,9 +703,15 @@ const Bookings = () => {
                   <span>− {fmt(discountAmt)}</span>
                 </div>
               )}
+              {pendingDcSurcharge > 0 && (
+                <div className={`${styles.priceRow} ${styles.priceSurcharge}`}>
+                  <span>Phụ phí đổi ngày bay</span>
+                  <span>+ {fmt(pendingDcSurcharge)}</span>
+                </div>
+              )}
               <div className={styles.priceTotalRow}>
                 <span>Tổng cộng</span>
-                <span className={styles.priceTotalValue}>{fmt(finalAmount || ticketPrice)}</span>
+                <span className={styles.priceTotalValue}>{fmt(finalAmount)}</span>
               </div>
             </>
           );
