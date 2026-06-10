@@ -62,3 +62,7 @@ export const getSeatMap          = (flightId, seat_class = "economy") =>
 
 export const getSeatPricing      = (flightId, seat_class = "economy") =>
   axios.get(`${API}/${flightId}/seats/pricing`, { params: { seat_class } });
+
+// Phân tích giá chi tiết (mùa cao điểm, hệ số ngày trong tuần/đặt sớm/nhu cầu, khuyến nghị)
+export const getFlightPriceAnalysis = (flightId) =>
+  axios.get(`${API}/${flightId}/price-analysis`);

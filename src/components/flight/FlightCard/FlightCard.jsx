@@ -3,10 +3,20 @@ import styles from "./FlightCard.module.css";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../../hooks/useTheme";
 import planeIcon from "../../../assets/icons/plane.png";
-import { LuCalendarDays, LuLuggage, LuBackpack, LuPlus, LuHeart } from "react-icons/lu";
+import { LuCalendarDays, LuLuggage, LuBackpack, LuPlus, LuHeart, LuFlame, LuTrendingDown, LuTrendingUp } from "react-icons/lu";
 import { addToWishlist, removeFromWishlist, isCachedInWishlist } from "../../../services/wishlistService";
+import { getFlightPriceAnalysis } from "../../../services/flightService";
 
 const fmtShort = (n) => n >= 1e6 ? `${(n / 1e6).toFixed(1)}tr` : `${Math.round(n / 1000)}k`;
+
+// Phân loại season_info để chọn màu badge: peak (lễ/cao điểm), low (thấp điểm), info (mùa thường)
+const getSeasonBadgeVariant = (seasonInfo) => {
+  if (!seasonInfo) return null;
+  const multiplier = Number(seasonInfo.multiplier) || 1;
+  if (seasonInfo.isHoliday || multiplier >= 1.2) return "peak";
+  if (multiplier < 1) return "low";
+  return "info";
+};
 
 const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
   const [expanded, setExpanded] = useState(false);
@@ -26,6 +36,18 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
 
   const [saved, setSaved] = useState(() => isCachedInWishlist(flightId, seatClass));
   const [saveLoading, setSaveLoading] = useState(false);
+  const [priceAnalysis, setPriceAnalysis] = useState(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+
+  // Lazy-load phân tích giá chi tiết khi mở rộng card lần đầu
+  useEffect(() => {
+    if (!expanded || priceAnalysis || analysisLoading || !flightId) return;
+    setAnalysisLoading(true);
+    getFlightPriceAnalysis(flightId)
+      .then((res) => setPriceAnalysis(res.data?.data || null))
+      .catch(() => setPriceAnalysis(null))
+      .finally(() => setAnalysisLoading(false));
+  }, [expanded, priceAnalysis, analysisLoading, flightId]);
 
   const handleToggleSave = async (e) => {
     e.stopPropagation();
@@ -109,6 +131,28 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
                 {t("flightCard.cheaperBadge", { amount: fmtShort(flight.seat.total_price - cheapestCalPrice) })}
               </span>
             )}
+            {flight?.season_info && (() => {
+              const variant = getSeasonBadgeVariant(flight.season_info);
+              const Icon = variant === "low" ? LuTrendingDown : LuFlame;
+              return (
+                <span
+                  className={`${styles.seasonBadge} ${styles[`seasonBadge_${variant}`]}`}
+                  title={flight.season_info.reason || ""}
+                >
+                  <Icon size={10} />
+                  {flight.season_info.name}
+                </span>
+              );
+            })()}
+            {flight?.price_alert && (
+              <span
+                className={`${styles.priceAlertBadge} ${styles[`priceAlert_${flight.price_alert.level}`]}`}
+                title={flight.price_alert.message || ""}
+              >
+                <LuTrendingUp size={10} />
+                {t(`flightCard.priceAlert.${flight.price_alert.level}`, { percent: flight.price_alert.percentage })}
+              </span>
+            )}
             <div className={styles.timeline}>
               <span>{formatTime(flight?.departure?.time)}</span>
               <div className={styles.line}></div>
@@ -187,6 +231,64 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
                 <p>{flight?.arrival?.airport_name}</p>
               </div>
             </div>
+          </div>
+
+          <div className={styles.priceAnalysis}>
+            <h4 className={styles.priceAnalysisTitle}>
+              <LuTrendingUp size={14} /> {t("flightCard.priceAnalysis.title")}
+            </h4>
+
+            {analysisLoading && (
+              <div className={styles.analysisLoading}>{t("flightCard.priceAnalysis.loading")}</div>
+            )}
+
+            {!analysisLoading && priceAnalysis && (
+              <>
+                {priceAnalysis.season && (
+                  <div className={`${styles.analysisSeasonNote} ${(priceAnalysis.season.isHoliday || priceAnalysis.season.multiplier >= 1.2) ? styles.seasonNotePeak : ""}`}>
+                    <LuFlame size={12} />
+                    <span>{priceAnalysis.season.name} (×{priceAnalysis.season.multiplier}) — {priceAnalysis.season.reason}</span>
+                  </div>
+                )}
+
+                <div className={styles.analysisGrid}>
+                  <div className={styles.analysisItem}>
+                    <span className={styles.analysisLabel}>{t("flightCard.priceAnalysis.basePrice")}</span>
+                    <span className={styles.analysisValue}>{formatPrice(priceAnalysis.basePrice)}</span>
+                  </div>
+                  <div className={styles.analysisItem}>
+                    <span className={styles.analysisLabel}>{t("flightCard.priceAnalysis.currentPrice")}</span>
+                    <span className={styles.analysisValue}>{formatPrice(priceAnalysis.currentPrice)}</span>
+                  </div>
+                  <div className={styles.analysisItem}>
+                    <span className={styles.analysisLabel}>{t("flightCard.priceAnalysis.dayOfWeek", { label: priceAnalysis.pricingBreakdown?.dayOfWeek?.label })}</span>
+                    <span className={styles.analysisValue}>×{priceAnalysis.pricingBreakdown?.dayOfWeek?.multiplier}</span>
+                  </div>
+                  <div className={styles.analysisItem}>
+                    <span className={styles.analysisLabel}>{t("flightCard.priceAnalysis.advanceBooking", { days: priceAnalysis.pricingBreakdown?.advanceBooking?.daysUntilDeparture })}</span>
+                    <span className={styles.analysisValue}>×{priceAnalysis.pricingBreakdown?.advanceBooking?.multiplier}</span>
+                  </div>
+                  <div className={styles.analysisItem}>
+                    <span className={styles.analysisLabel}>{t("flightCard.priceAnalysis.demand", { rate: priceAnalysis.pricingBreakdown?.demand?.occupancyRate })}</span>
+                    <span className={styles.analysisValue}>×{priceAnalysis.pricingBreakdown?.demand?.multiplier}</span>
+                  </div>
+                  <div className={styles.analysisItem}>
+                    <span className={styles.analysisLabel}>{t("flightCard.priceAnalysis.finalMultiplier")}</span>
+                    <span className={`${styles.analysisValue} ${styles.analysisValueStrong}`}>×{priceAnalysis.pricingBreakdown?.finalMultiplier}</span>
+                  </div>
+                </div>
+
+                {priceAnalysis.recommendation?.message ? (
+                  <div className={`${styles.analysisRecommendation} ${styles[`recommend_${priceAnalysis.recommendation.urgency}`] || ""}`}>
+                    <LuTrendingUp size={12} /> {priceAnalysis.recommendation.message}
+                  </div>
+                ) : (
+                  <div className={styles.analysisRecommendation}>
+                    {t("flightCard.priceAnalysis.stable")}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       )}

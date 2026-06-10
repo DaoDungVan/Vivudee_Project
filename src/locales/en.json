@@ -66,7 +66,23 @@
  "extraBaggage": "Extra baggage packages: {{options}}",
  "unknownAirline": "Unknown Airline",
  "cheaperBadge": "Change date, save {{amount}}",
- "bestPrice": "Best price today"
+ "bestPrice": "Best price today",
+ "priceAlert": {
+   "high": "Price surging +{{percent}}%",
+   "medium": "Price rising +{{percent}}%",
+   "low": "Price may rise +{{percent}}%"
+ },
+ "priceAnalysis": {
+   "title": "Price analysis",
+   "loading": "Analyzing price...",
+   "basePrice": "Base price",
+   "currentPrice": "Current price",
+   "dayOfWeek": "Day of week ({{label}})",
+   "advanceBooking": "Booked {{days}} days ahead",
+   "demand": "Booking demand ({{rate}})",
+   "finalMultiplier": "Total price multiplier",
+   "stable": "Price is currently stable with no significant changes"
+ }
  },
  "wishlist": {
  "title": "Saved Flights",
