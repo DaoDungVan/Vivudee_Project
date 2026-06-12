@@ -103,6 +103,11 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
     return match ? `${match[1]}:${match[2]}` : "--:--";
   };
 
+  // Giá gốc trước khi áp hệ số mùa/ngày/nhu cầu — chỉ hiện khi khác giá hiện tại
+  const originalTotalPrice = flight?.seat?.original_total_price;
+  const currentTotalPrice = flight?.seat?.total_price || 0;
+  const showOriginalPrice = originalTotalPrice > 0 && Math.round(originalTotalPrice) !== Math.round(currentTotalPrice);
+
   return (
     <>
       <div
@@ -140,7 +145,7 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
                   title={flight.season_info.reason || ""}
                 >
                   <Icon size={10} />
-                  {flight.season_info.name}
+                  {flight.season_info.name} (×{flight.season_info.multiplier})
                 </span>
               );
             })()}
@@ -168,20 +173,28 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
 
         {/* RIGHT */}
         <div className={styles.right}>
-          <p className={styles.price}>
-            {!priceVisible ? (
-              <span className={styles.priceShimmer} />
-            ) : (
-              <>
-                <span className={`${styles.amount} ${styles.priceReveal}`}>
-                  {formatPrice(flight?.seat?.total_price || 0)}
-                </span>
-                <span className={`${styles.per} ${styles.priceReveal}`}>
-                  {t("flightCard.perCustomer")}
-                </span>
-              </>
+          <div className={styles.priceCol}>
+            {priceVisible && showOriginalPrice && (
+              <div className={styles.originalPriceRow}>
+                <span className={`${styles.originalPriceLabel} ${styles.priceReveal}`}>{t("flightCard.priceAnalysis.basePrice")}</span>
+                <span className={`${styles.originalPrice} ${styles.priceReveal}`}>{formatPrice(originalTotalPrice)}</span>
+              </div>
             )}
-          </p>
+            <p className={styles.price}>
+              {!priceVisible ? (
+                <span className={styles.priceShimmer} />
+              ) : (
+                <>
+                  <span className={`${styles.amount} ${styles.priceReveal}`}>
+                    {formatPrice(currentTotalPrice)}
+                  </span>
+                  <span className={`${styles.per} ${styles.priceReveal}`}>
+                    {t("flightCard.perCustomer")}
+                  </span>
+                </>
+              )}
+            </p>
+          </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <button
               className={`${styles.saveBtn} ${saved ? styles.saveBtnActive : ""}`}

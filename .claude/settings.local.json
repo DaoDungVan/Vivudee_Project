@@ -11,7 +11,8 @@
       "Bash(dir \"G:\\\\\\\\backend-log-function\\\\\\\\\")",
       "Read(//d/backend-log-function/src/services/**)",
       "Read(//d/backend-log-function/src/queries/**)",
-      "Read(//d/backend-log-function/src/**)"
+      "Read(//d/backend-log-function/src/**)",
+      "Bash(node --check src/services/flight.service.js)"
     ],
     "additionalDirectories": [
       "G:\\Vivudee_Admin\\src\\api"
