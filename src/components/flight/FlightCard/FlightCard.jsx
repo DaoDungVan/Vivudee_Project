@@ -260,36 +260,9 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
                 {priceAnalysis.season && (
                   <div className={`${styles.analysisSeasonNote} ${(priceAnalysis.season.isHoliday || priceAnalysis.season.multiplier >= 1.2) ? styles.seasonNotePeak : ""}`}>
                     <LuFlame size={12} />
-                    <span>{priceAnalysis.season.name} (×{priceAnalysis.season.multiplier}) — {priceAnalysis.season.reason}</span>
+                    <span>{priceAnalysis.season.name} — {priceAnalysis.season.reason}</span>
                   </div>
                 )}
-
-                <div className={styles.analysisGrid}>
-                  <div className={styles.analysisItem}>
-                    <span className={styles.analysisLabel}>{t("flightCard.priceAnalysis.basePrice")}</span>
-                    <span className={styles.analysisValue}>{formatPrice(priceAnalysis.basePrice)}</span>
-                  </div>
-                  <div className={styles.analysisItem}>
-                    <span className={styles.analysisLabel}>{t("flightCard.priceAnalysis.currentPrice")}</span>
-                    <span className={styles.analysisValue}>{formatPrice(priceAnalysis.currentPrice)}</span>
-                  </div>
-                  <div className={styles.analysisItem}>
-                    <span className={styles.analysisLabel}>{t("flightCard.priceAnalysis.dayOfWeek", { label: priceAnalysis.pricingBreakdown?.dayOfWeek?.label })}</span>
-                    <span className={styles.analysisValue}>×{priceAnalysis.pricingBreakdown?.dayOfWeek?.multiplier}</span>
-                  </div>
-                  <div className={styles.analysisItem}>
-                    <span className={styles.analysisLabel}>{t("flightCard.priceAnalysis.advanceBooking", { days: priceAnalysis.pricingBreakdown?.advanceBooking?.daysUntilDeparture })}</span>
-                    <span className={styles.analysisValue}>×{priceAnalysis.pricingBreakdown?.advanceBooking?.multiplier}</span>
-                  </div>
-                  <div className={styles.analysisItem}>
-                    <span className={styles.analysisLabel}>{t("flightCard.priceAnalysis.demand", { rate: priceAnalysis.pricingBreakdown?.demand?.occupancyRate })}</span>
-                    <span className={styles.analysisValue}>×{priceAnalysis.pricingBreakdown?.demand?.multiplier}</span>
-                  </div>
-                  <div className={styles.analysisItem}>
-                    <span className={styles.analysisLabel}>{t("flightCard.priceAnalysis.finalMultiplier")}</span>
-                    <span className={`${styles.analysisValue} ${styles.analysisValueStrong}`}>×{priceAnalysis.pricingBreakdown?.finalMultiplier}</span>
-                  </div>
-                </div>
 
                 {priceAnalysis.recommendation?.message ? (
                   <div className={`${styles.analysisRecommendation} ${styles[`recommend_${priceAnalysis.recommendation.urgency}`] || ""}`}>

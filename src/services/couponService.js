@@ -160,14 +160,16 @@ export const getAvailableCoupons = async () => {
 };
 
 // Kiểm tra mã coupon user nhập vào có hợp lệ không.
-// Gửi { code } lên backend → backend xác nhận và trả về thông tin coupon.
+// Backend không có endpoint /coupons/validate riêng — dùng /payments/preview
+// (cùng logic getVoucherQuote dùng khi tạo payment thật) để vừa kiểm tra
+// voucher hợp lệ, vừa tính discount dựa trên booking hiện tại.
 // .trim().toUpperCase() để xử lý lỗi nhập thừa space hoặc chữ thường.
-export const validateCoupon = async (code) => {
-  const res = await API.post("/coupons/validate", {
-    code: code.trim().toUpperCase(),
+export const validateCoupon = async (code, bookingCode) => {
+  const res = await API.post("/payments/preview", {
+    booking_code: bookingCode,
+    voucher_code: code.trim().toUpperCase(),
   });
 
-  // Backend có thể trả về coupon trong res.data.coupon, res.data.data hoặc res.data
-  const coupon = res.data?.coupon || res.data?.data || res.data;
-  return normalizeCoupon(coupon);
+  const data = res.data?.data || res.data;
+  return normalizeCoupon(data?.voucher || {});
 };

@@ -486,31 +486,6 @@
   color: #f87171;
 }
 
-.analysisGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 8px 16px;
-}
-
-.analysisItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-.analysisLabel { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-.analysisValue {
-  font-weight: 700;
-  color: var(--text-dark);
-  flex-shrink: 0;
-}
-
-.analysisValueStrong { color: var(--primary-color); }
-
 .analysisRecommendation {
   margin-top: 10px;
   display: flex;

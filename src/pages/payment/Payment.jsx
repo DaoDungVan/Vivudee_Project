@@ -232,7 +232,7 @@ const Payment = () => {
     setApplyingCoupon(true);
     setCouponError("");
     try {
-      const coupon = await validateCoupon(normalizedCode);
+      const coupon = await validateCoupon(normalizedCode, bookingCode);
       applyCouponSelection(coupon);
     } catch (err) {
       setCouponError(getCouponErrorMessage(err, "Invalid or expired coupon code"));

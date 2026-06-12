@@ -75,12 +75,6 @@
  "priceAnalysis": {
    "title": "Phân tích giá vé",
    "loading": "Đang phân tích giá...",
-   "basePrice": "Giá gốc",
-   "currentPrice": "Giá hiện tại",
-   "dayOfWeek": "Ngày trong tuần ({{label}})",
-   "advanceBooking": "Đặt trước {{days}} ngày",
-   "demand": "Nhu cầu đặt chỗ ({{rate}})",
-   "finalMultiplier": "Hệ số giá tổng",
    "stable": "Giá hiện đang ổn định, không có biến động đáng kể"
  }
  },

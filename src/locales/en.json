@@ -75,12 +75,6 @@
  "priceAnalysis": {
    "title": "Price analysis",
    "loading": "Analyzing price...",
-   "basePrice": "Base price",
-   "currentPrice": "Current price",
-   "dayOfWeek": "Day of week ({{label}})",
-   "advanceBooking": "Booked {{days}} days ahead",
-   "demand": "Booking demand ({{rate}})",
-   "finalMultiplier": "Total price multiplier",
    "stable": "Price is currently stable with no significant changes"
  }
  },
