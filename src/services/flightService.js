@@ -3,6 +3,9 @@ import axiosInstance from "./axiosInstance";
 
 const API = "https://backend-log-function-2.onrender.com/api/flights";
 
+// Ngôn ngữ hiện tại của site, để backend trả về season/price-alert text đúng locale
+const getLang = () => localStorage.getItem("lang") || "en";
+
 // Tìm kiếm chuyến bay theo điều kiện người dùng nhập.
 // params gồm: from, to, departureDate, returnDate, adults, children, seatClass, tripType
 export const searchFlights = (params) => {
@@ -12,6 +15,7 @@ export const searchFlights = (params) => {
     children: params.children || 0,
     infants: 0,
     seat_class: params.seatClass || "Economy",
+    lang: getLang(),
   };
 
   // Request chiều đi: từ `from` → `to` vào ngày `departureDate`
@@ -49,12 +53,12 @@ export const searchFlights = (params) => {
 };
 
 export const getFlightPosition   = (flightId)                     => axiosInstance.get(`/flights/${flightId}/position`);
-export const getRecommendations  = (from, to, limit = 6)           => axios.get(`${API}/recommendations`, { params: { from, to, limit } });
-export const getBrowseFlights    = (limit = 40)                     => axios.get(`${API}/browse`, { params: { limit } });
-export const getAirlineFlights   = (airlineCode, seatClass = 'economy') => axios.get(`${API}/by-airline/${airlineCode}`, { params: { seat_class: seatClass } });
-export const getMixedFlights     = (params) => axios.get(`${API}/mixed-search`, { params });
+export const getRecommendations  = (from, to, limit = 6)           => axios.get(`${API}/recommendations`, { params: { from, to, limit, lang: getLang() } });
+export const getBrowseFlights    = (limit = 40)                     => axios.get(`${API}/browse`, { params: { limit, lang: getLang() } });
+export const getAirlineFlights   = (airlineCode, seatClass = 'economy') => axios.get(`${API}/by-airline/${airlineCode}`, { params: { seat_class: seatClass, lang: getLang() } });
+export const getMixedFlights     = (params) => axios.get(`${API}/mixed-search`, { params: { ...params, lang: getLang() } });
 export const getAlternatives     = (flight_id, seat_class = "economy", adults = 1) =>
-  axios.get(`${API}/alternatives`, { params: { flight_id, seat_class, adults } });
+  axios.get(`${API}/alternatives`, { params: { flight_id, seat_class, adults, lang: getLang() } });
 export const getPriceCalendar    = (from, to, month, seat_class = "economy", adults = 1) =>
   axios.get(`${API}/price-calendar`, { params: { from, to, month, seat_class, adults } });
 export const getSeatMap          = (flightId, seat_class = "economy") =>
@@ -65,4 +69,4 @@ export const getSeatPricing      = (flightId, seat_class = "economy") =>
 
 // Phân tích giá chi tiết (mùa cao điểm, hệ số ngày trong tuần/đặt sớm/nhu cầu, khuyến nghị)
 export const getFlightPriceAnalysis = (flightId) =>
-  axios.get(`${API}/${flightId}/price-analysis`);
+  axios.get(`${API}/${flightId}/price-analysis`, { params: { lang: getLang() } });

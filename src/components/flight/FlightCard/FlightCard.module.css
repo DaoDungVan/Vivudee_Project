@@ -476,14 +476,14 @@
 }
 
 .seasonNotePeak {
-  color: #b91c1c;
-  background: #fee2e2;
-  border-color: #fecaca;
+  color: #c2410c;
+  background: #ffedd5;
+  border-color: #fed7aa;
 }
 [data-theme="dark"] .seasonNotePeak {
-  background: rgba(239,68,68,0.12);
-  border-color: rgba(248,113,113,0.3);
-  color: #f87171;
+  background: rgba(249,115,22,0.12);
+  border-color: rgba(251,146,60,0.3);
+  color: #fb923c;
 }
 
 .analysisRecommendation {

@@ -73,7 +73,8 @@
    "low": "Giá có thể tăng +{{percent}}%"
  },
  "priceAnalysis": {
-   "title": "Phân tích giá vé",
+   "title": "Lưu ý về giá",
+   "basePrice": "Giá gốc",
    "loading": "Đang phân tích giá...",
    "stable": "Giá hiện đang ổn định, không có biến động đáng kể"
  }

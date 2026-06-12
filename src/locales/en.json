@@ -73,7 +73,8 @@
    "low": "Price may rise +{{percent}}%"
  },
  "priceAnalysis": {
-   "title": "Price analysis",
+   "title": "Price notes",
+   "basePrice": "Base price",
    "loading": "Analyzing price...",
    "stable": "Price is currently stable with no significant changes"
  }
