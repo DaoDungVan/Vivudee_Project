@@ -153,9 +153,11 @@ const Bookings = () => {
     }
   }, [location.search, handleLookup]);
 
+  const TERMINAL_STATUSES = ["cancelled", "completed", "refunded", "date_changed", "expired"];
   const pollCodeRef = useRef(null);
   useEffect(() => {
     if (!lookupResult) return;
+    if (TERMINAL_STATUSES.includes(lookupResult.status)) return;
     const code = lookupResult.booking_code;
     pollCodeRef.current = code;
     const id = setInterval(async () => {
@@ -171,7 +173,7 @@ const Bookings = () => {
       } catch { /* silent */ }
     }, 12000);
     return () => clearInterval(id);
-  }, [lookupResult?.booking_code]);
+  }, [lookupResult?.booking_code, lookupResult?.status]);
 
   useEffect(() => {
     if (tab === "my" && isLoggedIn) fetchMyBookings();
