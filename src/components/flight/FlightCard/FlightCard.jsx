@@ -21,7 +21,7 @@ const getSeasonBadgeVariant = (seasonInfo) => {
 const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
   const [expanded, setExpanded] = useState(false);
   const [priceVisible, setPriceVisible] = useState(false);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { isDark } = useTheme();
   const airlineLogo = (isDark && flight?.airline?.logo_dark) ? flight.airline.logo_dark : (flight?.airline?.logo_url || planeIcon);
 
@@ -38,6 +38,11 @@ const FlightCard = ({ flight, onSelect, isSelected, cheapestCalPrice }) => {
   const [saveLoading, setSaveLoading] = useState(false);
   const [priceAnalysis, setPriceAnalysis] = useState(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
+
+  // Đổi ngôn ngữ thì xoá cache để useEffect dưới fetch lại theo locale mới
+  useEffect(() => {
+    setPriceAnalysis(null);
+  }, [i18n.language]);
 
   // Lazy-load phân tích giá chi tiết khi mở rộng card lần đầu
   useEffect(() => {
