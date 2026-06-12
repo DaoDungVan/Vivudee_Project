@@ -40,8 +40,20 @@ const inSlot = (hour, slotValue) => {
   return hour >= start && hour < end;
 };
 
-const applyFilters = (flights, filters) => {
+const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
+
+// departure.time là timestamp VN-local được encode dạng UTC (xem getHour() ở trên),
+// nên so sánh trực tiếp với "giờ VN hiện tại" cũng được encode theo cùng kiểu
+const isDeparted = (isoTime, nowMs) => {
+  if (!isoTime) return false;
+  const depMs = new Date(isoTime).getTime();
+  if (isNaN(depMs)) return false;
+  return depMs <= nowMs + VN_OFFSET_MS;
+};
+
+const applyFilters = (flights, filters, now) => {
   let result = flights.filter((flight) => {
+    if (isDeparted(flight?.departure?.time, now)) return false;
     const code = flight?.airline?.code || flight?.airline_code;
     const price = flight?.seat?.total_price || 0;
     const depHour = getHour(flight?.departure?.time);
@@ -188,8 +200,15 @@ const FlightSearch = () => {
   const [comboLoading, setComboLoading]         = useState(false);
   const [showCombo, setShowCombo]               = useState(false);
 
-  const filteredOutbound = applyFilters(outboundFlights, filters);
-  const filteredReturn = applyFilters(returnFlights, filters);
+  // Tick mỗi 30s để tự ẩn các chuyến đã khởi hành khỏi danh sách, kiểu Traveloka
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const filteredOutbound = applyFilters(outboundFlights, filters, now);
+  const filteredReturn = applyFilters(returnFlights, filters, now);
   const activeFilterCount =
     filters.airlines.length +
     filters.departureSlots.length +
