@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "../../../hooks/useTheme";
 import { getBrowseFlights } from "../../../services/flightService";
 import planeIcon from "../../../assets/icons/plane.png";
 import styles from "./BrowseByAirline.module.css";
@@ -24,6 +25,7 @@ const today = () => {
 export default function BrowseByAirline() {
   const navigate   = useNavigate();
   const { t }      = useTranslation();
+  const { isDark } = useTheme();
   const [groups,   setGroups]   = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [expanded, setExpanded] = useState(new Set()); // airline codes đang mở rộng
@@ -99,7 +101,7 @@ export default function BrowseByAirline() {
             {/* Airline header */}
             <div className={styles.airlineHeader}>
               <img
-                src={g.airline?.logo_url || planeIcon}
+                src={(isDark && g.airline?.logo_dark) ? g.airline.logo_dark : (g.airline?.logo_url || planeIcon)}
                 alt={g.airline?.name}
                 className={styles.airlineLogo}
                 onError={(e) => { e.target.src = planeIcon; }}

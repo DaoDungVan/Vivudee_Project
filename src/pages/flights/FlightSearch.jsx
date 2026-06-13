@@ -2,6 +2,7 @@ import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
 import FlightCard from "../../components/flight/FlightCard/FlightCard";
 import RecommendationBar from "../../components/flight/RecommendationBar/RecommendationBar";
+import BrandComboBanner from "../../components/flight/BrandComboBanner/BrandComboBanner";
 import PriceCalendar from "../../components/flight/PriceCalendar/PriceCalendar";
 import AlternativeFlights from "../../components/flight/AlternativeFlights/AlternativeFlights";
 import BrowseByAirline from "../../components/flight/BrowseByAirline/BrowseByAirline";
@@ -417,6 +418,20 @@ const FlightSearch = () => {
                 </div>
               ) : (
                 <div className={styles.sliderWrapper}>
+                  {isRoundTrip && (
+                    <BrandComboBanner
+                      from={from} to={to}
+                      departureDate={departureDate} returnDate={returnDate}
+                      seatClass={seatClass || "economy"}
+                      adults={Number(adults || 1)} children={Number(children || 0)}
+                      outboundFlights={outboundFlights}
+                      returnFlights={returnFlights}
+                      onApply={(ob, rt) => {
+                        if (ob) handleSelectOutbound(ob);
+                        if (rt) setSelectedReturn(rt);
+                      }}
+                    />
+                  )}
                   <div className={`${styles.slider} ${step === "return" ? styles.slideLeft : ""}`}>
                     <div className={styles.page}>
                       <h3><LuPlaneTakeoff size={17} />{t("flightSearch.outboundShort")} ({filteredOutbound.length})</h3>

@@ -837,6 +837,13 @@
  "viewBtn": "View",
  "alsoLike": "You might also like"
  },
+ "brandCombo": {
+ "suggestion": "Combine {{airline1}} (outbound) + {{airline2}} (return)",
+ "savingLabel": "Save {{amount}} compared to flying one airline both ways",
+ "bestValueLabel": "Best value for this round trip",
+ "totalLabel": "Total: {{amount}}",
+ "applyBtn": "Apply"
+ },
  "browseFlights": {
  "title": "Explore Flights",
  "sub": "Browse available flights by airline"

@@ -835,6 +835,13 @@
  "viewBtn": "Xem vé",
  "alsoLike": "Bạn cũng có thể quan tâm"
  },
+ "brandCombo": {
+ "suggestion": "Kết hợp {{airline1}} (chiều đi) + {{airline2}} (chiều về)",
+ "savingLabel": "Tiết kiệm {{amount}} so với bay 1 hãng cả 2 chiều",
+ "bestValueLabel": "Lựa chọn tối ưu cho chuyến khứ hồi này",
+ "totalLabel": "Tổng: {{amount}}",
+ "applyBtn": "Áp dụng"
+ },
  "browseFlights": {
  "title": "Khám phá chuyến bay",
  "sub": "Chọn tuyến bay phù hợp với bạn"

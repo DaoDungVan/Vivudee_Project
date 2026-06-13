@@ -1,10 +1,24 @@
 import axios from "axios";
 import axiosInstance from "./axiosInstance";
+import { getGuestSessionId } from "./chatSession";
 
 const API = "https://backend-log-function-2.onrender.com/api/flights";
 
 // Ngôn ngữ hiện tại của site, để backend trả về season/price-alert text đúng locale
 const getLang = () => localStorage.getItem("lang") || "en";
+
+// Header định danh guest session — backend dùng để lưu/đọc search history
+// và cá nhân hoá recommendations cho cả user chưa đăng nhập
+const sessionHeaders = () => ({ "x-session-id": getGuestSessionId() });
+
+// Chuẩn hoá 1 flight về cùng 1 shape dù lấy từ /recommendations (id, departure_time
+// ở top-level) hay /browse, /search (flight_id, departure.time, arrival.time)
+export const normalizeFlight = (f) => ({
+  ...f,
+  flight_id: f.flight_id ?? f.id,
+  departure: { ...f.departure, time: f.departure?.time ?? f.departure_time },
+  arrival:   { ...f.arrival,   time: f.arrival?.time   ?? f.arrival_time },
+});
 
 // Tìm kiếm chuyến bay theo điều kiện người dùng nhập.
 // params gồm: from, to, departureDate, returnDate, adults, children, seatClass, tripType
@@ -26,6 +40,7 @@ export const searchFlights = (params) => {
       arrival_code: params.to,
       departure_date: params.departureDate,
     },
+    headers: sessionHeaders(),
   });
 
   // Kiểm tra xem có phải vé khứ hồi không
@@ -42,6 +57,7 @@ export const searchFlights = (params) => {
         arrival_code: params.from,   // đảo chiều
         departure_date: params.returnDate,
       },
+      headers: sessionHeaders(),
     });
 
     // Gọi cả hai request cùng lúc (song song), trả về mảng [outbound, return]
@@ -53,7 +69,9 @@ export const searchFlights = (params) => {
 };
 
 export const getFlightPosition   = (flightId)                     => axiosInstance.get(`/flights/${flightId}/position`);
-export const getRecommendations  = (from, to, limit = 6)           => axios.get(`${API}/recommendations`, { params: { from, to, limit, lang: getLang() } });
+export const getRecommendations  = (from, to, limit = 6)           => axios.get(`${API}/recommendations`, { params: { from, to, limit, lang: getLang() }, headers: sessionHeaders() });
+// Gợi ý kết hợp hãng tối ưu cho khứ hồi (vd: bay đi 1 hãng, bay về hãng khác để tiết kiệm)
+export const getBrandCombinations = (params) => axios.get(`${API}/brand-combinations`, { params });
 export const getBrowseFlights    = (limit = 40)                     => axios.get(`${API}/browse`, { params: { limit, lang: getLang() } });
 export const getAirlineFlights   = (airlineCode, seatClass = 'economy') => axios.get(`${API}/by-airline/${airlineCode}`, { params: { seat_class: seatClass, lang: getLang() } });
 export const getMixedFlights     = (params) => axios.get(`${API}/mixed-search`, { params: { ...params, lang: getLang() } });

@@ -2,9 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../../hooks/useTheme";
-import { getRecommendations, getBrowseFlights } from "../../../services/flightService";
+import { getRecommendations, getBrowseFlights, normalizeFlight } from "../../../services/flightService";
 import planeIcon from "../../../assets/icons/plane.png";
 import styles from "./Recommendations.module.css";
+
+// Màu cho badge gợi ý (vd: "Điểm đến yêu thích", "Tuyến hot"...)
+const BADGE_COLORS = {
+  blue: "#3b82f6", purple: "#8b5cf6", yellow: "#eab308", orange: "#f97316",
+  teal: "#14b8a6", green: "#22c55e", red: "#ef4444", pink: "#ec4899",
+};
 
 const fmt = (n) => new Intl.NumberFormat("vi-VN").format(n ?? 0) + " VND";
 // Lấy ngày hôm nay theo local time — KHÔNG dùng toISOString (quy đổi UTC sẽ lùi 1 ngày
@@ -38,11 +44,11 @@ export default function Recommendations({ from = "SGN", to = "HAN" }) {
     getRecommendations(from, to, 8)
       .then((res) => {
         if (!active) return;
-        const data = res.data?.data || [];
-        if (data.length > 0) { setFlights(data); return; }
+        const recFlights = res.data?.data?.flights || [];
+        if (recFlights.length > 0) { setFlights(recFlights.map(normalizeFlight)); return; }
         return getBrowseFlights(8).then((r) => {
           if (!active) return;
-          setFlights(r.data?.data || []);
+          setFlights((r.data?.data || []).map(normalizeFlight));
         });
       })
       .catch(() => {})
@@ -107,8 +113,15 @@ export default function Recommendations({ from = "SGN", to = "HAN" }) {
         >
           {loading
             ? Array.from({ length: 4 }).map((_, i) => <div key={i} className={`${styles.skCard} ${styles.skeleton}`} />)
-            : flights.map((f) => (
+            : flights.map((f) => {
+                const badge = f.badge || f.badges?.[0] || null;
+                return (
                 <div key={f.flight_id} className={styles.card}>
+                  {badge?.label && (
+                    <span className={styles.badge} style={{ background: BADGE_COLORS[badge.color] || "#888" }}>
+                      {badge.label}
+                    </span>
+                  )}
                   <div className={styles.cardTop}>
                     <img
                       src={(isDark && f.airline?.logo_dark) ? f.airline.logo_dark : (f.airline?.logo_url || planeIcon)}
@@ -132,7 +145,8 @@ export default function Recommendations({ from = "SGN", to = "HAN" }) {
                     <button className={styles.viewBtn} onClick={() => handleView(f)}>{t("recommendations.viewBtn")}</button>
                   </div>
                 </div>
-              ))}
+                );
+              })}
         </div>
       </div>
     </section>

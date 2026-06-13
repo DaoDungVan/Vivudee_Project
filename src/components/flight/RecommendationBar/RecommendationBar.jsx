@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../../../hooks/useTheme";
-import { getRecommendations } from "../../../services/flightService";
+import { getRecommendations, normalizeFlight } from "../../../services/flightService";
 import planeIcon from "../../../assets/icons/plane.png";
 import styles from "./RecommendationBar.module.css";
 
@@ -24,7 +24,7 @@ export default function RecommendationBar({ from, to }) {
   useEffect(() => {
     if (!from || !to) return;
     getRecommendations(from, to, 3)
-      .then((res) => setFlights(res.data?.data?.slice(0, 3) || []))
+      .then((res) => setFlights((res.data?.data?.flights || []).slice(0, 3).map(normalizeFlight)))
       .catch(() => {});
   }, [from, to]);
 
