@@ -8,7 +8,7 @@ import { initPayment, getPaymentByCode, cancelPayment, buildVietQRUrl } from "..
 import { getAvailableCoupons, getCouponErrorMessage, validateCoupon } from "../../services/couponService";
 import { getBookingAncillaries } from "../../services/ancillaryService";
 import styles from "./Payment.module.css";
-import { LuSmartphone, LuCreditCard } from "react-icons/lu";
+import { LuSmartphone, LuCreditCard, LuChevronDown } from "react-icons/lu";
 
 import visaImg   from "../../assets/images/payments/visa.png";
 import masterImg from "../../assets/images/payments/mastercard.svg";
@@ -569,8 +569,12 @@ const Payment = () => {
                       type="button"
                       className={styles.showCouponsBtn}
                       onClick={() => setShowCouponList((prev) => !prev)}
+                      aria-label={showCouponList ? "Hide offers" : "Show offers"}
                     >
-                      {showCouponList ? "Hide offers" : "Show offers"}
+                      <LuChevronDown
+                        size={18}
+                        className={`${styles.chevron} ${showCouponList ? styles.chevronOpen : ""}`}
+                      />
                     </button>
                   )}
                 </div>

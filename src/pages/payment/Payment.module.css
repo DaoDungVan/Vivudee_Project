@@ -150,21 +150,26 @@
 .couponTitle { font-size: 15px; font-weight: 700; color: var(--text-dark); margin: 0; }
 
 .showCouponsBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   border: 1.5px solid var(--primary-color);
   color: var(--primary-color);
-  border-radius: 16px;
-  padding: 5px 12px;
-  font-size: 12px;
-  font-weight: 600;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  padding: 0;
   cursor: pointer;
-  white-space: nowrap;
   transition: all 0.15s;
 }
 .showCouponsBtn:hover {
   background: var(--primary-color);
   color: #fff;
 }
+
+.chevron { transition: transform 0.25s; }
+.chevronOpen { transform: rotate(180deg); }
 
 /* Danh sách coupon available */
 .couponListBox {
