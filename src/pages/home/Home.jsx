@@ -12,7 +12,7 @@ function Home() {
     <div>
       <NavBar />
       <HeroBanner/>
-      <Recommendations from="SGN" to="HAN" />
+      <Recommendations />
       <Coupon />
       <Airlines/>
       <Payments/>

@@ -28,7 +28,7 @@ const fmtTime = (iso) => {
 
 const SCROLL_BY = 320;
 
-export default function Recommendations({ from = "SGN", to = "HAN" }) {
+export default function Recommendations({ from = null, to = null }) {
   const navigate   = useNavigate();
   const { t }      = useTranslation();
   const { isDark } = useTheme();
