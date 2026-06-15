@@ -62,7 +62,7 @@ const Booking = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
-  const [contactWarning, setContactWarning] = useState({ email: "", phone: "" });
+  const [contactWarning, setContactWarning] = useState({ email: "" });
   const isLoggedIn = !!localStorage.getItem("token");
 
   const checkEmailContact = useCallback(async (value) => {
@@ -78,19 +78,6 @@ const Booking = () => {
     } catch { /* ignore */ }
   }, [isLoggedIn]);
 
-  const checkPhoneContact = useCallback(async (value) => {
-    const phone = value?.trim().replace(/\s/g, "");
-    if (!phone || isLoggedIn) return;
-    try {
-      const res = await API.post("/check-contact", { phone });
-      setContactWarning(prev => ({
-        ...prev,
-        phone: res.data?.phone_taken
-          ? "Số điện thoại này đã được đăng ký. Vui lòng đăng nhập hoặc dùng số khác."
-          : ""
-      }));
-    } catch { /* ignore */ }
-  }, [isLoggedIn]);
   const [step, setStep] = useState("form"); // "form" | "seatmap"
   const [seatSelections, setSeatSelections] = useState({});
 
@@ -139,7 +126,6 @@ const Booking = () => {
     else if (!isLoggedIn && contactWarning.email) errs.email = contactWarning.email;
     if (!contact.phone.trim()) errs.phone = t("booking.required");
     else if (!/^[0-9]{9,11}$/.test(contact.phone.trim().replace(/\s/g, ""))) errs.phone = t("booking.phoneErr");
-    else if (!isLoggedIn && contactWarning.phone) errs.phone = contactWarning.phone;
     return errs;
   };
 
@@ -158,23 +144,13 @@ const Booking = () => {
       setLoading(true);
       let blocked = false;
       try {
-        const r = await API.post("/check-contact", {
-          email: contact.email.trim(),
-          phone: contact.phone.trim().replace(/\s/g, ""),
-        });
+        const r = await API.post("/check-contact", { email: contact.email.trim() });
         if (r.data?.email_taken) {
           blocked = true;
           const msg = "Email này đã được đăng ký. Vui lòng đăng nhập hoặc dùng email khác.";
           setErrors((prev) => ({ ...prev, email: msg }));
           setContactWarning((prev) => ({ ...prev, email: msg }));
           document.getElementById("email")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-        if (r.data?.phone_taken) {
-          blocked = true;
-          const msg = "Số điện thoại này đã được đăng ký. Vui lòng đăng nhập hoặc dùng số khác.";
-          setErrors((prev) => ({ ...prev, phone: msg }));
-          setContactWarning((prev) => ({ ...prev, phone: msg }));
-          if (!r.data?.email_taken) document.getElementById("phone")?.scrollIntoView({ behavior: "smooth", block: "center" });
         }
       } catch {
         blocked = true;
@@ -345,12 +321,10 @@ const Booking = () => {
                     className={`${styles.input} ${errors.phone ? styles.inputError : ""} ${isLoggedIn ? styles.inputLocked : ""}`}
                     value={contact.phone}
                     readOnly={isLoggedIn}
-                    onChange={isLoggedIn ? undefined : (e) => { setContact({ ...contact, phone: e.target.value }); setContactWarning(w => ({...w, phone: ""})); }}
-                    onBlur={isLoggedIn ? undefined : (e) => checkPhoneContact(e.target.value)}
+                    onChange={isLoggedIn ? undefined : (e) => setContact({ ...contact, phone: e.target.value })}
                   />
                   {isLoggedIn && <span className={styles.lockedHint}>Số điện thoại được lấy từ tài khoản của bạn</span>}
                   {errors.phone && <span className={styles.errMsg}>{errors.phone}</span>}
-                  {!isLoggedIn && !errors.phone && contactWarning.phone && <span className={styles.errMsg}>{contactWarning.phone}</span>}
                 </div>
               </div>
             </div>
