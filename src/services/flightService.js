@@ -8,8 +8,15 @@ const API = "https://backend-log-function-2.onrender.com/api/flights";
 const getLang = () => localStorage.getItem("lang") || "en";
 
 // Header định danh guest session — backend dùng để lưu/đọc search history
-// và cá nhân hoá recommendations cho cả user chưa đăng nhập
-const sessionHeaders = () => ({ "x-session-id": getGuestSessionId() });
+// và cá nhân hoá recommendations cho cả user chưa đăng nhập.
+// Nếu user đã đăng nhập, gắn thêm Authorization để backend nhận được req.user.id
+// → mới dùng được lịch sử booking (preferredRoutes/preferredHours...) khi gợi ý.
+const sessionHeaders = () => {
+  const headers = { "x-session-id": getGuestSessionId() };
+  const token = localStorage.getItem("token");
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+};
 
 // Chuẩn hoá 1 flight về cùng 1 shape dù lấy từ /recommendations (id, departure_time
 // ở top-level) hay /browse, /search (flight_id, departure.time, arrival.time)
