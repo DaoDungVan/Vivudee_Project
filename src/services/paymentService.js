@@ -10,6 +10,13 @@ export const initPayment = async (payload) => {
   return normalizePaymentResponse(res.data);
 };
 
+// Lấy số tiền chính xác (đã gồm hành lý + dịch vụ phụ trợ đã lưu ở booking) từ backend,
+// để hiển thị Total khớp với số tiền sẽ thực sự bị trừ khi thanh toán.
+export const previewPayment = async (payload) => {
+  const res = await API.post("/payments/preview", payload);
+  return res.data?.data ?? res.data;
+};
+
 export const getPaymentByCode = async (paymentCode) => {
   const res = await API.get(`/payments/${paymentCode}`);
   return normalizePaymentResponse(res.data);

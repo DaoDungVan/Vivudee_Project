@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
-import { initPayment, getPaymentByCode, cancelPayment, buildVietQRUrl } from "../../services/paymentService";
+import { initPayment, getPaymentByCode, cancelPayment, buildVietQRUrl, previewPayment } from "../../services/paymentService";
 import { getAvailableCoupons, getCouponErrorMessage, validateCoupon } from "../../services/couponService";
 import { getBookingAncillaries } from "../../services/ancillaryService";
 import styles from "./Payment.module.css";
@@ -97,6 +97,7 @@ const Payment = () => {
   const [countdown, setCountdown]           = useState(null);
   const [expired, setExpired]               = useState(false);
   const [paid, setPaid]                     = useState(false);
+  const [serverAmount, setServerAmount]     = useState(null);
 
   // ── Guard ────────────────────────────────────────────────
   const { bookingData, selectedFlights, passengers, contact, totalPrice } = state || {};
@@ -104,13 +105,17 @@ const Payment = () => {
   const bookingCode = bookingData?.booking_code;
   const heldUntil   = bookingData?.held_until;
 
+  // Số tiền gốc thực tế sẽ bị tính (bookings.total_price + dịch vụ phụ trợ đã lưu),
+  // dùng thay cho totalPrice truyền qua state vì có thể bị lệch so với dữ liệu đã lưu.
+  const baseAmount = serverAmount ?? (totalPrice || 0);
+
   const estimatedDiscountAmount =
     paymentData?.payment?.discount_amount ??
     couponApplied?.estimated_discount_amount ??
     0;
   const finalAmount =
     paymentData?.payment?.final_amount ??
-    Math.max((totalPrice || 0) - estimatedDiscountAmount, 0);
+    Math.max(baseAmount - estimatedDiscountAmount, 0);
 
   // ── Fetch ancillaries từ API khi bookingData không có ancillary_items ───────
   useEffect(() => {
@@ -131,6 +136,20 @@ const Payment = () => {
       .catch(() => {});
     return () => { active = false; };
   }, [bookingCode, bookingData]);
+
+  // ── Lấy số tiền chính xác từ backend để Total khớp với số tiền sẽ bị trừ ────
+  useEffect(() => {
+    if (!bookingCode || paymentData) return;
+    let active = true;
+    previewPayment({ booking_code: bookingCode })
+      .then((res) => {
+        if (!active) return;
+        const amount = Number(res?.amount);
+        if (Number.isFinite(amount)) setServerAmount(amount);
+      })
+      .catch(() => {});
+    return () => { active = false; };
+  }, [bookingCode, paymentData]);
 
   // ── Held seat countdown ──────────────────────────────────
   useEffect(() => {
@@ -203,19 +222,19 @@ const Payment = () => {
   const applyCouponSelection = (coupon) => {
     const minOrderAmount = Number(coupon?.min_order_amount) || 0;
 
-    if (minOrderAmount > 0 && Number(totalPrice || 0) < minOrderAmount) {
+    if (minOrderAmount > 0 && baseAmount < minOrderAmount) {
       setCouponError(`${t("payment.minOrderError")} (${fmt(minOrderAmount)})`);
       return false;
     }
 
-    const estimated = estimateCouponDiscount(coupon, totalPrice);
+    const estimated = estimateCouponDiscount(coupon, baseAmount);
 
     setCouponApplied({
       ...coupon,
       code: coupon.code,
       voucher_code: coupon.code,
       estimated_discount_amount: estimated,
-      final_amount: Math.max((totalPrice || 0) - estimated, 0),
+      final_amount: Math.max(baseAmount - estimated, 0),
     });
     setCouponCode(coupon.code || "");
     setCouponError("");
@@ -605,7 +624,7 @@ const Payment = () => {
                           {availableCoupons
                             .filter((coupon) => {
                               const minOrderAmount = Number(coupon.min_order_amount) || 0;
-                              return minOrderAmount <= 0 || Number(totalPrice || 0) >= minOrderAmount;
+                              return minOrderAmount <= 0 || baseAmount >= minOrderAmount;
                             })
                             .map((coupon) => {
                               const minOrderAmount = Number(coupon.min_order_amount) || 0;
