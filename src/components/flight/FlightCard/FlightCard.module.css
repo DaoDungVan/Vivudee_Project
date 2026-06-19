@@ -559,6 +559,6 @@
   .priceCol { align-items: flex-start; }
   .originalPriceRow { justify-content: flex-start; }
 
-  .detailContainer { flex-direction: column; gap: 16px; }
-  .airline         { flex-direction: column; gap: 6px; }
+  .detailContainer { gap: 14px; }
+  .timelineCol     { width: 50px; }
 }
