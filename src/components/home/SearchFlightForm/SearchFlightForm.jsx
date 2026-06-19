@@ -196,10 +196,20 @@ export default function SearchFlightForm({ initialData }) {
       // .calendarPopup dùng position: fixed → toạ độ phải tính theo viewport
       // (KHÔNG cộng window.scrollX/scrollY, vì rect đã là toạ độ viewport sẵn rồi —
       // cộng thêm scroll sẽ làm popup bị đẩy lệch xuống dưới màn hình khi cuộn trang)
-      setCalendarPos({
-        top:  rect.bottom + 8,
-        left: Math.min(rect.left, window.innerWidth - 644),
-      });
+      // Chiều rộng popup đổi theo breakpoint trong DateRangePicker.module.css
+      // (644 ~ desktop 2 tháng, calc(100vw-32px) khi <=700px) nên phải tính theo
+      // viewport hiện tại, nếu không left sẽ ra số âm và bung popup ra ngoài màn hình.
+      const isMobile = window.innerWidth <= 700;
+      const popupWidth = isMobile ? window.innerWidth - 32 : 644;
+      const left = isMobile
+        ? 16
+        : Math.max(16, Math.min(rect.left, window.innerWidth - popupWidth - 16));
+      // Trên mobile popup có thể cao hơn khoảng trống phía dưới trigger → kẹp top
+      // để không bị đẩy ra ngoài đáy màn hình.
+      const top = isMobile
+        ? Math.min(rect.bottom + 8, window.innerHeight * 0.15)
+        : rect.bottom + 8;
+      setCalendarPos({ top, left });
     }
     setShowCalendar(true);
   };

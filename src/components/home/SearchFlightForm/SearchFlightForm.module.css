@@ -520,6 +520,11 @@
     flex: 1 1 100%;
   }
 
+  .dateFields {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
   .swap {
     align-self: center;
     margin: 0;
