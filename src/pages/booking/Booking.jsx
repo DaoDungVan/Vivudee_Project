@@ -59,12 +59,13 @@ const Booking = () => {
       return { email: "", phone: "" };
     }
   });
+  const [hasAccountPhone] = useState(() => !!contact.phone.trim());
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
   const [contactWarning, setContactWarning] = useState({ email: "" });
   const isLoggedIn = !!localStorage.getItem("token");
-  const isPhoneLocked = isLoggedIn && !!contact.phone.trim();
+  const isPhoneLocked = isLoggedIn && hasAccountPhone;
 
   const checkEmailContact = useCallback(async (value) => {
     if (!value?.trim() || isLoggedIn) return;

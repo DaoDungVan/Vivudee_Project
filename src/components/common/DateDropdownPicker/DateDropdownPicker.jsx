@@ -62,8 +62,8 @@ export default function DateDropdownPicker({
     if (triggerRef.current) {
       const r = triggerRef.current.getBoundingClientRect();
       setPos({
-        top:  r.bottom + window.scrollY + 6,
-        left: r.left   + window.scrollX,
+        top:  r.bottom + 6,
+        left: r.left,
       });
     }
     setOpen((p) => !p);
