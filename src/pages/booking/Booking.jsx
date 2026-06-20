@@ -64,6 +64,7 @@ const Booking = () => {
   const [apiError, setApiError] = useState("");
   const [contactWarning, setContactWarning] = useState({ email: "" });
   const isLoggedIn = !!localStorage.getItem("token");
+  const isPhoneLocked = isLoggedIn && !!contact.phone.trim();
 
   const checkEmailContact = useCallback(async (value) => {
     if (!value?.trim() || isLoggedIn) return;
@@ -318,12 +319,12 @@ const Booking = () => {
                     id="phone"
                     type="tel"
                     placeholder="0901 234 567"
-                    className={`${styles.input} ${errors.phone ? styles.inputError : ""} ${isLoggedIn ? styles.inputLocked : ""}`}
+                    className={`${styles.input} ${errors.phone ? styles.inputError : ""} ${isPhoneLocked ? styles.inputLocked : ""}`}
                     value={contact.phone}
-                    readOnly={isLoggedIn}
-                    onChange={isLoggedIn ? undefined : (e) => setContact({ ...contact, phone: e.target.value })}
+                    readOnly={isPhoneLocked}
+                    onChange={isPhoneLocked ? undefined : (e) => setContact({ ...contact, phone: e.target.value })}
                   />
-                  {isLoggedIn && <span className={styles.lockedHint}>Số điện thoại được lấy từ tài khoản của bạn</span>}
+                  {isPhoneLocked && <span className={styles.lockedHint}>Số điện thoại được lấy từ tài khoản của bạn</span>}
                   {errors.phone && <span className={styles.errMsg}>{errors.phone}</span>}
                 </div>
               </div>
