@@ -22,12 +22,20 @@ const addDay = (dateStr, n) => {
 
 const WINDOW = 2; // ngày trước + ngày sau
 
-export default function PriceCalendar({ from, to, selectedDate, seatClass = "economy", adults = 1, onCalendarLoad }) {
+export default function PriceCalendar({ from, to, selectedDate, seatClass = "economy", adults = 1, onCalendarLoad, selectedDateNoFlights = false }) {
   const navigate  = useNavigate();
   const { t }     = useTranslation();
   const [calData, setCalData]   = useState({});   // { "YYYY-MM-DD": min_price }
   const [loading, setLoading]   = useState(false);
   const [offset,  setOffset]    = useState(0);    // dịch cửa sổ ngày
+  // Nhớ lại những ngày đã xác nhận hết chuyến (selectedDateNoFlights=true lúc
+  // đang chọn) — để khi chuyển sang ngày khác, ô đó không hiện lại giá cũ.
+  const [knownEmptyDates, setKnownEmptyDates] = useState(() => new Set());
+  useEffect(() => {
+    if (selectedDate && selectedDateNoFlights) {
+      setKnownEmptyDates((prev) => prev.has(selectedDate) ? prev : new Set(prev).add(selectedDate));
+    }
+  }, [selectedDate, selectedDateNoFlights]);
 
   // Gọi onCalendarLoad sau khi calData thay đổi — KHÔNG gọi trong setState updater
   const onCalendarLoadRef = useRef(onCalendarLoad);
@@ -56,6 +64,7 @@ export default function PriceCalendar({ from, to, selectedDate, seatClass = "eco
   // Xóa data cũ khi route hoặc hạng ghế thay đổi — tránh hiển thị giá sai class
   useEffect(() => {
     setCalData({});
+    setKnownEmptyDates(new Set());
   }, [from, to, seatClass, adults]);
 
   useEffect(() => {
@@ -101,8 +110,9 @@ export default function PriceCalendar({ from, to, selectedDate, seatClass = "eco
         {loading
           ? Array.from({ length: 5 }).map((_, i) => <div key={i} className={styles.skCell} />)
           : days.map((day) => {
-              const price    = calData[day];
               const isToday  = day === selectedDate;
+              const isKnownEmpty = (isToday && selectedDateNoFlights) || knownEmptyDates.has(day);
+              const price    = isKnownEmpty ? null : calData[day];
               const isPast   = day < today; // hôm nay (===) không bị coi là past
               const diff     = price && selectedPrice ? price - selectedPrice : null;
               const cheaper  = diff !== null && diff < 0;

@@ -271,6 +271,19 @@ function NavBar() {
           >
             {isDark ? <LuSun className={styles.sunIcon} /> : <LuMoon className={styles.moonIcon} />}
           </button>
+          <button
+            style={{ position: "relative", background: "none", border: "none", cursor: "pointer", padding: "6px", color: "var(--text-secondary)", display: "flex", alignItems: "center" }}
+            onClick={() => navigate("/wishlist")}
+            title="Wishlist"
+            aria-label="Wishlist"
+          >
+            <LuHeart size={20} />
+            {wishlistCount > 0 && (
+              <span style={{ position: "absolute", top: 0, right: 0, background: "#ef4444", color: "#fff", borderRadius: "50%", width: 16, height: 16, fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {wishlistCount}
+              </span>
+            )}
+          </button>
           <button className={styles.hamburger} onClick={() => setMobileOpen((p) => !p)} aria-label="Toggle menu">
             {mobileOpen ? <LuX /> : <LuMenu />}
           </button>
@@ -282,6 +295,7 @@ function NavBar() {
           <span onClick={() => { navigate("/flights"); closeMobile(); }}>{t("nav.flights")}</span>
           <span onClick={() => { navigate("/tours"); closeMobile(); }}>{t("nav.tour")}</span>
           <span onClick={() => { navigate("/bookings"); closeMobile(); }}>{t("nav.bookings")}</span>
+          <span onClick={() => { navigate("/wishlist"); closeMobile(); }}><LuHeart /> Wishlist{wishlistCount > 0 ? ` (${wishlistCount})` : ""}</span>
           <span onClick={() => { navigate("/contact"); closeMobile(); }}>{t("nav.contactUs")}</span>
           <hr className={styles.mobileDivider} />
           {token ? (

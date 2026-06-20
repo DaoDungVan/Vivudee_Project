@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import NavBar from "../../components/common/NavBar/Navbar";
 import Footer from "../../components/common/Footer/Footer";
-import { LuHeart, LuPlaneTakeoff, LuTrash2, LuTicket } from "react-icons/lu";
+import { LuHeart, LuPlaneTakeoff, LuTrash2, LuTicket, LuCalendarDays } from "react-icons/lu";
 import { getWishlist, removeFromWishlist } from "../../services/wishlistService";
 import planeIcon from "../../assets/icons/plane.png";
 import styles from "./Wishlist.module.css";
@@ -23,6 +23,13 @@ const fmtTime = (iso) => {
   if (m) return `${m[1]}:${m[2]}`;
   try { return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }); }
   catch { return "--:--"; }
+};
+// Ngày bay — lấy thẳng từ chuỗi gốc (KHÔNG qua Date/toISOString) để tránh lệch
+// múi giờ, giống cách dùng ở handleBook
+const fmtDate = (iso) => {
+  if (!iso) return null;
+  const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : null;
 };
 
 export default function Wishlist() {
@@ -59,18 +66,52 @@ export default function Wishlist() {
     finally { setRemoving(null); }
   };
 
+  // Dùng thẳng dữ liệu đã lưu trong wishlist để build preselectFlight — không
+  // search lại theo ngày, vì departure_time có thể là UTC và lệch ngày so với
+  // giờ VN, làm sai departureDate và không tìm khớp được flight_id.
   const handleBook = (item) => {
-    const flight     = item.flight || item;
-    const from       = flight?.departure?.code || item.dep_code || "";
-    const to         = flight?.arrival?.code   || item.arr_code || "";
-    const seatClass  = item.seat_class || "economy";
-    const depTime    = flight?.departure_time;
-    const dateStr    = depTime
-      ? new Date(depTime).toISOString().slice(0, 10)
-      : todayLocal();
+    const flight    = item.flight || item;
+    const flightId  = flight?.id || item.flight_id;
+    const seatClass = item.seat_class || "economy";
+    const depCode   = flight?.departure?.code || item.dep_code || "";
+    const arrCode   = flight?.arrival?.code   || item.arr_code || "";
+    const depCity   = flight?.departure?.city || depCode;
+    const arrCity   = flight?.arrival?.city   || arrCode;
+    const depTime   = flight?.departure_time || flight?.departure?.time;
+    const arrTime   = flight?.arrival_time   || flight?.arrival?.time;
+    const price     = flight?.base_price || flight?.seat?.total_price || 0;
 
-    const params = new URLSearchParams({ from, to, departureDate: dateStr, seatClass, adults: "1" });
-    navigate(`/flights?${params.toString()}`);
+    let durationLabel = "--";
+    if (depTime && arrTime) {
+      const diffMin = Math.round((new Date(arrTime) - new Date(depTime)) / 60000);
+      if (diffMin > 0) {
+        const h = Math.floor(diffMin / 60), m = diffMin % 60;
+        durationLabel = m > 0 ? `${h}h ${m}m` : `${h}h`;
+      }
+    }
+
+    const preselectFlight = {
+      flight_id: flightId,
+      flight_number: flight?.flight_number,
+      duration_label: durationLabel,
+      departure: { code: depCode, city: depCity, time: depTime },
+      arrival:   { code: arrCode, city: arrCity, time: arrTime },
+      airline: flight?.airline,
+      seat: {
+        class: seatClass,
+        total_price: price,
+        baggage_included_kg: flight?.seat?.baggage_included_kg,
+        carry_on_kg: flight?.seat?.carry_on_kg,
+        extra_baggage_options: flight?.seat?.extra_baggage_options,
+      },
+    };
+
+    const dateStr = depTime ? String(depTime).slice(0, 10) : todayLocal();
+    const params = new URLSearchParams({
+      from: depCode, to: arrCode, departureDate: dateStr, seatClass, adults: "1", children: "0", tripType: "one-way",
+    });
+
+    navigate(`/flights?${params.toString()}`, { state: { preselectFlight } });
   };
 
   return (
@@ -143,6 +184,13 @@ export default function Wishlist() {
                       <LuTrash2 size={15} />
                     </button>
                   </div>
+
+                  {fmtDate(depTime) && (
+                    <p className={styles.flightDate}>
+                      <LuCalendarDays size={13} style={{ marginRight: 4, verticalAlign: "middle" }} />
+                      {fmtDate(depTime)}
+                    </p>
+                  )}
 
                   <div className={styles.route}>
                     <div className={styles.routePoint}>

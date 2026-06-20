@@ -210,6 +210,7 @@ const FlightSearch = () => {
 
   const filteredOutbound = applyFilters(outboundFlights, filters, now);
   const filteredReturn = applyFilters(returnFlights, filters, now);
+
   const activeFilterCount =
     filters.airlines.length +
     filters.departureSlots.length +
@@ -217,6 +218,12 @@ const FlightSearch = () => {
     (filters.priceMax !== null ? 1 : 0) +
     (filters.durationMax !== null ? 1 : 0) +
     (filters.sortPrice ? 1 : 0);
+
+  // "Chuyến đi (0)" có thể do tất cả chuyến đã khởi hành, hoặc backend không có
+  // chuyến nào cho ngày đó — dù lý do gì, price-calendar (API riêng) vẫn có thể
+  // trả về min_price cũ/không khớp thực tế. Chỉ tính khi KHÔNG có filter nào của
+  // người dùng đang áp dụng (để không nhầm với "0 vì lọc theo hãng/giá...").
+  const selectedDateAllDeparted = activeFilterCount === 0 && filteredOutbound.length === 0;
 
   return (
     <>
@@ -318,6 +325,7 @@ const FlightSearch = () => {
                 selectedDate={departureDate}
                 seatClass={seatClass || "economy"}
                 adults={Number(adults || 1)}
+                selectedDateNoFlights={selectedDateAllDeparted}
                 onCalendarLoad={(calMap) => {
                   // Chỉ lấy min của các ngày KHÁC ngày đang chọn
                   // để badge "Đổi ngày tiết kiệm X" so đúng với ngày rẻ hơn

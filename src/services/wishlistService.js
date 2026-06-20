@@ -79,13 +79,15 @@ export const addToWishlist = async (flightId, seatClass = "economy", flightSnaps
     }
     if (err.response?.data?.save_local || err.response?.status === 401) {
       const list = getLocalWishlist();
-      const exists = list.find(i => String(i.flight_id) === String(flightId) && i.seat_class === normalizedClass);
-      if (!exists) {
-        list.push({ flight_id: flightId, seat_class: normalizedClass, saved_at: new Date().toISOString(), flight: flightSnapshot });
-        setLocalWishlist(list);
-        // Defer để tránh setState-during-render
-        setTimeout(() => window.dispatchEvent(new Event("storage")), 0);
-      }
+      const existsIdx = list.findIndex(i => String(i.flight_id) === String(flightId) && i.seat_class === normalizedClass);
+      const entry = { flight_id: flightId, seat_class: normalizedClass, saved_at: new Date().toISOString(), flight: flightSnapshot };
+      // Luôn ghi đè snapshot mới nhất — flight_id có thể lặp lại giữa các ngày
+      // (cùng tuyến/giờ bay khác ngày), nên không thể coi entry cũ là "đã đủ mới".
+      if (existsIdx >= 0) list[existsIdx] = entry;
+      else list.push(entry);
+      setLocalWishlist(list);
+      // Defer để tránh setState-during-render
+      setTimeout(() => window.dispatchEvent(new Event("storage")), 0);
       return { source: "local" };
     }
     throw err;
