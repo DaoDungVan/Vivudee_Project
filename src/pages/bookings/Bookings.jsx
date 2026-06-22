@@ -630,7 +630,8 @@ const Bookings = () => {
           const finalAmount = Number(pr.final_amount)    || grandTotal;
           const discountAmt = Number(pr.discount_amount) || 0;
           const numPax      = (Number(data.passengers?.adults) || 1) + (Number(data.passengers?.children) || 0);
-          const seatClass   = data.outbound_flight?.seat_class || 'economy';
+          const seatClassRaw = data.outbound_flight?.seat_class || 'economy';
+          const seatClass    = seatClassRaw.charAt(0).toUpperCase() + seatClassRaw.slice(1).toLowerCase();
 
           // Khi booking đã được duyệt đổi ngày → dc object có dữ liệu
           if (dc && Number(dc.original_price) > 0) {
