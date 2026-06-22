@@ -887,7 +887,7 @@ const Bookings = () => {
                 <input
                   className={styles.mySearchInput}
                   type="text"
-                  placeholder="Tìm mã đặt chỗ, hãng bay, điểm đến..."
+                  placeholder={t("bookings.mySearchPlaceholder")}
                   value={mySearch}
                   onChange={(e) => { setMySearch(e.target.value); setMyPage(1); }}
                 />

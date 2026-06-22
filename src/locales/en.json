@@ -412,7 +412,8 @@
  "totalPaidLabel": "Total Paid",
  "flightHasLanded": "Flight has landed",
  "modalLoading": "Loading...",
- "dateChangeBtn": "Change Flight Date"
+ "dateChangeBtn": "Change Flight Date",
+ "mySearchPlaceholder": "Search booking code, airline, destination..."
  },
  "booking": {
  "title": "Passenger Information",

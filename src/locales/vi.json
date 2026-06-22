@@ -410,7 +410,8 @@
  "totalPaidLabel": "Tổng đã thanh toán",
  "flightHasLanded": "Chuyến bay đã hạ cánh",
  "modalLoading": "Đang tải...",
- "dateChangeBtn": "Đổi ngày bay"
+ "dateChangeBtn": "Đổi ngày bay",
+ "mySearchPlaceholder": "Tìm mã đặt chỗ, hãng bay, điểm đến..."
  },
  "booking": {
  "title": "Thông tin hành khách",
