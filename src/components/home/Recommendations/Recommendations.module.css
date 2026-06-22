@@ -38,8 +38,9 @@
   display: flex;
   gap: 16px;
   overflow-x: auto;
-  padding: 8px 4px 12px;
-  margin: -8px -4px -4px;
+  /* padding-top đủ chỗ cho badge (-8px) + hover translateY(-4px) = -12px, tránh bị clip */
+  padding: 14px 4px 12px;
+  margin: -14px -4px -4px;
   scroll-behavior: smooth;
   cursor: grab;
   scrollbar-width: none;

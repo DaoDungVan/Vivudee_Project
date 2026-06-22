@@ -164,20 +164,58 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
   const [selections, setSelections] = useState(initialSelections);
   const [activePassenger, setActivePassenger] = useState(passengers[0]?.id ?? 0);
   const [hoverInfo, setHoverInfo]   = useState(null); // { seat, x, y }
+  const [staleNotice, setStaleNotice] = useState(""); // banner tạm, khác với `error` (chặn cả màn hình)
   const hoverTimer = useRef(null);
   const scrollRef = useRef(null);
 
   useEffect(() => {
     if (!flightId) return;
+    let active = true;
     setLoading(true);
     getSeatMap(flightId, seatClass)
       .then(res => {
+        if (!active) return;
         const map = res.data?.data?.seat_map?.find(m => m.class === seatClass)
           || res.data?.data?.seat_map?.[0];
         setSeatData(map);
       })
-      .catch(() => setError("Không tải được sơ đồ ghế"))
-      .finally(() => setLoading(false));
+      .catch(() => { if (active) setError("Không tải được sơ đồ ghế"); })
+      .finally(() => { if (active) setLoading(false); });
+
+    // Backend đã chặn double-book bằng UNIQUE constraint khi tạo booking, nhưng
+    // sơ đồ ghế hiển thị có thể bị cũ nếu người khác chọn xong trong lúc mình
+    // đang xem → poll lại định kỳ để thấy ghế "đã có người chọn" sớm hơn, đỡ
+    // phải đợi tới lúc xác nhận mới bị backend từ chối.
+    const interval = setInterval(() => {
+      getSeatMap(flightId, seatClass)
+        .then(res => {
+          if (!active) return;
+          const map = res.data?.data?.seat_map?.find(m => m.class === seatClass)
+            || res.data?.data?.seat_map?.[0];
+          if (!map) return;
+          setSeatData(map);
+
+          // Nếu ghế mình đang chọn (chưa xác nhận) vừa bị người khác chiếm → bỏ chọn
+          const occupiedNow = new Set(
+            (map.rows || []).flatMap(r => r.seats)
+              .filter(s => s.status === "occupied")
+              .map(s => s.seat_number)
+          );
+          setSelections(prev => {
+            const next = {};
+            let changed = false;
+            for (const [paxId, seatNum] of Object.entries(prev)) {
+              if (occupiedNow.has(seatNum)) { changed = true; continue; }
+              next[paxId] = seatNum;
+            }
+            if (changed) setStaleNotice("Một số ghế bạn chọn vừa được người khác đặt — vui lòng chọn lại.");
+            return changed ? next : prev;
+          });
+        })
+        .catch(() => { /* silent — giữ data cũ, thử lại lần poll sau */ });
+    }, 15000);
+
+    return () => { active = false; clearInterval(interval); };
   }, [flightId, seatClass]);
 
   const cols     = seatData?.columns || ["A","B","C","D","E","F"];
@@ -274,6 +312,13 @@ export default function SeatMap({ flightId, seatClass = "economy", passengers = 
         <h3 className={styles.title}>{t("seatMap.title")}</h3>
         <span className={styles.classTag}>{seatClass}</span>
       </div>
+
+      {staleNotice && (
+        <div className={styles.staleNotice}>
+          {staleNotice}
+          <button onClick={() => setStaleNotice("")} aria-label="Đóng">✕</button>
+        </div>
+      )}
 
       {/* ── Passenger tabs ── */}
       <div className={styles.paxTabs}>
