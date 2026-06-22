@@ -117,7 +117,7 @@ const Bookings = () => {
       expired:        { bg: "#f1f5f9", color: "#64748b", label: t("bookings.status_expired") },   // slate
       refund_pending: { bg: "#f3e8ff", color: "#7c3aed", label: t("bookings.refundPendingBadge") }, // violet
       refunded:       { bg: "#e0f2fe", color: "#0369a1", label: t("bookings.refundedBadge") },      // sky blue
-      date_changed:   { bg: "#fef3c7", color: "#b45309", label: "Đã đổi ngày" },                   // amber-dark
+      date_changed:   { bg: "#fef3c7", color: "#b45309", label: t("bookings.status_date_changed") }, // amber-dark
     };
     return map[status?.toLowerCase()] || { bg: "#f1f5f9", color: "#64748b", label: status || "—" };
   };
@@ -401,7 +401,7 @@ const Bookings = () => {
           <button
             className={styles.listViewBtn}
             onClick={() => openDetailModal(b.booking_code)}
-          >Xem chi tiết</button>
+          >{t("bookings.viewDetails")}</button>
         </div>
       </div>
     );
@@ -477,7 +477,7 @@ const Bookings = () => {
           )}
           {canDateChange(b) && (
             <button className={styles.dateChangeBtn} onClick={(e) => { e.stopPropagation(); navigate("/date-change", { state: { booking: b, bookingCode: b.booking_code } }); }}>
-              Đổi ngày bay
+              {t("bookings.dateChangeBtn")}
             </button>
           )}
           {canRequestRefund(b) && (
@@ -545,7 +545,7 @@ const Bookings = () => {
           </div>
         </div>
         {durLabel(flight) && (
-          <p className={styles.flightDuration}>Bay thẳng · {durLabel(flight)}</p>
+          <p className={styles.flightDuration}>{t("bookings.directFlight")} · {durLabel(flight)}</p>
         )}
       </div>
     );
@@ -561,16 +561,16 @@ const Bookings = () => {
             <h2 className={styles.detailCode}>{data.booking_code}</h2>
             <button
               className={styles.copyBtn}
-              title="Sao chép"
+              title={t("bookings.copyCode")}
               onClick={() => navigator.clipboard?.writeText(data.booking_code)}
             >
               <LuCopy size={14} />
             </button>
           </div>
           <div className={styles.detailMetaRow}>
-            <span>Đặt ngày {formatDate(data.created_at)}</span>
+            <span>{t("bookings.booked", { date: formatDate(data.created_at) })}</span>
             <span className={styles.metaDot}>·</span>
-            <span>{isRound ? "Khứ hồi" : "Một chiều"}</span>
+            <span>{isRound ? t("bookings.roundTripTrip") : t("bookings.oneWayTrip")}</span>
           </div>
         </div>
         <StatusBadge status={data.status} />
@@ -579,8 +579,8 @@ const Bookings = () => {
       <div className={styles.detailDivider} />
 
       {/* ── Flights ── */}
-      <FlightCard flight={outbound} label="Chuyến đi" />
-      {returnFl && <FlightCard flight={returnFl} label="Chuyến về" />}
+      <FlightCard flight={outbound} label={t("bookings.legOutbound")} />
+      {returnFl && <FlightCard flight={returnFl} label={t("bookings.legReturn")} />}
 
       <div className={styles.detailDivider} />
 
@@ -588,19 +588,19 @@ const Bookings = () => {
       <div className={styles.detailSection2}>
         <p className={styles.detailSectionTitle2}>
           <LuUser size={13} style={{ marginRight: 6, verticalAlign: "middle" }} />
-          Hành khách
+          {t("bookings.passengersSection")}
         </p>
         {data.passengers?.list?.filter((p) => p.flight_type === "outbound").map((p, i) => (
           <div key={i} className={styles.paxRow2}>
             <div className={styles.paxLeft}>
               <span className={styles.paxName}>{p.full_name}</span>
               <span className={`${styles.paxTypeBadge} ${p.passenger_type === "child" ? styles.paxChild : styles.paxAdult}`}>
-                {p.passenger_type === "child" ? "Trẻ em" : p.passenger_type === "infant" ? "Trẻ sơ sinh" : "Người lớn"}
+                {p.passenger_type === "child" ? t("bookings.childLabel") : p.passenger_type === "infant" ? t("bookings.infantLabel") : t("bookings.adultLabel")}
               </span>
             </div>
             <div className={styles.paxRight}>
               {p.seat_number && (
-                <span className={styles.paxSeat}>Ghế {p.seat_number}</span>
+                <span className={styles.paxSeat}>{t("bookings.paxSeat", { number: p.seat_number })}</span>
               )}
               {p.extra_baggage_kg > 0 && (
                 <span className={styles.paxBaggage}>
@@ -616,7 +616,7 @@ const Bookings = () => {
 
       {/* ── Price breakdown ── */}
       <div className={styles.detailSection2}>
-        <p className={styles.detailSectionTitle2}>Chi tiết giá</p>
+        <p className={styles.detailSectionTitle2}>{t("bookings.priceDetailsTitle")}</p>
         {(() => {
           const dc          = data.date_change;
           const pr          = data.price || {};
@@ -641,35 +641,35 @@ const Bookings = () => {
             return (
               <>
                 <div className={styles.priceRow}>
-                  <span>Giá vé gốc ({dc.old_seat_class} → {dc.new_seat_class})</span>
+                  <span>{t("bookings.originalFareLabel", { old: dc.old_seat_class, new: dc.new_seat_class })}</span>
                   <span>{fmt(origPrice)}</span>
                 </div>
                 {surcharge > 0 && (
                   <div className={`${styles.priceRow} ${styles.priceSurcharge}`}>
-                    <span>Phụ phí đổi ngày</span>
+                    <span>{t("bookings.dateChangeSurchargeLabel")}</span>
                     <span>+ {fmt(surcharge)}</span>
                   </div>
                 )}
                 {surcharge < 0 && (
                   <div className={`${styles.priceRow} ${styles.priceDiscount}`}>
-                    <span>Hoàn chênh lệch đổi ngày</span>
+                    <span>{t("bookings.dateChangeRefundLabel")}</span>
                     <span>− {fmt(Math.abs(surcharge))}</span>
                   </div>
                 )}
                 {dcAncTotal > 0 && (
                   <div className={styles.priceRow}>
-                    <span>Dịch vụ bổ sung</span>
+                    <span>{t("bookings.ancillaryLabel")}</span>
                     <span>{fmt(dcAncTotal)}</span>
                   </div>
                 )}
                 {discountAmt > 0 && (
                   <div className={`${styles.priceRow} ${styles.priceDiscount}`}>
-                    <span>Giảm giá coupon</span>
+                    <span>{t("bookings.discountLabel")}</span>
                     <span>− {fmt(discountAmt)}</span>
                   </div>
                 )}
                 <div className={styles.priceTotalRow}>
-                  <span>Tổng đã thanh toán</span>
+                  <span>{t("bookings.totalPaidLabel")}</span>
                   <span className={styles.priceTotalValue}>{fmt(dcTotal)}</span>
                 </div>
               </>
@@ -682,12 +682,15 @@ const Bookings = () => {
           // Lấy thông tin hành lý extra từ danh sách hành khách để hiển thị rõ
           const paxWithBaggage = (data.passengers?.list || []).filter(p => p.extra_baggage_kg > 0);
           const baggageLabel = paxWithBaggage.length > 0
-            ? `Hành lý ký gửi (+${paxWithBaggage[0].extra_baggage_kg}kg${paxWithBaggage.length > 1 ? ` × ${paxWithBaggage.length}` : ''})`
-            : 'Hành lý ký gửi';
+            ? t("bookings.baggageLabelWithKgMulti", { kg: paxWithBaggage[0].extra_baggage_kg, count: paxWithBaggage.length })
+            : t("bookings.baggageLabelDefault");
           return (
             <>
               <div className={styles.priceRow}>
-                <span>Giá vé {seatClass}{numPax > 1 ? ` × ${numPax} khách` : ''}</span>
+                <span>
+                  {t("bookings.ticketPriceLabel", { class: seatClass })}
+                  {numPax > 1 ? t("bookings.paxCountSuffix", { count: numPax }) : ''}
+                </span>
                 <span>{fmt(ticketTotal > 0 ? ticketTotal : grandTotal - baggageTotal - seatFee - ancTotal + discountAmt)}</span>
               </div>
               {baggageTotal > 0 && (
@@ -698,7 +701,7 @@ const Bookings = () => {
               )}
               {seatFee > 0 && (
                 <div className={styles.priceRow}>
-                  <span>Phụ phí chọn vị trí ghế</span>
+                  <span>{t("bookings.seatFeeLabel")}</span>
                   <span>{fmt(seatFee)}</span>
                 </div>
               )}
@@ -711,24 +714,24 @@ const Bookings = () => {
                   ))
                 : ancTotal > 0 && (
                     <div className={styles.priceRow}>
-                      <span>Dịch vụ bổ sung</span>
+                      <span>{t("bookings.ancillaryLabel")}</span>
                       <span>{fmt(ancTotal)}</span>
                     </div>
                   )}
               {discountAmt > 0 && (
                 <div className={`${styles.priceRow} ${styles.priceDiscount}`}>
-                  <span>Giảm giá coupon</span>
+                  <span>{t("bookings.discountLabel")}</span>
                   <span>− {fmt(discountAmt)}</span>
                 </div>
               )}
               {pendingDcSurcharge > 0 && (
                 <div className={`${styles.priceRow} ${styles.priceSurcharge}`}>
-                  <span>Phụ phí đổi ngày bay</span>
+                  <span>{t("bookings.dateChangeSurchargeLabel")}</span>
                   <span>+ {fmt(pendingDcSurcharge)}</span>
                 </div>
               )}
               <div className={styles.priceTotalRow}>
-                <span>Tổng cộng</span>
+                <span>{t("bookings.totalPrice")}</span>
                 <span className={styles.priceTotalValue}>{fmt(finalAmount)}</span>
               </div>
             </>
@@ -765,7 +768,7 @@ const Bookings = () => {
             className={`${styles.actionTrack} ${fStatus === "landed" ? styles.actionLanded : ""}`}
             onClick={() => {
               if (fStatus === "landed") {
-                setTrackerAlert("Chuyến bay đã hạ cánh. Hành trình đã hoàn thành.");
+                setTrackerAlert(t("bookings.flightLanded"));
                 setTimeout(() => setTrackerAlert(""), 4000);
               } else {
                 const fid = outbound?.flight_id ?? outbound?.id ?? outbound?.flightId;
@@ -775,7 +778,7 @@ const Bookings = () => {
           >
             {fStatus === "airborne" && <span className={styles.trackDot} />}
             <LuPlaneTakeoff size={15} />
-            {fStatus === "landed" ? "Chuyến bay đã hạ cánh" : "Theo dõi chuyến bay"}
+            {fStatus === "landed" ? t("bookings.flightHasLanded") : t("bookings.trackFlight")}
           </button>
         )}
 
@@ -787,7 +790,7 @@ const Bookings = () => {
                 onClick={() => navigate("/date-change", { state: { booking: data, bookingCode: data.booking_code } })}
               >
                 <LuCalendarDays size={15} />
-                Đổi ngày bay
+                {t("bookings.dateChangeBtn")}
               </button>
             )}
             {detailCanRefund && (
@@ -918,7 +921,7 @@ const Bookings = () => {
                   <>
                     <div className={styles.bookingList}>
                       {paged.length === 0
-                        ? <p className={styles.loading}>Không tìm thấy đặt chỗ nào</p>
+                        ? <p className={styles.loading}>{t("bookings.noBookingsFound")}</p>
                         : paged.map((b) => <BookingListRow key={b.booking_id} b={b} />)
                       }
                     </div>
@@ -944,7 +947,7 @@ const Bookings = () => {
           <div className={styles.detailModalBox}>
             <button className={styles.detailModalClose} onClick={() => setDetailModal(null)}>✕</button>
             {detailModalLoading || detailModal === "loading"
-              ? <div style={{ textAlign: "center", padding: 40, color: "var(--text-muted)" }}>Đang tải...</div>
+              ? <div style={{ textAlign: "center", padding: 40, color: "var(--text-muted)" }}>{t("bookings.modalLoading")}</div>
               : detailModal && <LookupDetail data={detailModal} />
             }
           </div>
