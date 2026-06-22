@@ -65,7 +65,7 @@ const flightStatus = (flight) => {
 const Bookings = () => {
   const navigate   = useNavigate();
   const location   = useLocation();
-  const { t }      = useTranslation();
+  const { t, i18n } = useTranslation();
   const isLoggedIn = !!localStorage.getItem("token");
 
   const [tab, setTab] = useState(() => {
@@ -376,6 +376,13 @@ const Bookings = () => {
       setDetailModalLoading(false);
     }
   };
+
+  // Đổi ngôn ngữ → fetch lại để tên dịch vụ phụ trợ (ancillary) trả về đúng locale,
+  // tránh phải F5 trang mới thấy đổi (giống fix priceAnalysis ở FlightCard.jsx)
+  useEffect(() => {
+    if (lookupResult && lookupResult !== "loading") handleLookup(lookupResult.booking_code);
+    if (detailModal && detailModal !== "loading") openDetailModal(detailModal.booking_code);
+  }, [i18n.language]); // eslint-disable-line
 
   // ── List row cho My Bookings ──
   const BookingListRow = ({ b }) => {

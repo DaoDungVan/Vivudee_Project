@@ -1,5 +1,7 @@
 import API from "./axiosInstance";
 
+const getLang = () => localStorage.getItem("lang") || "en";
+
 // Tạo booking mới sau khi user điền thông tin hành khách.
 // payload gồm: flight IDs, danh sách hành khách, contact, tổng tiền...
 // Backend trả về booking_code (mã đặt chỗ), ví dụ: VVD-A1B2C3
@@ -13,7 +15,7 @@ export const getMyBookings  = (filter = "all") => API.get(`/bookings/my?filter=$
 // Lấy chi tiết một booking theo mã đặt chỗ.
 // Ví dụ: getBookingByCode("VVD-A1B2C3") → GET /bookings/VVD-A1B2C3
 // .toUpperCase() để đảm bảo không phân biệt hoa/thường
-export const getBookingByCode = (code)   => API.get(`/bookings/${code.toUpperCase()}`);
+export const getBookingByCode = (code)   => API.get(`/bookings/${code.toUpperCase()}`, { params: { lang: getLang() } });
 
 // Huỷ booking theo mã đặt chỗ.
 // Dùng POST (không phải DELETE) vì backend xử lý như một action/event.
