@@ -558,6 +558,13 @@ const Payment = () => {
                 </div>
               )}
 
+              {bookingData?.price?.seat_extra_fee > 0 && (
+                <div className={styles.invoiceRowSmall}>
+                  <span>{t("payment.seatFee")}</span>
+                  <span>{fmt(bookingData.price.seat_extra_fee)}</span>
+                </div>
+              )}
+
               {(bookingData?.ancillary_items?.length > 0 ? bookingData.ancillary_items : fetchedAncillaries).map((svc, i) => (
                 <div key={i} className={styles.invoiceRowSmall}>
                   <span>{svc.name}</span>
