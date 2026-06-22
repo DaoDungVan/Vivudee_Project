@@ -621,8 +621,11 @@ const Bookings = () => {
           const dc          = data.date_change;
           const pr          = data.price || {};
           const basePrice   = Number(pr.base_price)      || 0;
+          const ticketTotal = Number(pr.ticket_total)     || 0;
           const baggageTotal= Number(pr.baggage_total)   || 0;
+          const seatFee     = Number(pr.seat_extra_fee)  || 0;
           const ancTotal    = Number(pr.ancillary_total) || 0;
+          const ancItems    = pr.ancillary_items || [];
           const grandTotal  = Number(pr.grand_total)     || (Number(pr.total_price || 0) + ancTotal);
           const finalAmount = Number(pr.final_amount)    || grandTotal;
           const discountAmt = Number(pr.discount_amount) || 0;
@@ -685,7 +688,7 @@ const Bookings = () => {
             <>
               <div className={styles.priceRow}>
                 <span>Giá vé {seatClass}{numPax > 1 ? ` × ${numPax} khách` : ''}</span>
-                <span>{fmt(basePrice > 0 ? basePrice * numPax : grandTotal - baggageTotal - ancTotal + discountAmt)}</span>
+                <span>{fmt(ticketTotal > 0 ? ticketTotal : grandTotal - baggageTotal - seatFee - ancTotal + discountAmt)}</span>
               </div>
               {baggageTotal > 0 && (
                 <div className={styles.priceRow}>
@@ -693,12 +696,25 @@ const Bookings = () => {
                   <span>{fmt(baggageTotal)}</span>
                 </div>
               )}
-              {ancTotal > 0 && (
+              {seatFee > 0 && (
                 <div className={styles.priceRow}>
-                  <span>Dịch vụ bổ sung</span>
-                  <span>{fmt(ancTotal)}</span>
+                  <span>Phụ phí chọn vị trí ghế</span>
+                  <span>{fmt(seatFee)}</span>
                 </div>
               )}
+              {ancItems.length > 0
+                ? ancItems.map((item, i) => (
+                    <div className={styles.priceRow} key={i}>
+                      <span>{item.name}{item.quantity > 1 ? ` × ${item.quantity}` : ''}</span>
+                      <span>{fmt(item.subtotal)}</span>
+                    </div>
+                  ))
+                : ancTotal > 0 && (
+                    <div className={styles.priceRow}>
+                      <span>Dịch vụ bổ sung</span>
+                      <span>{fmt(ancTotal)}</span>
+                    </div>
+                  )}
               {discountAmt > 0 && (
                 <div className={`${styles.priceRow} ${styles.priceDiscount}`}>
                   <span>Giảm giá coupon</span>
