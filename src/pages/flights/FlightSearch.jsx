@@ -19,6 +19,9 @@ import SearchFlightForm from "../../components/home/SearchFlightForm/SearchFligh
 import FilterPanel from "../../components/flight/FilterPanel/FilterPanel";
 import PassengerForm from "../../components/booking/PassengerForm/PassengerForm";
 
+// Tab "Đa hãng" (AS-113) đang lỗi, tạm ẩn — set lại true để bật khi đã fix
+const COMBO_TAB_ENABLED = false;
+
 const getHour = (isoTime) => {
   if (!isoTime) return null;
   const d = new Date(isoTime);
@@ -273,8 +276,8 @@ const FlightSearch = () => {
                           {t("flightSearch.returnShort")}
                         </button>
                       </>)}
-                      {/* AS-113: Tab đa hãng */}
-                      {(comboResults || comboLoading) && (
+                      {/* AS-113: Tab đa hãng — tạm ẩn vì tính năng đang lỗi, KHÔNG xóa code */}
+                      {COMBO_TAB_ENABLED && (comboResults || comboLoading) && (
                         <button
                           className={`${styles.tabBtn} ${showCombo ? styles.activeTab : ""} ${styles.comboTab}`}
                           onClick={() => setShowCombo(p => !p)}

@@ -42,6 +42,16 @@ export default function SearchFlightForm({ initialData }) {
   const [departureDate, setDepartureDate] = useState(initialData?.departureDate || todayStr);
   const [returnDate, setReturnDate] = useState(initialData?.returnDate || nextWeekStr);
 
+  // initialData.departureDate đổi khi người dùng chọn ngày từ HeatCalendar/PriceCalendar
+  // (chỉ navigate, không remount form) → useState initializer ở trên không tự chạy lại,
+  // phải đồng bộ thủ công để ô "Ngày đi" không bị đứng ở giá trị cũ.
+  useEffect(() => {
+    if (initialData?.departureDate) setDepartureDate(initialData.departureDate);
+  }, [initialData?.departureDate]);
+  useEffect(() => {
+    if (initialData?.returnDate) setReturnDate(initialData.returnDate);
+  }, [initialData?.returnDate]);
+
   const [passengers, setPassengers] = useState({
     adult: Number(initialData?.adults) || 1,
     child: Number(initialData?.children) || 0,
