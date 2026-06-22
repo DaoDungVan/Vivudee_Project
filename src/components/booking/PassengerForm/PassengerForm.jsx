@@ -25,21 +25,18 @@ const buildBaggageOptions = (flight, t, lang) => {
     ? flight.seat.extra_baggage_options
     : [];
 
-  if (providedOptions.length > 0) {
-    const optionMap = new Map(
-      providedOptions.map((option) => [Number(option?.kg || 0), Number(option?.price_per_person || 0)])
-    );
-    return fixedKgs.map((kg) => ({
-      kg,
-      label: kg > 0 ? `+${kgToDisplay(kg, lang)}` : t("passengerForm.noExtra"),
-      price: optionMap.get(kg) || 0,
-    }));
-  }
+  // Giá thật/kg luôn lấy ưu tiên từ extra_baggage_price — extra_baggage_options có thể
+  // bị thiếu/rỗng do dữ liệu cũ/cache, nhưng extra_baggage_price là field gốc đơn giản
+  // hơn nên ít khả năng bị mất theo. Không bao giờ fallback về 0 nếu biết được đơn giá/kg.
+  const pricePerKg = Number(flight?.seat?.extra_baggage_price) || 0;
+  const optionMap = new Map(
+    providedOptions.map((option) => [Number(option?.kg || 0), Number(option?.price_per_person || 0)])
+  );
 
   return fixedKgs.map((kg) => ({
     kg,
     label: kg > 0 ? `+${kgToDisplay(kg, lang)}` : t("passengerForm.noExtra"),
-    price: 0,
+    price: optionMap.get(kg) ?? (kg * pricePerKg),
   }));
 };
 
