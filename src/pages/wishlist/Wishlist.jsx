@@ -102,6 +102,7 @@ export default function Wishlist() {
         total_price: price,
         baggage_included_kg: flight?.seat?.baggage_included_kg,
         carry_on_kg: flight?.seat?.carry_on_kg,
+        extra_baggage_price: flight?.seat?.extra_baggage_price,
         extra_baggage_options: flight?.seat?.extra_baggage_options,
       },
     };
